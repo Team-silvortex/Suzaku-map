@@ -68,6 +68,7 @@ install -m 644 -- docs/linux-packaging-data.md docs/model-providers.md docs/ibus
   docs/translation.md docs/interface-languages.md docs/known-limitations.md docs/privacy.md docs/shortcuts.md \
   docs/ergonomics-audit-2026-09-25.md \
   docs/install-audit-0.7.0-2026-09-27.md \
+  docs/install-audit-0.8.6-2026-10-11.md \
   docs/ci-activation-followup-2026-09-27.md \
   docs/functional-network.md docs/functional-network.mmd docs/functional-tensor.json \
   docs/bug-audit-2026-09-13.md \

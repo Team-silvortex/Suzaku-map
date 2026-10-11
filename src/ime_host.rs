@@ -411,6 +411,22 @@ pub extern "C" fn suzaku_host_ime_alt_shortcut(key: u32) -> u32 {
     })
 }
 
+/// Native adapters retain focus, draft, privacy and Compose guards and translate
+/// their exact modifier mask into Ctrl=1, Alt=2, Shift=4 without dropping extras.
+#[unsafe(no_mangle)]
+pub extern "C" fn suzaku_host_ime_shortcut(key: u32, modifiers: u32) -> u32 {
+    with_shared_host_ime_session(|session| {
+        if !session.active || session.private {
+            return 0;
+        }
+        session
+            .settings
+            .shortcut_bindings
+            .action(session.settings.shortcut_profile, key, modifiers)
+            .map_or(0, |action| action as u32)
+    })
+}
+
 #[unsafe(no_mangle)]
 pub extern "C" fn suzaku_host_ime_control_utf8(
     raw: *const std::os::raw::c_char,
@@ -740,6 +756,117 @@ mod tests {
         assert!(
             session.current_update().marked_text.is_empty(),
             "language boundaries still reset composition"
+        );
+    }
+
+    #[test]
+    fn custom_shortcut_controls_preserve_live_selection_prediction_and_engine_undo() {
+        struct OfflineFixture;
+        impl crate::prediction::PredictionProvider for OfflineFixture {
+            fn predict(
+                &self,
+                _: &crate::prediction::PredictionRequest,
+                _: &crate::prediction::PredictionCancellation,
+            ) -> Result<crate::prediction::PredictionResponse, crate::prediction::PredictionError>
+            {
+                Err(crate::prediction::PredictionError::Unavailable)
+            }
+        }
+        let mut session = HostImeSession::new(EngineConfig::default());
+        session.activate();
+        session.replace_marked_text("previous context", InputSource::HardwareKeyboard);
+        assert_eq!(
+            session
+                .commit_selected(CommitOptions { force: true })
+                .0
+                .text
+                .as_deref(),
+            Some("previous context")
+        );
+        // A typed offline provider exercises pending preservation without I/O.
+        // Results do not change engine state until explicitly polled.
+        session
+            .engine
+            .configure_prediction_provider(Some(std::sync::Arc::new(OfflineFixture)));
+        session.replace_marked_text("hel", InputSource::HardwareKeyboard);
+        let hello = session
+            .engine
+            .candidates()
+            .iter()
+            .position(|candidate| candidate.text == "hello")
+            .unwrap();
+        session.select_candidate(hello);
+        assert_eq!(
+            session.engine.prediction_status(),
+            crate::ime::PredictionStatus::Idle,
+            "explicit selection must cancel the previous prediction"
+        );
+        let selected = session.snapshot();
+        // Selection owns cancellation. Explicitly arm a fresh typed fixture
+        // request after it, retaining the selected row before testing controls.
+        session
+            .engine
+            .configure_prediction_provider(Some(std::sync::Arc::new(OfflineFixture)));
+        assert_eq!(session.snapshot(), selected);
+        let snapshot = session.snapshot();
+        let before = session.settings.clone();
+        assert!(session.engine.prediction_pending());
+        let command =
+            r#"U{"shortcut_bindings":{"adopt":"Ctrl+Shift+A","switch-language":"Ctrl+L"}}"#;
+        for _ in 0..2 {
+            let settings = super::control::settings_for_command(command, &session.settings, || {
+                panic!("narrow control must not reload")
+            })
+            .unwrap()
+            .unwrap();
+            super::control::apply_settings(&mut session, settings, false);
+            assert_eq!(session.snapshot(), snapshot);
+            assert!(
+                session.engine.prediction_pending(),
+                "binding control rebuilt/cancelled prediction"
+            );
+            assert_eq!(session.settings.language, before.language);
+            assert_eq!(session.settings.provider, before.provider);
+            assert_eq!(session.settings.llm_enabled, before.llm_enabled);
+        }
+        let settings = super::control::settings_for_command(
+            r#"U{"shortcut_profile":"home-row"}"#,
+            &session.settings,
+            || panic!("profile control must not reload"),
+        )
+        .unwrap()
+        .unwrap();
+        super::control::apply_settings(&mut session, settings, false);
+        assert_eq!(session.snapshot(), snapshot);
+        assert!(session.engine.prediction_pending());
+        assert_eq!(
+            session.settings.shortcut_profile,
+            crate::ime::shortcuts::ShortcutProfile::HomeRow
+        );
+        let before_rejected = session.settings.clone();
+        assert!(
+            super::control::settings_for_command(
+                r#"U{"llm_enabled":true,"shortcut_bindings":{"adopt":"Alt+J"}}"#,
+                &session.settings,
+                || panic!("invalid control must not reload")
+            )
+            .is_err()
+        );
+        assert_eq!(session.settings, before_rejected);
+        assert_eq!(session.snapshot(), snapshot);
+        let restored = session
+            .engine
+            .undo()
+            .expect("configuration control erased engine history");
+        // Engine undo restores committed context only, not the live draft;
+        // native adoption/Compose undo is owned by the adapter's separate state.
+        assert_eq!(restored.seed_text, "hel");
+        assert_eq!(restored.draft_text, snapshot.draft_text);
+        assert_eq!(restored.selected_index, snapshot.selected_index);
+        assert_eq!(restored.committed_text, "");
+        assert!(
+            session.engine.undo().is_none(),
+            "the one prior commit must be undone exactly once"
         );
     }
 
@@ -1115,6 +1242,39 @@ mod tests {
 
         suzaku_host_ime_deactivate();
         assert!(!host_bridge_snapshot().active);
+    }
+
+    #[test]
+    fn host_bridge_custom_shortcut_ffi_preserves_privacy_activity_and_legacy_aliases() {
+        let _guard = host_bridge_test_lock();
+        reset_host_bridge_session();
+        super::with_shared_host_ime_session(|session| {
+            session.settings.shortcut_profile = crate::ime::shortcuts::ShortcutProfile::HomeRow;
+            session.settings.shortcut_bindings =
+                crate::ime::shortcuts::ShortcutBindings::from_json(
+                    &serde_json::json!({"adopt":"Ctrl+Shift+A","switch-language":"Ctrl+L"}),
+                )
+                .unwrap();
+        });
+        assert_eq!(super::suzaku_host_ime_shortcut(b'a' as u32, 5), 0);
+        assert_eq!(super::suzaku_host_ime_alt_shortcut(b'j' as u32), 0);
+        assert!(suzaku_host_ime_activate());
+        assert_eq!(super::suzaku_host_ime_shortcut(b'A' as u32, 5), 5);
+        assert_eq!(super::suzaku_host_ime_shortcut(b'l' as u32, 1), 6);
+        assert_eq!(super::suzaku_host_ime_shortcut(32, 5), 0);
+        assert_eq!(super::suzaku_host_ime_shortcut(b'j' as u32, 2), 2);
+        assert_eq!(super::suzaku_host_ime_alt_shortcut(b'j' as u32), 2);
+        assert_eq!(super::suzaku_host_ime_shortcut(b';' as u32, 2), 5);
+        assert_eq!(super::suzaku_host_ime_shortcut(b'A' as u32, 13), 0);
+        assert_eq!(super::suzaku_host_ime_shortcut(b'A' as u32, 7), 0);
+        super::suzaku_host_ime_set_private(true);
+        assert_eq!(super::suzaku_host_ime_shortcut(b'a' as u32, 5), 0);
+        assert_eq!(super::suzaku_host_ime_shortcut(b'l' as u32, 1), 0);
+        assert_eq!(super::suzaku_host_ime_alt_shortcut(b'j' as u32), 0);
+        super::suzaku_host_ime_set_private(false);
+        suzaku_host_ime_deactivate();
+        assert_eq!(super::suzaku_host_ime_shortcut(b'a' as u32, 5), 0);
+        reset_host_bridge_session();
     }
 
     #[test]

@@ -232,11 +232,69 @@ CONTACT_CASES = [
     ("ja", "tsuuwa", "通話", "通話は今できますか。"),
     ("ja", "setsuzoku", "接続", "接続を確認してから送ります。"),
 ]
+ROUTINE_CASES = [
+    ("en", "i just woke u", "i just woke up", "i just woke up."),
+    ("en", "i need to get some sl", "i need to get some sleep", "i need to get some sleep tonight."),
+    ("en", "i didn't sleep very we", "i didn't sleep very well", "i didn't sleep very well last night."),
+    ("en", "i'll be home after wo", "i'll be home after work", "i'll be home after work."),
+    ("zh-Hans", "gang qi chuang", "刚起床", "刚起床，我先洗漱一下。"),
+    ("zh-Hans", "mang wan le", "忙完了", "忙完了，我先歇一会儿。"),
+    ("ja", "hayaoki", "早起き", "早起きしたので、少し散歩してきます。"),
+    ("ja", "hiruyasumi", "昼休み", "昼休みに少し外を歩きます。"),
+]
 # Fixed partial-reading previews are independent of the watched candidate list.
 # Full CJK fixtures retain their existing word-first preview expectation.
 PARTIAL_PREVIEW_EXPECTATIONS = {
     ("ja", "junbichu"): ("準備ちゅ", "sentence"),
 }
+
+REQUEST_CASES = [
+    ("en", "could i borrow your cha", "could i borrow your charger",
+     "could i borrow your charger until tonight?"),
+    ("zh-Hans", "jie zhi bi", "借支笔", "借支笔填个名字，马上还你。"),
+    ("ja", "sagashimono", "探し物", "探し物があるので、少し待ってください。"),
+    ("en", "i can return it toda", "i can return it today",
+     "i can return it today after work."),
+    ("zh-Hans", "bang wo di zhi jin", "帮我递纸巾", "帮我递纸巾，我手上有水。"),
+    ("ja", "bunbougu", "文房具", "文房具を少し借りてもいいですか。"),
+]
+CARRY_CASES = [
+    ("en", "i need to bring my gla", "i need to bring my glasses",
+     "i need to bring my glasses so i can read at work."),
+    ("zh-Hans", "wo xian huan shuang xie", "我先换双鞋",
+     "我先换双鞋再出门，你在门口等我一下。"),
+    ("ja", "boushi", "帽子", "帽子を忘れずに持っていきます。"),
+    ("en", "please put on your ja", "please put on your jacket",
+     "please put on your jacket before we leave."),
+    ("zh-Hans", "wei jin bie wang le", "围巾别忘了", "围巾别忘了，晚上回来可能有点冷。"),
+    ("ja", "mochimono", "持ち物", "持ち物を出かける前に確認します。"),
+]
+CARE_CASES = [
+    ("en", "i need to wash my ha", "i need to wash my hands",
+     "i need to wash my hands before we leave."),
+    ("zh-Hans", "wo xian xi ba lian", "我先洗把脸", "我先洗把脸再出门，你先坐一会儿。"),
+    ("ja", "hamigaki", "歯磨き", "歯磨きを済ませてから出かけます。"),
+    ("en", "please leave the towel he", "please leave the towel here",
+     "please leave the towel here by the sink."),
+    ("zh-Hans", "yong wan fang hui yuan chu", "用完放回原处", "用完放回原处，下次拿起来方便。"),
+    ("ja", "tojimari", "戸締まり", "戸締まりを確認してから出ます。"),
+]
+# Dedicated raw-partial transition coverage; never appended to either full gate.
+# The primary conversions are fixed independently of the observed host rows.
+TRANSITION_CASES = [
+    ("zaishiyi", "在释义", "再试一次",
+     ("再试一次看看能否连接。", "再试一次，不行的话稍后再处理。")),
+    ("chumenqianshoushiyixi", "出门签收释义西", "出门前收拾一下",
+     ("出门前收拾一下，别把东西落在桌上。", "出门前收拾一下，回来就不用再找了。")),
+]
+# Separate physical bootstrap chains, not extra full-gate tuples or host seeds.
+# Bridge progress is Sentence; the verified unfinished-tail completion is Word.
+ADOPTED_TRANSITION_CASES = [
+    ("you hui quan", "优惠券", "hai zai", "优惠券还在", "youxi", "有西",
+     "优惠券还在有效期", "优惠券还在有效期内。"),
+    ("deng lu shi bai", "登录失败", "hou ke yi", "登录失败后可以", "zaishiyi", "在释义",
+     "登录失败后可以再试一次", "登录失败后可以再试一次。"),
+]
 
 PACK_CASES = [
     ("en", "please annotate this para", "please annotate this paragraph",
@@ -255,21 +313,28 @@ PACK_CASES = [
      "our grandparents are coming over this afternoon."),
     ("zh-Hans", "jia ren tuan ju", "家人团聚", "家人团聚的时间先问问大家。"),
     ("ja", "souji", "掃除", "掃除が終わったら休みましょう。"),
-] + COURTESY_CASES + LOCATION_CASES + TIME_CASES + SHOPPING_CASES + TRANSIT_CASES + CONTACT_CASES
+] + COURTESY_CASES + LOCATION_CASES + TIME_CASES + SHOPPING_CASES + TRANSIT_CASES + CONTACT_CASES + ROUTINE_CASES + REQUEST_CASES + CARRY_CASES + CARE_CASES
+PACK_SCOPES = {"packs", "packs-part-1", "packs-part-2"}
 # A focused diagnostic never replaces the default complete CI gate. Reject
 # misspellings rather than silently running no cases or claiming a full pass.
 scope = apps.os.environ.get("SUZAKU_VOCABULARY_QA_SCOPE", "all")
-if scope not in {"all", "home", "daily", "japanese", "followup", "leisure", "clarification", "courtesy", "location", "time", "shopping", "transit", "contact", "packs", "part-1", "part-2", "part-3"}:
-    raise ValueError("SUZAKU_VOCABULARY_QA_SCOPE must be all, home, daily, japanese, followup, leisure, clarification, courtesy, location, time, shopping, transit, contact, packs, part-1, part-2 or part-3")
+if scope not in {"all", "home", "daily", "japanese", "followup", "leisure", "clarification", "courtesy", "location", "time", "shopping", "transit", "contact", "routine", "requests", "carry", "care", "transition", "adopted-transition", "packs", "part-1", "part-2", "part-3", "packs-part-1", "packs-part-2"}:
+    raise ValueError("SUZAKU_VOCABULARY_QA_SCOPE must be all, home, daily, japanese, followup, leisure, clarification, courtesy, location, time, shopping, transit, contact, routine, requests, carry, care, transition, adopted-transition, packs, part-1, part-2, part-3, packs-part-1 or packs-part-2")
 ALL_CASES = (CASES + HOME_CASES + ERRANDS_CASES + DAILY_CASES + DAILY_NEEDS_CASES
              + DAILY_COORDINATION_CASES + DAILY_SOCIAL_CASES + DAILY_OBJECTS_CASES + JAPANESE_CASES
-             + FOLLOWUP_CASES + LEISURE_CASES + CLARIFICATION_CASES + COURTESY_CASES + LOCATION_CASES + TIME_CASES + SHOPPING_CASES + TRANSIT_CASES + CONTACT_CASES)
+             + FOLLOWUP_CASES + LEISURE_CASES + CLARIFICATION_CASES + COURTESY_CASES + LOCATION_CASES + TIME_CASES + SHOPPING_CASES + TRANSIT_CASES + CONTACT_CASES + ROUTINE_CASES + REQUEST_CASES + CARRY_CASES + CARE_CASES)
 PART_CASES = {"part-1": ALL_CASES[::3], "part-2": ALL_CASES[1::3], "part-3": ALL_CASES[2::3]}
+PACK_PART_CASES = {"packs-part-1": PACK_CASES[::2], "packs-part-2": PACK_CASES[1::2]}
 # Compare whole case tuples, including repeated entries if ever intentional:
 # all three partitions preserve the exact full gate, without omissions.
 assert Counter(PART_CASES["part-1"] + PART_CASES["part-2"] + PART_CASES["part-3"]) == Counter(ALL_CASES)
 assert all(cases and {case[0] for case in cases} == {"en", "zh-Hans", "ja"}
            for cases in PART_CASES.values()), "each vocabulary part must cover all three languages"
+# The complete pack gate preserves every old/new fixed tuple, while keeping
+# both fresh all-14-pack sessions under the unchanged 240-second deadline.
+assert Counter(PACK_PART_CASES["packs-part-1"] + PACK_PART_CASES["packs-part-2"]) == Counter(PACK_CASES)
+assert all(cases and {case[0] for case in cases} == {"en", "zh-Hans", "ja"}
+           for cases in PACK_PART_CASES.values()), "each pack vocabulary part must cover all three languages"
 CASES = {"home": HOME_CASES,
          "daily": (DAILY_CASES + DAILY_NEEDS_CASES + DAILY_COORDINATION_CASES
                    + DAILY_SOCIAL_CASES + DAILY_OBJECTS_CASES),
@@ -282,7 +347,13 @@ CASES = {"home": HOME_CASES,
          "shopping": SHOPPING_CASES,
          "transit": TRANSIT_CASES,
          "contact": CONTACT_CASES,
-         "packs": PACK_CASES, **PART_CASES}.get(scope, ALL_CASES)
+         "routine": ROUTINE_CASES,
+         "requests": REQUEST_CASES,
+         "carry": CARRY_CASES,
+         "care": CARE_CASES,
+         "transition": [],
+         "adopted-transition": [],
+         "packs": PACK_CASES, **PART_CASES, **PACK_PART_CASES}.get(scope, ALL_CASES)
 
 
 def prepare_packs():
@@ -309,6 +380,240 @@ def prepare_packs():
     print("PASS: installed CLI exported and installed all 14 recommended EN/ZH/JA packs into private QA data", flush=True)
 
 
+def transition_target_index(choices, text, kind, expected_page=None):
+    """Find one independently authored typed local row within the existing cap."""
+    assert 0 < len(choices) <= 12
+    label = {"word": "ᵂ", "sentence": "ˢ"}[kind]
+    matches = [index for index, candidate in enumerate(choices)
+               if candidate["text"] == text and candidate["kind"] == kind
+               and candidate["source"] == "local" and label in candidate["ibus_label"]]
+    assert len(matches) == 1, (text, kind, choices)
+    index = matches[0]
+    if expected_page is not None:
+        assert index // 6 == expected_page, (text, index, expected_page, choices)
+    return index
+
+
+def transition_presented(x, document, editor_window, panel, seed, start=None):
+    """Observe the actual current panel page, editable seed and empty GTK buffer."""
+    observer = apps.editor_observers[document]
+
+    def ready():
+        assert panel.poll() is None and x.focused() == editor_window
+        state = observer.state()
+        if state is None or state.busy:
+            return False
+        assert state.saved_text() == "", "paging/adoption prematurely inserted editor text"
+        if not apps.seed_is(seed):
+            return False
+        host = apps.watch.latest
+        frame = apps.companion_frame()
+        page = frame.get("native_page")
+        if (not frame.get("runtime_font") or not page or page["busy"]
+                or frame.get("viewport_settled") is not True
+                or frame.get("native_revision") != host["revision"]
+                or frame.get("native_context") != host["context"]
+                or frame.get("native_cursor") != host.get("cursor")
+                or frame.get("seed") != seed or page["selected"] != host["selected"]):
+            return False
+        choices = host["candidates"]
+        assert 0 < len(choices) <= 12 and 0 <= host["selected"] < len(choices)
+        assert frame.get("draft") == choices[host["selected"]]["text"]
+        assert page["start"] == host["selected"] // 6 * 6
+        if start is not None and page["start"] != start:
+            return False
+        assert page["total"] == len(choices)
+        indices = list(range(page["start"], min(page["start"] + 6, len(choices))))
+        assert [item["index"] for item in page["candidates"]] == indices
+        assert [item["number"] for item in page["candidates"]] == list(range(1, len(indices) + 1))
+        assert all(item["text"] == choices[item["index"]]["text"]
+                   for item in page["candidates"])
+        assert (page["previous"] is not None) == (page["start"] > 0)
+        assert (page["next"] is not None) == (page["start"] + 6 < len(choices))
+        return frame
+
+    apps.wait(ready, "focused transition page actually rendered with empty editor", timeout=30)
+    return ready()
+
+
+def transition_choose(x, document, editor_window, panel, seed, text, kind, expected_page=None):
+    """Use physical paging and its page-local number, never a host draft injection."""
+    transition_presented(x, document, editor_window, panel, seed)
+    choices = [dict(candidate) for candidate in apps.watch.latest["candidates"]]
+    index = transition_target_index(choices, text, kind, expected_page)
+    start = index // 6 * 6
+    current = apps.watch.latest["selected"] // 6 * 6
+    if current != start:
+        revision = apps.watch.latest["revision"]
+        x.key(IBus.KEY_Page_Down if current < start else IBus.KEY_Page_Up)
+        apps.wait(lambda: apps.watch.latest["revision"] > revision
+                  and apps.watch.latest["selected"] == start,
+                  "physical transition page selects the adjacent page's first row")
+        assert apps.seed_is(seed) and apps.watch.latest["candidates"] == choices
+    frame = transition_presented(x, document, editor_window, panel, seed, start)
+    row = frame["native_page"]["candidates"][index % 6]
+    assert row["index"] == index and row["number"] == index % 6 + 1 and row["text"] == text
+    x.key(IBus.KEY_1 + index % 6)
+    apps.wait(lambda: apps.seed_is(text), "page-local physical number adopts exact transition text")
+    transition_presented(x, document, editor_window, panel, text)
+
+
+def transition_committed_once(x, document, editor_window, panel, text):
+    """Observe one Enter's exact insertion, not a second empty-draft Enter."""
+    expected = text + "\n"
+    apps.save_document(x, document, expected)
+    observer = apps.editor_observers[document]
+    # Saved GtkSourceView text has an implicit newline; the actual buffer must
+    # contain exactly one sentence, with neither duplication nor an Enter leak.
+    deadline = apps.time.monotonic() + 0.15
+    while apps.time.monotonic() < deadline:
+        apps.pump()
+        assert apps.seed_is("") and panel.poll() is None and x.focused() == editor_window
+        state = observer.state()
+        assert state is not None and not state.busy and state.text == text
+        assert state.saved_text() == expected and document.read_text() == expected
+        apps.time.sleep(0.003)
+
+
+def check_whole_reading_transitions(x, document, editor_window, panel):
+    """Two focused raw partial inputs, not a complete builtin or packs gate."""
+    assert scope == "transition" and CASES == [] and panel is not None
+    for reading, primary, word, sentences in TRANSITION_CASES:
+        apps.clear_document(x, document)
+        revision = apps.watch.latest["revision"]
+        assert json.loads(apps.command("Lzh-Hans"))["ok"]
+        apps.wait(lambda: apps.watch.latest["revision"] > revision
+                  and apps.watch.latest["language"] == "zh-Hans", "transition language applied")
+        x.type(reading)
+        apps.wait(lambda: apps.seed_is(reading), "physical whole-reading partial spelling")
+        transition_presented(x, document, editor_window, panel, reading)
+        choices = [dict(candidate) for candidate in apps.watch.latest["candidates"]]
+        assert choices[0]["text"] == primary and choices[0]["kind"] == "sentence"
+        assert choices[0]["source"] == "local" and choices[0]["weight"] == 100
+        assert any(candidate["text"] == reading and candidate["kind"] == "literal"
+                   and candidate["source"] == "local" for candidate in choices)
+        targets = [(word, "word", 0)] + [
+            (sentence, "sentence", 1 if reading == "chumenqianshoushiyixi" and branch == 1 else None)
+            for branch, sentence in enumerate(sentences)]
+        for text, kind, expected_page in targets:
+            transition_choose(x, document, editor_window, panel, reading, text, kind, expected_page)
+            apps.save_document(x, document, "")
+            x.key(IBus.KEY_BackSpace)
+            apps.wait(lambda: apps.seed_is(reading), "transition undo restores the exact physical raw partial")
+            assert apps.watch.latest["candidates"] == choices
+            transition_presented(x, document, editor_window, panel, reading)
+
+        transition_choose(x, document, editor_window, panel, reading, word, "word", 0)
+        x.key(IBus.KEY_space)
+        spaced = word + " "
+        apps.wait(lambda: apps.seed_is(spaced), "transition Space keeps the adopted word editable")
+        transition_presented(x, document, editor_window, panel, spaced)
+        for sentence in sentences:
+            assert sentence.startswith(word)
+            transition_target_index(apps.watch.latest["candidates"],
+                                    spaced + sentence[len(word):], "sentence")
+        x.type("de")
+        apps.wait(lambda: apps.seed_is(spaced + "de"), "physical typing continues after transition Space")
+        transition_presented(x, document, editor_window, panel, spaced + "de")
+        x.key(IBus.KEY_Escape)
+        apps.wait(lambda: apps.seed_is(""), "cancel the continued uncommitted transition draft")
+        apps.save_document(x, document, "")
+
+        for branch, sentence in enumerate(sentences):
+            apps.clear_document(x, document)
+            x.type(reading)
+            apps.wait(lambda: apps.seed_is(reading), "physical partial before exact transition sentence commit")
+            expected_page = 1 if reading == "chumenqianshoushiyixi" and branch == 1 else None
+            transition_choose(x, document, editor_window, panel, reading,
+                              sentence, "sentence", expected_page)
+            apps.save_document(x, document, "")
+            apps.commit(x)
+            transition_committed_once(x, document, editor_window, panel, sentence)
+        print(f"PASS: focused raw transition {reading!r}: whole Word, both fixed Sentences, "
+              "physical page-local adoption, exact undo, Space continuity, once-only saved commits "
+              "and live no-focus panel", flush=True)
+    print(f"PASS: {len(TRANSITION_CASES)} focused raw transition inputs; "
+          "not a complete builtin or packs gate", flush=True)
+
+
+def check_adopted_transitions(x, document, editor_window, panel):
+    """Build two Han chains through physical numeric adoptions, with four variants."""
+    assert scope == "adopted-transition" and CASES == [] and panel is not None
+    variants = 0
+    for (start_reading, start_word, bridge_reading, adopted, tail_reading,
+         primary_tail, word, sentence) in ADOPTED_TRANSITION_CASES:
+        assert word.startswith(adopted) and sentence.startswith(word)
+        for padding in ("", " "):
+            apps.clear_document(x, document)
+            revision = apps.watch.latest["revision"]
+            assert json.loads(apps.command("Lzh-Hans"))["ok"]
+            apps.wait(lambda: apps.watch.latest["revision"] > revision
+                      and apps.watch.latest["language"] == "zh-Hans", "adopted transition language applied")
+
+            x.type(start_reading)
+            apps.wait(lambda: apps.seed_is(start_reading), "physical dictionary-word bootstrap spelling")
+            transition_choose(x, document, editor_window, panel, start_reading, start_word, "word", 0)
+            apps.save_document(x, document, "")
+            x.key(IBus.KEY_BackSpace)
+            apps.wait(lambda: apps.seed_is(start_reading), "bootstrap Word undo restores its entire spelling")
+            transition_presented(x, document, editor_window, panel, start_reading)
+            transition_choose(x, document, editor_window, panel, start_reading, start_word, "word", 0)
+
+            x.type(bridge_reading)
+            raw_bridge = start_word + bridge_reading
+            apps.wait(lambda: apps.seed_is(raw_bridge), "physical bridge follows the adopted dictionary Word")
+            assert any(candidate["text"] == raw_bridge and candidate["kind"] == "literal"
+                       and candidate["source"] == "local" for candidate in apps.watch.latest["candidates"])
+            # An entire composed Han prefix is not a dictionary Word. Its exact
+            # Sentence-labelled numeric adoption remains editable and undoable.
+            transition_choose(x, document, editor_window, panel, raw_bridge, adopted, "sentence", 0)
+            apps.save_document(x, document, "")
+            x.key(IBus.KEY_BackSpace)
+            apps.wait(lambda: apps.seed_is(raw_bridge), "bridge undo keeps the adopted Word and exact new phonetic text")
+            transition_presented(x, document, editor_window, panel, raw_bridge)
+            transition_choose(x, document, editor_window, panel, raw_bridge, adopted, "sentence", 0)
+
+            if padding:
+                x.key(IBus.KEY_space)
+                apps.wait(lambda: apps.seed_is(adopted + padding), "physical Space keeps the Han bridge editable")
+                transition_presented(x, document, editor_window, panel, adopted + padding)
+            x.type(tail_reading)
+            raw_tail = adopted + padding + tail_reading
+            expected_word = adopted + padding + word[len(adopted):]
+            expected_sentence = adopted + padding + sentence[len(adopted):]
+            apps.wait(lambda: apps.seed_is(raw_tail), "physical partial tail preserves the complete adopted Han prefix")
+            transition_presented(x, document, editor_window, panel, raw_tail)
+            choices = [dict(candidate) for candidate in apps.watch.latest["candidates"]]
+            assert choices[0]["text"] == adopted + padding + primary_tail
+            assert choices[0]["kind"] == "sentence" and choices[0]["source"] == "local"
+            assert choices[0]["weight"] == 100
+            assert any(candidate["text"] == raw_tail and candidate["kind"] == "literal"
+                       and candidate["source"] == "local" for candidate in choices)
+            # These typed completion paths can be on either existing page.
+            # Do not invent a page-one promise from the core's <=12 contract.
+            transition_target_index(choices, expected_word, "word")
+            transition_target_index(choices, expected_sentence, "sentence")
+            for text, kind in [(expected_word, "word"), (expected_sentence, "sentence")]:
+                transition_choose(x, document, editor_window, panel, raw_tail, text, kind)
+                apps.save_document(x, document, "")
+                x.key(IBus.KEY_BackSpace)
+                apps.wait(lambda: apps.seed_is(raw_tail), "terminal adoption undo restores Han, padding and raw partial once")
+                assert apps.watch.latest["candidates"] == choices
+                transition_presented(x, document, editor_window, panel, raw_tail)
+
+            transition_choose(x, document, editor_window, panel, raw_tail, expected_sentence, "sentence")
+            apps.save_document(x, document, "")
+            apps.commit(x)
+            transition_committed_once(x, document, editor_window, panel, expected_sentence)
+            variants += 1
+            print(f"PASS: focused adopted transition {raw_tail!r}: physical Word/Sentence bridge, "
+                  "stage-specific exact undo, typed tail Word and authored Sentence, preserved Space, "
+                  "page-local numbers, live no-focus panel and once-only saved sentence", flush=True)
+    assert variants == 4
+    print(f"PASS: {variants} focused adopted transition variants from "
+          f"{len(ADOPTED_TRANSITION_CASES)} physical chains; not a complete builtin or packs gate", flush=True)
+
+
 def check_vocabulary(bus, x):
     document = apps.root / "suzaku-vocabulary-qa.txt"
     document.write_text("")
@@ -321,7 +626,13 @@ def check_vocabulary(bus, x):
     apps.settle_input(bus, x, editor_window)
     apps.prepare_editor(x, document)
     print(f"READY: offline vocabulary scope={scope} in the real GTK editor using {apps.bins}", flush=True)
-    panel = apps.spawn([str(apps.bins / "panel")]) if scope == "packs" else None
+    panel = apps.spawn([str(apps.bins / "panel")]) if scope in PACK_SCOPES or scope == "transition" or scope == "adopted-transition" else None
+    if scope == "transition":
+        check_whole_reading_transitions(x, document, editor_window, panel)
+        return
+    if scope == "adopted-transition":
+        check_adopted_transitions(x, document, editor_window, panel)
+        return
 
     for language, reading, word, sentence in CASES:
         apps.clear_document(x, document)
@@ -418,7 +729,7 @@ def check_vocabulary(bus, x):
         ("fa yin", "发音", "ke yi", "可以", "zai", "再示范一下吗？"),
         ("shu ru fa", "输入法", "zhi chi", "支持", "", "多种语言。"),
         ("bang wo kan kan", "帮我看看", "you mei you", "有没有", "", "漏掉什么。"),
-    ] if scope not in {"part-2", "part-3", "japanese"} else []
+    ] if scope not in {"part-2", "part-3", "packs-part-2", "japanese", "transition", "adopted-transition"} else []
     for reading, word, next_reading, next_word, last_reading, remainder in progress_cases:
         apps.clear_document(x, document)
         revision = apps.watch.latest["revision"]
@@ -461,7 +772,7 @@ def check_vocabulary(bus, x):
         ("kanryou", "完了", "shitara", "完了したら", "完了したら連絡してください。"),
         ("nihongo", "日本語", "wo benkyoushitai", "日本語を勉強したい",
          "日本語を勉強したいです。"),
-    ] if scope in {"all", "part-1", "location", "packs", "japanese"} else []
+    ] if scope in {"all", "part-1", "location", "packs", "packs-part-1", "japanese"} else []
     for reading, word, tail, converted, sentence in japanese_progress_cases:
         apps.clear_document(x, document)
         revision = apps.watch.latest["revision"]
@@ -537,7 +848,7 @@ def check_vocabulary(bus, x):
 
 if __name__ == "__main__":
     try:
-        if scope == "packs":
+        if scope in PACK_SCOPES:
             prepare_packs()
         bus, x = apps.start()
         check_vocabulary(bus, x)

@@ -150,6 +150,56 @@ fn snapshot_contains_configuration_only_and_round_trips_custom_values() {
 }
 
 #[test]
+fn custom_shortcut_bindings_survive_backup_restore_and_reject_unsafe_combinations() {
+    let fixture = Fixture::new();
+    fixture.write_settings();
+    let settings = ImeSettings::from_json(r#"{"language":"ja","llm_model":"fixture","shortcut_profile":"home-row","shortcut_bindings":{"adopt":"Ctrl+Shift+A","switch-language":"Ctrl+L"}}"#).unwrap();
+    files::atomic_write(
+        &fixture.paths.ime,
+        settings.to_json().to_string().as_bytes(),
+    )
+    .unwrap();
+    let backup = Backup::collect(&fixture.paths).unwrap();
+    let parsed = Backup::parse(&backup.to_json().to_string()).unwrap();
+    assert_eq!(
+        parsed.ime.as_ref().unwrap()["shortcut_bindings"],
+        json!({"adopt":"Ctrl+Shift+A","switch-language":"Ctrl+L"})
+    );
+    files::atomic_write(&fixture.paths.ime, b"{}").unwrap();
+    restore_locked(&fixture.paths, &parsed).unwrap();
+    assert_eq!(
+        ImeSettings::from_json(&fs::read_to_string(&fixture.paths.ime).unwrap()).unwrap(),
+        settings
+    );
+    for bindings in [
+        json!({"adopt":"Ctrl+Alt+A"}),
+        json!({"adopt":"Alt+Space"}),
+        json!({"adopt":"Alt+J"}),
+        json!({"adopt":"Ctrl+Shift+Space"}),
+        json!({"adopt":"Ctrl+A", "previous":"ctrl+a"}),
+        json!({"unknown":"Ctrl+A"}),
+    ] {
+        let mut invalid = parsed.to_json();
+        invalid["ime"]["shortcut_bindings"] = bindings;
+        assert!(Backup::parse(&invalid.to_string()).is_err());
+        assert_eq!(
+            ImeSettings::from_json(&fs::read_to_string(&fixture.paths.ime).unwrap()).unwrap(),
+            settings
+        );
+    }
+    // A legacy backup migrates absent bindings to an empty override map.
+    let mut legacy = parsed.to_json();
+    legacy["ime"]
+        .as_object_mut()
+        .unwrap()
+        .remove("shortcut_bindings");
+    assert_eq!(
+        Backup::parse(&legacy.to_string()).unwrap().ime.unwrap()["shortcut_bindings"],
+        json!({})
+    );
+}
+
+#[test]
 fn cloud_backup_preserves_configuration_but_restore_revokes_input_consent() {
     let fixture = Fixture::new();
     let settings = ImeSettings::from_json(r#"{"llm_scope":"cloud","llm_endpoint":"https://models.example/v1/chat/completions","llm_model":"any-model","llm_api_key_env":"SUZAKU_TEST_KEY","llm_enabled":true,"llm_cloud_consent":true}"#).unwrap();

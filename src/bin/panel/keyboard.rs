@@ -4,7 +4,7 @@ use suzaku_map::ime::gpu::{InteractionKind, PanelChromeState};
 use winit::{
     dpi::{PhysicalPosition, PhysicalSize},
     event::Ime,
-    keyboard::{Key, ModifiersState, NamedKey},
+    keyboard::{Key, KeyCode, ModifiersState, NamedKey, PhysicalKey},
 };
 
 #[derive(Default)]
@@ -13,6 +13,9 @@ pub(super) struct TextInputState {
     preedit: String,
     cursor: usize,
     cursor_area: Option<[f32; 4]>,
+    /// Consume a recorded physical key until its real release, even after saving,
+    /// cancelling or releasing its modifier. Ordinary IME cleanup must not clear it.
+    recording_hold: Option<PhysicalKey>,
 }
 
 impl TextInputState {
@@ -23,6 +26,38 @@ impl TextInputState {
     pub(super) fn clear(&mut self) {
         self.preedit.clear();
         self.cursor = 0;
+    }
+
+    pub(super) fn clear_shortcut_hold(&mut self) {
+        self.recording_hold = None;
+    }
+
+    pub(super) fn hold_recorded_key(&mut self, key: PhysicalKey) {
+        if let PhysicalKey::Code(code) = key
+            && !matches!(
+                code,
+                KeyCode::ControlLeft
+                    | KeyCode::ControlRight
+                    | KeyCode::AltLeft
+                    | KeyCode::AltRight
+                    | KeyCode::ShiftLeft
+                    | KeyCode::ShiftRight
+                    | KeyCode::SuperLeft
+                    | KeyCode::SuperRight
+            )
+        {
+            self.recording_hold = Some(key);
+        }
+    }
+
+    pub(super) fn consume_recorded_hold(&mut self, key: PhysicalKey, pressed: bool) -> bool {
+        if self.recording_hold != Some(key) {
+            return false;
+        }
+        if !pressed {
+            self.clear_shortcut_hold();
+        }
+        true
     }
 
     fn set_preedit(&mut self, text: String, cursor: Option<(usize, usize)>) {
@@ -74,6 +109,61 @@ pub(super) fn text_modifiers_allowed(modifiers: ModifiersState) -> bool {
 
 pub(super) fn primary_shortcut_modifier(modifiers: ModifiersState) -> bool {
     !modifiers.alt_key() && (modifiers.control_key() || modifiers.super_key())
+}
+
+/// Recording owns every non-synthetic pressed key before panel commands or editors.
+/// Modifier-only presses and repeats are consumed without attempting to save them.
+pub(super) fn capture_shortcut_recording(
+    chrome: &mut PanelChromeState,
+    key: &Key,
+    modifiers: ModifiersState,
+    repeat: bool,
+    focused_settings: bool,
+    composing: bool,
+) -> bool {
+    if chrome.shortcut_recording.is_none() {
+        return false;
+    }
+    if !focused_settings {
+        chrome.cancel_shortcut_recording();
+        return false;
+    }
+    if composing || matches!(key, Key::Named(NamedKey::Escape)) {
+        chrome.cancel_shortcut_recording();
+        return true;
+    }
+    if repeat
+        || matches!(
+            key,
+            Key::Named(
+                NamedKey::Control
+                    | NamedKey::Alt
+                    | NamedKey::AltGraph
+                    | NamedKey::Shift
+                    | NamedKey::Super
+            )
+        )
+    {
+        return true;
+    }
+    let key = match key {
+        Key::Named(NamedKey::Space) => u32::from(' '),
+        Key::Character(text) => {
+            let mut chars = text.chars();
+            match (chars.next(), chars.next()) {
+                (Some(ch), None) => u32::from(ch),
+                _ => 0,
+            }
+        }
+        _ => 0,
+    };
+    // Preserve unsupported Super explicitly; never sanitize AltGr into Ctrl or Alt.
+    let modifiers = u32::from(modifiers.control_key())
+        | (u32::from(modifiers.alt_key()) << 1)
+        | (u32::from(modifiers.shift_key()) << 2)
+        | (u32::from(modifiers.super_key()) << 3);
+    chrome.record_shortcut_key(key, modifiers);
+    true
 }
 
 /// Focus-local commands only; never run while an IME owns a preedit.
@@ -172,6 +262,7 @@ impl PanelState {
     pub(super) fn sync_text_input_state(&mut self) {
         let settings = self.kind == PanelWindowKind::Settings;
         let allowed = self.is_focused
+            && self.chrome.shortcut_recording.is_none()
             && if settings {
                 self.chrome.settings_search_focused
             } else {
@@ -205,6 +296,15 @@ impl PanelState {
     }
 
     pub(super) fn handle_ime_event(&mut self, event: Ime) {
+        if self.chrome.shortcut_recording.is_some() {
+            if matches!(event, Ime::Preedit(..) | Ime::Commit(_)) {
+                self.chrome.cancel_shortcut_recording();
+                self.text_input.clear();
+                self.last_scene = None;
+                self.window.request_redraw();
+            }
+            return;
+        }
         if !self.text_input.allowed {
             return;
         }
@@ -258,6 +358,117 @@ impl PanelState {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use suzaku_map::ime::shortcuts::{ShortcutAction, ShortcutBindings};
+
+    #[test]
+    fn recorded_physical_key_hold_survives_ime_cleanup_and_modifier_release() {
+        let mut input = TextInputState::default();
+        input.hold_recorded_key(PhysicalKey::Code(KeyCode::ControlLeft));
+        assert!(!input.consume_recorded_hold(PhysicalKey::Code(KeyCode::ControlLeft), true));
+        input.hold_recorded_key(PhysicalKey::Code(KeyCode::KeyJ));
+        input.clear();
+        assert!(!input.consume_recorded_hold(PhysicalKey::Code(KeyCode::ControlLeft), false));
+        assert!(input.consume_recorded_hold(PhysicalKey::Code(KeyCode::KeyJ), true));
+        assert!(input.consume_recorded_hold(PhysicalKey::Code(KeyCode::KeyJ), false));
+        assert!(!input.consume_recorded_hold(PhysicalKey::Code(KeyCode::KeyJ), true));
+        input.hold_recorded_key(PhysicalKey::Code(KeyCode::KeyF));
+        input.clear_shortcut_hold();
+        assert!(!input.consume_recorded_hold(PhysicalKey::Code(KeyCode::KeyF), true));
+    }
+
+    #[test]
+    fn recording_consumes_panel_commands_repeats_and_invalid_keys_before_editors() {
+        for (key, modifiers) in [
+            (Key::Named(NamedKey::F1), ModifiersState::empty()),
+            (Key::Character(",".into()), ModifiersState::CONTROL),
+            (
+                Key::Character("+".into()),
+                ModifiersState::CONTROL | ModifiersState::SHIFT,
+            ),
+            (Key::Character("0".into()), ModifiersState::CONTROL),
+            (
+                Key::Character("x".into()),
+                ModifiersState::CONTROL | ModifiersState::ALT,
+            ),
+            (Key::Character("x".into()), ModifiersState::SUPER),
+            (Key::Named(NamedKey::Space), ModifiersState::ALT),
+        ] {
+            let mut chrome = PanelChromeState {
+                seed_text: "draft café 😀".into(),
+                settings_search_query: "untouched".into(),
+                ..Default::default()
+            };
+            chrome.toggle_shortcut_recording(ShortcutAction::Previous);
+            assert!(capture_shortcut_recording(
+                &mut chrome,
+                &key,
+                modifiers,
+                false,
+                true,
+                false
+            ));
+            assert_eq!(chrome.shortcut_recording, Some(ShortcutAction::Previous));
+            assert_eq!(chrome.shortcut_bindings, ShortcutBindings::default());
+            assert_eq!(chrome.shortcut_edit_generation, 0);
+            assert_eq!(chrome.seed_text, "draft café 😀");
+            assert_eq!(chrome.settings_search_query, "untouched");
+            assert!(!chrome.shortcut_recording_error.is_empty());
+        }
+        let mut chrome = PanelChromeState::default();
+        chrome.toggle_shortcut_recording(ShortcutAction::Next);
+        for key in [Key::Named(NamedKey::Control), Key::Character("j".into())] {
+            assert!(capture_shortcut_recording(
+                &mut chrome,
+                &key,
+                ModifiersState::CONTROL,
+                true,
+                true,
+                false
+            ));
+            assert_eq!(chrome.shortcut_edit_generation, 0);
+            assert!(chrome.shortcut_recording_error.is_empty());
+        }
+        assert!(capture_shortcut_recording(
+            &mut chrome,
+            &Key::Character("J".into()),
+            ModifiersState::CONTROL,
+            false,
+            true,
+            false
+        ));
+        assert_eq!(
+            chrome.shortcut_binding_label(ShortcutAction::Next),
+            "Ctrl+J"
+        );
+        assert_eq!(chrome.shortcut_edit_generation, 1);
+        assert_eq!(chrome.shortcut_recording, None);
+    }
+
+    #[test]
+    fn escape_preedit_and_wrong_window_cancel_recording_without_a_save() {
+        for (key, focused_settings, composing, consumed) in [
+            (Key::Named(NamedKey::Escape), true, false, true),
+            (Key::Character("x".into()), true, true, true),
+            (Key::Character("x".into()), false, false, false),
+        ] {
+            let mut chrome = PanelChromeState::default();
+            chrome.toggle_shortcut_recording(ShortcutAction::Adopt);
+            assert_eq!(
+                capture_shortcut_recording(
+                    &mut chrome,
+                    &key,
+                    ModifiersState::CONTROL,
+                    false,
+                    focused_settings,
+                    composing
+                ),
+                consumed
+            );
+            assert_eq!(chrome.shortcut_recording, None);
+            assert_eq!(chrome.shortcut_edit_generation, 0);
+            assert_eq!(chrome.shortcut_bindings, ShortcutBindings::default());
+        }
+    }
     #[test]
     fn help_and_settings_chords_are_exact_and_do_not_repeat_or_steal_altgr() {
         let help = Key::Named(NamedKey::F1);

@@ -259,7 +259,7 @@ fn japanese_daily_expansion_keeps_the_original_continuations_unchanged() {
         ja.continuations()
             .map(|(_, values)| values.len())
             .sum::<usize>(),
-        315
+        367
     );
 }
 
@@ -343,18 +343,18 @@ fn migrated_readings_preserve_every_original_position_and_flag() {
             "{language} first {count} readings changed existing data/rank"
         );
     }
-    assert_eq!(builtin("en").unwrap().next_words().count(), 657);
-    assert_eq!(builtin("en").unwrap().sentences().count(), 1278);
-    assert_eq!(builtin("zh-Hans").unwrap().readings().len(), 2816);
-    assert_eq!(builtin("zh-Hans").unwrap().continuations().count(), 651);
+    assert_eq!(builtin("en").unwrap().next_words().count(), 693);
+    assert_eq!(builtin("en").unwrap().sentences().count(), 1350);
+    assert_eq!(builtin("zh-Hans").unwrap().readings().len(), 2922);
+    assert_eq!(builtin("zh-Hans").unwrap().continuations().count(), 687);
     assert_eq!(
         builtin("zh-Hans")
             .unwrap()
             .continuations()
             .map(|(_, values)| values.len())
             .sum::<usize>(),
-        1300
+        1372
     );
-    assert_eq!(builtin("ja").unwrap().readings().len(), 314);
-    assert_eq!(builtin("ja").unwrap().continuations().count(), 158);
+    assert_eq!(builtin("ja").unwrap().readings().len(), 366);
+    assert_eq!(builtin("ja").unwrap().continuations().count(), 184);
 }

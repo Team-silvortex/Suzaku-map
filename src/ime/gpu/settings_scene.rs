@@ -85,6 +85,9 @@ impl WgpuCandidateRenderer {
             "Panel help",
             "Panel settings",
             "Switch EN/ZH",
+            "Custom keys",
+            "Allowed keys",
+            "Key conflict",
         ]
         .into_iter()
         .map(|label| {
@@ -129,6 +132,19 @@ impl WgpuCandidateRenderer {
                 chrome.llm_temperature.tenths() as f32 / 10.0
             ))
             .into_owned();
+        let shortcut_labels: Vec<_> = crate::ime::shortcuts::ShortcutAction::ALL
+            .into_iter()
+            .map(|action| {
+                if chrome.shortcut_recording == Some(action) {
+                    ui.tr("Press keys · Esc cancels").to_string()
+                } else {
+                    chrome.shortcut_binding_label(action)
+                }
+            })
+            .collect();
+        let language_key =
+            chrome.shortcut_binding_label(crate::ime::shortcuts::ShortcutAction::SwitchLanguage);
+        let shortcut_error = ui.message(&chrome.shortcut_recording_error).into_owned();
         let mut sections: Vec<SettingsSection<'_>> = vec![
             (
                 SettingsCategory::Appearance,
@@ -502,16 +518,87 @@ impl WgpuCandidateRenderer {
                 .collect(),
         ));
         let mut reference_id = 0;
+        let mut shortcut_notices = Vec::new();
         for (label, keys) in chrome.shortcut_profile.reference() {
             sections.push((
                 SettingsCategory::Shortcuts,
                 label,
-                keys.into_iter()
-                    .map(|key| {
-                        reference_id += 1;
-                        (InteractionKind::ShortcutReference(reference_id), key, false)
-                    })
-                    .collect(),
+                (if label == "Switch EN/ZH" {
+                    vec![language_key.as_str()]
+                } else {
+                    keys
+                })
+                .into_iter()
+                .map(|key| {
+                    reference_id += 1;
+                    (InteractionKind::ShortcutReference(reference_id), key, false)
+                })
+                .collect(),
+            ));
+        }
+        // Append new collapse identities; keep every existing reference read-only.
+        sections.push((
+            SettingsCategory::Shortcuts,
+            "Custom keys",
+            vec![(
+                InteractionKind::ResetCustomShortcuts,
+                "Reset custom keys",
+                false,
+            )],
+        ));
+        sections.push((
+            SettingsCategory::Shortcuts,
+            "Allowed keys",
+            [
+                "Ctrl or Alt + optional Shift",
+                "A–Z / Space",
+                "Click a key to record; Esc cancels",
+            ]
+            .into_iter()
+            .map(|text| {
+                reference_id += 1;
+                shortcut_notices.push(InteractionKind::ShortcutReference(reference_id));
+                (
+                    InteractionKind::ShortcutReference(reference_id),
+                    text,
+                    false,
+                )
+            })
+            .collect(),
+        ));
+        for (action, label) in crate::ime::shortcuts::ShortcutAction::ALL
+            .into_iter()
+            .zip(&shortcut_labels)
+        {
+            sections.push((
+                SettingsCategory::Shortcuts,
+                action.label(),
+                vec![
+                    (
+                        InteractionKind::RecordShortcut(action),
+                        label.as_str(),
+                        chrome.shortcut_recording == Some(action)
+                            || chrome.shortcut_bindings.get(action).is_some(),
+                    ),
+                    (
+                        InteractionKind::ClearShortcutBinding(action),
+                        "Use preset",
+                        false,
+                    ),
+                ],
+            ));
+        }
+        if !shortcut_error.is_empty() {
+            reference_id += 1;
+            shortcut_notices.push(InteractionKind::ShortcutReference(reference_id));
+            sections.push((
+                SettingsCategory::Shortcuts,
+                "Key conflict",
+                vec![(
+                    InteractionKind::ShortcutReference(reference_id),
+                    &shortcut_error,
+                    false,
+                )],
             ));
         }
         let original_sections = sections.clone();
@@ -536,18 +623,46 @@ impl WgpuCandidateRenderer {
                 .max(48.0 * ui_scale)
                 .min(chip_area_width)
         };
-        let estimate_chip_rows = |options: &[SettingsOption<'_>]| {
+        let option_flow = |options: &[SettingsOption<'_>]| {
             let mut cursor_x = chip_start_x;
-            let mut rows = 1usize;
-            for (_, chip_label, _) in options {
+            let mut cursor_y = 0.0;
+            let mut flow_row_height = row_height;
+            let mut rects = Vec::with_capacity(options.len());
+            for (kind, chip_label, _) in options {
                 let chip_w = estimated_chip_width(chip_label);
                 if cursor_x > chip_start_x && cursor_x + chip_w > chip_max_x {
-                    rows += 1;
+                    cursor_y += flow_row_height + chip_gap_y;
                     cursor_x = chip_start_x;
+                    flow_row_height = row_height;
                 }
+                // A recording prompt may be wider than a narrow localized value
+                // column. Grow only these new controls instead of shrinking text
+                // or relying on a hidden scrolling/ellipsis state.
+                let chip_h = if matches!(kind, InteractionKind::RecordShortcut(_)) {
+                    (TextBlock {
+                        text: (*chip_label).to_string(),
+                        origin: [0.0, 0.0],
+                        max_width: (chip_w - 20.0 * ui_scale).max(14.0),
+                        pixel_size: chip_px,
+                        letter_spacing: ui_tracking,
+                        line_gap: base_line_gap,
+                        max_lines: 64,
+                        color: text_primary,
+                        align: TextAlign::Center,
+                        role: TextRole::SettingOption,
+                    }
+                    .layout()
+                    .bounds[3]
+                        + 6.0 * ui_scale)
+                        .max(row_height)
+                } else {
+                    row_height
+                };
+                rects.push([cursor_x, cursor_y, chip_w, chip_h]);
+                flow_row_height = flow_row_height.max(chip_h);
                 cursor_x += chip_w + chip_gap_x;
             }
-            rows
+            (rects, cursor_y + flow_row_height)
         };
         let search_query = chrome.settings_search_query.trim().to_lowercase();
         let is_searching = !search_query.is_empty();
@@ -561,10 +676,19 @@ impl WgpuCandidateRenderer {
                 .settings_collapsed_sections
                 .get(index)
                 .copied()
-                .unwrap_or(false);
+                .unwrap_or(false)
+                && !options
+                    .iter()
+                    .any(|(kind, _, _)| shortcut_notices.contains(kind));
             let mut filtered_options = Vec::new();
 
             if is_searching {
+                // Validation feedback must remain visible even if the recording row was
+                // found through a search that does not match the error's own label.
+                if original_sections[index].1 == "Key conflict" {
+                    visible_sections.push((index, label, options.clone(), false));
+                    continue;
+                }
                 let label_matches = label.to_lowercase().contains(&search_query)
                     || original_sections[index]
                         .1
@@ -613,6 +737,42 @@ impl WgpuCandidateRenderer {
             }
         }
 
+        // Sorting the view preserves original collapse IDs while putting editable
+        // actions before the long reference. Keep the active action next to its error.
+        visible_sections.sort_by_key(|(index, _, options, _)| {
+            if options.iter().any(|(kind, _, _)| matches!(kind, InteractionKind::SetShortcutProfile(_))) {
+                0
+            } else if options.iter().any(|(kind, _, _)| matches!(kind, InteractionKind::RecordShortcut(action) if Some(*action) == chrome.shortcut_recording)) {
+                1
+            } else if original_sections[*index].1 == "Key conflict" {
+                2
+            } else if options.iter().any(|(kind, _, _)| matches!(kind, InteractionKind::RecordShortcut(_))) {
+                3
+            } else if options.iter().any(|(kind, _, _)| *kind == InteractionKind::ResetCustomShortcuts) {
+                4
+            } else if original_sections[*index].1 == "Allowed keys" {
+                5
+            } else {
+                6
+            }
+        });
+
+        let notice_width = (chip_max_x - label_col_x).max(0.0);
+        let notice_block = |text: &str| TextBlock {
+            text: text.to_string(),
+            origin: [0.0, 0.0],
+            max_width: (notice_width - 20.0 * ui_scale).max(14.0),
+            pixel_size: chip_px,
+            letter_spacing: ui_tracking,
+            line_gap: base_line_gap,
+            max_lines: 64,
+            color: text_primary,
+            align: TextAlign::Left,
+            role: TextRole::SettingOption,
+        };
+        let notice_height =
+            |text: &str| (notice_block(text).layout().bounds[3] + 6.0 * ui_scale).max(row_height);
+
         let scroll_text_for_option = |text: &str,
                                       started_at: Instant,
                                       pixel_size: f32,
@@ -652,14 +812,27 @@ impl WgpuCandidateRenderer {
 
         // Labels share the first option row; estimation and drawing must use the same flow.
         let section_height_for = |options: &[(InteractionKind, &str, bool)], collapsed: bool| {
-            let rows = if collapsed || options.is_empty() {
-                1
+            if !collapsed
+                && options
+                    .iter()
+                    .any(|(kind, _, _)| shortcut_notices.contains(kind))
+            {
+                return section_margin * 2.0
+                    + row_height
+                    + chip_gap_y
+                    + options
+                        .iter()
+                        .map(|(_, text, _)| notice_height(text))
+                        .sum::<f32>()
+                    + options.len().saturating_sub(1) as f32 * chip_gap_y;
+            }
+            let flow_height = if collapsed || options.is_empty() {
+                row_height
             } else {
-                estimate_chip_rows(options)
+                option_flow(options).1
             };
             section_margin * 2.0
-                + rows as f32 * row_height
-                + (rows - 1) as f32 * chip_gap_y
+                + flow_height
                 + if stacked_labels && !collapsed && !options.is_empty() {
                     row_height + chip_gap_y
                 } else {
@@ -1326,6 +1499,9 @@ impl WgpuCandidateRenderer {
             label_layouts.push(empty_layout);
         }
         for (section_index, label, options, is_collapsed) in visible_sections.iter() {
+            let notice_section = options
+                .iter()
+                .any(|(kind, _, _)| shortcut_notices.contains(kind));
             let section_effectively_collapsed = *is_collapsed;
             let section_height = section_height_for(options, section_effectively_collapsed);
             let section_top = content_y;
@@ -1374,13 +1550,13 @@ impl WgpuCandidateRenderer {
                 },
                 row_height,
             ];
-            if !is_searching {
+            if !is_searching && !notice_section {
                 settings_focus_targets.push(InteractiveTarget {
                     kind: InteractionKind::ToggleSettingsSection(*section_index),
                     rect: toggle_rect,
                 });
             }
-            if visible_in_settings(row_y, row_height) {
+            if !notice_section && visible_in_settings(row_y, row_height) {
                 let toggle_size = 16.0 * ui_scale;
                 append_chevron_icon_quads(
                     &mut quads,
@@ -1401,32 +1577,53 @@ impl WgpuCandidateRenderer {
                 }
             }
 
-            let mut chip_x = chip_start_x;
-            let mut chip_y = row_y
+            let chip_origin_y = row_y
                 + if stacked_labels {
                     row_height + chip_gap_y
                 } else {
                     0.0
                 };
-            if !section_effectively_collapsed {
-                for (kind, chip_label, selected) in options {
+            if notice_section {
+                let mut notice_y = row_y + row_height + chip_gap_y;
+                for (_, text, _) in options {
+                    let height = notice_height(text);
+                    let rect = [label_col_x, notice_y, notice_width, height];
+                    if visible_in_settings(notice_y, height) {
+                        append_soft_card_quads(
+                            &mut quads,
+                            rect,
+                            surface,
+                            shell_border,
+                            soft_shadow,
+                            shell,
+                            settings_chip_radius,
+                        );
+                        let mut layout = notice_block(text)
+                            .layout_in_rect(rect, [10.0 * ui_scale, 3.0 * ui_scale]);
+                        layout.clip_to_rect(content_viewport);
+                        text_quads.extend(layout.quads.iter().copied());
+                        atlas_glyphs.extend(layout.atlas_glyphs.iter().cloned());
+                        option_layouts.push(layout);
+                    }
+                    notice_y += height + chip_gap_y;
+                }
+            } else if !section_effectively_collapsed {
+                for ((kind, chip_label, selected), mut rect) in
+                    options.iter().zip(option_flow(options).0)
+                {
                     let read_only = matches!(kind, InteractionKind::ShortcutReference(_));
                     let (hovered, pressed) = if read_only {
                         (false, false)
                     } else {
                         interaction_state(*kind)
                     };
-                    let chip_w = estimated_chip_width(chip_label);
-                    if chip_x > chip_start_x && chip_x + chip_w > chip_max_x {
-                        chip_x = chip_start_x;
-                        chip_y += row_height + chip_gap_y;
-                    }
-                    let rect = [chip_x, chip_y, chip_w, row_height];
+                    rect[1] += chip_origin_y;
                     if !read_only {
                         settings_focus_targets.push(InteractiveTarget { kind: *kind, rect });
                     }
-                    let rect_visible = visible_in_settings(chip_y, row_height);
+                    let rect_visible = visible_in_settings(rect[1], rect[3]);
                     let visual_rect = animated_rect(rect, hovered, pressed);
+                    let multiline_control = matches!(kind, InteractionKind::RecordShortcut(_));
 
                     let mut option_text = (*chip_label).to_string();
                     if rect_visible {
@@ -1440,13 +1637,15 @@ impl WgpuCandidateRenderer {
                             pixel_size: chip_px,
                             letter_spacing: ui_tracking,
                             line_gap: base_line_gap,
-                            max_lines: 1,
+                            max_lines: if multiline_control { 64 } else { 1 },
                             color: if *selected { accent_text } else { text_primary },
                             align: TextAlign::Center,
                             role: TextRole::SettingOption,
                         }
                         .layout_in_rect(visual_rect, [10.0 * ui_scale, 3.0 * ui_scale]);
-                        if base_layout.truncated || base_layout.lines.len() > 1 {
+                        if base_layout.truncated
+                            || (!multiline_control && base_layout.lines.len() > 1)
+                        {
                             settings_option_truncated.push(*kind);
                         }
 
@@ -1504,7 +1703,7 @@ impl WgpuCandidateRenderer {
                             pixel_size: chip_px,
                             letter_spacing: ui_tracking,
                             line_gap: base_line_gap,
-                            max_lines: 1,
+                            max_lines: if multiline_control { 64 } else { 1 },
                             color: if *selected { accent_text } else { text_primary },
                             align: TextAlign::Center,
                             role: TextRole::SettingOption,
@@ -1515,7 +1714,6 @@ impl WgpuCandidateRenderer {
                         atlas_glyphs.extend(option_layout.atlas_glyphs.iter().cloned());
                         option_layouts.push(option_layout);
                     }
-                    chip_x += chip_w + chip_gap_x;
                 }
             }
 

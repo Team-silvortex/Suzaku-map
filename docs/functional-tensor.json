@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "date": "2026-10-11",
-    "head": "f93578e351517df0796d879de7be4e85f576b756",
+    "date": "2026-10-12",
+    "head": "81bbce81fed2fba6de9a2c954a41067a31237239",
     "dirty": true,
-    "source_sha256": "e19550b324458e8acbc9b9b02c60e283b09d48fad6ce4af804a48c104c290504",
-    "note": "工作区能力盘点；含未提交文件。评分是有边界的人工序数评估，不是质量概率。后续修复执行范围见 E-pointer-preference、E-window-boundary、E-recovery-fixture、E-prose-paging、E-chinese-partial-spacing；词库扩充见 E-daily-objects、E-daily-choices、E-japanese-choices；10-04崩溃及10-07有界sender诊断见E-daemon-abort，探测清理顺序修复见E-daemon-probe，非已确认修复上游根因；当前未提交快照未核验远端 CI 或更新个人安装；源指纹仅覆盖 implementations.paths/tests。"
+    "source_sha256": "3cdf89efe80b4b61070893c9819ba3d9a2ae27d12b74daa9d4b1c255d4573742",
+    "note": "0.8.7提交前的工作区能力盘点，head记录基线81bbce8而非本文件所属提交；评分是有边界的人工序数评估，不是质量概率。后续修复执行范围见 E-pointer-preference、E-window-boundary、E-recovery-fixture、E-prose-paging、E-chinese-partial-spacing；词库扩充见 E-daily-objects、E-daily-choices、E-japanese-choices；10-04崩溃及10-07有界sender诊断见E-daemon-abort，探测清理顺序修复见E-daemon-probe，非已确认修复上游根因。10-11干净81bbce8包的私有输入任务及0.8.1到0.8.6日常升级见E-installed-input-tasks，随后自定义快捷键开发快照安装与复测见E-installed-custom-shortcuts。0.8.6原远端Linux CI超时不改记通过；0.8.7须独立精确提交CI和打包安装门禁后发布，当前盘点不代表全绿发布、真实模型或个人桌面输入验收。源指纹仅覆盖 implementations.paths/tests。"
   },
   "architectures": [
     {
@@ -174,8 +174,14 @@
       ],
       "tests": [
         "scripts/test-native-sync.py",
+        "scripts/test-language-workflow-coverage.py",
+        "scripts/test-keypad-navigation-coverage.py",
+        "scripts/test-held-language-coverage.py",
         "scripts/test-linux-keyboard.py",
-        "scripts/test-linux-candidate-window.py"
+        "scripts/test-keyboard-custom-scope.py",
+        "scripts/test-linux-candidate-window.py",
+        "scripts/test-linux-gtk3.py",
+        "scripts/fixtures/gtk3_input_tasks.py"
       ]
     },
     {
@@ -220,6 +226,7 @@
         "tests/ime_engine.rs",
         "tests/ime_prediction.rs",
         "tests/commit_history.rs",
+        "tests/prediction_edit_conflicts.rs",
         "tests/long_draft_budget.rs"
       ]
     },
@@ -257,15 +264,29 @@
     {
       "id": "shortcuts",
       "a": "A02",
-      "title": "标准/主键区快捷键策略",
+      "title": "标准/主键区预设与有界自定义组合",
       "scope": "Linux IBus公开且聚焦的输入上下文",
       "paths": [
         "src/ime/shortcuts.rs",
+        "src/ime/settings.rs",
+        "src/ime_host.rs",
+        "src/platform/linux_ime_control.rs",
+        "src/ime/gpu/types.rs",
+        "src/bin/panel/prediction_settings.rs",
         "src/linux/ibus_engine_bridge.c"
       ],
       "tests": [
         "scripts/test-linux-keyboard.py",
         "scripts/test-native-sync.py",
+        "scripts/test-native-custom-shortcuts.py",
+        "scripts/test-custom-shortcuts-ibus.py",
+        "scripts/test-custom-long-coverage.py",
+        "scripts/test-custom-language-coverage.py",
+        "scripts/test-custom-boundary-coverage.py",
+        "scripts/test-custom-continuation-coverage.py",
+        "tests/custom_shortcut_settings.rs",
+        "src/bin/panel/keyboard_native_test.rs",
+        "src/bin/panel/settings_native_test.rs",
         "tests/settings_chain_audit.rs"
       ]
     },
@@ -312,7 +333,11 @@
         "tests/daily_time_english.rs",
         "tests/daily_shopping_english.rs",
         "tests/daily_transit_english.rs",
-        "tests/daily_contact_english.rs"
+        "tests/daily_contact_english.rs",
+        "tests/daily_routine_english.rs",
+        "tests/daily_requests_english.rs",
+        "tests/daily_carry_english.rs",
+        "tests/daily_care_english.rs"
       ]
     },
     {
@@ -339,7 +364,15 @@
         "tests/daily_time_chinese.rs",
         "tests/daily_shopping_chinese.rs",
         "tests/daily_transit_chinese.rs",
-        "tests/daily_contact_chinese.rs"
+        "tests/daily_contact_chinese.rs",
+        "tests/daily_routine_chinese.rs",
+        "tests/daily_requests_chinese.rs",
+        "tests/daily_carry_chinese.rs",
+        "tests/daily_care_chinese.rs",
+        "tests/chinese_partial_sentence_probe.rs",
+        "tests/chinese_partial_continuation.rs",
+        "tests/chinese_function_words.rs",
+        "tests/chinese_mixed_boundary.rs"
       ]
     },
     {
@@ -365,6 +398,10 @@
         "tests/daily_shopping_japanese.rs",
         "tests/daily_transit_japanese.rs",
         "tests/daily_contact_japanese.rs",
+        "tests/daily_routine_japanese.rs",
+        "tests/daily_requests_japanese.rs",
+        "tests/daily_carry_japanese.rs",
+        "tests/daily_care_japanese.rs",
         "tests/japanese_completion_boundaries.rs",
         "tests/release_japanese_tail.rs",
         "tests/japanese_sentence_progress.rs",
@@ -490,6 +527,7 @@
         "tests/ime_prediction.rs",
         "tests/prediction_protocol.rs",
         "tests/prediction_preservation.rs",
+        "tests/prediction_edit_conflicts.rs",
         "src/languages/model/cancellation_tests.rs",
         "tests/fallback_vocabulary.rs"
       ]
@@ -857,6 +895,7 @@
         "scripts/test-linux-apps.py",
         "scripts/test-native-ibus-trace.py",
         "scripts/test-native-model-fixture.py",
+        "scripts/test-vocabulary-partitions.py",
         "scripts/test-native-probe-teardown.py",
         "scripts/test-gtk3-event-observer.py",
         "scripts/test-ibus-signal-lifetime.py",
@@ -1275,7 +1314,7 @@
     },
     {
       "id": "F68",
-      "title": "人机工程学快捷键方案",
+      "title": "人机工程学快捷键方案与组合配置",
       "parents": [
         "F11",
         "F12",
@@ -1285,6 +1324,132 @@
     }
   ],
   "evidence": [
+    {
+      "id": "E-prediction-error-boundaries",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "tests/prediction_edit_conflicts.rs"],
+      "scope": "2026-10-11中英长稿迟到错误/Unavailable和Disabled撤回；独立两模式native HTTP回退",
+      "note": "四新增测试28固定组合，原七测试28组合的508行21016字节SHA完整保留。16迟到429路径覆盖ABA/256→257→256/清context同稿/待完成history undo；同worker下一请求receipt排空旧错误而新provider仍blocked，fullframe/pool/Pending/errorNone负向与后续精确Model/Sentence正向。12诊断路径先正向接受当前404再选完整Local literal，有history仅清context/诊断并Idle，无history保留Unavailable/404/全文/选择，真正seed更新后新预测正常；providerNone仍Disabled、两undo结果、一次精确提交/拒绝重复/engine reset清history。92相关all-feature测试及default/inline各106loopback503/timeout回退初次通过，不改生产Rust/C/native runner/fixture/词库/时限、不提高评分。新28非provider panic或native键事件/transport验收，Disabled样本非禁用inflight；独立fallback非完整core/controlled saves/GTK/实体键盘/Wayland/真实模型验收。"
+    },
+    {
+      "id": "E-prediction-edit-conflicts",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "tests/prediction_edit_conflicts.rs"],
+      "scope": "2026-10-11中英长稿手工编辑与迟到回复；共享引擎普通/IBus混排策略",
+      "note": "七测试×中英×两引擎策略共28固定组合，初次红灯两项确认成功history undo未取消旧context请求/Ready状态未失效，最小修复只在history pop成功后cancel且保留全文/候选/explicit选择，无history严格无操作。同稿ABA和256→257→256使用完全相同input排除文本拒绝掩盖generation问题；非协作provider释放后以同worker下一请求receipt证明旧结果处理完，整个snapshot/pool负向及精确Model/Sentence正向，ready选择一次准确提交。88相关+34host全feature测试及独立旧default/inline原生core partition通过见开发记录，非完整core+fallback或controlled saves/GTK重验；无GPU构建因已有17import错误未进入新测试，失败保留。不改共享native runner/helpers/词库/时限，不提高评分；新28组合本身非实体按键、原生显示模式、HTTP socket取消或真实模型质量验收。"
+    },
+    {
+      "id": "E-custom-language-continuation",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "docs/shortcuts.md"],
+      "scope": "2026-10-11固定16长草稿自定义切语言保存期间词到句连续采用；default/inline私有IBus",
+      "note": "两profile×中英双向×成功/真实fsync EIO×held句子/编辑x7。屏障在词采用之前开始，owned前文+逐键native尾输入，实际custom行导航/A38词采用/Space/句子采用/BS完整word_space撤回/匹配release再采用，逐阶段old context和language/进度/worker1/磁盘原bytes/无提交。成功保留最新全文且context退休/旧action拒绝，失败句子BS精确word_space而成功为sentence末scalar删除，固定oracle排除please sen与please send删字碰撞；编辑两分支依次删7/x/句末而不复活旧undo。A38/L46held身份、改键符/修饰/错误释放、夹边全freshframe、worker0/temp0、完整settings和JSON恢复、最终Space和选择exact local原文Enter仅一次并退休context。只追加一helper一相邻调用，完整旧native和四历史guards通过精确预编辑哈希投影保留，不改生产C/Rust/词库/worker/runner/时限，不提升评分。不是实模质量、实体键盘/Wayland、安装/远端CI或完整Rust/native矩阵；未验收ack时停在撤回后的word_space或其它自定义绑定组合。"
+    },
+    {
+      "id": "E-custom-language-boundaries",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "docs/shortcuts.md"],
+      "scope": "2026-10-11固定28长草稿自定义切语言焦点/隐私/Compose边界；default/inline私有IBus",
+      "note": "两profile×中英双向×FocusOut/直接另一引擎FocusIn/password/PIN/private hint/待完成和完成Compose。真实fsync屏障中取消保持worker1和P0 busy，原磁盘字节不变，新公开context中实际旧held码38/46字母可继续输入；旧引擎Reset/FocusOut/ContentType及键事件不改新owner完整fresh frame。password/PIN按键FALSE，hint本地a TRUE但全snapshot隐去文本，恢复公开再退休context。Compose不退休context，已注册组合及修饰键在匹配释放后透传且fullframe不变；待完成两次BS先取消再恢复完整raw，完成é后两次BS仅删é和已采用词末scalar。释放后worker0/temp0、原语言和完整settled frame不变，各case仅准确新owner提交一次。只追加一helper一相邻调用，完整旧native和三历史guards精确哈希投影还原，不改生产C/Rust/词库/worker/runner/时限，不提升评分；不是实模、实体键盘/Wayland、安装/远端CI或完整Rust/native矩阵验收。"
+    },
+    {
+      "id": "E-custom-language-long",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "docs/shortcuts.md"],
+      "scope": "2026-10-11固定中英长草稿自定义切语言4普通＋16受控保存；default/inline私有IBus",
+      "note": "标准/主键区×中英双向，固定EN长前文hel→hello及ZH长前文hui yi→会议，使成功ordinary-delete与失败完整raw undo明确不同。实际六项U绑定、owned revision-bound前文及逐键排空native尾键、custom38采纳与46切语言held身份/释放、首页边界全freshframe、成功持久化/context退休/旧动作拒绝/松键后复用、Space与精确显式提交。受控真实fsync屏障/EIO保留原磁盘字节与undo，Reset context增empty或明确选完整稿提交取消，旧任务释放前worker1＋P0 busy、取消后新context实际x继续输入，释放后worker0/temp0且不迟到切语言。仅追加两helper及三相邻调用；旧native与两历史guards通过预编辑SHA精确投影还原，旧26+12+4与慢27+4以及所有时限保持。未发现新生产缺陷，未改C/Rust/worker/runner/词库；不外推长草稿自定义Compose/隐私/焦点取消、成功pending时词到句编辑、实模、实体键盘/Wayland、安装或远端CI，不提升评分。"
+    },
+    {
+      "id": "E-held-language-transitions",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "docs/shortcuts.md"],
+      "scope": "2026-10-11 Linux IBus 采纳键长按跨键盘切语言和候选翻页",
+      "note": "实际RED确认语言成功提示首次被无效PageUp清除时完整render让revision增加，改为该唯一completed-feedback分支render_presentation，不重发companion版本或行内preedit。新增固定4普通+4受控保存组合检查两profile、采纳键物理identity/修改keyval和modifier/释放其它键、EN成功hell与失败hel撤回差异、ZH literal ShiftEnter跨EN真实分页、松键后新采用撤回、Space与一次精确提交。新fixture先纠正literal行固定首位假设，再使用按键前后的fresh主机全frame和跨流同步排除异步回调第二次发布的观察竞态；revision equality保留。旧native全文、11旧函数矩阵、worker及runner通过独立投影冻结，实际范围和失败日志见开发记录。非新增物理组合键盘/实体键盘/个人安装/实模或远端CI，77评分不提升。"
+    },
+    {
+      "id": "E-keypad-navigation",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "docs/shortcuts.md"],
+      "scope": "2026-10-11 Linux IBus NumLock关闭时的六个小键盘导航别名",
+      "note": "实际私有native RED确认KP_Up未接管已有草稿。仅在Compose处理之后扩展既有row/page条件为KP Up/Down/Left/Right/Prior/Next，复用原移动/缺页无副作用规则，不重写rawkeyval或物理code，不改KP数字/运算符/小键盘Enter与锁状态。新增24固定EN/ZH×profile×alias原生检查和4隔离GTK真实键码流程，旧49组/自定义7组/row-page-hold矩阵及数字处理区域通过独立哈希投影保留。实际执行与初失败见开发记录；静态afterCompose检查不是自定义KP Compose序列动态验收，GTK虚拟显示器不等于实体键盘/个人安装/原生Wayland/实模或远端CI。77评分不提升。"
+    },
+    {
+      "id": "E-language-adoption-workflows",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md"],
+      "scope": "2026-10-11 私有 Linux IBus 切语言、词句采用及受控慢保存组合",
+      "note": "实际受控RED确认保存仍进行时数字采用会清掉切语言提示；仅在无language_job时允许普通按键清feedback，不改变异步worker、1秒切换期限或按键语义。新12条成功工作流覆盖两profile、中英双向及API。nihao混合前缀的词/句数字采用、精确撤回、Space、Alt7、逐字删除和一次提交；新8条pending双向分支覆盖采用、撤回、编辑和保存失败。旧26切语言与19慢I/O case及共有输入/选词/peer AST冻结，仅追加两helper调用。准确执行日志见开发记录；非实体键盘、实模质量、安装/远端CI或已记录外部文件CAS窗口修复，77评分不变。"
+    },
+    {
+      "id": "E-chinese-mixed-boundary",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/ibus-candidates.md"],
+      "scope": "2026-10-11短中文草稿中的literal混合前文与关闭引号边界",
+      "note": "已确认 API。nihao 的实际原始probe为短失败/长正对照通过；只在≤256 scalar且整段无非Literal转换时沿原Han/CJK边界恢复局部读音，rawprefix不规范化，共用原保护token/长稿边界而不引入递归hint。独立matrix首轮13/2：一项是新增fixture把gap放进exact authoredcontext却期待跨gap长句，校正为既有短语语境候选；另一项暴露老matcher吞掉音节边界的terminalquote，以生产Prefix门槛修复，不放松引号保护。十五guard含短长/255-257/词句Literal/原文/采用提交撤销/数字声调/内部分隔/保护token/七竖向边界；末quote扩到裸读音与长mixedprefix。字典、版本、英文算法、C/host/核心排序/搜索和模型预算不变，无自动语言识别或未知拼写猜测。准确实跑与保留初失败见开发记录；私有native既有中英文流程不等于新增混合案例的物理GTK/实体键盘覆盖，不冒称完整原生HTTP、实模、个人安装或远端CI。未安装/提交/推送，77评分不提升。"
+    },
+    {
+      "id": "E-chinese-adopted-flow",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "docs/ibus-candidates.md"],
+      "scope": "2026-10-11中文基础连接字与物理拼音/数字构造的有限连续采用流程",
+      "note": "仅追加hai→还、hou→后两Word；旧2920有序读音和全部687语境1372句独立指纹不变，裸读音首选明确改变，旧完整词首选保留，不承诺所有组合数组相同。没有huan别名、新句/语境或decoder/模型协议变更；首轮全Rust两失败均为旧2920总量断言，精确更新到2922而不改旧指纹/行为。新adopted-transition在私有GTK实际通过两拼音数字构造链×有无空格四变体，逐段撤回保留exactraw、Word/Sentence类型、字面输入、实际页内数字、面板焦点与一次Return精确buffer/file提交。尾部≤12不冒称必在第二页；原transition强制分页检查不变。独立22静态守护锁住旧共享helpers/raw流程、ALL167/PACK74、loop/paging与240s。准确实跑范围、初失败和日志见开发记录；不冒称完整builtin/all-pack/原生HTTP、实模型、实体键盘或个人安装验收，不读取历史，未安装/提交/推送，77评分不提升。"
+    },
+    {
+      "id": "E-chinese-partial-progress",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/ibus-candidates.md"],
+      "scope": "2026-10-11已采用汉字语境与半拼音的有限整句衔接，以及独立原生翻页诊断",
+      "note": "现有登录失败后可以zaishiyi的Word已可达但固定句遗漏，实际probe RED为1通过1失败；优惠券还在youxi原本通过，仅作正对照。复用decoder已有前五及最多四个typed Word完成项，不增加读音、beam、分数、候选12/page6或模型预算；actual emission保留精准Word门槛和真实转换后缀验证，长稿hint只保留原语境。独立测试覆盖拼写/六水平空白/Unicode冻结前缀/255-257边界/不改写汉字/保护token/换行/采用提交撤销和世间旧首页。独立transition只检查zaishiyi与chumenqianshoushiyixi两raw组的真实GTK、面板焦点、页码/数字、Word及两句采用撤销、Space与保存提交，不冒称两Han语境的物理输入或完整builtin/all-pack/native HTTP门禁。旧ALL167/PACK74、tuple/loop/paging指纹与240s不变。词库和版本文件字节不变，不访问个人历史；准确实跑范围与保留失败日志见开发记录，未安装/提交/推送，77评分不提升。"
+    },
+    {
+      "id": "E-daily-care",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "scope": "2026-10-11中英日洗漱、整理和出门收尾；有限原创离线fallback及中文整词续句修复",
+      "note": "英文仅补wash/hair/hands三词形及8搭配16句，6143严格小于6144且6140旧词首次位置不变；中文24读音8语境16句，日语12读音6语境12句。独立预期先实际RED，全部旧29英文层/685搭配/1334句、中文2896读音/679语境、日语354读音/178语境内容、标记、顺序及14包字节不变。修复中文已有whole-reading Word在decoder前五之外漏续句：首选尚未命中Word时，最多五个已验证Word在原输出后仅补自身exact语境，不改beam/评分/候选12/page6；完整回归发现的shijian旧世间首屏回退用生产门槛修复，不放松旧断言。新歧义保留原首选、同音词与明确第二页选择。六新GTK tuple加入builtin及all-pack门禁，原240s、旧tuple及物理断言不变。准确实跑范围、保留初失败与日志见开发记录。typed错误不冒充HTTP/实模；不读取个人历史、不提供医疗建议、不绑定模型。未安装/提交/推送/发布，不外推实体键盘/个人桌面/全原生矩阵/远端CI，77评分不提升。"
+    },
+    {
+      "id": "E-daily-carry",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "scope": "2026-10-11中英日穿着与出门随身准备；有限原创离线fallback",
+      "note": "英文8搭配16句仅补glasses一词，当前6140严格小于6144，所有旧6139词首次位置不变；中文24读音8语境16句，日语12读音6语境12句。独立预期先实际RED，旧28英文层/677搭配/1318句、中文2872读音/671语境、日语342读音/172语境全文与标记/顺序指纹继续冻结，14推荐包字节不变。历史零增量断言限定各自追加窗口并另外保护全部旧词当前位置；新的中文同音/前缀歧义明确保留旧首屏词与后页句，不扩大候选容量。准确实跑范围、首轮失败和日志见开发记录。六新GTK tuple加入完整与pack门禁，原240s/物理断言/旧tuple不变。新typed模型失败不是HTTP/实模验收；不读取历史、随身物品或执行请求，不绑定模型或改变解码/预算。未安装/提交/推送/发布，不外推实体键盘/个人桌面/完整原生矩阵/远端CI，77评分不提升。"
+    },
+    {
+      "id": "E-daily-requests",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "scope": "2026-10-11中英日借用、寻物和日常小请求；有限原创离线fallback",
+      "note": "英文8搭配16句且6139索引零增长，中文24读音8语境16句，日语12读音6语境12句；独立预期先真实RED，全部旧27英文层/669搭配/1302句与首次索引位置、中文2848读音/663语境、日语330读音/166语境的完整内容、类型、标记和序列锁定，所有历史指纹不替换。准确代码/隔离编辑器验证及保留失败见开发记录。新增六GTKtuple保留旧断言，pack全量守恒拆为两新私有会话，每片14包与真实panel、原240s不变，单片不冒充完整门禁。新模型失败为类型化合成错误，不冒充新HTTP/实模/实体键盘/个人桌面或远端CI验收；不读取历史或执行请求，不绑定模型或改解码/候选上限，未安装/提交/推送/发布，77评分不提升。"
+    },
+    {
+      "id": "E-daily-routine",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "scope": "2026-10-11中英日作息、休息及日常状态回应；有限原创离线fallback",
+      "note": "英文12搭配24句且6139索引净增长零，中文32读音12语境24句，日语16读音8语境16句。固定预期先复现缺项，旧26层英文/657搭配/1278句、中文2816读音/651语境、日语314读音/158语境全文内容、标志、顺序及全部旧英文首次排名继续锁定。首轮修正新测试误写的旧英文late tonight句；日语kib短拼写与旧希望竞争，保持旧首屏及新気分句后页可选，明确kibu首屏，不修改旧数据、排名或容量。实际回归、隔离GTK和旧106受控HTTP范围及首轮失败见开发记录；新模型错误检查为类型化合成provider，不冒充实际HTTP或实模。无作息/输入历史读取，不做健康建议，不改变模型协议、解码规则、容量或6144索引上限。未升级个人安装、提交、推送或发布，不外推实体键盘/完整原生矩阵/远端CI，不提升77评分。"
+    },
+    {
+      "id": "E-installed-custom-shortcuts",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/install-audit-0.8.6-2026-10-11.md"],
+      "scope": "10-11有界六动作快捷键的0.8.6开发包安装、实际运行文件与私有应用复测",
+      "note": "source_dirty=true、glibc2.43非新正式版本；独立包六组实际IBus、32条GTK3复合任务、七组物理组合及实际设置录入/宿主持久化ACK/清除通过。官方注册升级四程序且实际PID1549795可执行文件与包一致，Rime/配置/registry/启动器/服务偏好/sources/MRU未变；直接日常安装文件再次七组自定义、49组旧键盘、32条GTK3通过。首轮漏带报告和升级helper方括号比较失败保留并具体修复，非跳过安全检查或重试直到绿。只用私有Xvfb/IBus/配置和合成文档，无个人桌面按键注入，不验证ACK后标签视觉、GNOME/Wayland组合送达、实体LED、真实模型或全CI；未创建版本/提交/推送/发布，77评分不变。"
+    },
+    {
+      "id": "E-custom-long-workflows",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "docs/shortcuts.md"],
+      "scope": "2026-10-11十组中英长草稿自定义快捷键私有IBus组合；原六阶段完整保留",
+      "note": "标准/主键区×中英×固定原创词句八组，另两组长英文hel实际多页与首末边界。私有revision-bound面板协议准备完整前文，实际IBus补尾、自定义逐项/翻页/采纳、物理键码held/错松键/正确松键、whole snapshot边界、完整原拼写撤回、Space后词到句续写与句撤回、Alt7字面输入、明确Enter完整且仅一次提交。首轮十组动作走完但新fixture清理误把language放窄U而失败；仅改新增helper为独立L后窄U，settings/磁盘全等恢复，最终整体通过。source-only guard按预编辑全文SHA精确投影移除新helper及相邻单行调用，旧fixture/预检/时限/runner均不改。无生产实现或词库更改，不外推长草稿自定义切语言/写失败/取消、真实长物理输入、实模、完整CI或安装升级；不提升评分。"
+    },
+    {
+      "id": "E-custom-shortcuts",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/shortcuts.md"],
+      "scope": "2026-10-11开发版有界六动作绑定、设置窗录入及私有IBus保存/按键链",
+      "note": "逻辑字母/Space与Ctrl或Alt加可选Shift，不支持全局监听或任意键。核心配置/备份/窄补丁原子校验；实际私有IBus六键U持久化、原预设别名、采用/撤回/Space续写/单次提交、语言替换/恢复、held/release/focus、Compose/隐私/非法修饰和U1024/1025及旧控制127/128通过。旧快捷键与26项切语言专项通过；设置布局/真实winit录入和完整代码检查的准确结果及首轮失败记录见开发记录。该源码验收阶段不改个人配置、不安装、提交或推送，后续授权安装另记E-installed-custom-shortcuts；不外推实体键盘舒适度、桌面组合冲突、真实模型或完整原生/远端CI验收，不提升评分。"
+    },
     {
       "id": "E-daily-contact",
       "kind": "historical_run",
@@ -1528,6 +1693,18 @@
       ],
       "scope": "中英作者样例、源码常规回归和私有应用门禁",
       "note": "固定词条回归不是独立语料准确率；新增数据不提升开放生成能力的证据。"
+    },
+    {
+      "id": "E-installed-input-tasks",
+      "kind": "historical_run",
+      "paths": [
+        "docs/install-audit-0.8.6-2026-10-11.md",
+        "scripts/fixtures/gtk3_input_tasks.py",
+        "scripts/test-linux-ci.sh",
+        "scripts/test-native-model-fixture.py"
+      ],
+      "scope": "10-11干净0.8.6包的147词库、两种32条GTK3、49键盘、115浏览器/Qt、完整核心和106HTTP回退；日常安装升级及安装文件32条GTK3、两种30条原生面板复测",
+      "note": "均为本机私有总线/显示/配置/合成任务；真实日常安装状态与文件核验不等于个人桌面键盘验收。CI首次120s超时保留，改为独立核心与全部回退会话仍保留原期限/冻结断言；原子升级首次提前停服失败已恢复，后续官方注册顺序通过。未重跑远端CI、发布资产或验收真实模型/Ubuntu24.04容器；77评分不变。"
     },
     {
       "id": "E-input-boundaries",
@@ -1921,8 +2098,15 @@
         2
       ],
       "evidence": [
+        "E-custom-language-continuation",
+        "E-custom-language-boundaries",
+        "E-custom-language-long",
+        "E-custom-long-workflows",
+        "E-held-language-transitions",
+        "E-keypad-navigation",
         "E-input",
         "E-input-boundaries",
+        "E-installed-input-tasks",
         "E-linux-delivery"
       ],
       "limit": "数字为当前页槽位；Alt数字/小键盘字面输入；长按采用只执行一次；相对导航到首末边界不隐式选择或取消预测。"
@@ -1938,8 +2122,15 @@
         2
       ],
       "evidence": [
+        "E-custom-language-continuation",
+        "E-custom-language-boundaries",
+        "E-custom-language-long",
+        "E-custom-long-workflows",
+        "E-held-language-transitions",
+        "E-keypad-navigation",
         "E-input",
         "E-input-boundaries",
+        "E-installed-input-tasks",
         "E-compose-quote-boundaries",
         "E-screen-keys-history",
         "E-linux-delivery"
@@ -1990,6 +2181,7 @@
         2
       ],
       "evidence": [
+        "E-language-adoption-workflows",
         "E-linux-delivery"
       ],
       "limit": "EN/ZH/JA；快捷键切换可保稿，托盘切换清理；与UI/翻译语言独立。"
@@ -2000,11 +2192,15 @@
       "i": "english",
       "m": [
         3,
-        3,
+       3,
         null,
         2
       ],
       "evidence": [
+        "E-daily-care",
+        "E-daily-carry",
+        "E-daily-requests",
+        "E-daily-routine",
         "E-daily-contact",
         "E-daily-transit",
         "E-daily-shopping",
@@ -2029,11 +2225,15 @@
       "i": "english",
       "m": [
         3,
-        3,
+       3,
         null,
         2
       ],
       "evidence": [
+        "E-daily-care",
+        "E-daily-carry",
+        "E-daily-requests",
+        "E-daily-routine",
         "E-daily-contact",
         "E-daily-transit",
         "E-daily-shopping",
@@ -2060,11 +2260,18 @@
       "i": "chinese",
       "m": [
         3,
-        3,
+       3,
         null,
         2
       ],
       "evidence": [
+        "E-chinese-mixed-boundary",
+        "E-chinese-adopted-flow",
+        "E-chinese-partial-progress",
+        "E-daily-care",
+        "E-daily-carry",
+        "E-daily-requests",
+        "E-daily-routine",
         "E-daily-contact",
         "E-daily-transit",
         "E-daily-shopping",
@@ -2090,12 +2297,16 @@
       "i": "japanese",
       "m": [
         2,
-        2,
+       2,
         null,
         2
       ],
       "evidence": [
         "E-japanese-alias-tail",
+        "E-daily-care",
+        "E-daily-carry",
+        "E-daily-requests",
+        "E-daily-routine",
         "E-daily-contact",
         "E-daily-transit",
         "E-daily-shopping",
@@ -2124,6 +2335,8 @@
         2
       ],
       "evidence": [
+        "E-prediction-error-boundaries",
+        "E-prediction-edit-conflicts",
         "E-japanese-choices",
         "E-current",
         "E-linux-delivery"
@@ -2219,6 +2432,8 @@
         2
       ],
       "evidence": [
+        "E-prediction-error-boundaries",
+        "E-prediction-edit-conflicts",
         "E-prediction-preservation",
         "E-prediction-protocol",
         "E-model",
@@ -2237,6 +2452,7 @@
         2
       ],
       "evidence": [
+        "E-prediction-edit-conflicts",
         "E-prediction-preservation",
         "E-prediction-protocol",
         "E-model",
@@ -2255,6 +2471,7 @@
         2
       ],
       "evidence": [
+        "E-prediction-error-boundaries",
         "E-prediction-preservation",
         "E-prediction-protocol",
         "E-model",
@@ -2644,9 +2861,10 @@
       "evidence": [
         "E-package",
         "E-install-old",
+        "E-installed-input-tasks",
         "E-linux-delivery"
       ],
-      "limit": "安装不自动注册激活；保留个人数据/自启偏好；当前dirty快照未重新安装。"
+      "limit": "安装不自动注册激活；保留个人数据/自启偏好；干净0.8.6包已本机用户级重装，当前dirty测试补丁不是已发布交付。"
     },
     {
       "a": "A09",
@@ -2662,11 +2880,12 @@
         "E-daemon-abort",
         "E-daemon-probe",
         "E-recovery-fixture",
+        "E-installed-input-tasks",
         "E-current",
         "E-package",
         "E-linux-delivery"
       ],
-      "limit": "当前远端CI未查询；没有自动Release上传；普通测试跳过的opt-in须单独跑。"
+      "limit": "0.8.6原远端Linux CI在120s会话处超时；本机完整分区通过不替代远端重跑。没有自动Release上传；普通测试跳过的opt-in须单独跑。"
     },
     {
       "a": "A10",
@@ -2894,12 +3113,17 @@
       "i": "lexicon",
       "m": [
         3,
-        2,
+       2,
         null,
         2
       ],
       "evidence": [
+        "E-chinese-adopted-flow",
         "E-japanese-alias-tail",
+        "E-daily-care",
+        "E-daily-carry",
+        "E-daily-requests",
+        "E-daily-routine",
         "E-daily-contact",
         "E-daily-transit",
         "E-daily-shopping",
@@ -2932,9 +3156,16 @@
       ],
       "evidence": [
         "E-prose-paging",
-        "E-linux-delivery"
+        "E-linux-delivery",
+        "E-custom-shortcuts",
+        "E-custom-long-workflows",
+        "E-custom-language-continuation",
+        "E-custom-language-boundaries",
+        "E-custom-language-long",
+        "E-language-adoption-workflows",
+        "E-installed-custom-shortcuts"
       ],
-      "limit": "公开且聚焦的IBus上下文；候选操作需非空草稿，切语言可空草稿；无全局键盘hook。"
+      "limit": "公开且聚焦的IBus上下文；候选操作需非空草稿，切语言可空草稿；开发版支持六动作Ctrl/Alt加可选Shift加字母/Space的绑定、冲突校验与恢复预设，不是任意键或全局hook；日常0.8.6开发快照已替换并通过私有应用复测，不外推个人桌面组合送达或实体键盘验收。"
     },
     {
       "a": "A07",
@@ -2979,6 +3210,10 @@
         2
       ],
       "evidence": [
+        "E-custom-language-continuation",
+        "E-custom-language-boundaries",
+        "E-custom-language-long",
+        "E-held-language-transitions",
         "E-linux-delivery"
       ],
       "limit": "Ctrl+Shift+Space确认保存后保稿；托盘真切换仍清理。"

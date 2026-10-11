@@ -352,6 +352,15 @@ impl PanelState {
             InteractionKind::SetShortcutProfile(_) => {
                 Some("IBus input shortcuts only. Standard keeps Alt keys for the app.".into())
             }
+            InteractionKind::RecordShortcut(_) => {
+                Some("Use Ctrl or Alt, optionally Shift, with A–Z or Space. Esc cancels.".into())
+            }
+            InteractionKind::ClearShortcutBinding(_) => {
+                Some("Restore this action to the selected preset.".into())
+            }
+            InteractionKind::ResetCustomShortcuts => {
+                Some("Clear custom keys without changing the selected preset.".into())
+            }
             InteractionKind::ShortcutReference(_) => None,
             InteractionKind::SettingsSearchClear => Some("Clear settings search".to_string()),
             InteractionKind::ToggleSettingsSection(section_index) => {

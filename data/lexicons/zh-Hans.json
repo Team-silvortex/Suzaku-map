@@ -2817,7 +2817,113 @@
     {"reading": "shou'dao'le'jiu'hui'wo'yi'xia", "text": "收到了就回我一下", "kind": "word"},
     {"reading": "lian'xi'shang'le'ma", "text": "联系上了吗", "kind": "word"},
     {"reading": "wo'hai'mei'lian'xi'shang", "text": "我还没联系上", "kind": "word"},
-    {"reading": "huan'ge'fang'shi'lian'xi", "text": "换个方式联系", "kind": "word"}
+    {"reading": "huan'ge'fang'shi'lian'xi", "text": "换个方式联系", "kind": "word"},
+    {"reading": "gang'qi'chuang", "text": "刚起床", "kind": "word"},
+    {"reading": "hai'mei'shui", "text": "还没睡", "kind": "word"},
+    {"reading": "mang'wan'le", "text": "忙完了", "kind": "word"},
+    {"reading": "xia'ban'le", "text": "下班了", "kind": "word"},
+    {"reading": "chi'bao'le", "text": "吃饱了", "kind": "word"},
+    {"reading": "you'dian'leng", "text": "有点冷", "kind": "word"},
+    {"reading": "you'dian're", "text": "有点热", "kind": "word"},
+    {"reading": "xian'he'dian'shui", "text": "先喝点水", "kind": "word"},
+    {"reading": "zhun'bei'chu'men'le", "text": "准备出门了", "kind": "word"},
+    {"reading": "wo'qu'xi'shu", "text": "我去洗漱", "kind": "word"},
+    {"reading": "jin'tian'qi'wan'le", "text": "今天起晚了", "kind": "word"},
+    {"reading": "xie'yi'hui'er", "text": "歇一会儿", "kind": "word"},
+    {"reading": "xi'shu", "text": "洗漱", "kind": "word"},
+    {"reading": "shua'ya", "text": "刷牙", "kind": "word"},
+    {"reading": "xi'lian", "text": "洗脸", "kind": "word"},
+    {"reading": "leng'shui", "text": "冷水", "kind": "word"},
+    {"reading": "hai'zai'mang", "text": "还在忙", "kind": "word"},
+    {"reading": "gang'xia'ban", "text": "刚下班", "kind": "word"},
+    {"reading": "jin'tian'bu'jia'ban", "text": "今天不加班", "kind": "word"},
+    {"reading": "zhun'bei'shui'le", "text": "准备睡了", "kind": "word"},
+    {"reading": "shui'qian'guan'deng", "text": "睡前关灯", "kind": "word"},
+    {"reading": "zao'dian'xiu'xi", "text": "早点休息", "kind": "word"},
+    {"reading": "xian'chi'dian'dong'xi", "text": "先吃点东西", "kind": "word"},
+    {"reading": "fan'zuo'hao'le", "text": "饭做好了", "kind": "word"},
+    {"reading": "gang'chi'wan'fan", "text": "刚吃完饭", "kind": "word"},
+    {"reading": "hai'mei'chi'fan", "text": "还没吃饭", "kind": "word"},
+    {"reading": "xian'huan'yi'fu", "text": "先换衣服", "kind": "word"},
+    {"reading": "ba'wai'tao'chuan'shang", "text": "把外套穿上", "kind": "word"},
+    {"reading": "wu'xiu'yi'hui'er", "text": "午休一会儿", "kind": "word"},
+    {"reading": "shui'ge'hao'jiao", "text": "睡个好觉", "kind": "word"},
+    {"reading": "zai'chu'men", "text": "再出门", "kind": "word"},
+    {"reading": "zai'jie'zhe'mang", "text": "再接着忙", "kind": "word"},
+    {"reading": "jie'zhi'bi", "text": "借支笔", "kind": "word"},
+    {"reading": "jie'ba'san", "text": "借把伞", "kind": "word"},
+    {"reading": "bang'wo'di'zhi'jin", "text": "帮我递纸巾", "kind": "word"},
+    {"reading": "ti'wo'na'zhe", "text": "替我拿着", "kind": "word"},
+    {"reading": "chong'dian'xian'zai'na", "text": "充电线在哪", "kind": "word"},
+    {"reading": "yan'jing'zhao'bu'dao'le", "text": "眼镜找不到了", "kind": "word"},
+    {"reading": "yong'wan'huan'gei'ni", "text": "用完还给你", "kind": "word"},
+    {"reading": "ma'fan'kai'xia'men", "text": "麻烦开下门", "kind": "word"},
+    {"reading": "jie'ge'bei'zi", "text": "借个杯子", "kind": "word"},
+    {"reading": "jie'ge'dai'zi", "text": "借个袋子", "kind": "word"},
+    {"reading": "jie'tiao'mao'jin", "text": "借条毛巾", "kind": "word"},
+    {"reading": "na'zhang'zhi", "text": "拿张纸", "kind": "word"},
+    {"reading": "tian'ge'ming'zi", "text": "填个名字", "kind": "word"},
+    {"reading": "xie'ge'di'zhi", "text": "写个地址", "kind": "word"},
+    {"reading": "bang'wo'ning'kai", "text": "帮我拧开", "kind": "word"},
+    {"reading": "xian'ti'wo'bao'guan", "text": "先替我保管", "kind": "word"},
+    {"reading": "yao'shi'zai'bao'li", "text": "钥匙在包里", "kind": "word"},
+    {"reading": "shou'ji'la'jia'li'le", "text": "手机落家里了", "kind": "word"},
+    {"reading": "yong'yi'xia'jiu'huan", "text": "用一下就还", "kind": "word"},
+    {"reading": "bi'mao", "text": "笔帽", "kind": "word"},
+    {"reading": "xiang'pi", "text": "橡皮", "kind": "word"},
+    {"reading": "qian'zi'bi", "text": "签字笔", "kind": "word"},
+    {"reading": "ding'shu'ji", "text": "订书机", "kind": "word"},
+    {"reading": "bian'li'tie", "text": "便利贴", "kind": "word"},
+    {"reading": "chu'men'dai'qi'dong'xi", "text": "出门带齐东西", "kind": "word"},
+    {"reading": "wo'xian'huan'shuang'xie", "text": "我先换双鞋", "kind": "word"},
+    {"reading": "ba'la'lian'la'shang", "text": "把拉链拉上", "kind": "word"},
+    {"reading": "kou'dai'jian'cha'yi'xia", "text": "口袋检查一下", "kind": "word"},
+    {"reading": "shui'bei'dai'shang'le", "text": "水杯带上了", "kind": "word"},
+    {"reading": "mao'zi'fang'bao'li", "text": "帽子放包里", "kind": "word"},
+    {"reading": "xie'dai'xi'hao'le", "text": "鞋带系好了", "kind": "word"},
+    {"reading": "wei'jin'bie'wang'le", "text": "围巾别忘了", "kind": "word"},
+    {"reading": "wa'zi", "text": "袜子", "kind": "word"},
+    {"reading": "chen'shan", "text": "衬衫", "kind": "word"},
+    {"reading": "duan'xiu", "text": "短袖", "kind": "word"},
+    {"reading": "chang'xiu", "text": "长袖", "kind": "word"},
+    {"reading": "bao'wai'tao", "text": "薄外套", "kind": "word"},
+    {"reading": "hou'wai'tao", "text": "厚外套", "kind": "word"},
+    {"reading": "yun'dong'xie", "text": "运动鞋", "kind": "word"},
+    {"reading": "tuo'xie", "text": "拖鞋", "kind": "word"},
+    {"reading": "xie'dai", "text": "鞋带", "kind": "word"},
+    {"reading": "yi'ling", "text": "衣领", "kind": "word"},
+    {"reading": "niu'kou", "text": "纽扣", "kind": "word"},
+    {"reading": "la'lian", "text": "拉链", "kind": "word"},
+    {"reading": "kou'dai", "text": "口袋", "kind": "word"},
+    {"reading": "wei'jin", "text": "围巾", "kind": "word"},
+    {"reading": "mao'zi", "text": "帽子", "kind": "word"},
+    {"reading": "sui'shen'wu'pin", "text": "随身物品", "kind": "word"},
+    {"reading": "wo'xian'xi'ba'lian", "text": "我先洗把脸", "kind": "word"},
+    {"reading": "xian'shua'ge'ya", "text": "先刷个牙", "kind": "word"},
+    {"reading": "mao'jin'fang'zhe'li", "text": "毛巾放这里", "kind": "word"},
+    {"reading": "tou'fa'chui'gan'le", "text": "头发吹干了", "kind": "word"},
+    {"reading": "chu'men'qian'shou'shi'yi'xia", "text": "出门前收拾一下", "kind": "word"},
+    {"reading": "yong'wan'fang'hui'yuan'chu", "text": "用完放回原处", "kind": "word"},
+    {"reading": "wo'qu'xi'ge'zao", "text": "我去洗个澡", "kind": "word"},
+    {"reading": "xi'shu'yong'pin'fang'bao'li", "text": "洗漱用品放包里", "kind": "word"},
+    {"reading": "ya'shua", "text": "牙刷", "kind": "word"},
+    {"reading": "ya'gao", "text": "牙膏", "kind": "word"},
+    {"reading": "shu'zi", "text": "梳子", "kind": "word"},
+    {"reading": "mao'jin", "text": "毛巾", "kind": "word"},
+    {"reading": "fei'zao", "text": "肥皂", "kind": "word"},
+    {"reading": "xiang'zao", "text": "香皂", "kind": "word"},
+    {"reading": "chui'feng'ji", "text": "吹风机", "kind": "word"},
+    {"reading": "jing'zi", "text": "镜子", "kind": "word"},
+    {"reading": "mian'jin", "text": "面巾", "kind": "word"},
+    {"reading": "ya'bei", "text": "牙杯", "kind": "word"},
+    {"reading": "xi'fa'shui", "text": "洗发水", "kind": "word"},
+    {"reading": "mu'yu'lu", "text": "沐浴露", "kind": "word"},
+    {"reading": "xi'shu'bao", "text": "洗漱包", "kind": "word"},
+    {"reading": "xi'shu'yong'pin", "text": "洗漱用品", "kind": "word"},
+    {"reading": "guan'hao'shui'long'tou", "text": "关好水龙头", "kind": "word"},
+    {"reading": "chui'gan'tou'fa", "text": "吹干头发", "kind": "word"},
+    {"reading": "hai", "text": "还", "kind": "word"},
+    {"reading": "hou", "text": "后", "kind": "word"}
   ],
   "continuations": [
     [
@@ -7373,6 +7479,258 @@
       [
         "换个方式联系也可以，选个方便的。",
         "换个方式联系，免得一直等不到消息。"
+      ]
+    ],
+    [
+      "刚起床",
+      [
+        "刚起床，我先洗漱一下。",
+        "刚起床，等会儿再聊。"
+      ]
+    ],
+    [
+      "还没睡",
+      [
+        "还没睡，我把手头的事收个尾。",
+        "还没睡，不过准备休息了。"
+      ]
+    ],
+    [
+      "忙完了",
+      [
+        "忙完了，我先歇一会儿。",
+        "忙完了，现在可以聊两句。"
+      ]
+    ],
+    [
+      "下班了",
+      [
+        "下班了，我准备回家。",
+        "下班了，今天的事明天再说。"
+      ]
+    ],
+    [
+      "吃饱了",
+      [
+        "吃饱了，我们收拾一下桌子吧。",
+        "吃饱了，我先坐一会儿。"
+      ]
+    ],
+    [
+      "有点冷",
+      [
+        "有点冷，我去拿件外套。",
+        "有点冷，先把窗户关上吧。"
+      ]
+    ],
+    [
+      "有点热",
+      [
+        "有点热，我想开一会儿窗。",
+        "有点热，等凉快一点再出门。"
+      ]
+    ],
+    [
+      "先喝点水",
+      [
+        "先喝点水再出门，路上慢点。",
+        "先喝点水再接着忙，不用着急。"
+      ]
+    ],
+    [
+      "准备出门了",
+      [
+        "准备出门了，东西都带齐了。",
+        "准备出门了，到了再跟你说。"
+      ]
+    ],
+    [
+      "我去洗漱",
+      [
+        "我去洗漱，等会儿回来。",
+        "我去洗漱，你先坐一会儿。"
+      ]
+    ],
+    [
+      "今天起晚了",
+      [
+        "今天起晚了，我收拾好就出门。",
+        "今天起晚了，早餐带着路上吃。"
+      ]
+    ],
+    [
+      "歇一会儿",
+      [
+        "歇一会儿，等下再继续。",
+        "歇一会儿，我们不赶时间。"
+      ]
+    ],
+    [
+      "借支笔",
+      [
+        "借支笔填个名字，马上还你。",
+        "借支笔写个地址，用完就还给你。"
+      ]
+    ],
+    [
+      "借把伞",
+      [
+        "借把伞，外面正在下雨。",
+        "借把伞，我明天带回来。"
+      ]
+    ],
+    [
+      "帮我递纸巾",
+      [
+        "帮我递纸巾，我手上有水。",
+        "帮我递纸巾，桌上洒了点水。"
+      ]
+    ],
+    [
+      "替我拿着",
+      [
+        "替我拿着，我先把门打开。",
+        "替我拿着，别让袋子倒了。"
+      ]
+    ],
+    [
+      "充电线在哪",
+      [
+        "充电线在哪，我的手机快没电了。",
+        "充电线在哪，我刚才还用过。"
+      ]
+    ],
+    [
+      "眼镜找不到了",
+      [
+        "眼镜找不到了，你帮我看看桌上。",
+        "眼镜找不到了，我再找找包里。"
+      ]
+    ],
+    [
+      "用完还给你",
+      [
+        "用完还给你，不会拿走的。",
+        "用完还给你，我就在这里用。"
+      ]
+    ],
+    [
+      "麻烦开下门",
+      [
+        "麻烦开下门，我两只手都拿着东西。",
+        "麻烦开下门，我把袋子放进去。"
+      ]
+    ],
+    [
+      "出门带齐东西",
+      [
+        "出门带齐东西，钥匙和手机再看一眼。",
+        "出门带齐东西，免得走到一半又回来。"
+      ]
+    ],
+    [
+      "我先换双鞋",
+      [
+        "我先换双鞋再出门，你在门口等我一下。",
+        "我先换双鞋再出门，走路会舒服一点。"
+      ]
+    ],
+    [
+      "把拉链拉上",
+      [
+        "把拉链拉上再出门，外面风有点大。",
+        "把拉链拉上，别把衣角夹住了。"
+      ]
+    ],
+    [
+      "口袋检查一下",
+      [
+        "口袋检查一下，看看钥匙在不在。",
+        "口袋检查一下，别把东西落家里。"
+      ]
+    ],
+    [
+      "水杯带上了",
+      [
+        "水杯带上了，路上就不用再买水。",
+        "水杯带上了，放在包侧面就好。"
+      ]
+    ],
+    [
+      "帽子放包里",
+      [
+        "帽子放包里，到了外面再戴。",
+        "帽子放包里，免得走的时候忘拿。"
+      ]
+    ],
+    [
+      "鞋带系好了",
+      [
+        "鞋带系好了，现在可以出门了。",
+        "鞋带系好了，我们慢慢走过去。"
+      ]
+    ],
+    [
+      "围巾别忘了",
+      [
+        "围巾别忘了，晚上回来可能有点冷。",
+        "围巾别忘了，我帮你放在门口。"
+      ]
+    ],
+    [
+      "我先洗把脸",
+      [
+        "我先洗把脸再出门，你先坐一会儿。",
+        "我先洗把脸再出门，等我两分钟。"
+      ]
+    ],
+    [
+      "先刷个牙",
+      [
+        "先刷个牙，等会儿再聊。",
+        "先刷个牙，我马上就好。"
+      ]
+    ],
+    [
+      "毛巾放这里",
+      [
+        "毛巾放这里，洗完手就能拿到。",
+        "毛巾放这里，我等会儿挂起来。"
+      ]
+    ],
+    [
+      "头发吹干了",
+      [
+        "头发吹干了，现在可以出门了。",
+        "头发吹干了，我把吹风机收起来。"
+      ]
+    ],
+    [
+      "出门前收拾一下",
+      [
+        "出门前收拾一下，别把东西落在桌上。",
+        "出门前收拾一下，回来就不用再找了。"
+      ]
+    ],
+    [
+      "用完放回原处",
+      [
+        "用完放回原处，下次拿起来方便。",
+        "用完放回原处，我等会儿也要用。"
+      ]
+    ],
+    [
+      "我去洗个澡",
+      [
+        "我去洗个澡，出来再回复你。",
+        "我去洗个澡，你先看会儿电视。"
+      ]
+    ],
+    [
+      "洗漱用品放包里",
+      [
+        "洗漱用品放包里，住一晚也够用。",
+        "洗漱用品放包里，出门时一起带上。"
       ]
     ]
   ]

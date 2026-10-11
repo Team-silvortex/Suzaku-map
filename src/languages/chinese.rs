@@ -65,7 +65,10 @@ impl PinyinEntry {
         let mut consumed = 0;
         for expected in self.reading.bytes() {
             if consumed == input.len() {
-                return Some(ReadingMatch::Prefix);
+                // A final apostrophe is a literal closing quote, not evidence
+                // for an as-yet untyped next syllable. Exact readings still
+                // stop before it so the decoder can retain the quote.
+                return (!input.ends_with('\'')).then_some(ReadingMatch::Prefix);
             }
             if expected == b'\'' {
                 let separators = separator_bytes(&input[consumed..]);
@@ -208,6 +211,22 @@ pub(crate) fn is_dictionary_word(text: &str) -> bool {
     dictionary_words().contains(text)
 }
 
+// Reuse the decoder's existing bounded choices. Its first five finished paths
+// can precede a correct partial Word; up to four verified completion paths then
+// follow. No new reading, beam path or literal interpretation is inferred here.
+fn continuation_paths(
+    choices: &[(String, CandidateKind)],
+    include_completed_words: bool,
+) -> impl Iterator<Item = &str> {
+    choices
+        .iter()
+        .enumerate()
+        .filter(move |(index, (_, kind))| {
+            *index < 5 || (include_completed_words && *kind == CandidateKind::Word)
+        })
+        .map(|(_, (text, _))| text.as_str())
+}
+
 /// Match already converted text without erasing its literal horizontal padding.
 /// The optional reading tail is only a routing hint for the long-draft window:
 /// emitted sentences must match an actual decoder result, never this hint.
@@ -237,12 +256,14 @@ fn authored_sentence_suffix<'a>(
                 if reading
                     .chars()
                     .all(|ch| ch.is_ascii_lowercase() || is_pinyin_separator(ch))
-                    && pinyin_candidates(&input[offset..])
-                        .iter()
-                        .take(5)
-                        .any(|converted| {
+                    // This is only a routing hint: keeping more verified Word
+                    // progress cannot emit a sentence. Actual emission below
+                    // still applies its precise-word/homophone guard.
+                    && continuation_paths(&pinyin_choices(&input[offset..]), true).any(
+                        |converted| {
                             authored_sentence_suffix(converted, &sentence[index..], false).is_some()
-                        })
+                        },
+                    )
                 {
                     return Some(&sentence[index..]);
                 }
@@ -322,10 +343,29 @@ pub(crate) fn mixed_candidates(
             ));
         }
     }
-    // A valid homophone may continue the authored sentence even if the primary
-    // conversion does not. Keep that primary untouched; only add suggestions
-    // from the bounded decoder paths, never rewrite literal adopted Han text.
-    for converted in pinyin_candidates(seed).iter().take(5) {
+    // A whole-reading completion can sit beyond the decoder's first five
+    // conversions when shorter ambiguous readings finish first. It is already
+    // a verified Word above, so retain it as an authored continuation source.
+    // At most five such words are considered, after the original decoder paths.
+    // When the primary conversion already is a dictionary word, preserve the
+    // original homophone page instead of promoting unrelated longer contexts
+    // (e.g. shijian -> 时间 must not evict 世间 for 时间安排's sentences).
+    let conversions = pinyin_choices(seed);
+    let include_completed_words = conversions
+        .first()
+        .is_some_and(|(text, _)| !is_dictionary_word(text.trim_matches(is_pinyin_spacing)));
+    let completed_words = if include_completed_words {
+        output
+            .iter()
+            .filter(|(_, kind)| *kind == CandidateKind::Word)
+            .map(|(text, _)| text.clone())
+            .collect::<Vec<_>>()
+    } else {
+        Vec::new()
+    };
+    // Already adopted Han prefixes are not whole reading matches above. Their
+    // verified partial Word paths must also keep the original authored context.
+    for converted in continuation_paths(&conversions, include_completed_words) {
         if let Some((tail, values)) = authored_continuation(converted, false) {
             for text in values {
                 if let Some(suffix) = authored_sentence_suffix(tail, text, false) {
@@ -333,6 +373,20 @@ pub(crate) fn mixed_candidates(
                     if !output.iter().any(|(text, _)| *text == continuation) {
                         output.push((continuation, CandidateKind::Sentence));
                     }
+                }
+            }
+        }
+    }
+    for word in completed_words {
+        // Only this whole word's own context is eligible. Do not search inside
+        // it for an unrelated shorter context or infer extra reading segments.
+        if let Some((_, values)) = vocabulary()
+            .continuations()
+            .find(|(context, _)| *context == word)
+        {
+            for text in values {
+                if !output.iter().any(|(candidate, _)| candidate == text) {
+                    output.push((text.clone(), CandidateKind::Sentence));
                 }
             }
         }
@@ -348,6 +402,35 @@ pub fn pinyin_candidates(seed: &str) -> Vec<String> {
 }
 
 fn pinyin_choices(seed: &str) -> Vec<(String, CandidateKind)> {
+    let choices = decode_pinyin_choices(seed);
+    if seed.chars().count() > super::draft::LOCAL_TAIL_CHARS
+        || choices
+            .iter()
+            .any(|(_, kind)| *kind != CandidateKind::Literal)
+    {
+        return choices;
+    }
+    // A literal acronym in a short draft can block its entire reading path.
+    // Recover only after the same written boundary used by long drafts, when
+    // the full decoder has no conversion. Never normalize the frozen prefix,
+    // split at ASCII punctuation or recursively reinterpret the local tail.
+    let Some((prefix, tail)) = super::draft::chinese_boundary_tail(seed) else {
+        return choices;
+    };
+    let recovered = decode_pinyin_choices(tail);
+    if !recovered
+        .iter()
+        .any(|(_, kind)| *kind != CandidateKind::Literal)
+    {
+        return choices;
+    }
+    recovered
+        .into_iter()
+        .map(|(text, kind)| (format!("{prefix}{text}"), kind))
+        .collect()
+}
+
+fn decode_pinyin_choices(seed: &str) -> Vec<(String, CandidateKind)> {
     if seed.trim().is_empty() {
         return Vec::new();
     }
@@ -465,6 +548,25 @@ fn pinyin_choices(seed: &str) -> Vec<(String, CandidateKind)> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn unfinished_reading_cannot_consume_a_final_apostrophe_to_invent_a_syllable() {
+        let entry = PinyinEntry::new("zai'shi'yi'ci", "再试一次");
+        for input in ["zaishiyi", "zai'shi'yi", "zai'shi'yi'c", "zai shi yi c "] {
+            assert!(matches!(
+                entry.match_input(input),
+                Some(ReadingMatch::Prefix)
+            ));
+        }
+        for input in ["zaishiyi'", "zai'shi'yi'", "zai'shi'yi'  ", "zai shi yi'\t"] {
+            assert!(entry.match_input(input).is_none(), "{input:?}");
+        }
+        let input = "zai'shi'yi'ci'";
+        assert!(matches!(
+            entry.match_input(input),
+            Some(ReadingMatch::Exact(bytes)) if bytes == input.len() - 1
+        ));
+    }
 
     #[test]
     fn word_membership_index_matches_linear_reference_for_the_entire_vocabulary() {
@@ -631,7 +733,7 @@ mod tests {
 
     #[test]
     fn authored_continuations_are_unique_complete_and_preserve_padding() {
-        assert_eq!(pinyin().len(), 2816);
+        assert_eq!(pinyin().len(), 2922);
         let mut phrases = std::collections::HashSet::new();
         let mut sentences = std::collections::HashSet::new();
         for (phrase, values) in vocabulary().continuations() {

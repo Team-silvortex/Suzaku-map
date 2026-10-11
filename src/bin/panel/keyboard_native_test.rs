@@ -10,7 +10,7 @@ use x11rb::{
     connection::Connection,
     protocol::xproto::{
         ConnectionExt, EventMask, InputFocus, KEY_PRESS_EVENT, KEY_RELEASE_EVENT, KeyButMask,
-        KeyPressEvent,
+        KeyPressEvent, MapState,
     },
     rust_connection::RustConnection,
 };
@@ -463,6 +463,310 @@ impl ApplicationHandler for KeyboardProbe {
                     "a later user app switch wins over restoration"
                 );
                 self.step = 11;
+                event_loop.exit();
+            }
+            _ => {}
+        }
+    }
+}
+
+#[test]
+#[ignore = "requires isolated Xvfb and SUZAKU_PANEL_NATIVE_QA=1"]
+fn native_custom_shortcut_recording_owns_window_events() {
+    assert_eq!(std::env::var("SUZAKU_PANEL_NATIVE_QA").as_deref(), Ok("1"));
+    let config = std::env::var_os("XDG_CONFIG_HOME").expect("isolated config");
+    assert!(std::path::Path::new(&config).starts_with(std::env::temp_dir()));
+    assert!(std::env::var("DISPLAY").unwrap().split('.').next().unwrap() != ":0");
+    let mut builder = EventLoop::builder();
+    builder.with_x11().with_any_thread(true);
+    let event_loop = builder.build().unwrap();
+    let (connection, _) = x11rb::connect(None).unwrap();
+    let mut probe = ShortcutRecordingProbe {
+        state: None,
+        other: None,
+        connection,
+        step: 0,
+        started: Instant::now(),
+        key_events: 0,
+        completed: false,
+    };
+    event_loop.run_app(&mut probe).unwrap();
+    assert!(probe.completed);
+    assert_eq!(
+        probe.key_events, 6,
+        "all six real winit key events must reach the dispatcher"
+    );
+}
+
+struct ShortcutRecordingProbe {
+    state: Option<PanelState>,
+    other: Option<Arc<Window>>,
+    connection: RustConnection,
+    step: usize,
+    started: Instant,
+    key_events: usize,
+    completed: bool,
+}
+
+impl ShortcutRecordingProbe {
+    fn viewable(&self, window: &Window) -> bool {
+        self.connection
+            .get_window_attributes(xid(window))
+            .unwrap()
+            .reply()
+            .unwrap()
+            .map_state
+            == MapState::VIEWABLE
+    }
+
+    fn send_key(&self, keysym: u32, modifiers: KeyButMask) {
+        self.send_transition(keysym, modifiers, KEY_PRESS_EVENT);
+        self.send_transition(keysym, modifiers, KEY_RELEASE_EVENT);
+    }
+
+    fn send_transition(&self, keysym: u32, modifiers: KeyButMask, response_type: u8) {
+        let setup = self.connection.setup();
+        let mapping = self
+            .connection
+            .get_keyboard_mapping(setup.min_keycode, setup.max_keycode - setup.min_keycode + 1)
+            .unwrap()
+            .reply()
+            .unwrap();
+        let width = usize::from(mapping.keysyms_per_keycode);
+        let code = mapping
+            .keysyms
+            .chunks(width)
+            .position(|row| row[0] == keysym)
+            .expect("private Xvfb key map contains the requested key") as u8
+            + setup.min_keycode;
+        let window = xid(&self.state.as_ref().unwrap().window);
+        let mask = if response_type == KEY_PRESS_EVENT {
+            EventMask::KEY_PRESS
+        } else {
+            EventMask::KEY_RELEASE
+        };
+        self.connection
+            .send_event(
+                false,
+                window,
+                mask,
+                KeyPressEvent {
+                    response_type,
+                    detail: code,
+                    sequence: 0,
+                    time: x11rb::CURRENT_TIME,
+                    root: setup.roots[0].root,
+                    event: window,
+                    child: 0,
+                    root_x: 0,
+                    root_y: 0,
+                    event_x: 0,
+                    event_y: 0,
+                    state: modifiers,
+                    same_screen: true,
+                },
+            )
+            .unwrap()
+            .check()
+            .unwrap();
+        self.connection.flush().unwrap();
+    }
+
+    fn click_recording(state: &mut PanelState, action: suzaku_map::ime::shortcuts::ShortcutAction) {
+        state.chrome.settings_search_query = action.label().into();
+        state.chrome.settings_scroll_offset = 0.0;
+        state.last_scene = None;
+        native_sync::present_test_frame(state);
+        let scene = state.last_scene.as_ref().unwrap();
+        let kind = InteractionKind::RecordShortcut(action);
+        let rect = scene
+            .interactive_targets
+            .iter()
+            .find(|target| target.kind == kind)
+            .unwrap()
+            .rect;
+        state.cursor_position = Some((rect[0] + rect[2] / 2.0, rect[1] + rect[3] / 2.0));
+        state.begin_primary_press(false);
+        state.complete_primary_release(false);
+        assert_eq!(state.chrome.shortcut_recording, Some(action));
+        state.sync_text_input_state();
+    }
+
+    fn assert_recording_untouched(&self) {
+        use suzaku_map::ime::shortcuts::{ShortcutAction, ShortcutBindings};
+        let state = self.state.as_ref().unwrap();
+        assert_eq!(
+            state.chrome.shortcut_recording,
+            Some(ShortcutAction::Previous)
+        );
+        assert_eq!(state.chrome.shortcut_bindings, ShortcutBindings::default());
+        assert_eq!(state.chrome.shortcut_edit_generation, 0);
+        assert_eq!(state.chrome.seed_text, "private draft café 😀");
+        assert_eq!(state.chrome.settings_search_query, "Previous");
+        assert!(state.chrome.settings_open);
+        assert_eq!(state.window_scale, 1.0);
+        assert!(!state.chrome.shortcut_recording_error.is_empty());
+    }
+}
+
+impl ApplicationHandler for ShortcutRecordingProbe {
+    fn resumed(&mut self, event_loop: &ActiveEventLoop) {
+        let other = Arc::new(
+            event_loop
+                .create_window(Window::default_attributes().with_title("Private focus target"))
+                .unwrap(),
+        );
+        let chrome = PanelChromeState {
+            settings_open: true,
+            settings_category: suzaku_map::ime::gpu::SettingsCategory::Shortcuts,
+            seed_text: "private draft café 😀".into(),
+            llm_enabled: false,
+            ..Default::default()
+        };
+        let window = Arc::new(
+            event_loop
+                .create_window(settings_window_attributes(&chrome))
+                .unwrap(),
+        );
+        let mut state = pollster::block_on(PanelState::new_settings(window, chrome)).unwrap();
+        state.engine.configure_prediction(None);
+        // Production settings attributes intentionally start hidden. Complete the
+        // normal show/map lifecycle before requesting focus on this private window.
+        finish_settings_window_creation(&state.window, &other, event_loop);
+        state.window.request_redraw();
+        self.state = Some(state);
+        self.other = Some(other);
+    }
+
+    fn window_event(&mut self, event_loop: &ActiveEventLoop, window: WindowId, event: WindowEvent) {
+        let Some(state) = self.state.as_mut() else {
+            return;
+        };
+        if window != state.window.id() {
+            return;
+        }
+        if matches!(&event, WindowEvent::KeyboardInput { event, .. } if event.state == winit::event::ElementState::Pressed)
+        {
+            self.key_events += 1;
+        }
+        handle_panel_window_event(state, event_loop, event, false);
+    }
+
+    fn about_to_wait(&mut self, event_loop: &ActiveEventLoop) {
+        use suzaku_map::ime::shortcuts::ShortcutAction;
+        assert!(
+            self.started.elapsed() < Duration::from_secs(20),
+            "shortcut recording probe stuck at step {} with {} keys",
+            self.step,
+            self.key_events
+        );
+        event_loop.set_control_flow(ControlFlow::WaitUntil(
+            Instant::now() + Duration::from_millis(15),
+        ));
+        match self.step {
+            0 if self.viewable(&self.state.as_ref().unwrap().window) => {
+                self.connection
+                    .set_input_focus(
+                        InputFocus::PARENT,
+                        xid(&self.state.as_ref().unwrap().window),
+                        x11rb::CURRENT_TIME,
+                    )
+                    .unwrap()
+                    .check()
+                    .unwrap();
+                self.step = 1;
+            }
+            1 if self.state.as_ref().unwrap().is_focused => {
+                Self::click_recording(self.state.as_mut().unwrap(), ShortcutAction::Previous);
+                self.send_key(0xffbe, KeyButMask::default()); // F1 must not open help/reset search.
+                self.step = 2;
+            }
+            2 if self.key_events == 1 => {
+                self.assert_recording_untouched();
+                self.send_key(u32::from(','), KeyButMask::CONTROL); // Settings command is captured.
+                self.step = 3;
+            }
+            3 if self.key_events == 2 => {
+                self.assert_recording_untouched();
+                self.send_key(u32::from('='), KeyButMask::CONTROL | KeyButMask::SHIFT);
+                self.step = 4;
+            }
+            4 if self.key_events == 3 => {
+                self.assert_recording_untouched();
+                self.send_transition(u32::from('g'), KeyButMask::CONTROL, KEY_PRESS_EVENT);
+                self.step = 5;
+            }
+            5 if self.key_events == 4 => {
+                let state = self.state.as_mut().unwrap();
+                assert_eq!(
+                    state
+                        .chrome
+                        .shortcut_binding_label(ShortcutAction::Previous),
+                    "Ctrl+G"
+                );
+                assert_eq!(state.chrome.shortcut_edit_generation, 1);
+                assert_eq!(state.chrome.shortcut_recording, None);
+                assert_eq!(state.chrome.seed_text, "private draft café 😀");
+                assert_eq!(state.chrome.settings_search_query, "Previous");
+                // Release Ctrl before the still-held G repeats: neither the unmodified
+                // repeat nor a settings shortcut may enter an editor after recording.
+                self.send_transition(0xffe3, KeyButMask::CONTROL, KEY_RELEASE_EVENT);
+                self.send_transition(u32::from('g'), KeyButMask::default(), KEY_PRESS_EVENT);
+                self.step = 6;
+            }
+            6 if self.key_events == 5 => {
+                let state = self.state.as_ref().unwrap();
+                assert_eq!(state.chrome.shortcut_edit_generation, 1);
+                assert_eq!(state.chrome.settings_search_query, "Previous");
+                assert_eq!(state.chrome.seed_text, "private draft café 😀");
+                self.send_transition(u32::from('g'), KeyButMask::default(), KEY_RELEASE_EVENT);
+                Self::click_recording(self.state.as_mut().unwrap(), ShortcutAction::Next);
+                self.send_key(0xff1b, KeyButMask::default());
+                self.step = 7;
+            }
+            7 if self.key_events == 6 && self.viewable(self.other.as_ref().unwrap()) => {
+                let state = self.state.as_mut().unwrap();
+                assert_eq!(state.chrome.shortcut_recording, None);
+                assert!(
+                    state.chrome.settings_open,
+                    "recording Escape must not close settings"
+                );
+                assert_eq!(state.chrome.shortcut_edit_generation, 1);
+                Self::click_recording(state, ShortcutAction::Next);
+                handle_panel_window_event(
+                    state,
+                    event_loop,
+                    WindowEvent::Ime(Ime::Preedit("日本".into(), Some((3, 3)))),
+                    false,
+                );
+                assert_eq!(state.chrome.shortcut_recording, None);
+                assert!(!state.text_input.composing());
+                assert_eq!(state.chrome.settings_search_query, "Next choice");
+                Self::click_recording(state, ShortcutAction::Next);
+                self.connection
+                    .set_input_focus(
+                        InputFocus::PARENT,
+                        xid(self.other.as_ref().unwrap()),
+                        x11rb::CURRENT_TIME,
+                    )
+                    .unwrap()
+                    .check()
+                    .unwrap();
+                self.step = 8;
+            }
+            8 if !self.state.as_ref().unwrap().is_focused => {
+                let state = self.state.as_ref().unwrap();
+                assert_eq!(state.chrome.shortcut_recording, None);
+                assert_eq!(state.chrome.shortcut_edit_generation, 1);
+                assert_eq!(
+                    state.chrome.shortcut_bindings.get(ShortcutAction::Next),
+                    None
+                );
+                assert_eq!(state.chrome.seed_text, "private draft café 😀");
+                self.completed = true;
+                println!(
+                    "PASS: real X11/winit recording captures commands, holds a recorded key through modifier release/repeat, consumes Esc, and cancels on preedit/focus loss without text leakage"
+                );
                 event_loop.exit();
             }
             _ => {}

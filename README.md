@@ -3,7 +3,7 @@
 A local-first, continuous-writing input method with word and sentence candidates,
 optional language models, and a compact floating companion panel.
 
-**0.8.6 · Linux / IBus Alpha preview.** Current validation targets **Ubuntu 24.04,
+**0.8.7 · Linux / IBus Alpha preview.** Current validation targets **Ubuntu 24.04,
 amd64, IBus, X11 or GNOME with XWayland**. Keep your usual input method available
 as a fallback. Other platforms remain experimental.
 
@@ -34,40 +34,35 @@ as a fallback. Other platforms remain experimental.
   these are **not** eight native input dictionaries.
 - Linux configuration backup and preview-first restore. Packages do not collect personal data.
 
-0.8.6 adds everyday courtesy, directions, waiting, rescheduling, shopping, public-transport
-and phone/message expressions: **432 authored sentences**, five English forms,
-224 Chinese readings and 112 Japanese readings compared with 0.8.5.
-Native-panel shared-prefix previews still adapt to the actual card size while preserving
-the complete candidate text and absolute selection index. Short/custom labels and Japanese
-keep their prior display behavior; uncertain Unicode boundaries retain the full label.
-The model-independent prediction protocol retains typed word/sentence candidates, cancellation,
-bounded responses and immediate local fallback; no specific model is required.
-Built-in fallback now contains **6,139 indexed English forms and 2,816 Chinese readings**, with
-1,278 / 1,300 English / Chinese authored sentences. Existing word ranks and candidate budgets
-remain protected; these finite presets are not open-ended model generation.
-Optional packs append to built-ins at process startup; both host and panel need a restart after
-pack changes. Literal spacing, adopted text, Ctrl+Shift+Space and explicit submission remain unchanged.
-**In-memory candidate preferences** still learn only confirmed choices and keep learned local
-sentences available during model refreshes; no typed history is saved. See the
-[release notes](docs/releases/0.8.6.md) and [lexicon scope](data/lexicons/README.md).
-Publishing source does not update an existing installation.
+0.8.7 adds six configurable input shortcuts in **Settings → Shortcuts**:
+previous/next candidate, previous/next page, adoption and English/Chinese switching.
+Bindings support Ctrl or Alt, optional Shift, and a letter or Space (except reserved
+Alt+Space combinations), with conflict checks,
+recording cancellation and per-action/all-binding reset. They are input-context shortcuts,
+not global hotkeys; desktop/application interception remains possible. See [shortcut rules](docs/shortcuts.md).
 
-Japanese reaches 314 readings and 315 continuation records with everyday messages, directions,
-arrangements and contact expressions. Known mixed-script words, partial Romaji choices after spaces and prior homophone
-order remain protected; Japanese Hiragana can also start a native IBus draft.
-The optional catalog now has fourteen data-only packs, including EN/ZH/JA family collections.
-This is a small, model-independent fallback, not a full
-Japanese morphological analyzer; see [the data scope](data/lexicons/README.md#日语日常基础扩充未发布).
+Four authored daily-life batches add **196 sentence/continuation records** across English,
+Chinese and Japanese, plus common Chinese `还` and `后` readings. Built-in totals are now
+**6,143 English indexed forms / 1,350 sentences**, **2,922 Chinese readings / 1,372 sentences**,
+and **366 Japanese readings / 367 continuation records**. English ranks, earlier authored
+record order and candidate budgets remain protected; bare `hai`/`hou` now prefer `还`/`后`.
+Fourteen optional data-only packs remain separate.
+These finite presets do not read personal routines, contacts or typing history, and are not
+open-ended model generation or a full Chinese/Japanese dictionary.
 
-Read [known limitations](docs/known-limitations.md), especially dead keys/Compose, native Wayland,
-speech and application compatibility. This is not a replacement for a full Chinese/Japanese dictionary.
+Chinese unfinished Pinyin and adopted mixed-language drafts retain intended spacing,
+word/sentence choices and exact undo. Shared-engine committed-context undo cancels obsolete model work
+without removing the current draft or deliberately selected candidate. Late replies/errors
+cannot overwrite a newer draft; local candidates remain immediately usable during model failure.
+The prediction protocol remains model-independent; no model is bundled or required.
+Native-panel previews retain complete text and absolute selection indexes.
 
-These data-only expansions retain the model-independent fallback and do not read
-your location or contact lists, plan routes, query timetables, manage calendars, send messages or make purchases; see [current vocabulary scope](data/lexicons/README.md#电话-网络与消息联系-未发布).
-They are not included in 0.8.5 packages; source publication does not update an existing installation.
-Japanese also protects known authored sentence tails from newly added short-word conversions,
-and avoids splitting a completable word again without removing earlier homophone/page choices.
-This remains finite offline matching, not open-ended morphology or whole-sentence prediction.
+Optional pack changes still require host/panel restart. Space continues writing; deliberate
+adoption and exact submission remain separate. In-memory preferences learn only confirmed
+choices; no typed history is saved. See [0.8.7 release notes](docs/releases/0.8.7.md),
+[lexicon scope](data/lexicons/README.md) and [known limitations](docs/known-limitations.md).
+Source publication does not update an existing installation. Native Wayland, real-model quality,
+broader Japanese morphology and non-Linux native behavior remain outside current acceptance.
 
 ## Install the Linux preview
 
@@ -75,11 +70,11 @@ Get the matching `.deb` and `.sha256` from [Releases](https://github.com/chiharu
 For 0.7.x, source tags can precede downloadable packages; use a release with attached packages or
 build from source. Starting with **0.8.0**, downloadable Linux packages and checksums are a
 [release requirement](docs/linux-packaging-data.md#从-080-开始的发布要求).
-Once published, use the matching 0.8.6 Release assets in the download directory on Ubuntu 24.04 amd64:
+Once published, use the matching 0.8.7 Release assets in the download directory on Ubuntu 24.04 amd64:
 
 ```bash
-sha256sum -c suzaku_0.8.6_amd64.deb.sha256
-sudo apt install ./suzaku_0.8.6_amd64.deb
+sha256sum -c suzaku_0.8.7_amd64.deb.sha256
+sudo apt install ./suzaku_0.8.7_amd64.deb
 ```
 
 Installation alone does not activate an input method or start a user service. Register once
@@ -121,10 +116,11 @@ draft, ordinary digits go directly to the application, so `2026` and `12.5` need
 | Enter / primary candidate click | Submit the candidate |
 | Esc | Cancel the draft |
 
-**Ctrl+Shift+Space** switches English ↔ Chinese, even with an empty draft; from Japanese it
+By default, **Ctrl+Shift+Space** switches English ↔ Chinese, even with an empty draft; from Japanese it
 switches to English. It preserves unsubmitted text, does not repeat while held and leaves system
 input-source shortcuts and lock states unchanged. It is local to Suzaku's ordinary IBus fields,
-not a global activation or interface-language shortcut. Japanese remains available in the tray.
+not a global activation or interface-language shortcut. A custom language binding replaces
+this default until cleared. Japanese remains available in the tray.
 
 In the focused panel, **F1** opens Settings → Shortcuts and **Ctrl+,** opens settings.
 The optional home-row IBus profile adds **Alt+J/K** navigation, **Alt+H/L** paging and
@@ -198,7 +194,7 @@ keys, never real typing logs or credentials. For security concerns, read [SECURI
 - [Keyboard shortcuts / 快捷键](docs/shortcuts.md) — EN/ZH toggle, opt-in IBus home-row layout and in-panel reference
 - [Translation](docs/translation.md) · [Interface languages](docs/interface-languages.md)
 - [Linux installation/data](docs/linux-packaging-data.md) · [Known limitations](docs/known-limitations.md)
-- [0.8.6 release notes](docs/releases/0.8.6.md) · [Development history and architecture](DEVELOPMENT.md)
+- [0.8.7 release notes](docs/releases/0.8.7.md) · [Development history and architecture](DEVELOPMENT.md)
 
 MIT licensed; see [LICENSE](LICENSE). Packages include dependency license metadata and available
 license/notice files. External model weights have their own licenses.

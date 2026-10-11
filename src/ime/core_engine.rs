@@ -547,6 +547,9 @@ impl XRTabletImeEngine {
 
     pub fn undo(&mut self) -> Option<Snapshot> {
         let previous = self.state.history.pop()?;
+        // The captured committed context is obsolete. Invalidate work without
+        // rebuilding the unchanged draft or disturbing an explicit choice.
+        self.cancel_prediction();
         self.state.committed_text.truncate(previous);
         self.preferences.undo();
         Some(self.snapshot())

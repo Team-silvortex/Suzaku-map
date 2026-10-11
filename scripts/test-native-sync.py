@@ -31,6 +31,27 @@ from fixtures.native_probe_cleanup import (
     PendingCallbacks, preserve_primary_failure, report_native_diagnostic,
 )
 
+NATIVE_ONLY_FLAGS = (
+    "SUZAKU_NATIVE_PACKS_ONLY", "SUZAKU_NATIVE_PRESENTATION_ONLY",
+    "SUZAKU_NATIVE_LANGUAGE_ONLY", "SUZAKU_NATIVE_CONTROL_IO_ONLY",
+    "SUZAKU_NATIVE_RECOVERY_ONLY", "SUZAKU_NATIVE_JAPANESE_ONLY",
+    "SUZAKU_NATIVE_DRAFT_LIMITS_ONLY", "SUZAKU_NATIVE_ROW_BOUNDARIES_ONLY",
+    "SUZAKU_NATIVE_SCREEN_KEYS_ONLY", "SUZAKU_NATIVE_COMPOSE_UNDO_ONLY",
+    "SUZAKU_NATIVE_BILINGUAL_ONLY", "SUZAKU_NATIVE_FALLBACK_ONLY",
+    "SUZAKU_NATIVE_SHORTCUTS_ONLY", "SUZAKU_NATIVE_CURSOR_ONLY",
+    "SUZAKU_NATIVE_ACTIVATION_ONLY", "SUZAKU_NATIVE_CORE_ONLY",
+)
+
+
+def native_only_mode(environment):
+    """Reject conflicting partitions before starting any fixture server or host."""
+    selected = [flag for flag in NATIVE_ONLY_FLAGS if environment.get(flag) == "1"]
+    if len(selected) > 1:
+        raise ValueError("Native ONLY modes are mutually exclusive: " + ", ".join(selected))
+    return selected[0] if selected else None
+
+
+native_only_flag = native_only_mode(os.environ)
 runtime = Path(os.environ["XDG_RUNTIME_DIR"])
 assert os.environ.get("SUZAKU_NATIVE_SYNC_QA") == "1"
 assert str(runtime).startswith("/tmp/suzaku-sync-qa.")
@@ -941,6 +962,1261 @@ class EnginePeer:
         self.connection.signal_unsubscribe(self.subscription)
 
 
+def check_language_adoption_workflows(bus):
+    """New-language word/sentence adoption stays editable through exact commit."""
+    watch = Watch()
+    chord = IBus.ModifierType.CONTROL_MASK | IBus.ModifierType.SHIFT_MASK
+    release = IBus.ModifierType.RELEASE_MASK
+    cases = [
+        ("en", "zh-Hans", "nihao", "你好", "你好，很高兴认识你。"),
+        ("zh-Hans", "en", "hel", "hello", "hello, how are you?"),
+        ("en", "zh-Hans", "API。nihao", "API。你好", "API。你好，很高兴认识你。"),
+    ]
+    checked = 0
+
+    def adopt(peer, text, kind=None):
+        index = next(i for i, row in enumerate(watch.latest["candidates"])
+                     if row["text"] == text and row["source"] == "local"
+                     and (kind is None or row["kind"] == kind))
+        select_keyboard_candidate(peer, watch, index, "workflow exact keyboard row")
+        key = IBus.KEY_1 + index % 6
+        assert peer.process_key_event(key, 10 + index % 6)
+        assert not peer.process_key_event(key, 10 + index % 6, release)
+        wait(lambda: watch.latest["seed"] == text, "workflow numeric adoption")
+        assert not peer.commits
+
+    try:
+        assert json.loads(command("P0"))["ok"]
+        for profile in ["standard", "home-row"]:
+            assert json.loads(command('U' + json.dumps({"shortcut_profile": profile})))["ok"]
+            for original, target, seed, word, sentence in cases:
+                for kind, adopted in [("word", word), ("sentence", sentence)]:
+                    assert json.loads(command("L" + original))["ok"]
+                    peer = EnginePeer(bus)
+                    try:
+                        peer.event("FocusIn")
+                        type_seed(peer, seed)
+                        wait(lambda: watch.latest["seed"] == seed, "workflow original spelling")
+                        before = watch.latest
+                        assert peer.process_key_event(IBus.KEY_space, 57, chord)
+                        assert not peer.process_key_event(IBus.KEY_space, 57, release)
+                        wait(lambda: json.loads(command("S"))["settings"]["language"] == target
+                             and watch.latest["language"] == target
+                             and watch.latest["context"] > before["context"]
+                             and watch.latest["seed"] == seed, "workflow language acknowledgement")
+                        assert not action(before, "K0") and not peer.commits
+                        adopt(peer, adopted, kind)
+                        assert peer.process_key_event(IBus.KEY_BackSpace)
+                        wait(lambda: watch.latest["seed"] == seed, "new-language exact adoption undo")
+                        adopt(peer, adopted, kind)
+                        assert peer.process_key_event(IBus.KEY_space)
+                        wait(lambda: watch.latest["seed"] == adopted + " ", "adopted draft Space continuation")
+                        assert peer.process_key_event(IBus.KEY_7, 16, IBus.ModifierType.MOD1_MASK)
+                        assert not peer.process_key_event(IBus.KEY_7, 16, release)
+                        wait(lambda: watch.latest["seed"] == adopted + " 7", "literal digit after adoption")
+                        for expected in [adopted + " ", adopted, adopted[:-1]]:
+                            assert peer.process_key_event(IBus.KEY_BackSpace)
+                            wait(lambda: watch.latest["seed"] == expected,
+                                 "ordinary deletion must not resurrect old spelling")
+                        assert not peer.commits
+                        # A raw English row may also be classified as a word;
+                        # exact local payload, not its kind, defines this commit.
+                        adopt(peer, adopted[:-1])
+                        assert peer.process_key_event(IBus.KEY_Return)
+                        wait(lambda: peer.commits == [adopted[:-1]] and not watch.latest["seed"],
+                             "workflow exactly one final commit")
+                        assert not peer.process_key_event(IBus.KEY_Return)
+                        pump()
+                        assert peer.commits == [adopted[:-1]]
+                        checked += 1
+                    finally:
+                        peer.close()
+        assert checked == 12
+        print("PASS: 12 EN/ZH word/sentence language workflows preserve mixed prefixes, exact undo, Space, literal digits and one final commit")
+    finally:
+        watchers.remove(watch)
+        watch.sock.close()
+        assert json.loads(command('U{"shortcut_profile":"standard"}'))["ok"]
+        assert json.loads(command("Len"))["ok"]
+
+
+def check_language_pending_adoption(bus):
+    """While saving, retain progress and use the latest adoption/undo/edit state."""
+    watch = Watch()
+    chord = IBus.ModifierType.CONTROL_MASK | IBus.ModifierType.SHIFT_MASK
+    release = IBus.ModifierType.RELEASE_MASK
+    armed, entered, released, finished, failed = [runtime / ("control-io." + name)
+        for name in ["arm", "entered", "release", "finished", "fail"]]
+    config = Path(os.environ["SUZAKU_IME_CONFIG"])
+    cases = ["success-adopt", "success-adopt-undo", "success-adopt-edit", "failed-adopt"]
+    checked = 0
+    try:
+        assert json.loads(command("P0"))["ok"]
+        assert json.loads(command('U{"shortcut_profile":"standard"}'))["ok"]
+        for original, target, seed, word in [("en", "zh-Hans", "hel", "hello"),
+                                            ("zh-Hans", "en", "nihao", "你好")]:
+            for case in cases:
+                assert json.loads(command("L" + original))["ok"]
+                before_disk = config.read_bytes()
+                peer = EnginePeer(bus)
+                feedback = {"text": ""}
+
+                def auxiliary(_connection, _sender, _path, _interface, _signal, params, *_data):
+                    text = IBus.Serializable.deserialize_object(params.get_child_value(0).get_variant())
+                    feedback["text"] = text.get_text()
+
+                subscription = peer.connection.signal_subscribe(peer.destination, peer.interface,
+                    "UpdateAuxiliaryText", peer.path, None, Gio.DBusSignalFlags.NONE, auxiliary)
+                try:
+                    peer.event("FocusIn")
+                    type_seed(peer, seed)
+                    wait(lambda: watch.latest["seed"] == seed, "pending original draft")
+                    before = watch.latest
+                    for marker in [armed, entered, released, finished, failed]:
+                        marker.unlink(missing_ok=True)
+                    armed.touch()
+                    started = time.monotonic()
+                    assert peer.process_key_event(IBus.KEY_space, 57, chord)
+                    assert time.monotonic() - started < .25, "pending switch blocked input"
+                    assert not peer.process_key_event(IBus.KEY_space, 57, release)
+                    wait(entered.exists, "pending switch reached controlled durable-write barrier")
+                    assert json.loads(command("S", timeout=.25))["settings"]["language"] == original
+                    assert config.read_bytes() == before_disk
+                    assert "正在切换" in feedback["text"], feedback["text"]
+                    index = next(i for i, row in enumerate(watch.latest["candidates"])
+                                 if row["text"] == word and row["kind"] == "word" and row["source"] == "local")
+                    assert index < 6, "pending fixture word must be on the first page"
+                    key = IBus.KEY_1 + index
+                    assert peer.process_key_event(key, 10 + index)
+                    assert not peer.process_key_event(key, 10 + index, release)
+                    wait(lambda: watch.latest["seed"] == word, "adopt while language save is pending")
+                    assert "正在切换" in feedback["text"], \
+                        f"{original}/{case}: pending progress disappeared after adoption: {feedback['text']!r}"
+                    expected = word
+                    if case == "success-adopt-undo":
+                        assert peer.process_key_event(IBus.KEY_BackSpace)
+                        expected = seed
+                    elif case == "success-adopt-edit":
+                        type_seed(peer, "x")
+                        expected = word + "x"
+                    wait(lambda: watch.latest["seed"] == expected, "latest draft before switch acknowledgement")
+                    assert not peer.commits and watch.latest["context"] == before["context"]
+                    assert "正在切换" in feedback["text"], \
+                        f"{original}/{case}: pending progress disappeared after editing: {feedback['text']!r}"
+                    if case == "failed-adopt":
+                        failed.touch()
+                    released.touch()
+                    wait(lambda: finished.exists() and not list(runtime.glob(".suzaku-*.tmp")),
+                         "pending language worker finished without temporary files")
+                    if case == "failed-adopt":
+                        wait(lambda: "未保存" in feedback["text"], "failed pending switch feedback")
+                        assert json.loads(command("S"))["settings"]["language"] == original
+                        assert config.read_bytes() == before_disk
+                        assert watch.latest["context"] == before["context"]
+                        assert peer.process_key_event(IBus.KEY_BackSpace)
+                        expected = seed
+                    else:
+                        wait(lambda: json.loads(command("S"))["settings"]["language"] == target
+                             and watch.latest["context"] > before["context"]
+                             and watch.latest["seed"] == expected, "apply latest pending draft to new language")
+                        assert json.loads(config.read_bytes())["language"] == target
+                        if case == "success-adopt":
+                            assert peer.process_key_event(IBus.KEY_BackSpace)
+                            expected = word[:-1]
+                        elif case == "success-adopt-edit":
+                            assert peer.process_key_event(IBus.KEY_BackSpace)
+                            wait(lambda: watch.latest["seed"] == word, "delete latest pending edit")
+                            assert peer.process_key_event(IBus.KEY_BackSpace)
+                            expected = word[:-1]
+                    wait(lambda: watch.latest["seed"] == expected, "pending switch preserves correct undo lifetime")
+                    assert not peer.commits
+                    print(f"PASS: pending language adoption {original}/{case}", flush=True)
+                    checked += 1
+                finally:
+                    with preserve_primary_failure("pending language adoption cleanup"):
+                        released.touch(exist_ok=True)
+                        peer.close()
+                        peer.connection.signal_unsubscribe(subscription)
+                        if entered.exists():
+                            wait(lambda: finished.exists() and not list(runtime.glob(".suzaku-*.tmp")),
+                                 "pending language cleanup retires its worker")
+        assert checked == 8
+        print("PASS: 8 controlled pending EN/ZH switches keep progress visible, adoption editable and success/failure undo correctly scoped")
+    finally:
+        with preserve_primary_failure("pending language watcher cleanup"):
+            watchers.remove(watch)
+            watch.sock.close()
+
+
+def check_held_language_transitions(bus):
+    """Held adoption survives language acknowledgement and genuine paging."""
+    watch = Watch()
+    saved = json.loads(command("S"))["settings"]
+    shift, alt, release = (IBus.ModifierType.SHIFT_MASK, IBus.ModifierType.MOD1_MASK,
+                           IBus.ModifierType.RELEASE_MASK)
+    chord = IBus.ModifierType.CONTROL_MASK | shift
+    config = Path(os.environ["SUZAKU_IME_CONFIG"])
+    cases = [("en", "zh-Hans", "number-boundary"),
+             ("zh-Hans", "en", "enter-paging")]
+    checked = 0
+
+    def unchanged(peer, events, label):
+        initial = Watch()
+        try:
+            wait(lambda: initial.latest is not None and watch.latest == initial.latest,
+                 label + " pre-key snapshot")
+            before = initial.latest
+            assert watch.latest == before, label
+        finally:
+            watchers.remove(initial)
+            initial.sock.close()
+        for key, code, mask, handled in events:
+            assert peer.process_key_event(key, code, mask) == handled, label
+        assert command("Q") == b"1"
+        fresh = Watch()
+        try:
+            wait(lambda: fresh.latest is not None, label + " fresh snapshot")
+            assert fresh.latest == before and watch.latest == before, (
+                label, {field: (before[field], fresh.latest[field]) for field in before
+                        if before[field] != fresh.latest[field]})
+            assert not peer.commits, label
+        finally:
+            watchers.remove(fresh)
+            fresh.sock.close()
+
+    def repeats(peer, key, code):
+        unchanged(peer, [(key, code, 0, True), (IBus.KEY_at, code, shift, True),
+                         (key, code, alt, True), (IBus.KEY_Return, code, 0, True)],
+                  "held adoption repeats cannot edit or submit")
+
+    try:
+        assert json.loads(command("P0"))["ok"]
+        for profile in ["standard", "home-row"]:
+            assert json.loads(command("U" + json.dumps({"shortcut_profile": profile})))["ok"]
+            for original, target, case in cases:
+                assert json.loads(command("L" + original))["ok"]
+                peer = EnginePeer(bus)
+                try:
+                    peer.event("FocusIn")
+                    type_seed(peer, "hel")
+                    wait(lambda: watch.latest["seed"] == "hel", "held transition original spelling")
+                    if case == "number-boundary":
+                        row = watch.latest["candidates"][1]
+                        assert (row["text"], row["kind"], row["source"]) == ("hello", "word", "local")
+                        key, code, adopted = IBus.KEY_2, 3, "hello"
+                        assert peer.process_key_event(key, code)
+                    else:
+                        index = next(i for i, row in enumerate(watch.latest["candidates"])
+                                     if (row["text"], row["kind"], row["source"]) == ("hel", "literal", "local"))
+                        select_keyboard_candidate(peer, watch, index, "held transition exact literal row")
+                        key, code, adopted = IBus.KEY_Return, 28, "hel"
+                        assert peer.process_key_event(key, code, shift)
+                    wait(lambda: watch.latest["seed"] == adopted, "adopt before held language transition")
+                    before = watch.latest
+                    assert peer.process_key_event(IBus.KEY_space, 57, chord)
+                    wait(lambda: json.loads(command("S"))["settings"]["language"] == target
+                         and watch.latest["language"] == target
+                         and watch.latest["context"] > before["context"]
+                         and watch.latest["seed"] == adopted, "held transition language acknowledgement")
+                    assert json.loads(config.read_bytes())["language"] == target
+                    assert not action(before, "K0") and not peer.commits
+                    unchanged(peer, [(IBus.KEY_Shift_L, 42, release, False),
+                                     (IBus.KEY_Control_L, 37, release, False),
+                                     (IBus.KEY_space, 57, release, False)],
+                              "other releases cannot unlatch adoption")
+                    assert watch.latest["selected"] == 0
+                    unchanged(peer, [(IBus.KEY_Page_Up, 104, 0, True)], "held transition page boundary")
+                    repeats(peer, key, code)
+                    if case == "number-boundary":
+                        assert peer.process_key_event(IBus.KEY_BackSpace, 14)
+                        wait(lambda: watch.latest["seed"] == "hell", "new language retires old adoption undo")
+                        repeats(peer, key, code)
+                        assert not peer.process_key_event(IBus.KEY_a, code, release)
+                        assert peer.process_key_event(IBus.KEY_2, code, alt)
+                        assert not peer.process_key_event(IBus.KEY_2, code, release)
+                        wait(lambda: watch.latest["seed"] == "hell2", "released number can insert immediately")
+                        committed = "hell2 "
+                    else:
+                        assert len(watch.latest["candidates"]) > 6, "held paging fixture needs a real second page"
+                        for page_key, page_code, selected in [(IBus.KEY_Page_Down, 109, 6),
+                                                              (IBus.KEY_Page_Up, 104, 0)]:
+                            old = watch.latest
+                            assert peer.process_key_event(page_key, page_code)
+                            wait(lambda: watch.latest["revision"] > old["revision"]
+                                 and watch.latest["selected"] == selected, "held transition real page move")
+                            for field in ["host", "context", "focused", "private", "language", "seed", "candidates"]:
+                                assert watch.latest[field] == old[field], (case, field)
+                            repeats(peer, key, code)
+                        index = next(i for i, row in enumerate(watch.latest["candidates"])
+                                     if (row["text"], row["kind"], row["source"]) == ("hello", "word", "local"))
+                        select_keyboard_candidate(peer, watch, index, "held transition exact word row")
+                        repeats(peer, key, code)
+                        assert not peer.process_key_event(IBus.KEY_a, code, release)
+                        assert peer.process_key_event(key, code, shift)
+                        assert not peer.process_key_event(key, code, release)
+                        wait(lambda: watch.latest["seed"] == "hello", "released Enter permits new adoption")
+                        assert peer.process_key_event(IBus.KEY_BackSpace, 14)
+                        wait(lambda: watch.latest["seed"] == "hel", "new gesture restores exact spelling")
+                        index = next(i for i, row in enumerate(watch.latest["candidates"])
+                                     if (row["text"], row["kind"], row["source"]) == ("hello", "word", "local"))
+                        select_keyboard_candidate(peer, watch, index, "readopt after held transition undo")
+                        assert peer.process_key_event(key, code, shift)
+                        assert not peer.process_key_event(key, code, release)
+                        wait(lambda: watch.latest["seed"] == "hello", "new gesture readoption")
+                        committed = "hello "
+                    assert not peer.commits
+                    assert peer.process_key_event(IBus.KEY_space)
+                    wait(lambda: watch.latest["seed"] == committed, "held transition Space continuity")
+                    assert not peer.commits
+                    assert peer.process_key_event(IBus.KEY_Return)
+                    wait(lambda: peer.commits == [committed] and not watch.latest["seed"],
+                         "held transition exactly one explicit commit")
+                    assert not peer.process_key_event(IBus.KEY_Return)
+                    pump()
+                    assert peer.commits == [committed]
+                    checked += 1
+                finally:
+                    with preserve_primary_failure("held transition peer cleanup"):
+                        peer.close()
+        assert checked == 4
+        print("PASS: 4 held EN/ZH language transitions preserve physical identity through acknowledgement, boundary/real paging, undo, Space and exact commit")
+    finally:
+        with preserve_primary_failure("held transition settings cleanup"):
+            watchers.remove(watch)
+            watch.sock.close()
+            assert json.loads(command("U" + json.dumps({"shortcut_profile": saved["shortcut_profile"]})))["ok"]
+            assert json.loads(command("L" + saved["language"]))["ok"]
+
+
+def check_held_language_pending(bus):
+    """A blocked language save cannot release an adoption held before the chord."""
+    watch = Watch()
+    saved = json.loads(command("S"))["settings"]
+    shift, alt, release = (IBus.ModifierType.SHIFT_MASK, IBus.ModifierType.MOD1_MASK,
+                           IBus.ModifierType.RELEASE_MASK)
+    chord = IBus.ModifierType.CONTROL_MASK | shift
+    armed, entered, released, finished, failed = [runtime / ("control-io." + name)
+        for name in ["arm", "entered", "release", "finished", "fail"]]
+    config = Path(os.environ["SUZAKU_IME_CONFIG"])
+    cases = [("success", "zh-Hans", "hell"), ("failure", "en", "hel")]
+    checked = 0
+
+    def unchanged(peer, events, label):
+        initial = Watch()
+        try:
+            wait(lambda: initial.latest is not None and watch.latest == initial.latest,
+                 label + " pre-key snapshot")
+            before = initial.latest
+            assert watch.latest == before, label
+        finally:
+            watchers.remove(initial)
+            initial.sock.close()
+        for key, code, mask, handled in events:
+            assert peer.process_key_event(key, code, mask) == handled, label
+        assert command("Q") == b"1"
+        fresh = Watch()
+        try:
+            wait(lambda: fresh.latest is not None, label + " fresh snapshot")
+            assert fresh.latest == before and watch.latest == before, (
+                label, {field: (before[field], fresh.latest[field]) for field in before
+                        if before[field] != fresh.latest[field]})
+            assert not peer.commits, label
+        finally:
+            watchers.remove(fresh)
+            fresh.sock.close()
+
+    def repeats(peer):
+        unchanged(peer, [(IBus.KEY_2, 3, 0, True), (IBus.KEY_at, 3, shift, True),
+                         (IBus.KEY_2, 3, alt, True), (IBus.KEY_Return, 3, 0, True)],
+                  "pending held adoption repeats cannot edit or submit")
+
+    try:
+        assert json.loads(command("P0"))["ok"]
+        for profile in ["standard", "home-row"]:
+            assert json.loads(command("U" + json.dumps({"shortcut_profile": profile})))["ok"]
+            for case, target, spelling in cases:
+                assert json.loads(command("Len"))["ok"]
+                before_disk = config.read_bytes()
+                peer = EnginePeer(bus)
+                feedback = {"text": ""}
+
+                def auxiliary(_connection, _sender, _path, _interface, _signal, params, *_data):
+                    text = IBus.Serializable.deserialize_object(params.get_child_value(0).get_variant())
+                    feedback["text"] = text.get_text()
+
+                subscription = peer.connection.signal_subscribe(peer.destination, peer.interface,
+                    "UpdateAuxiliaryText", peer.path, None, Gio.DBusSignalFlags.NONE, auxiliary)
+                try:
+                    peer.event("FocusIn")
+                    type_seed(peer, "hel")
+                    wait(lambda: watch.latest["seed"] == "hel", "pending held original spelling")
+                    row = watch.latest["candidates"][1]
+                    assert (row["text"], row["kind"], row["source"]) == ("hello", "word", "local")
+                    assert peer.process_key_event(IBus.KEY_2, 3)
+                    wait(lambda: watch.latest["seed"] == "hello", "hold adoption before pending switch")
+                    before = watch.latest
+                    for marker in [armed, entered, released, finished, failed]:
+                        marker.unlink(missing_ok=True)
+                    armed.touch()
+                    started = time.monotonic()
+                    assert peer.process_key_event(IBus.KEY_space, 57, chord)
+                    assert time.monotonic() - started < .25, "held switch blocked the input loop"
+                    wait(entered.exists, "held switch reached controlled durable-write barrier")
+                    assert json.loads(command("S", timeout=.25))["settings"]["language"] == "en"
+                    assert config.read_bytes() == before_disk
+                    assert "正在切换" in feedback["text"], feedback["text"]
+                    unchanged(peer, [(IBus.KEY_Shift_L, 42, release, False),
+                                     (IBus.KEY_Control_L, 37, release, False),
+                                     (IBus.KEY_space, 57, release, False)],
+                              "pending other releases cannot unlatch adoption")
+                    assert watch.latest["selected"] == 0
+                    unchanged(peer, [(IBus.KEY_Page_Up, 104, 0, True)], "pending held page boundary")
+                    repeats(peer)
+                    assert "正在切换" in feedback["text"], feedback["text"]
+                    assert not peer.commits and watch.latest["context"] == before["context"]
+                    if case == "failure":
+                        failed.touch()
+                    released.touch()
+                    wait(lambda: finished.exists() and not list(runtime.glob(".suzaku-*.tmp")),
+                         "held language worker retires temporary settings")
+                    if case == "failure":
+                        wait(lambda: "未保存" in feedback["text"], "held failed language feedback")
+                        assert json.loads(command("S"))["settings"]["language"] == target
+                        assert config.read_bytes() == before_disk
+                        assert watch.latest["context"] == before["context"]
+                    else:
+                        wait(lambda: json.loads(command("S"))["settings"]["language"] == target
+                             and watch.latest["language"] == target
+                             and watch.latest["context"] > before["context"]
+                             and watch.latest["seed"] == "hello", "held pending language acknowledgement")
+                        assert json.loads(config.read_bytes())["language"] == target
+                        assert not action(before, "K0")
+                    assert watch.latest["seed"] == "hello" and watch.latest["language"] == target
+                    unchanged(peer, [(IBus.KEY_Page_Up, 104, 0, True)], "settled held page boundary")
+                    repeats(peer)
+                    assert peer.process_key_event(IBus.KEY_BackSpace, 14)
+                    wait(lambda: watch.latest["seed"] == spelling, "held switch branch-specific adoption undo")
+                    repeats(peer)
+                    assert not peer.process_key_event(IBus.KEY_a, 3, release)
+                    assert peer.process_key_event(IBus.KEY_2, 3, alt)
+                    assert not peer.process_key_event(IBus.KEY_2, 3, release)
+                    wait(lambda: watch.latest["seed"] == spelling + "2", "released held key immediately edits")
+                    assert peer.process_key_event(IBus.KEY_space)
+                    committed = spelling + "2 "
+                    wait(lambda: watch.latest["seed"] == committed, "pending held Space continuity")
+                    assert not peer.commits
+                    assert peer.process_key_event(IBus.KEY_Return)
+                    wait(lambda: peer.commits == [committed] and not watch.latest["seed"],
+                         "pending held exactly one explicit commit")
+                    assert not peer.process_key_event(IBus.KEY_Return)
+                    pump()
+                    assert peer.commits == [committed]
+                    checked += 1
+                finally:
+                    with preserve_primary_failure("pending held language cleanup"):
+                        released.touch(exist_ok=True)
+                        peer.close()
+                        peer.connection.signal_unsubscribe(subscription)
+                        if entered.exists():
+                            wait(lambda: finished.exists() and not list(runtime.glob(".suzaku-*.tmp")),
+                                 "pending held cleanup retires worker")
+        assert checked == 4
+        print("PASS: 4 controlled held language saves preserve repeats through pending/success/failure, boundary paging, branch-specific undo and exact commits")
+    finally:
+        with preserve_primary_failure("pending held settings cleanup"):
+            watchers.remove(watch)
+            watch.sock.close()
+            assert json.loads(command("U" + json.dumps({"shortcut_profile": saved["shortcut_profile"]})))["ok"]
+            assert json.loads(command("L" + saved["language"]))["ok"]
+
+
+def check_custom_language_long_workflows(bus):
+    """Fixed long owned drafts survive custom language gestures, not desktop keys."""
+    saved = json.loads(command("S"))["settings"]
+    config = Path(os.environ["SUZAKU_IME_CONFIG"])
+    watch = Watch()
+    ctrl, alt, shift, release = (IBus.ModifierType.CONTROL_MASK, IBus.ModifierType.MOD1_MASK,
+                                IBus.ModifierType.SHIFT_MASK, IBus.ModifierType.RELEASE_MASK)
+    bindings = {"previous": "Ctrl+P", "next": "Ctrl+N", "previous-page": "Alt+Shift+B",
+                "next-page": "Ctrl+Shift+F", "adopt": "Alt+Shift+A", "switch-language": "Ctrl+Shift+L"}
+    cases = [("en", "zh-Hans", "Earlier note. " * 30, "hel", "hello"),
+             ("zh-Hans", "en", "前文。" * 100, "hui yi", "会议")]
+    checked = 0
+
+    def fresh():
+        probe = Watch()
+        try:
+            wait(lambda: probe.latest is not None and watch.latest == probe.latest,
+                 "long custom language fresh snapshot")
+            assert probe.latest["focused"] and not probe.latest["private"]
+            return probe.latest
+        finally:
+            watchers.remove(probe)
+            probe.sock.close()
+
+    def unchanged(peer, events):
+        before, commits = fresh(), peer.commits.copy()
+        for key, code, mask, handled in events:
+            assert peer.process_key_event(key, code, mask) == handled
+        assert fresh() == before, "long custom language inert event changed the full snapshot"
+        assert peer.commits == commits
+
+    def select(peer, text, kind=None):
+        rows = fresh()["candidates"]
+        index = next(i for i, row in enumerate(rows) if row["text"] == text and row["source"] == "local"
+                     and (kind is None or row["kind"] == kind))
+        for _ in range(len(rows)):
+            before = fresh()
+            if before["selected"] == index:
+                return
+            forward = before["selected"] < index
+            assert peer.process_key_event(IBus.KEY_n if forward else IBus.KEY_p, 0, ctrl)
+            target = before["selected"] + (1 if forward else -1)
+            wait(lambda: watch.latest["revision"] > before["revision"] and
+                 watch.latest["selected"] == target, "long custom language relative selection")
+            assert watch.latest["seed"] == before["seed"] and watch.latest["candidates"] == rows
+        raise AssertionError("long custom language fixed payload was not selected")
+
+    try:
+        assert json.loads(command("P0"))["ok"]
+        for profile in ["standard", "home-row"]:
+            assert json.loads(command("U" + json.dumps({"shortcut_profile": profile,
+                                                       "shortcut_bindings": bindings})))["ok"]
+            for original, target, prefix, tail, word in cases:
+                assert json.loads(command("L" + original))["ok"]
+                peer = EnginePeer(bus)
+                try:
+                    peer.event("FocusIn")
+                    wait(lambda: watch.latest is not None and watch.latest["focused"], "long custom language focus")
+                    old_context = fresh()["context"]
+                    peer.event("Reset")
+                    wait(lambda: watch.latest["context"] > old_context and not watch.latest["seed"],
+                         "long custom language reset context and empty acknowledgement")
+                    assert action(fresh(), "T" + prefix)
+                    wait(lambda: watch.latest["seed"] == prefix, "long custom language owned prefix")
+                    raw = prefix
+                    for character in tail:
+                        assert peer.process_key_event(IBus.unicode_to_keyval(character))
+                        raw += character
+                        wait(lambda: watch.latest["seed"] == raw, "long custom language drained native tail")
+                    adopted = prefix + word
+                    assert len(raw) > 256 and raw != adopted[:-1], "success and failure undo oracles must differ"
+                    select(peer, adopted, "word")
+                    assert peer.process_key_event(IBus.KEY_A, 38, alt | shift)
+                    wait(lambda: watch.latest["seed"] == adopted, "long custom language held word adoption")
+                    before = fresh()
+                    unchanged(peer, [(IBus.KEY_space, 57, ctrl | shift, False)])
+                    started = time.monotonic()
+                    assert peer.process_key_event(IBus.KEY_L, 46, ctrl | shift)
+                    assert time.monotonic() - started < .25, "long custom language chord blocked input"
+                    wait(lambda: json.loads(command("S"))["settings"]["language"] == target
+                         and watch.latest["language"] == target and watch.latest["context"] > before["context"]
+                         and watch.latest["seed"] == adopted, "long custom language durable full-draft acknowledgement")
+                    assert json.loads(config.read_bytes())["language"] == target
+                    assert not action(before, "Tstale long custom draft")
+                    assert fresh()["selected"] == 0
+                    unchanged(peer, [(IBus.KEY_P, 0, ctrl, True), (IBus.KEY_B, 0, alt | shift, True),
+                                     (IBus.KEY_a, 38, 0, True), (IBus.KEY_Return, 38, 0, True),
+                                     (IBus.KEY_l, 46, 0, True), (IBus.KEY_L, 46, ctrl | shift, True),
+                                     (IBus.KEY_a, 39, release, False)])
+                    assert peer.process_key_event(IBus.KEY_BackSpace, 14)
+                    spelling = adopted[:-1]
+                    wait(lambda: watch.latest["seed"] == spelling, "long custom success retires complete old undo")
+                    unchanged(peer, [(IBus.KEY_a, 38, 0, True), (IBus.KEY_l, 46, 0, True),
+                                     (IBus.KEY_a, 38, release, False), (IBus.KEY_l, 46, release, False)])
+                    assert peer.process_key_event(IBus.KEY_7, 8, alt)
+                    wait(lambda: watch.latest["seed"] == spelling + "7", "long custom released literal digit")
+                    before = fresh()
+                    assert peer.process_key_event(IBus.KEY_l, 46, ctrl | shift)
+                    wait(lambda: json.loads(command("S"))["settings"]["language"] == original
+                         and watch.latest["context"] > before["context"] and watch.latest["seed"] == spelling + "7",
+                         "long custom released language gesture immediately reusable")
+                    assert not peer.process_key_event(IBus.KEY_l, 46, release)
+                    assert peer.process_key_event(IBus.KEY_space)
+                    expected = spelling + "7 "
+                    wait(lambda: watch.latest["seed"] == expected, "long custom language Space continuity")
+                    select(peer, expected)
+                    assert not peer.commits
+                    assert peer.process_key_event(IBus.KEY_Return, 36)
+                    wait(lambda: peer.commits == [expected] and not watch.latest["seed"],
+                         "long custom language exact single full commit")
+                    unchanged(peer, [(IBus.KEY_Return, 36, release, False), (IBus.KEY_Return, 36, 0, False)])
+                    checked += 1
+                finally:
+                    with preserve_primary_failure("long custom language engine teardown"):
+                        peer.close()
+    finally:
+        with preserve_primary_failure("long custom language watcher teardown"):
+            watchers.remove(watch)
+            watch.sock.close()
+        with preserve_primary_failure("long custom language private settings restoration"):
+            assert json.loads(command("L" + saved["language"]))["ok"]
+            assert json.loads(command("U" + json.dumps({"llm_enabled": saved["llm_enabled"],
+                "shortcut_profile": saved["shortcut_profile"], "shortcut_bindings": saved["shortcut_bindings"]})))["ok"]
+            assert json.loads(command("S"))["settings"] == saved
+            assert json.loads(config.read_bytes()) == saved
+    assert checked == 4, checked
+    print("PASS: 4 long English/Chinese custom language workflows preserve full drafts, held identities, inert boundaries, retired undo, released gesture reuse, Space and exact single commits")
+
+
+def check_custom_language_pending_long(bus):
+    """Real blocked/fsync-failed saves and canceled custom gestures on long drafts."""
+    saved = json.loads(command("S"))["settings"]
+    config = Path(os.environ["SUZAKU_IME_CONFIG"])
+    watch = Watch()
+    ctrl, alt, shift, release = (IBus.ModifierType.CONTROL_MASK, IBus.ModifierType.MOD1_MASK,
+                                IBus.ModifierType.SHIFT_MASK, IBus.ModifierType.RELEASE_MASK)
+    bindings = {"previous": "Ctrl+P", "next": "Ctrl+N", "previous-page": "Alt+Shift+B",
+                "next-page": "Ctrl+Shift+F", "adopt": "Alt+Shift+A", "switch-language": "Ctrl+Shift+L"}
+    languages = [("en", "zh-Hans", "Earlier note. " * 30, "hel", "hello"),
+                 ("zh-Hans", "en", "前文。" * 100, "hui yi", "会议")]
+    cases = ["success", "failure", "cancel-reset", "cancel-commit"]
+    armed, entered, released, finished, failed = [runtime / ("control-io." + name)
+        for name in ["arm", "entered", "release", "finished", "fail"]]
+    host, checked = active_host(), 0
+
+    def workers():
+        count = 0
+        for entry in Path(f"/proc/{host.pid}/task").glob("*/comm"):
+            try:
+                count += entry.read_text().strip() == "suzaku-settings"
+            except FileNotFoundError:
+                pass  # A task can finish while its owned /proc entry is read.
+        return count
+
+    def fresh():
+        probe = Watch()
+        try:
+            wait(lambda: probe.latest is not None and watch.latest == probe.latest,
+                 "pending long custom current full snapshot")
+            assert probe.latest["focused"] and not probe.latest["private"]
+            return probe.latest
+        finally:
+            watchers.remove(probe)
+            probe.sock.close()
+
+    def unchanged(peer, events):
+        before, commits = fresh(), peer.commits.copy()
+        for key, code, mask, handled in events:
+            assert peer.process_key_event(key, code, mask) == handled
+        assert fresh() == before, "pending long custom inert event changed the full snapshot"
+        assert peer.commits == commits
+
+    def select(peer, text):
+        rows = fresh()["candidates"]
+        index = next(i for i, row in enumerate(rows) if row["text"] == text and row["source"] == "local")
+        for _ in range(len(rows)):
+            before = fresh()
+            if before["selected"] == index:
+                return
+            forward = before["selected"] < index
+            assert peer.process_key_event(IBus.KEY_n if forward else IBus.KEY_p, 0, ctrl)
+            target = before["selected"] + (1 if forward else -1)
+            wait(lambda: watch.latest["revision"] > before["revision"] and
+                 watch.latest["selected"] == target, "pending long custom relative selection")
+            assert watch.latest["seed"] == before["seed"] and watch.latest["candidates"] == rows
+        raise AssertionError("pending long custom fixed payload was not selected")
+
+    try:
+        assert json.loads(command("P0"))["ok"]
+        for profile in ["standard", "home-row"]:
+            assert json.loads(command("U" + json.dumps({"shortcut_profile": profile,
+                                                       "shortcut_bindings": bindings})))["ok"]
+            for original, target, prefix, tail, word in languages:
+                for case in cases:
+                    assert json.loads(command("L" + original))["ok"]
+                    before_disk = config.read_bytes()
+                    peer = EnginePeer(bus)
+                    feedback = {"text": ""}
+
+                    def auxiliary(_connection, _sender, _path, _interface, _signal, params, *_data):
+                        text = IBus.Serializable.deserialize_object(params.get_child_value(0).get_variant())
+                        feedback["text"] = text.get_text()
+
+                    subscription = peer.connection.signal_subscribe(peer.destination, peer.interface,
+                        "UpdateAuxiliaryText", peer.path, None, Gio.DBusSignalFlags.NONE, auxiliary)
+                    try:
+                        peer.event("FocusIn")
+                        wait(lambda: watch.latest is not None and watch.latest["focused"], "pending long custom focus")
+                        old_context = fresh()["context"]
+                        peer.event("Reset")
+                        wait(lambda: watch.latest["context"] > old_context and not watch.latest["seed"],
+                             "pending long custom reset context and empty acknowledgement")
+                        assert action(fresh(), "T" + prefix)
+                        wait(lambda: watch.latest["seed"] == prefix, "pending long custom owned prefix")
+                        raw = prefix
+                        for character in tail:
+                            assert peer.process_key_event(IBus.unicode_to_keyval(character))
+                            raw += character
+                            wait(lambda: watch.latest["seed"] == raw, "pending long custom drained native tail")
+                        adopted = prefix + word
+                        assert len(raw) > 256 and raw != adopted[:-1], "success and failure undo oracles must differ"
+                        assert any(row["text"] == adopted and row["kind"] == "word" and row["source"] == "local"
+                                   for row in fresh()["candidates"])
+                        select(peer, adopted)
+                        assert peer.process_key_event(IBus.KEY_A, 38, alt | shift)
+                        wait(lambda: watch.latest["seed"] == adopted, "pending long custom held adoption")
+                        before = fresh()
+                        for marker in [armed, entered, released, finished, failed]:
+                            marker.unlink(missing_ok=True)
+                        armed.touch()
+                        started = time.monotonic()
+                        assert peer.process_key_event(IBus.KEY_L, 46, ctrl | shift)
+                        assert time.monotonic() - started < .25, "pending long custom switch blocked input"
+                        wait(entered.exists, "pending long custom actual durable-write barrier")
+                        assert workers() == 1
+                        assert json.loads(command("S", timeout=.25))["settings"]["language"] == original
+                        assert config.read_bytes() == before_disk and not peer.commits
+                        assert "正在切换" in feedback["text"]
+                        assert fresh()["selected"] == 0
+                        unchanged(peer, [(IBus.KEY_Control_L, 37, release, False), (IBus.KEY_Shift_L, 42, release, False),
+                                         (IBus.KEY_a, 38, 0, True), (IBus.KEY_Return, 38, 0, True),
+                                         (IBus.KEY_l, 46, 0, True), (IBus.KEY_l, 46, ctrl | shift, True),
+                                         (IBus.KEY_B, 0, alt | shift, True), (IBus.KEY_p, 0, ctrl, True)])
+                        expected_commits = []
+                        if case in ["cancel-reset", "cancel-commit"]:
+                            if case == "cancel-reset":
+                                peer.event("Reset")
+                            else:
+                                select(peer, adopted)
+                                assert peer.process_key_event(IBus.KEY_Return, 36)
+                                expected_commits = [adopted]
+                            wait(lambda: watch.latest["context"] > before["context"] and not watch.latest["seed"]
+                                 and peer.commits == expected_commits, "pending long custom acknowledged cancel boundary")
+                            assert not action(before, "Tstale canceled long custom draft")
+                            assert not peer.process_key_event(IBus.KEY_a, 38, release)
+                            assert not peer.process_key_event(IBus.KEY_l, 46, release)
+                            replacement = prefix + ("after reset " if case == "cancel-reset" else "after commit ")
+                            assert action(fresh(), "T" + replacement)
+                            wait(lambda: watch.latest["seed"] == replacement, "pending long custom new owned context")
+                            started_edit = time.monotonic()
+                            assert peer.process_key_event(IBus.KEY_x, 53)
+                            assert time.monotonic() - started_edit < .25, "canceled worker blocked continued native input"
+                            expected = replacement + "x"
+                            wait(lambda: watch.latest["seed"] == expected, "pending long custom new draft remains editable")
+                        else:
+                            expected = adopted
+                        busy = json.loads(command("P0", timeout=.25))
+                        assert not busy["ok"] and "正在保存" in busy["error"], "pending custom job released writer permit early"
+                        assert workers() == 1 and config.read_bytes() == before_disk
+                        if case == "failure":
+                            failed.touch()
+                        released.touch()
+                        wait(lambda: finished.exists() and workers() == 0 and not list(runtime.glob(".suzaku-*.tmp")),
+                             "pending long custom worker exits and retires temporary files")
+                        if case == "success":
+                            wait(lambda: json.loads(command("S"))["settings"]["language"] == target
+                                 and watch.latest["language"] == target and watch.latest["context"] > before["context"]
+                                 and watch.latest["seed"] == adopted, "pending long custom successful latest full draft")
+                            assert json.loads(config.read_bytes())["language"] == target
+                            assert not action(before, "Tstale old-language long custom draft")
+                        elif case == "failure":
+                            wait(lambda: "未保存" in feedback["text"], "pending long custom real fsync failure acknowledgement")
+                            assert json.loads(command("S"))["settings"]["language"] == original
+                            assert config.read_bytes() == before_disk and fresh()["context"] == before["context"]
+                        else:
+                            assert json.loads(command("S"))["settings"]["language"] == original
+                            assert config.read_bytes() == before_disk
+                            assert fresh()["language"] == original and watch.latest["seed"] == expected
+                        if case in ["success", "failure"]:
+                            unchanged(peer, [(IBus.KEY_a, 38, 0, True), (IBus.KEY_Return, 38, 0, True),
+                                             (IBus.KEY_l, 46, 0, True), (IBus.KEY_B, 0, alt | shift, True)])
+                            assert peer.process_key_event(IBus.KEY_BackSpace, 14)
+                            expected = adopted[:-1] if case == "success" else raw
+                            wait(lambda: watch.latest["seed"] == expected, "pending long custom branch-specific full undo")
+                            unchanged(peer, [(IBus.KEY_a, 38, release, False), (IBus.KEY_l, 46, release, False)])
+                        assert peer.commits == expected_commits
+                        assert peer.process_key_event(IBus.KEY_space)
+                        expected += " "
+                        wait(lambda: watch.latest["seed"] == expected, "pending long custom final Space continuity")
+                        select(peer, expected)
+                        assert peer.commits == expected_commits
+                        assert peer.process_key_event(IBus.KEY_Return, 36)
+                        wait(lambda: peer.commits == expected_commits + [expected] and not watch.latest["seed"],
+                             "pending long custom exact explicit commits without stale publication")
+                        unchanged(peer, [(IBus.KEY_Return, 36, release, False), (IBus.KEY_Return, 36, 0, False)])
+                        checked += 1
+                    finally:
+                        with preserve_primary_failure("pending long custom worker and engine teardown"):
+                            released.touch(exist_ok=True)
+                            peer.close()
+                            peer.connection.signal_unsubscribe(subscription)
+                            if entered.exists():
+                                wait(lambda: finished.exists() and workers() == 0 and not list(runtime.glob(".suzaku-*.tmp")),
+                                     "pending long custom cleanup retains lease until worker exit")
+    finally:
+        with preserve_primary_failure("pending long custom watcher teardown"):
+            watchers.remove(watch)
+            watch.sock.close()
+        with preserve_primary_failure("pending long custom private settings restoration"):
+            assert json.loads(command("L" + saved["language"]))["ok"]
+            assert json.loads(command("U" + json.dumps({"llm_enabled": saved["llm_enabled"],
+                "shortcut_profile": saved["shortcut_profile"], "shortcut_bindings": saved["shortcut_bindings"]})))["ok"]
+            assert json.loads(command("S"))["settings"] == saved
+            assert json.loads(config.read_bytes()) == saved
+    assert checked == 16, checked
+    print("PASS: 16 controlled long custom EN/ZH language saves preserve held drafts, success/failure undo, reset/commit cancellation, worker leases, new-context typing and exact explicit commits")
+
+
+def check_custom_language_pending_boundaries(bus):
+    """Canceled long custom saves cannot cross fields, privacy or Compose edits."""
+    saved = json.loads(command("S"))["settings"]
+    config = Path(os.environ["SUZAKU_IME_CONFIG"])
+    watch = Watch()
+    ctrl, alt, shift, release = (IBus.ModifierType.CONTROL_MASK, IBus.ModifierType.MOD1_MASK,
+                                IBus.ModifierType.SHIFT_MASK, IBus.ModifierType.RELEASE_MASK)
+    bindings = {"previous": "Ctrl+P", "next": "Ctrl+N", "previous-page": "Alt+Shift+B",
+                "next-page": "Ctrl+Shift+F", "adopt": "Alt+Shift+A", "switch-language": "Ctrl+Shift+L"}
+    languages = [("en", "zh-Hans", "Earlier note. " * 30, "hel", "hello"),
+                 ("zh-Hans", "en", "前文。" * 100, "hui yi", "会议")]
+    cases = ["focus-out", "focus-transfer", "password", "pin", "hidden",
+             "compose-pending", "compose-completed"]
+    armed, entered, released, finished, failed = [runtime / ("control-io." + name)
+        for name in ["arm", "entered", "release", "finished", "fail"]]
+    host, checked = active_host(), 0
+
+    def workers():
+        count = 0
+        for entry in Path(f"/proc/{host.pid}/task").glob("*/comm"):
+            try:
+                count += entry.read_text().strip() == "suzaku-settings"
+            except FileNotFoundError:
+                pass
+        return count
+
+    def fresh():
+        probe = Watch()
+        try:
+            wait(lambda: probe.latest is not None and watch.latest == probe.latest,
+                 "custom boundary synchronized fresh snapshot")
+            return probe.latest
+        finally:
+            watchers.remove(probe)
+            probe.sock.close()
+
+    def unchanged(peer, other, events):
+        before = fresh()
+        commits = (peer.commits.copy(), other.commits.copy())
+        for key, code, mask, handled in events:
+            assert peer.process_key_event(key, code, mask) == handled
+        assert fresh() == before, "custom boundary inert event changed the whole frame"
+        assert (peer.commits, other.commits) == commits
+
+    def select(peer, text, kind=None):
+        rows = fresh()["candidates"]
+        index = next(i for i, row in enumerate(rows) if row["text"] == text and row["source"] == "local"
+                     and (kind is None or row["kind"] == kind))
+        for _ in range(len(rows)):
+            before = fresh()
+            if before["selected"] == index:
+                return
+            forward = before["selected"] < index
+            assert peer.process_key_event(IBus.KEY_n if forward else IBus.KEY_p, 0, ctrl)
+            target = before["selected"] + (1 if forward else -1)
+            wait(lambda: watch.latest["revision"] > before["revision"] and
+                 watch.latest["selected"] == target, "custom boundary actual relative selection")
+            assert watch.latest["seed"] == before["seed"] and watch.latest["candidates"] == rows
+        raise AssertionError("custom boundary exact candidate was not selected")
+
+    try:
+        assert json.loads(command("P0"))["ok"]
+        for profile in ["standard", "home-row"]:
+            assert json.loads(command("U" + json.dumps({"shortcut_profile": profile,
+                                                       "shortcut_bindings": bindings})))["ok"]
+            for original, target, prefix, tail, word in languages:
+                for case in cases:
+                    assert json.loads(command("L" + original))["ok"]
+                    before_disk = config.read_bytes()
+                    peer, other = EnginePeer(bus), EnginePeer(bus)
+                    feedback = {"text": ""}
+
+                    def auxiliary(_connection, _sender, _path, _interface, _signal, params, *_data):
+                        text = IBus.Serializable.deserialize_object(params.get_child_value(0).get_variant())
+                        feedback["text"] = text.get_text()
+
+                    subscription = peer.connection.signal_subscribe(peer.destination, peer.interface,
+                        "UpdateAuxiliaryText", peer.path, None, Gio.DBusSignalFlags.NONE, auxiliary)
+                    try:
+                        peer.event("FocusIn")
+                        wait(lambda: watch.latest is not None and watch.latest["focused"] and
+                             not watch.latest["private"], "custom boundary initial public focus")
+                        old_context = fresh()["context"]
+                        peer.event("Reset")
+                        wait(lambda: watch.latest["context"] > old_context and not watch.latest["seed"],
+                             "custom boundary reset context and empty acknowledgement")
+                        assert action(fresh(), "T" + prefix)
+                        wait(lambda: watch.latest["seed"] == prefix, "custom boundary owned long prefix")
+                        raw = prefix
+                        for character in tail:
+                            assert peer.process_key_event(IBus.unicode_to_keyval(character))
+                            raw += character
+                            wait(lambda: watch.latest["seed"] == raw, "custom boundary drained native tail")
+                        adopted = prefix + word
+                        assert len(raw) > 256 and raw != adopted[:-1], "custom boundary undo oracles must differ"
+                        select(peer, adopted, "word")
+                        assert peer.process_key_event(IBus.KEY_A, 38, alt | shift)
+                        wait(lambda: watch.latest["seed"] == adopted, "custom boundary held adoption")
+                        before = fresh()
+                        for marker in [armed, entered, released, finished, failed]:
+                            marker.unlink(missing_ok=True)
+                        armed.touch()
+                        started = time.monotonic()
+                        assert peer.process_key_event(IBus.KEY_L, 46, ctrl | shift)
+                        assert time.monotonic() - started < .25, "custom boundary language gesture blocked input"
+                        wait(entered.exists, "custom boundary real durable-write barrier")
+                        assert workers() == 1 and config.read_bytes() == before_disk
+                        assert json.loads(command("S", timeout=.25))["settings"]["language"] == original
+                        assert "正在切换" in feedback["text"]
+                        unchanged(peer, other, [(IBus.KEY_Return, 38, 0, True), (IBus.KEY_l, 46, 0, True)])
+                        owner, expected = peer, adopted
+                        if case in ["compose-pending", "compose-completed"]:
+                            assert peer.process_key_event(IBus.KEY_dead_acute)
+                            wait(lambda: "Compose…" in feedback["text"] and watch.latest["seed"] == adopted,
+                                 "custom boundary Compose cancels save without editing the draft")
+                            assert fresh()["context"] == before["context"]
+                            if case == "compose-pending":
+                                unchanged(peer, other, [(IBus.KEY_a, 38, release, False), (IBus.KEY_l, 46, release, False),
+                                    (IBus.KEY_Control_L, 37, ctrl, False), (IBus.KEY_Shift_L, 50, ctrl | shift, False),
+                                    (IBus.KEY_L, 46, ctrl | shift, False), (IBus.KEY_A, 38, alt | shift, False),
+                                    (IBus.KEY_Shift_L, 50, release, False), (IBus.KEY_Control_L, 37, release, False)])
+                            else:
+                                assert peer.process_key_event(IBus.KEY_e, 18)
+                                expected = adopted + "é"
+                                wait(lambda: watch.latest["seed"] == expected, "custom boundary complete Unicode accent")
+                                unchanged(peer, other, [(IBus.KEY_Return, 38, 0, True), (IBus.KEY_l, 46, 0, True)])
+                        else:
+                            if case == "focus-out":
+                                peer.event("FocusOut")
+                                wait(lambda: watch.latest["context"] > before["context"] and
+                                     not watch.latest["focused"] and not watch.latest["seed"],
+                                     "custom boundary explicit focus-out acknowledgement")
+                                unchanged(peer, other, [(IBus.KEY_L, 46, ctrl | shift, False),
+                                                       (IBus.KEY_a, 38, 0, False), (IBus.KEY_Return, 36, 0, False)])
+                                peer.event("FocusIn")
+                            elif case == "focus-transfer":
+                                other.event("FocusIn")
+                                owner = other
+                            else:
+                                purpose = {"password": IBus.InputPurpose.PASSWORD, "pin": IBus.InputPurpose.PIN,
+                                           "hidden": IBus.InputPurpose.FREE_FORM}[case]
+                                peer.set_content_type(purpose, (1 << 11) if case == "hidden" else 0)
+                                wait(lambda: watch.latest["context"] > before["context"] and watch.latest["private"]
+                                     and not watch.latest["seed"] and not watch.latest["candidates"],
+                                     "custom boundary privacy redacts and retires full draft")
+                                private_frame = fresh()
+                                unchanged(peer, other, [(IBus.KEY_L, 46, ctrl | shift, False),
+                                                       (IBus.KEY_A, 38, alt | shift, False)])
+                                if case == "hidden":
+                                    assert peer.process_key_event(IBus.KEY_a, 38), "private hint still supports local typing"
+                                    assert fresh()["private"] and not watch.latest["seed"] and not watch.latest["candidates"]
+                                else:
+                                    unchanged(peer, other, [(IBus.KEY_a, 38, 0, False),
+                                                           (IBus.KEY_1, 10, 0, False), (IBus.KEY_Return, 36, 0, False)])
+                                assert not action(before, "Tstale private long draft")
+                                peer.set_content_type(IBus.InputPurpose.FREE_FORM)
+                                wait(lambda: watch.latest["context"] > private_frame["context"] and
+                                     not watch.latest["private"] and not watch.latest["seed"],
+                                     "custom boundary public return retires private input")
+                            wait(lambda: watch.latest["context"] > before["context"] and watch.latest["focused"]
+                                 and not watch.latest["private"] and not watch.latest["seed"],
+                                 "custom boundary new public field acknowledged")
+                            assert not action(before, "Tstale field long draft")
+                            replacement = prefix + "after " + case + " "
+                            assert action(fresh(), "T" + replacement)
+                            wait(lambda: watch.latest["seed"] == replacement, "custom boundary new owned full draft")
+                            started_edit = time.monotonic()
+                            assert owner.process_key_event(IBus.KEY_a, 38)
+                            wait(lambda: watch.latest["seed"] == replacement + "a", "custom boundary adoption identity cleared")
+                            assert owner.process_key_event(IBus.KEY_l, 46)
+                            expected = replacement + "al"
+                            wait(lambda: watch.latest["seed"] == expected, "custom boundary language identity cleared")
+                            assert time.monotonic() - started_edit < .25, "custom boundary canceled save blocked new typing"
+                            if case == "focus-transfer":
+                                snapshot = fresh()
+                                peer.event("Reset")
+                                peer.event("FocusOut")
+                                peer.set_content_type(IBus.InputPurpose.PASSWORD)
+                                unchanged(peer, other, [(IBus.KEY_L, 46, ctrl | shift, False),
+                                                       (IBus.KEY_Return, 36, 0, False), (IBus.KEY_a, 38, 0, False)])
+                                assert fresh() == snapshot, "stale old engine changed the new field"
+                        assert not peer.commits and not other.commits
+                        busy = json.loads(command("P0", timeout=.25))
+                        assert not busy["ok"] and "正在保存" in busy["error"], "custom boundary released worker permit early"
+                        assert workers() == 1 and config.read_bytes() == before_disk
+                        settled = fresh()
+                        released.touch()
+                        wait(lambda: finished.exists() and workers() == 0 and not list(runtime.glob(".suzaku-*.tmp")),
+                             "custom boundary canceled worker exits and discards temporary settings")
+                        assert json.loads(command("S"))["settings"]["language"] == original
+                        assert config.read_bytes() == before_disk
+                        assert fresh() == settled, "canceled custom language task published a late frame"
+                        assert watch.latest["seed"] == expected and watch.latest["language"] == original
+                        if case == "compose-pending":
+                            assert peer.process_key_event(IBus.KEY_BackSpace, 14)
+                            wait(lambda: "Compose…" not in feedback["text"] and watch.latest["seed"] == adopted,
+                                 "custom boundary first Backspace cancels only pending Compose")
+                            assert peer.process_key_event(IBus.KEY_BackSpace, 14)
+                            expected = raw
+                            wait(lambda: watch.latest["seed"] == expected, "custom boundary second Backspace restores entire raw undo")
+                        elif case == "compose-completed":
+                            assert peer.process_key_event(IBus.KEY_BackSpace, 14)
+                            wait(lambda: watch.latest["seed"] == adopted, "custom boundary deletes only completed accent")
+                            assert peer.process_key_event(IBus.KEY_BackSpace, 14)
+                            expected = adopted[:-1]
+                            wait(lambda: watch.latest["seed"] == expected, "custom boundary completed edit retires full raw undo")
+                            unchanged(peer, other, [(IBus.KEY_a, 38, release, False), (IBus.KEY_l, 46, release, False)])
+                        assert owner.process_key_event(IBus.KEY_space)
+                        expected += " "
+                        wait(lambda: watch.latest["seed"] == expected, "custom boundary final Space retains complete draft")
+                        select(owner, expected)
+                        assert not peer.commits and not other.commits
+                        assert owner.process_key_event(IBus.KEY_Return, 36)
+                        wait(lambda: owner.commits == [expected] and not watch.latest["seed"],
+                             "custom boundary exact single owned-field commit")
+                        assert (peer.commits, other.commits) == (([], [expected]) if owner is other else ([expected], []))
+                        unchanged(owner, peer if owner is other else other,
+                                  [(IBus.KEY_Return, 36, release, False), (IBus.KEY_Return, 36, 0, False)])
+                        checked += 1
+                    finally:
+                        with preserve_primary_failure("custom boundary owned engine and worker teardown"):
+                            released.touch(exist_ok=True)
+                            peer.close()
+                            other.close()
+                            peer.connection.signal_unsubscribe(subscription)
+                            if entered.exists():
+                                wait(lambda: finished.exists() and workers() == 0 and not list(runtime.glob(".suzaku-*.tmp")),
+                                     "custom boundary cleanup retains lease until worker exit")
+    finally:
+        with preserve_primary_failure("custom boundary watcher teardown"):
+            watchers.remove(watch)
+            watch.sock.close()
+        with preserve_primary_failure("custom boundary private settings restoration"):
+            assert json.loads(command("L" + saved["language"]))["ok"]
+            assert json.loads(command("U" + json.dumps({"llm_enabled": saved["llm_enabled"],
+                "shortcut_profile": saved["shortcut_profile"], "shortcut_bindings": saved["shortcut_bindings"]})))["ok"]
+            assert json.loads(command("S"))["settings"] == saved
+            assert json.loads(config.read_bytes()) == saved
+    assert checked == 28, checked
+    print("PASS: 28 long custom language boundaries isolate focus/password/PIN/private hints and pending/completed Compose, retain canceled worker leases and exact drafts/undo/commits")
+
+
+def check_custom_language_pending_continuation(bus):
+    """Word-to-sentence editing during real saves retains the latest full draft."""
+    saved = json.loads(command("S"))["settings"]
+    config = Path(os.environ["SUZAKU_IME_CONFIG"])
+    watch = Watch()
+    ctrl, alt, shift, release = (IBus.ModifierType.CONTROL_MASK, IBus.ModifierType.MOD1_MASK,
+                                IBus.ModifierType.SHIFT_MASK, IBus.ModifierType.RELEASE_MASK)
+    bindings = {"previous": "Ctrl+P", "next": "Ctrl+N", "previous-page": "Alt+Shift+B",
+                "next-page": "Ctrl+Shift+F", "adopt": "Alt+Shift+A", "switch-language": "Ctrl+Shift+L"}
+    languages = [("en", "zh-Hans", "Earlier note. " * 30, "please sen", "please send", " me the details."),
+                 ("zh-Hans", "en", "前文。" * 100, "hui yi", "会议", "什么时候开始？")]
+    cases = ["success-sentence", "failure-sentence", "success-edited", "failure-edited"]
+    armed, entered, released, finished, failed = [runtime / ("control-io." + name)
+        for name in ["arm", "entered", "release", "finished", "fail"]]
+    host, checked = active_host(), 0
+
+    def workers():
+        count = 0
+        for entry in Path(f"/proc/{host.pid}/task").glob("*/comm"):
+            try:
+                count += entry.read_text().strip() == "suzaku-settings"
+            except FileNotFoundError:
+                pass
+        return count
+
+    def fresh():
+        probe = Watch()
+        try:
+            wait(lambda: probe.latest is not None and watch.latest == probe.latest,
+                 "pending continuation synchronized full snapshot")
+            assert probe.latest["focused"] and not probe.latest["private"]
+            return probe.latest
+        finally:
+            watchers.remove(probe)
+            probe.sock.close()
+
+    def unchanged(peer, events):
+        before_frame, commits = fresh(), peer.commits.copy()
+        for key, code, mask, handled in events:
+            assert peer.process_key_event(key, code, mask) == handled
+        assert fresh() == before_frame, "pending continuation inert event changed the full frame"
+        assert peer.commits == commits
+
+    def select(peer, text, kind=None):
+        rows = fresh()["candidates"]
+        index = next(i for i, row in enumerate(rows) if row["text"] == text and row["source"] == "local"
+                     and (kind is None or row["kind"] == kind))
+        for _ in range(len(rows)):
+            before_frame = fresh()
+            if before_frame["selected"] == index:
+                return
+            forward = before_frame["selected"] < index
+            assert peer.process_key_event(IBus.KEY_n if forward else IBus.KEY_p, 0, ctrl)
+            target_index = before_frame["selected"] + (1 if forward else -1)
+            wait(lambda: watch.latest["revision"] > before_frame["revision"] and
+                 watch.latest["selected"] == target_index, "pending continuation actual custom relative selection")
+            assert watch.latest["seed"] == before_frame["seed"] and watch.latest["candidates"] == rows
+        raise AssertionError("pending continuation fixed payload was not selected")
+
+    def pending(peer, expected):
+        wait(lambda: watch.latest["seed"] == expected, "pending continuation exact latest draft")
+        frame = fresh()
+        assert frame["context"] == before["context"] and frame["language"] == original
+        assert "正在切换" in feedback["text"], "pending continuation lost the progress hint"
+        assert workers() == 1 and config.read_bytes() == before_disk
+        assert not peer.commits
+
+    try:
+        assert json.loads(command("P0"))["ok"]
+        for profile in ["standard", "home-row"]:
+            assert json.loads(command("U" + json.dumps({"shortcut_profile": profile,
+                                                       "shortcut_bindings": bindings})))["ok"]
+            for original, target, prefix, tail, word, suffix in languages:
+                for case in cases:
+                    assert json.loads(command("L" + original))["ok"]
+                    before_disk = config.read_bytes()
+                    peer = EnginePeer(bus)
+                    feedback = {"text": ""}
+
+                    def auxiliary(_connection, _sender, _path, _interface, _signal, params, *_data):
+                        text = IBus.Serializable.deserialize_object(params.get_child_value(0).get_variant())
+                        feedback["text"] = text.get_text()
+
+                    subscription = peer.connection.signal_subscribe(peer.destination, peer.interface,
+                        "UpdateAuxiliaryText", peer.path, None, Gio.DBusSignalFlags.NONE, auxiliary)
+                    try:
+                        peer.event("FocusIn")
+                        wait(lambda: watch.latest is not None and watch.latest["focused"] and
+                             not watch.latest["private"], "pending continuation initial focus")
+                        old_context = fresh()["context"]
+                        peer.event("Reset")
+                        wait(lambda: watch.latest["context"] > old_context and not watch.latest["seed"],
+                             "pending continuation reset context and empty acknowledgement")
+                        assert action(fresh(), "T" + prefix)
+                        wait(lambda: watch.latest["seed"] == prefix, "pending continuation owned long prefix")
+                        raw = prefix
+                        for character in tail:
+                            assert peer.process_key_event(IBus.unicode_to_keyval(character))
+                            raw += character
+                            wait(lambda: watch.latest["seed"] == raw, "pending continuation drained native tail")
+                        assert len(raw) > 256
+                        full_word = prefix + word
+                        word_space = full_word + " "
+                        sentence = word_space + (suffix.lstrip(" ") if original == "en" else suffix)
+                        assert word_space != sentence[:-1] and raw != word_space, "latest sentence undo oracle must differ"
+                        before = fresh()
+                        for marker in [armed, entered, released, finished, failed]:
+                            marker.unlink(missing_ok=True)
+                        armed.touch()
+                        started = time.monotonic()
+                        assert peer.process_key_event(IBus.KEY_L, 46, ctrl | shift)
+                        assert time.monotonic() - started < .25, "pending continuation language gesture blocked input"
+                        wait(entered.exists, "pending continuation real durable-write barrier before word adoption")
+                        assert json.loads(command("S", timeout=.25))["settings"]["language"] == original
+                        pending(peer, raw)
+                        select(peer, full_word, "word")
+                        assert peer.process_key_event(IBus.KEY_A, 38, alt | shift)
+                        pending(peer, full_word)
+                        unchanged(peer, [(IBus.KEY_Control_L, 37, release, False), (IBus.KEY_Shift_L, 50, release, False),
+                                         (IBus.KEY_Return, 38, 0, True), (IBus.KEY_l, 46, 0, True),
+                                         (IBus.KEY_a, 39, release, False), (IBus.KEY_a, 38, 0, True)])
+                        unchanged(peer, [(IBus.KEY_a, 38, release, False)])
+                        assert peer.process_key_event(IBus.KEY_space)
+                        pending(peer, word_space)
+                        select(peer, sentence, "sentence")
+                        assert peer.process_key_event(IBus.KEY_A, 38, alt | shift)
+                        pending(peer, sentence)
+                        unchanged(peer, [(IBus.KEY_p, 0, ctrl, True), (IBus.KEY_B, 0, alt | shift, True),
+                                         (IBus.KEY_Return, 38, 0, True), (IBus.KEY_l, 46, 0, True)])
+                        assert peer.process_key_event(IBus.KEY_BackSpace, 14)
+                        pending(peer, word_space)
+                        unchanged(peer, [(IBus.KEY_A, 38, alt | shift, True), (IBus.KEY_l, 46, ctrl | shift, True)])
+                        unchanged(peer, [(IBus.KEY_a, 38, release, False)])
+                        select(peer, sentence, "sentence")
+                        assert peer.process_key_event(IBus.KEY_A, 38, alt | shift)
+                        pending(peer, sentence)
+                        expected = sentence
+                        if case.endswith("edited"):
+                            started_edit = time.monotonic()
+                            assert peer.process_key_event(IBus.KEY_x, 53)
+                            pending(peer, sentence + "x")
+                            assert peer.process_key_event(IBus.KEY_7, 8, alt)
+                            expected = sentence + "x7"
+                            pending(peer, expected)
+                            assert time.monotonic() - started_edit < .25, "pending continuation edits blocked input"
+                        pending(peer, expected)
+                        unchanged(peer, [(IBus.KEY_p, 0, ctrl, True), (IBus.KEY_B, 0, alt | shift, True),
+                                         (IBus.KEY_a, 38, 0, True), (IBus.KEY_Return, 38, 0, True),
+                                         (IBus.KEY_l, 46, 0, True), (IBus.KEY_l, 47, release, False)])
+                        busy = json.loads(command("P0", timeout=.25))
+                        assert not busy["ok"] and "正在保存" in busy["error"], "pending continuation writer permit released early"
+                        assert workers() == 1 and config.read_bytes() == before_disk
+                        if case.startswith("failure"):
+                            failed.touch()
+                        released.touch()
+                        wait(lambda: finished.exists() and workers() == 0 and not list(runtime.glob(".suzaku-*.tmp")),
+                             "pending continuation worker exits and cleans temporary settings")
+                        if case.startswith("success"):
+                            wait(lambda: json.loads(command("S"))["settings"]["language"] == target
+                                 and watch.latest["language"] == target and watch.latest["context"] > before["context"]
+                                 and watch.latest["seed"] == expected, "pending continuation success keeps latest full draft")
+                            assert json.loads(config.read_bytes())["language"] == target
+                            assert not action(before, "Tstale pending continuation")
+                        else:
+                            wait(lambda: "未保存" in feedback["text"], "pending continuation real fsync failure feedback")
+                            assert json.loads(command("S"))["settings"]["language"] == original
+                            assert config.read_bytes() == before_disk
+                            assert fresh()["context"] == before["context"] and watch.latest["seed"] == expected
+                        assert fresh()["selected"] == 0
+                        unchanged(peer, [(IBus.KEY_p, 0, ctrl, True), (IBus.KEY_B, 0, alt | shift, True),
+                                         (IBus.KEY_Return, 38, 0, True), (IBus.KEY_l, 46, 0, True)])
+                        assert peer.process_key_event(IBus.KEY_BackSpace, 14)
+                        if case.endswith("sentence"):
+                            expected = word_space if case.startswith("failure") else sentence[:-1]
+                            wait(lambda: watch.latest["seed"] == expected, "pending continuation success/failure latest adoption undo")
+                        else:
+                            wait(lambda: watch.latest["seed"] == sentence + "x", "pending continuation delete only literal digit")
+                            assert peer.process_key_event(IBus.KEY_BackSpace, 14)
+                            wait(lambda: watch.latest["seed"] == sentence, "pending continuation delete only latest typed letter")
+                            assert peer.process_key_event(IBus.KEY_BackSpace, 14)
+                            expected = sentence[:-1]
+                            wait(lambda: watch.latest["seed"] == expected, "pending continuation edit never revives old sentence undo")
+                        unchanged(peer, [(IBus.KEY_a, 38, 0, True), (IBus.KEY_l, 46, 0, True),
+                                         (IBus.KEY_a, 38, release, False), (IBus.KEY_l, 46, release, False)])
+                        assert peer.process_key_event(IBus.KEY_space)
+                        expected += " "
+                        wait(lambda: watch.latest["seed"] == expected, "pending continuation final Space keeps full latest draft")
+                        select(peer, expected)
+                        final_context = fresh()["context"]
+                        assert not peer.commits
+                        assert peer.process_key_event(IBus.KEY_Return, 36)
+                        wait(lambda: peer.commits == [expected] and watch.latest["context"] > final_context
+                             and not watch.latest["seed"], "pending continuation exact single full commit retires context")
+                        unchanged(peer, [(IBus.KEY_Return, 36, release, False), (IBus.KEY_Return, 36, 0, False)])
+                        checked += 1
+                    finally:
+                        with preserve_primary_failure("pending continuation owned worker and engine teardown"):
+                            released.touch(exist_ok=True)
+                            peer.close()
+                            peer.connection.signal_unsubscribe(subscription)
+                            if entered.exists():
+                                wait(lambda: finished.exists() and workers() == 0 and not list(runtime.glob(".suzaku-*.tmp")),
+                                     "pending continuation cleanup retains worker lease until exit")
+    finally:
+        with preserve_primary_failure("pending continuation watcher teardown"):
+            watchers.remove(watch)
+            watch.sock.close()
+        with preserve_primary_failure("pending continuation private settings restoration"):
+            assert json.loads(command("L" + saved["language"]))["ok"]
+            assert json.loads(command("U" + json.dumps({"llm_enabled": saved["llm_enabled"],
+                "shortcut_profile": saved["shortcut_profile"], "shortcut_bindings": saved["shortcut_bindings"]})))["ok"]
+            assert json.loads(command("S"))["settings"] == saved
+            assert json.loads(config.read_bytes()) == saved
+    assert checked == 16, checked
+    print("PASS: 16 long custom pending language continuations keep word/Space/sentence/undo/readoption editable, preserve latest success/failure draft and held identities, and submit exactly once")
+
+
 def check_language_shortcut(bus):
     """Focus-local language changes keep drafts, persist, and never submit text."""
     watch = Watch()
@@ -1074,6 +2350,7 @@ def check_language_shortcut(bus):
                 config.write_bytes(saved)
         assert not peer.commits and not stale.commits
         print(f"PASS: {passed} EN/ZH language shortcut flows persist and preserve drafts/candidates; repeat, modifiers, locks, stale focus, privacy, Compose and save failures are safe")
+        check_language_adoption_workflows(bus)
     finally:
         peer.connection.signal_unsubscribe(subscription)
         peer.close()
@@ -1164,6 +2441,7 @@ def check_language_shortcut_slow_io(bus):
                 peer.close()
                 other.close()
         print(f"PASS: {len(cases)} delayed language shortcut cases keep typing responsive and discard obsolete focus/commit/privacy/Compose requests")
+        check_language_pending_adoption(bus)
     finally:
         watchers.remove(watch)
         watch.sock.close()
@@ -3231,6 +4509,112 @@ def check_candidate_page_boundaries(bus):
         watch.sock.close()
 
 
+def check_keypad_navigation(bus):
+    """NumLock-off navigation keysyms share only the existing row/page rules."""
+    saved = json.loads(command("S"))["settings"]
+    watch = Watch()
+    cases = [
+        ("KP_Up", IBus.KEY_KP_Up, "row", False),
+        ("KP_Down", IBus.KEY_KP_Down, "row", True),
+        ("KP_Left", IBus.KEY_KP_Left, "row", False),
+        ("KP_Right", IBus.KEY_KP_Right, "row", True),
+        ("KP_Prior", IBus.KEY_KP_Prior, "page", False),
+        ("KP_Next", IBus.KEY_KP_Next, "page", True),
+    ]
+    checked = 0
+
+    def start(peer, seed):
+        previous = watch.latest["context"]
+        peer.event("Reset")
+        wait(lambda: watch.latest["context"] > previous and not watch.latest["seed"],
+             "keypad Reset acknowledged before replacement")
+        type_seed(peer, seed)
+        wait(lambda: watch.latest["seed"] == seed, "keypad spelling")
+
+    def unchanged(peer, key):
+        baseline = watch.latest
+        assert peer.process_key_event(key, 80), "keypad boundary leaked to the application"
+        current = Watch()
+        try:
+            wait(lambda: current.latest is not None, "keypad boundary fresh snapshot")
+            assert current.latest == baseline, (key, baseline, current.latest)
+        finally:
+            watchers.remove(current)
+            current.sock.close()
+        assert not peer.commits
+
+    try:
+        assert json.loads(command("P0"))["ok"]
+        for profile in ["standard", "home-row"]:
+            assert json.loads(command("U" + json.dumps({"shortcut_profile": profile})))["ok"]
+            for language, seed, word in [("en", "hel", "hello"), ("zh-Hans", "nihao", "你好")]:
+                assert json.loads(command("L" + language))["ok"]
+                for label, key, kind, forward in cases:
+                    peer = EnginePeer(bus)
+                    try:
+                        peer.event("FocusIn")
+                        pump()
+                        assert not peer.process_key_event(key), "empty keypad navigation belongs to the app"
+                        type_seed(peer, seed)
+                        wait(lambda: watch.latest["seed"] == seed, "keypad native draft")
+                        total = len(watch.latest["candidates"])
+                        assert total > 6, "keypad page fixture must retain multiple pages"
+                        origin = 0 if forward else (1 if kind == "row" else 6)
+                        if origin:
+                            select_keyboard_candidate(peer, watch, origin, "keypad movement origin")
+                        before = watch.latest
+                        assert peer.process_key_event(key, 80), f"{label} did not navigate the draft"
+                        target = (1 if kind == "row" else 6) if forward else 0
+                        wait(lambda: watch.latest["selected"] == target
+                             and watch.latest["revision"] > before["revision"], "keypad genuine row/page movement")
+                        for field in ["host", "context", "focused", "private", "language", "seed", "candidates"]:
+                            assert watch.latest[field] == before[field], (label, field)
+                        boundary = total - 1 if forward else 0
+                        select_keyboard_candidate(peer, watch, boundary, "keypad boundary origin")
+                        unchanged(peer, key)
+                        if not forward:
+                            start(peer, seed)
+                            unchanged(peer, key)
+                            assert peer.process_key_event(IBus.KEY_space)
+                            wait(lambda: watch.latest["seed"] == seed + " ",
+                                 "keypad boundary must not implicitly adopt the first row")
+                            start(peer, seed)
+                            index = next(i for i, row in enumerate(watch.latest["candidates"])
+                                         if row["text"] == word and row["source"] == "local")
+                            select_keyboard_candidate(peer, watch, index, "keypad undo word")
+                            assert peer.process_key_event(IBus.KEY_Return, 28, IBus.ModifierType.SHIFT_MASK)
+                            assert not peer.process_key_event(IBus.KEY_Return, 28, IBus.ModifierType.RELEASE_MASK)
+                            wait(lambda: watch.latest["seed"] == word, "adoption before keypad boundary")
+                            unchanged(peer, key)
+                            assert peer.process_key_event(IBus.KEY_BackSpace)
+                            wait(lambda: watch.latest["seed"] == seed, "keypad boundary preserves adoption undo")
+                        # Modifier shortcuts and hard numeric/password fields
+                        # must retain their original application ownership.
+                        for mask in [IBus.ModifierType.CONTROL_MASK, IBus.ModifierType.MOD1_MASK,
+                                     IBus.ModifierType.SUPER_MASK]:
+                            baseline = watch.latest
+                            assert not peer.process_key_event(key, 80, mask)
+                            assert command("Q") == b"1"
+                            pump()
+                            assert watch.latest == baseline and not peer.commits
+                        for purpose in [IBus.InputPurpose.PASSWORD, IBus.InputPurpose.NUMBER]:
+                            peer.set_content_type(purpose)
+                            wait(lambda: watch.latest["private"], "keypad bypass field")
+                            assert not peer.process_key_event(key)
+                        assert not peer.commits
+                        checked += 1
+                    finally:
+                        peer.close()
+        assert checked == 24
+        print("PASS: 24 EN/ZH keypad row/page cases share navigation, inert boundaries, exact undo and app-owned modifiers/empty/bypass fields")
+    finally:
+        with preserve_primary_failure("keypad navigation cleanup"):
+            watchers.remove(watch)
+            watch.sock.close()
+            assert json.loads(command("U" + json.dumps({"shortcut_profile": saved["shortcut_profile"]})))["ok"]
+            assert json.loads(command("L" + saved["language"]))["ok"]
+
+
 def check_candidate_row_boundaries(bus):
     """Relative row boundaries are inert; explicit selections still own the draft."""
     saved = json.loads(command("S"))["settings"]
@@ -3390,6 +4774,7 @@ def check_candidate_row_boundaries(bus):
                 assert json.loads(command("P0"))["ok"]
                 model_reply_gates.pop(name, None)
         print("PASS: EN/ZH row-boundary keys, home-row and IBus gestures preserve exact drafts/candidates, Space spelling, adoption undo and pending models; real moves and explicit same-index selections remain deliberate")
+        check_keypad_navigation(bus)
     finally:
         peer.close()
         config.write_text(original)
@@ -6460,10 +7845,16 @@ try:
         raise SystemExit(0)
     if os.environ.get("SUZAKU_NATIVE_LANGUAGE_ONLY") == "1":
         check_language_shortcut(bus)
+        check_held_language_transitions(bus)
+        check_custom_language_long_workflows(bus)
         raise SystemExit(0)
     if os.environ.get("SUZAKU_NATIVE_CONTROL_IO_ONLY") == "1":
         check_settings_io_responsiveness(bus)
         check_language_shortcut_slow_io(bus)
+        check_held_language_pending(bus)
+        check_custom_language_pending_long(bus)
+        check_custom_language_pending_boundaries(bus)
+        check_custom_language_pending_continuation(bus)
         raise SystemExit(0)
     if os.environ.get("SUZAKU_NATIVE_RECOVERY_ONLY") == "1":
         check_password_probe_cleanup(bus)
@@ -6555,6 +7946,8 @@ try:
     check_native_presentation(bus, host_environment)
     check_tray_activation(bus)
     check_language_shortcut(bus)
+    check_held_language_transitions(bus)
+    check_custom_language_long_workflows(bus)
     check_post_process_preedit(bus)
     check_candidate_page_boundaries(bus)
     check_candidate_row_boundaries(bus)
@@ -6660,7 +8053,8 @@ try:
     check_numeric_field_routing(other, watch, other_commits)
     check_preference_learning(other, watch, other_commits)
     check_preference_model_batches(other, watch, other_commits, other_lookup)
-    check_model_unavailable_vocabulary(other, watch, other_commits, other_lookup)
+    if native_only_flag != "SUZAKU_NATIVE_CORE_ONLY":
+        check_model_unavailable_vocabulary(other, watch, other_commits, other_lookup)
     type_seed(other, "hel")
     # A deterministic local model fixture tests asynchronous publication, not model quality.
     settings = json.loads(command("S"))["settings"]

@@ -20,6 +20,8 @@ qa = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(qa)  # Reject a non-owned display/config before opening GTK.
 assert qa.os.environ["SUZAKU_APP_QA_SUITE"] == "gtk3"
 assert qa.os.environ.get("GTK_IM_MODULE") == "ibus"
+input_tasks = qa.os.environ.get("SUZAKU_GTK3_QA_INPUT_TASKS", "0")
+assert input_tasks in ("0", "1"), "SUZAKU_GTK3_QA_INPUT_TASKS must be 0 or 1"
 IBus = qa.IBus
 bus, x, window, xid = None, None, None, None
 views, insertions = [], []
@@ -770,6 +772,10 @@ try:
     passed_case("crashed private companion expires to stock presentation with exact draft and one commit")
 
     assert passed == 24
+    if input_tasks == "1":
+        from fixtures.gtk3_input_tasks import run
+        assert run(sys.modules[__name__]) == 8
+        assert passed == 32
     print(f"RESULT: {passed} strict in-process GTK3 input/presentation workflows passed", flush=True)
 except Exception:
     try:

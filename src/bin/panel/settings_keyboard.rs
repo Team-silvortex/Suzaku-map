@@ -75,6 +75,11 @@ fn in_scroll_content(kind: InteractionKind) -> bool {
 
 impl PanelState {
     fn focus_settings_control(&mut self, kind: Option<InteractionKind>) {
+        if self.chrome.shortcut_recording.is_some()
+            && !matches!(kind, Some(InteractionKind::RecordShortcut(_)))
+        {
+            self.chrome.cancel_shortcut_recording();
+        }
         self.chrome.settings_keyboard_focus = kind;
         self.chrome.settings_search_focused = kind == Some(InteractionKind::SettingsSearchInput);
         self.last_scene = None;
@@ -115,6 +120,18 @@ impl PanelState {
     }
 
     pub(super) fn handle_settings_key(&mut self, key: &Key, text: Option<&str>, repeat: bool) {
+        if super::keyboard::capture_shortcut_recording(
+            &mut self.chrome,
+            key,
+            self.modifiers,
+            repeat,
+            self.kind == super::PanelWindowKind::Settings && self.is_focused,
+            self.text_input.composing(),
+        ) {
+            self.last_scene = None;
+            self.reveal_settings_focus();
+            return;
+        }
         if self.text_input.composing() {
             return;
         }

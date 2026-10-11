@@ -9,7 +9,7 @@ pub(crate) fn long_local_tail<'a>(language: &str, seed: &'a str) -> Option<(&'a 
     let language = BuiltinLanguage::resolve(language)?;
     // The separating scalar belongs to the frozen prefix, not the local tail.
     // Inspect it as well so a complete 256-scalar tail can use the full budget.
-    let mut boundaries = seed.char_indices().rev().take(LOCAL_TAIL_CHARS + 1);
+    let boundaries = seed.char_indices().rev().take(LOCAL_TAIL_CHARS + 1);
     let start = match language {
         // Keep the longest complete-word window, including recent collocations.
         // Never split a long URL, identifier or natural-language word midway.
@@ -28,28 +28,43 @@ pub(crate) fn long_local_tail<'a>(language: &str, seed: &'a str) -> Option<(&'a 
             {
                 seed.len() - tail.len()
             } else {
-                boundaries
-                    .find(|(_, ch)| {
-                        matches!(ch,
-                '\u{3400}'..='\u{4dbf}' | '\u{4e00}'..='\u{9fff}' |
-                '\u{f900}'..='\u{faff}' | '\u{20000}'..='\u{323af}' |
-                '。' | '，' | '！' | '？' | '；' | '：' | '、' | '「' | '」' | '『' | '』')
-                    })
-                    .map(|(index, ch)| index + ch.len_utf8())?
+                return chinese_boundary_tail(seed);
             };
-            // Han can also occur inside URLs / identifiers. Do not hide their
-            // syntax to make a protected suffix look like plain Pinyin.
-            let token = seed[..start]
-                .rsplit(char::is_whitespace)
-                .next()
-                .unwrap_or("");
-            if token.contains(['/', '\\', '_', '@']) {
-                return None;
-            }
-            start
+            return unprotected_chinese_tail(seed, start);
         }
         BuiltinLanguage::Japanese => return None,
     };
+    let (prefix, tail) = seed.split_at(start);
+    (!tail.trim().is_empty()).then_some((prefix, tail))
+}
+
+/// A written Han/CJK boundary may freeze literal mixed-language text. Shared
+/// by long-draft routing and the short decoder's failure-only recovery; ASCII
+/// punctuation/whitespace alone must not split an unknown Pinyin token.
+pub(crate) fn chinese_boundary_tail(seed: &str) -> Option<(&str, &str)> {
+    let (index, ch) = seed
+        .char_indices()
+        .rev()
+        .take(LOCAL_TAIL_CHARS + 1)
+        .find(|(_, ch)| {
+            matches!(ch,
+                '\u{3400}'..='\u{4dbf}' | '\u{4e00}'..='\u{9fff}' |
+                '\u{f900}'..='\u{faff}' | '\u{20000}'..='\u{323af}' |
+                '。' | '，' | '！' | '？' | '；' | '：' | '、' | '「' | '」' | '『' | '』')
+        })?;
+    unprotected_chinese_tail(seed, index + ch.len_utf8())
+}
+
+fn unprotected_chinese_tail(seed: &str, start: usize) -> Option<(&str, &str)> {
+    // Han can also occur inside URLs / identifiers. Do not hide their syntax
+    // to make a protected suffix look like plain Pinyin.
+    let token = seed[..start]
+        .rsplit(char::is_whitespace)
+        .next()
+        .unwrap_or("");
+    if token.contains(['/', '\\', '_', '@']) {
+        return None;
+    }
     let (prefix, tail) = seed.split_at(start);
     (!tail.trim().is_empty()).then_some((prefix, tail))
 }

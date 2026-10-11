@@ -1,6 +1,6 @@
 //! User settings contain configuration only, never typed text or prediction history.
 
-use super::shortcuts::ShortcutProfile;
+use super::shortcuts::{ShortcutBindings, ShortcutProfile};
 use crate::languages::{
     BuiltinLanguage,
     model::{ModelProtocol, ModelProviderConfig, ModelScope},
@@ -35,6 +35,7 @@ pub struct ImeSettings {
     pub language: BuiltinLanguage,
     pub llm_enabled: bool,
     pub shortcut_profile: ShortcutProfile,
+    pub shortcut_bindings: ShortcutBindings,
     pub provider: ModelProviderConfig,
 }
 
@@ -44,6 +45,7 @@ pub struct PanelImeSettingsPatch {
     pub enabled: Option<bool>,
     pub temperature_tenths: Option<u32>,
     pub shortcut_profile: Option<ShortcutProfile>,
+    pub shortcut_bindings: Option<ShortcutBindings>,
 }
 
 impl PanelImeSettingsPatch {
@@ -55,7 +57,10 @@ impl PanelImeSettingsPatch {
             || fields.keys().any(|key| {
                 !matches!(
                     key.as_str(),
-                    "llm_enabled" | "llm_temperature_tenths" | "shortcut_profile"
+                    "llm_enabled"
+                        | "llm_temperature_tenths"
+                        | "shortcut_profile"
+                        | "shortcut_bindings"
                 )
             })
         {
@@ -72,6 +77,9 @@ impl PanelImeSettingsPatch {
             shortcut_profile: fields
                 .contains_key("shortcut_profile")
                 .then_some(checked.shortcut_profile),
+            shortcut_bindings: fields
+                .contains_key("shortcut_bindings")
+                .then_some(checked.shortcut_bindings),
         })
     }
 
@@ -86,21 +94,30 @@ impl PanelImeSettingsPatch {
         if let Some(profile) = self.shortcut_profile {
             value["shortcut_profile"] = profile.id().into();
         }
+        if let Some(bindings) = self.shortcut_bindings {
+            value["shortcut_bindings"] = bindings.to_json();
+        }
         value
     }
 
     pub fn apply(self, settings: &mut ImeSettings) -> Result<(), String> {
         // Validate before changing any field, including patches constructed in Rust.
         let checked = Self::from_json(&self.to_json().to_string())?;
+        let mut next = settings.clone();
         if let Some(enabled) = checked.enabled {
-            settings.llm_enabled = enabled;
+            next.llm_enabled = enabled;
         }
         if let Some(temperature) = checked.temperature_tenths {
-            settings.provider.temperature_tenths = temperature;
+            next.provider.temperature_tenths = temperature;
         }
         if let Some(profile) = checked.shortcut_profile {
-            settings.shortcut_profile = profile;
+            next.shortcut_profile = profile;
         }
+        if let Some(bindings) = checked.shortcut_bindings {
+            next.shortcut_bindings = bindings;
+        }
+        next.shortcut_bindings.validate(next.shortcut_profile)?;
+        *settings = next;
         Ok(())
     }
 }
@@ -111,6 +128,7 @@ impl Default for ImeSettings {
             language: BuiltinLanguage::English,
             llm_enabled: false,
             shortcut_profile: ShortcutProfile::default(),
+            shortcut_bindings: ShortcutBindings::default(),
             provider: ModelProviderConfig::default(),
         }
     }
@@ -129,6 +147,12 @@ impl ImeSettings {
                 .and_then(ShortcutProfile::from_id)
                 .ok_or("shortcut_profile 必须为 standard 或 home-row")?;
         }
+        if let Some(bindings) = value.get("shortcut_bindings") {
+            settings.shortcut_bindings = ShortcutBindings::from_json(bindings)?;
+        }
+        settings
+            .shortcut_bindings
+            .validate(settings.shortcut_profile)?;
         if let Some(language) = value.get("language") {
             settings.language = language
                 .as_str()
@@ -193,6 +217,7 @@ impl ImeSettings {
     pub fn to_json(&self) -> Value {
         json!({"language": self.language.id(), "llm_enabled": self.llm_enabled,
             "shortcut_profile": self.shortcut_profile.id(),
+            "shortcut_bindings": self.shortcut_bindings.to_json(),
             "llm_scope": self.provider.scope.id(), "llm_protocol": self.provider.protocol.id(),
             "llm_cloud_consent": self.provider.cloud_consent, "llm_api_key_env": self.provider.api_key_env,
             "llm_endpoint": self.provider.endpoint, "llm_model": self.provider.model,
@@ -438,6 +463,118 @@ mod tests {
     }
 
     #[test]
+    fn custom_shortcuts_migrate_round_trip_and_patch_only_the_owned_configuration() {
+        assert_eq!(
+            ImeSettings::from_json("{}").unwrap().shortcut_bindings,
+            ShortcutBindings::default()
+        );
+        assert_eq!(
+            ImeSettings::from_json(r#"{"shortcut_bindings":{}}"#)
+                .unwrap()
+                .shortcut_bindings,
+            ShortcutBindings::default()
+        );
+        let mut settings = ImeSettings::from_json(r#"{"language":"ja","llm_model":"fixture","llm_temperature_tenths":7,"shortcut_profile":"home-row"}"#).unwrap();
+        let before = settings.clone();
+        let patch = PanelImeSettingsPatch::from_json(
+            r#"{"shortcut_bindings":{"adopt":"Ctrl+Shift+A","switch-language":"Ctrl+L"}}"#,
+        )
+        .unwrap();
+        assert_eq!(
+            patch.to_json(),
+            json!({"shortcut_bindings":{"adopt":"Ctrl+Shift+A","switch-language":"Ctrl+L"}})
+        );
+        patch.apply(&mut settings).unwrap();
+        let mut expected = before.clone();
+        expected.shortcut_bindings = ShortcutBindings::from_json(
+            &json!({"adopt":"Ctrl+Shift+A","switch-language":"Ctrl+L"}),
+        )
+        .unwrap();
+        assert_eq!(settings, expected);
+        assert_eq!(
+            ImeSettings::from_json(&settings.to_json().to_string()).unwrap(),
+            settings
+        );
+        // Equal-value and clearing patches preserve every other setting.
+        patch.apply(&mut settings).unwrap();
+        assert_eq!(settings, expected);
+        PanelImeSettingsPatch::from_json(r#"{"shortcut_bindings":{}}"#)
+            .unwrap()
+            .apply(&mut settings)
+            .unwrap();
+        assert_eq!(settings, before);
+    }
+
+    #[test]
+    fn shortcut_profile_and_bindings_are_validated_as_one_atomic_target() {
+        for raw in [
+            r#"{"shortcut_bindings":null}"#,
+            r#"{"shortcut_bindings":[]}"#,
+            r#"{"shortcut_bindings":{"adopt":true}}"#,
+            r#"{"shortcut_bindings":{"unknown":"Ctrl+A"}}"#,
+            r#"{"shortcut_bindings":{"adopt":"Ctrl+Alt+A"}}"#,
+            r#"{"shortcut_bindings":{"adopt":"Ctrl+Shift+Space"}}"#,
+            r#"{"shortcut_bindings":{"previous":"Ctrl+A","next":"ctrl+a"}}"#,
+            r#"{"shortcut_profile":"home-row","shortcut_bindings":{"adopt":"Alt+J"}}"#,
+        ] {
+            assert!(ImeSettings::from_json(raw).is_err(), "{raw}");
+            assert!(PanelImeSettingsPatch::from_json(raw).is_err(), "{raw}");
+        }
+        let mut settings = ImeSettings::from_json(
+            r#"{"language":"zh-Hans","llm_model":"fixture","shortcut_bindings":{"adopt":"Alt+J"}}"#,
+        )
+        .unwrap();
+        let before = settings.clone();
+        let profile_patch = PanelImeSettingsPatch::from_json(
+            r#"{"llm_enabled":true,"llm_temperature_tenths":8,"shortcut_profile":"home-row"}"#,
+        )
+        .unwrap();
+        assert!(profile_patch.apply(&mut settings).is_err());
+        assert_eq!(
+            settings, before,
+            "rejected profile changed unrelated fields"
+        );
+        PanelImeSettingsPatch::from_json(
+            r#"{"shortcut_profile":"home-row","shortcut_bindings":{}}"#,
+        )
+        .unwrap()
+        .apply(&mut settings)
+        .unwrap();
+        let before = settings.clone();
+        let binding_patch = PanelImeSettingsPatch::from_json(
+            r#"{"llm_enabled":true,"shortcut_bindings":{"adopt":"Alt+J"}}"#,
+        )
+        .unwrap();
+        assert!(binding_patch.apply(&mut settings).is_err());
+        assert_eq!(
+            settings, before,
+            "rejected binding changed unrelated fields"
+        );
+        let duplicate = ShortcutBindings::default()
+            .with_binding(
+                super::super::shortcuts::ShortcutAction::Adopt,
+                Some(super::super::shortcuts::ShortcutChord::parse("Ctrl+A").unwrap()),
+            )
+            .with_binding(
+                super::super::shortcuts::ShortcutAction::Previous,
+                Some(super::super::shortcuts::ShortcutChord::parse("Ctrl+A").unwrap()),
+            );
+        assert!(
+            PanelImeSettingsPatch {
+                enabled: Some(true),
+                shortcut_bindings: Some(duplicate),
+                ..Default::default()
+            }
+            .apply(&mut settings)
+            .is_err()
+        );
+        assert_eq!(
+            settings, before,
+            "Rust-constructed invalid patch was partially applied"
+        );
+    }
+
+    #[test]
     fn defaults_are_local_auto_but_legacy_model_and_language_are_preserved() {
         let defaults = ImeSettings::from_json("{}").unwrap();
         assert_eq!(defaults.provider.model, "auto");
@@ -514,6 +651,7 @@ mod tests {
                 enabled: Some(true),
                 temperature_tenths: Some(11),
                 shortcut_profile: None,
+                shortcut_bindings: None,
             }
             .apply(&mut settings)
             .is_err()

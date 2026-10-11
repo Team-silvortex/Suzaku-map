@@ -300,6 +300,8 @@ impl PanelState {
             self.leave_native_view();
         }
         if !focused {
+            self.chrome.cancel_shortcut_recording();
+            self.text_input.clear_shortcut_hold();
             self.modifiers = Default::default();
             self.text_input.clear();
             self.text_focus.forget();
@@ -751,8 +753,10 @@ impl PanelState {
             || self.chrome.llm_model != other.llm_model
             || self.chrome.llm_temperature != other.llm_temperature;
         self.chrome.prediction_edit_generation = other.prediction_edit_generation;
-        let shortcuts_changed = self.chrome.shortcut_profile != other.shortcut_profile;
+        let shortcuts_changed = self.chrome.shortcut_profile != other.shortcut_profile
+            || self.chrome.shortcut_bindings != other.shortcut_bindings;
         self.chrome.shortcut_profile = other.shortcut_profile;
+        self.chrome.shortcut_bindings = other.shortcut_bindings;
         self.chrome.shortcut_edit_generation = other.shortcut_edit_generation;
 
         if settings_changed {
@@ -1245,6 +1249,19 @@ impl PanelState {
         kind: InteractionKind,
         interaction_is_truncated: bool,
     ) {
+        // Leaving the recording control must not leave an invisible key capture active.
+        if !matches!(
+            kind,
+            InteractionKind::RecordShortcut(_)
+                | InteractionKind::ClearShortcutBinding(_)
+                | InteractionKind::ResetCustomShortcuts
+                | InteractionKind::SetShortcutProfile(_)
+                | InteractionKind::SettingsScrollTrack
+                | InteractionKind::SettingsScrollHandle
+                | InteractionKind::DragWindow
+        ) {
+            self.chrome.cancel_shortcut_recording();
+        }
         match kind {
             InteractionKind::NativeCandidatePage(forward) => {
                 self.change_native_candidate_page(forward)
@@ -1254,6 +1271,7 @@ impl PanelState {
             }
             InteractionKind::DragWindow => {}
             InteractionKind::ClosePanel => {
+                self.text_input.clear_shortcut_hold();
                 self.finish_text_editing();
                 self.close_requested = true;
                 self.window.set_visible(false);
@@ -1328,6 +1346,9 @@ impl PanelState {
             }
             InteractionKind::SettingsToggle => {
                 self.chrome.settings_open = !self.chrome.settings_open;
+                if !self.chrome.settings_open {
+                    self.text_input.clear_shortcut_hold();
+                }
                 if self.chrome.settings_open {
                     self.suspend_native_keyboard();
                     self.chrome.settings_scroll_offset = 0.0;
@@ -1603,13 +1624,29 @@ impl PanelState {
             }
             InteractionKind::ShortcutReference(_) => {}
             InteractionKind::SetShortcutProfile(profile) => {
-                self.chrome.shortcut_profile = profile;
-                self.chrome.shortcut_edit_generation =
-                    self.chrome.shortcut_edit_generation.wrapping_add(1);
+                self.chrome.change_shortcut_profile(profile);
                 // Saved through the acknowledged native patch, not appearance preferences.
                 self.interaction.settings_option_text_scroll_target = None;
                 self.interaction.settings_option_text_scroll_started_at = None;
             }
+            InteractionKind::RecordShortcut(action) => {
+                if self.kind == PanelWindowKind::Settings && self.is_focused {
+                    if self.text_input.composing() {
+                        self.chrome.cancel_shortcut_recording();
+                        self.chrome.shortcut_recording_error =
+                            "Finish composing text before recording a shortcut.".into();
+                    } else {
+                        self.chrome.toggle_shortcut_recording(action);
+                        self.last_scene = None;
+                        self.reveal_settings_focus();
+                        self.sync_text_input_state();
+                    }
+                }
+            }
+            InteractionKind::ClearShortcutBinding(action) => {
+                self.chrome.clear_shortcut_binding(action);
+            }
+            InteractionKind::ResetCustomShortcuts => self.chrome.reset_custom_shortcuts(),
             InteractionKind::SetLlmEnabled(enabled) => {
                 let action = InteractionKind::SetLlmEnabled(enabled);
                 let is_truncated = interaction_is_truncated;

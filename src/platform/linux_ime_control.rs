@@ -22,17 +22,24 @@ pub fn set_llm_enabled(enabled: bool) -> Result<NativeImeStatus, String> {
 pub fn set_panel_ime_settings(
     patch: crate::ime::settings::PanelImeSettingsPatch,
 ) -> Result<NativeImeStatus, String> {
+    request(&panel_settings_command(patch)?)
+}
+
+fn panel_settings_command(
+    patch: crate::ime::settings::PanelImeSettingsPatch,
+) -> Result<String, String> {
     let raw = patch.to_json().to_string();
     crate::ime::settings::PanelImeSettingsPatch::from_json(&raw)?;
     // Keep the existing on/off control usable while an older host is still running.
-    if let (Some(enabled), None, None) = (
+    if let (Some(enabled), None, None, None) = (
         patch.enabled,
         patch.temperature_tenths,
         patch.shortcut_profile,
+        patch.shortcut_bindings,
     ) {
-        return set_llm_enabled(enabled);
+        return Ok(if enabled { "P1" } else { "P0" }.into());
     }
-    request(&format!("U{raw}"))
+    Ok(format!("U{raw}"))
 }
 pub fn reload_settings() -> Result<NativeImeStatus, String> {
     request("R")
@@ -93,6 +100,60 @@ mod tests {
     use super::*;
     use crate::platform::linux_ipc::tests::Endpoint;
     use std::{io::Write, time::Instant};
+
+    #[test]
+    fn combined_panel_binding_patch_is_not_reduced_to_a_legacy_model_toggle() {
+        use crate::ime::{
+            settings::PanelImeSettingsPatch,
+            shortcuts::{ShortcutBindings, ShortcutProfile},
+        };
+        let bindings = ShortcutBindings::from_json(&serde_json::json!({
+            "previous":"Ctrl+K", "next":"Ctrl+J", "previous-page":"Ctrl+H",
+            "next-page":"Ctrl+L", "adopt":"Ctrl+Shift+A", "switch-language":"Alt+Shift+L"
+        }))
+        .unwrap();
+        let patch = PanelImeSettingsPatch {
+            enabled: Some(true),
+            shortcut_bindings: Some(bindings),
+            ..Default::default()
+        };
+        let command = panel_settings_command(patch).unwrap();
+        assert!(command.starts_with('U'));
+        assert!(command.len() > 128);
+        assert!(command.len() <= 1024);
+        assert_eq!(
+            PanelImeSettingsPatch::from_json(&command[1..]).unwrap(),
+            patch
+        );
+        for enabled in [false, true] {
+            assert_eq!(
+                panel_settings_command(PanelImeSettingsPatch {
+                    enabled: Some(enabled),
+                    ..Default::default()
+                })
+                .unwrap(),
+                if enabled { "P1" } else { "P0" }
+            );
+            let clear = PanelImeSettingsPatch {
+                enabled: Some(enabled),
+                shortcut_bindings: Some(ShortcutBindings::default()),
+                ..Default::default()
+            };
+            assert_eq!(
+                panel_settings_command(clear).unwrap(),
+                format!("U{}", clear.to_json())
+            );
+        }
+        let invalid = PanelImeSettingsPatch {
+            enabled: Some(true),
+            shortcut_profile: Some(ShortcutProfile::HomeRow),
+            shortcut_bindings: Some(
+                ShortcutBindings::from_json(&serde_json::json!({"adopt":"Alt+J"})).unwrap(),
+            ),
+            ..Default::default()
+        };
+        assert!(panel_settings_command(invalid).is_err());
+    }
 
     #[test]
     fn settings_connect_timeout_is_reported_without_a_late_request() {

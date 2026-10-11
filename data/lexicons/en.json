@@ -11773,6 +11773,146 @@
         "please check whether the message was sent.",
         "please check whether the network is working."
       ]
+    },
+    {
+      "id": "daily_routine",
+      "words": [],
+      "next_words": [
+        ["i just woke", ["up", "early"]],
+        ["i'm getting ready for", ["work", "bed"]],
+        ["i'm still at", ["work", "home"]],
+        ["i've finished my", ["work", "homework"]],
+        ["i'm taking a short", ["break", "walk"]],
+        ["i need to get some", ["sleep", "rest"]],
+        ["i didn't sleep very", ["well", "much"]],
+        ["i'm feeling a bit", ["tired", "cold"]],
+        ["i'll be home after", ["work", "lunch"]],
+        ["i'm going to", ["bed", "work"]],
+        ["i'll take care of it", ["later", "tomorrow"]],
+        ["we can take it", ["slowly", "easy"]]
+      ],
+      "sentences": [
+        "i just woke up.",
+        "i just woke early this morning.",
+        "i'm getting ready for work.",
+        "i'm getting ready for bed.",
+        "i'm still at work, so i'll reply later.",
+        "i'm still at home, but i'll leave soon.",
+        "i've finished my work for today.",
+        "i've finished my homework, so i'm free now.",
+        "i'm taking a short break.",
+        "i'm taking a short walk before dinner.",
+        "i need to get some sleep tonight.",
+        "i need to get some rest after work.",
+        "i didn't sleep very well last night.",
+        "i didn't sleep very much, so i'm tired.",
+        "i'm feeling a bit tired today.",
+        "i'm feeling a bit cold, so i'll stay inside.",
+        "i'll be home after work.",
+        "i'll be home after lunch today.",
+        "i'm going to bed soon.",
+        "i'm going to work now.",
+        "i'll take care of it later today.",
+        "i'll take care of it tomorrow morning.",
+        "we can take it slowly today.",
+        "we can take it easy this evening."
+      ]
+    },
+    {
+      "id": "daily_requests",
+      "words": [],
+      "next_words": [
+        ["could i borrow your",["charger","notebook"]],
+        ["could you help me find my",["keys","wallet"]],
+        ["i think i left it",["here","outside"]],
+        ["please bring it",["back","inside"]],
+        ["please put this on the",["table","shelf"]],
+        ["do you need it",["now","later"]],
+        ["are you using this",["chair","charger"]],
+        ["i can return it",["today","tomorrow"]]
+      ],
+      "sentences": [
+        "could i borrow your charger until tonight?",
+        "could i borrow your notebook for a moment?",
+        "could you help me find my keys?",
+        "could you help me find my wallet?",
+        "i think i left it here earlier.",
+        "i think i left it outside by the door.",
+        "please bring it back when you're done.",
+        "please bring it inside for me.",
+        "please put this on the table for now.",
+        "please put this on the shelf after you're done.",
+        "do you need it now, or can i keep it for a moment?",
+        "do you need it later today?",
+        "are you using this chair?",
+        "are you using this charger right now?",
+        "i can return it today after work.",
+        "i can return it tomorrow morning."
+      ]
+    },
+    {
+      "id": "daily_carry",
+      "words": ["glasses"],
+      "next_words": [
+        ["i need to bring my",["glasses","charger"]],
+        ["don't forget to take your",["keys","wallet"]],
+        ["please put on your",["jacket","shoes"]],
+        ["you might need a",["sweater","scarf"]],
+        ["i'll wear my",["coat","hat"]],
+        ["do i need to bring an",["umbrella","adapter"]],
+        ["i've packed my",["bag","notebook"]],
+        ["i'll keep my",["phone","wallet"]]
+      ],
+      "sentences": [
+        "i need to bring my glasses so i can read at work.",
+        "i need to bring my charger before we leave.",
+        "don't forget to take your keys with you.",
+        "don't forget to take your wallet before going out.",
+        "please put on your jacket before we leave.",
+        "please put on your shoes before going outside.",
+        "you might need a sweater tonight.",
+        "you might need a scarf outside.",
+        "i'll wear my coat because it's cold.",
+        "i'll wear my hat on the walk.",
+        "do i need to bring an umbrella today?",
+        "do i need to bring an adapter for the trip?",
+        "i've packed my bag for the trip.",
+        "i've packed my notebook for work.",
+        "i'll keep my phone in my bag.",
+        "i'll keep my wallet in my jacket."
+      ]
+    },
+    {
+      "id": "daily_care",
+      "words": ["wash","hair","hands"],
+      "next_words": [
+        ["i need to wash my",["face","hands"]],
+        ["i'll dry my",["hair","face"]],
+        ["please leave the towel",["here","there"]],
+        ["could you pass me a",["towel","bag"]],
+        ["let me tidy the",["room","table"]],
+        ["please hang it",["up","here"]],
+        ["i'll check the",["door","lights"]],
+        ["let me fold this",["shirt","towel"]]
+      ],
+      "sentences": [
+        "i need to wash my face before going out.",
+        "i need to wash my hands before we leave.",
+        "i'll dry my hair with a towel before going out.",
+        "i'll dry my face with a towel.",
+        "please leave the towel here by the sink.",
+        "please leave the towel there until it's dry.",
+        "could you pass me a towel?",
+        "could you pass me a bag for the wet shoes?",
+        "let me tidy the room first.",
+        "let me tidy the table before we leave.",
+        "please hang it up when you're done.",
+        "please hang it here to dry.",
+        "i'll check the door before we leave.",
+        "i'll check the lights before going out.",
+        "let me fold this shirt before going out.",
+        "let me fold this towel and put it away."
+      ]
     }
   ],
   "phrase_endings": [

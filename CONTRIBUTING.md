@@ -30,6 +30,7 @@ cargo fmt --all --check
 cargo clippy --locked --all-features --all-targets -- -D warnings
 cargo test --locked --all-features -- --test-threads=1
 bash scripts/test-linux-ci.sh ibus
+bash scripts/test-linux-ci.sh ibus-custom-shortcuts
 bash scripts/test-linux-ci.sh ui
 ```
 
@@ -38,6 +39,37 @@ jobs **one at a time** with `CARGO_BUILD_JOBS=1`; `--test-threads=1` alone does 
 compiler processes or other simultaneously launched commands. Check available memory,
 swap pressure and kernel OOM timestamps first. Do not stop unrelated applications or
 assume an earlier timeout/empty response was caused by a later OOM event.
+
+The complete `ibus` gate builds once and runs two fresh sessions: `core` retains
+all original non-fallback workflows, including the controls after model failures;
+`fallback` runs all 53 word/sentence cases against both HTTP 503 and timeout, for
+106 subcases. Each keeps the original 120-second session limit, model deadlines
+and assertions. Both parts must pass. `SUZAKU_IBUS_INLINE_PREEDIT=1` is inherited
+by both; focused `SUZAKU_NATIVE_*_ONLY=1` requests remain single-session checks
+and do not claim the complete gate. Multiple focused modes are rejected before
+building or starting a bus. `python3 scripts/test-native-model-fixture.py` tests
+dispatch, conflict/failure handling and frozen pre-partition assertion coverage
+without a model, display or IBus host.
+
+The separate `ibus-custom-shortcuts` gate uses rebuilt binaries, its own fresh
+private bus/config/Compose copy and the unchanged 120-second session limit.
+It tests the full six-binding narrow `U` save through Rust, the C adapter and
+actual IBus, including editable adoption, hold/release, language replacement,
+privacy/Compose, atomic invalid-patch rejection and reload. It does not claim
+desktop-global hotkeys, physical-keyboard comfort or installed-version coverage.
+The appended ten long-draft workflows retain the complete original fixture:
+standard/home-row × English/Chinese × word/sentence, plus two real multi-page
+English cases. A revision-bound companion action prepares the owned long prefix;
+actual IBus events type the tail and exercise configured navigation/adoption,
+physical-keycode hold/release, complete spelling undo, word-to-sentence continuity,
+Space, literal Alt+digits and one exact Enter commit. These are authored offline
+cases, not long physical typing, custom long-draft language switching or model-quality
+acceptance. `python3 -B scripts/test-custom-long-coverage.py` is a separate source-only
+guard: it preserves the entire old fixture/runner and checks the new matrix,
+assertions and cleanup without starting a bus or changing any configuration.
+`python3 -B scripts/test-native-custom-shortcuts.py` separately compiles an
+extracted C harness and checks fixture isolation; it is not end-to-end acceptance.
+The `ui` gate includes the window-local shortcut recorder's real winit events.
 
 With a working user systemd manager and cgroup memory controller, an isolated local
 check can also have a resource ceiling (adjust it to the available headroom):
@@ -112,10 +144,27 @@ cargo test --locked --all-features --test daily_clarification_english --test dai
 cargo test --locked --all-features --test japanese_sentence_progress -- --test-threads=1
 cargo test --locked --all-features --test japanese_reading_boundaries -- --test-threads=1
 cargo test --locked --all-features --test chinese_sentence_continuation -- --test-threads=1
+cargo test --locked --all-features --test chinese_partial_sentence_probe --test chinese_partial_continuation -- --test-threads=1
+cargo test --locked --all-features --test chinese_function_words -- --test-threads=1
+cargo test --locked --all-features --test chinese_mixed_boundary -- --test-threads=1
 cargo test --locked --all-features --test chinese_reading_boundaries -- --test-threads=1
 cargo test --locked --all-features --test prediction_protocol --test ime_prediction -- --test-threads=1
+cargo test --locked --all-features --test prediction_edit_conflicts --test commit_history -- --test-threads=1
 cargo test --locked --all-features --test prediction_preservation --test english_prediction_spacing --test english_protected_context -- --test-threads=1
 ```
+
+The controlled prediction/edit suite exercises long English/Chinese drafts in
+plain and IBus-mixed engine modes, including byte-identical draft restoration,
+the 256-scalar request boundary and committed-context undo. Its provider ignores
+cancellation deliberately: after releasing an old response, receipt of the next
+request proves the single worker has processed the old one before assertions.
+Selected-row cancellation and subsequent editing are distinct checkpoints; these
+engine tests do not qualify native display modes, HTTP cancellation, physical
+keys or real-model quality. Use the resource-safe serial scope above.
+The addendum releases a typed obsolete error while a new long request is pending,
+then requires fresh model acceptance. It also distinguishes successful context
+undo (clear the obsolete diagnostic) from no-history undo (preserve the exact
+diagnostic), with the current local choice intact and providers disabled correctly.
 
 To run only the private English/Pinyin word-and-sentence keyboard workflows, use
 `SUZAKU_NATIVE_BILINGUAL_ONLY=1 bash scripts/test-linux-ci.sh ibus` under the same
@@ -199,8 +248,8 @@ twenty unfinished Pinyin syllables, case/spacing/apostrophe variants, long draft
 typed provider errors. Explanation/learning/follow-up, digital-life, home-life and errands cases also check
 adopted-word sentence continuations with literal padding and subsequent partial English words
 in uncommitted drafts.
-The native gate separately exercises sixteen English/Chinese examples through actual loopback
-HTTP 503 and deadline failures (32 workflows per complete IBus mode): local candidates stay
+The native gate separately exercises 53 authored examples (20 English, 20 Chinese and 13 Japanese)
+through actual loopback HTTP 503 and deadline failures (106 workflows per IBus mode): local candidates stay
 available while pending and after failure, with numeric adoption,
 undo, Space continuity and exact commits. No live model quality is inferred. Use `--all-features`
 for these project checks, matching CI; bare `cargo test` does not enable the required GPU/platform
@@ -268,9 +317,68 @@ does not establish the cause of earlier release-time empty replies.
 
 The same slow-I/O gate also checks ten focus-bound keyboard language changes: ongoing typing,
 timeout, reset, Escape, commit, focus transfer, privacy, pending/completed Compose and engine destruction.
+Eight additional controlled EN/ZH workflows adopt a word while saving, then keep it, undo it,
+edit it, or fail the save. Progress must remain visible before releasing the barrier;
+success keeps the latest draft and retires old undo, while failure preserves adoption undo.
 `SUZAKU_NATIVE_LANGUAGE_ONLY=1 bash scripts/test-linux-ci.sh ibus` runs the focused Ctrl+Shift+Space
 regression (24 profile/language/draft/lock combinations, two long Unicode drafts, plus failure and repeat boundaries); both
-full IBus modes include it. The real keyboard gate adds four owned GTK workflows with long holds,
+full IBus modes include it. Twelve additional word/sentence workflows cover both profiles,
+both directions and a mixed `API。nihao` prefix, then numeric adoption, exact undo, Space,
+Alt+7, ordinary deletion and exactly one final commit. Run
+`python3 -B scripts/test-language-workflow-coverage.py` for the independent static guard:
+it freezes the old matrices/shared helpers and only permits the two appended workflow calls.
+This guard is not native execution; private protocol probes are not physical-keyboard acceptance.
+The focused language gate and full core gate additionally run four fixed held-adoption
+transitions: both profiles, EN numeric adoption across a keyboard language switch and
+clamped page, plus ZH literal Shift+Enter across an EN switch and real second-page navigation.
+The slow-I/O gate appends four held-before-chord success/failure cases, including pending
+repeats, exact disk/context guards, different undo lifetimes, matching physical-key releases,
+Space continuity and one explicit commit. Boundary checks take fresh host snapshots before
+and after the gesture and retain complete-frame/revision equality. This prevents delayed
+acknowledgement frames on separate sockets from masquerading as key-induced changes.
+Run `python3 -B scripts/test-held-language-coverage.py` for the independent source-only guard:
+it restores the complete prior native source by removing the two held helpers and three exact
+adjacent calls, plus the separately enumerated later custom-language additions; it freezes
+old matrices/worker/runner and permits only the status-render fix.
+It is not native execution or an extension of the physical keyboard matrix.
+The focused language/core gate now also appends four long-draft custom Ctrl+Shift+L
+workflows (two profiles × both directions). The slow-I/O gate appends sixteen
+long custom cases: success, real fsync EIO, Reset cancellation and explicit full-draft
+commit cancellation, for each profile/direction. Owned companion prefixes precede
+actual native tail/chord events; EN `hel`→`hello` and ZH `hui yi`→`会议` make ordinary
+success deletion distinct from full spelling undo on failure. Held adoption/language
+identities and inert pages stay protected; canceled saves retain their worker permit
+until exit, cannot publish to a new context, and cannot block new native typing.
+Run `python3 -B scripts/test-custom-language-coverage.py` for the source-only guard.
+It precisely restores the complete pre-addition native fixture and both historical
+guards, checks the fixed 4/16 matrices and keeps all existing deadlines. Repeat the
+native focused gates with `SUZAKU_IBUS_INLINE_PREEDIT=1`; neither static checks nor
+private protocol events qualify physical keyboard/Wayland delivery or model quality.
+The slow-I/O gate additionally appends 28 fixed long custom ownership boundaries:
+both profiles/directions × explicit focus-out, direct focus transfer, password,
+PIN, private hint, pending Compose and completed Compose. A canceled real fsync
+worker keeps its save permit until exit but cannot publish a late frame or change
+disk bytes. New public fields accept native letters using the old held keycodes;
+stale old-engine events cannot touch the new owner. Password/PIN keys bypass the
+engine; a private hint still permits local typing while snapshots remain redacted.
+Pending Compose preserves full adoption undo; a completed accent retires it and
+uses scalar deletion. Run `python3 -B scripts/test-custom-boundary-coverage.py`
+for the independent append-only guard. This native matrix runs in default and
+inline-preedit modes, not on the desktop or with a physical keyboard/live model.
+Sixteen further controlled custom workflows cover both profiles/directions ×
+successful/failed saves × held sentence/continued literal edits. The real fsync
+barrier starts before word adoption: custom word adoption, Space, full sentence
+adoption, complete sentence undo and readoption all occur while saving. Every
+stage requires the old context/language, visible progress, one worker, unchanged
+disk bytes and no commit. Success retains the latest complete sentence or edited
+draft and retires undo; EIO preserves the latest sentence's full word-plus-Space
+undo, not the initial raw spelling. Real edits retire undo even after failed saves.
+Held codes and clamped navigation stay inert through acknowledgement; final
+deliberate Enter commits exact text once. Run
+`python3 -B scripts/test-custom-continuation-coverage.py` for the independent
+append-only guard. The fixed fallback matrix passes default and inline-preedit;
+it is not a quality measurement for a live model or physical keyboard acceptance.
+The real keyboard gate adds four owned GTK workflows with long holds,
 early modifier release, unchanged keymaps/LEDs, adoption and exact application commits.
 A fifth workflow retains a pending dead-key sequence through physical Ctrl/Shift presses.
 
@@ -368,12 +476,21 @@ English phrase. An owned minimal StatusNotifierWatcher permits the actual panel 
 its tray; it does not substitute a menu or engine. The driver opens that menu once and then
 only observes readiness, instead of repeatedly requesting refreshes while waiting. This is
 not acceptance of GNOME's tray extension, rendering or personal input-source switching.
+Set `SUZAKU_GTK3_QA_INPUT_TASKS=1` to append eight fixed offline tasks after all 24
+baseline workflows, for 32 in total. Run both transports. The extra tasks physically
+type a long English draft, literal digits/punctuation, adoption/undo, EN/ZH language
+chords, Japanese adopted-alias grammar tails, and consecutive EN/ZH/JA commits in one
+document. Same-draft adoption also requires the owned GDK key press. The helper is
+`scripts/fixtures/gtk3_input_tasks.py`; it starts no session when imported and does not
+call a model, prepare a live draft through IPC, change the 240-second session deadline
+or replace the baseline gate. These authored examples are not open-ended language or
+personal desktop acceptance.
 For a separately authorized personal-desktop check, XWayland's `-enable-ei-portal` may route
 XTest through desktop input authorization. A successful injection call is not proof that
 the widget received a key. Stop on focus loss or missing delivery; do not disable the
 portal, retry keys or count the private-display pass as desktop acceptance. Establish
 delivery independently of Suzaku before attributing a synthetic-input failure to the IME.
-The `vocabulary` gate exercises 141 offline English/Chinese/Japanese vocabulary workflows,
+The `vocabulary` gate exercises 167 offline English/Chinese/Japanese vocabulary workflows,
 three Chinese and two Japanese sentence-progress workflows, and one physical later-page
 selection workflow in the real
 GTK editor: physical spelling, word/sentence labels, numeric adoption, exact undo, Space
@@ -386,10 +503,10 @@ executes all cases in three sequential private sessions (`part-1` / `part-2` / `
 240-second deadline **per session**. Every third case index keeps all three languages in each part;
 a Counter guard preserves all complete tuples, including any intentional duplicates.
 The first part includes all five sentence-progress controls and the clarification paging check
-(53 + 47 + 47 = 147 workflows total).
+(62 + 56 + 55 = 173 workflows total).
 Only all three successful parts count as the complete gate. No case or assertion is skipped;
 explicit `home`, `daily`, `japanese`, `followup`, `leisure`, `clarification`, `courtesy`,
-`location`, `time`, `shopping`, `transit`, `contact` and `packs` scopes still report only their own coverage.
+`location`, `time`, `shopping`, `transit`, `contact`, `routine`, `requests`, `carry`, `care` and `packs` scopes still report only their own coverage.
 For time, waiting and rescheduling, `SUZAKU_VOCABULARY_QA_SCOPE=time` runs six fixed
 EN/ZH/JA vocabulary cases plus three existing Chinese progress controls (nine workflows).
 All six are also included in the complete gate and in the all-fourteen-pack gate;
@@ -407,6 +524,52 @@ runs six fixed EN/ZH/JA vocabulary cases plus three existing Chinese progress co
 (nine workflows). All six also run in the complete and all-fourteen-pack gates; fixed
 independent expectations live in `tests/daily_contact_*.rs`. They do not read contacts or
 message history, place calls, send messages or change network settings.
+For routine and everyday-status expressions, `SUZAKU_VOCABULARY_QA_SCOPE=routine`
+runs eight fixed EN/ZH/JA vocabulary cases plus the three existing Chinese progress
+controls (eleven workflows). All eight are in the complete and all-fourteen-pack
+gates; independent expectations live in `tests/daily_routine_*.rs`. They cover
+word/sentence choices, case/readings/spacing, long adopted drafts, literal
+preservation, explicit commit/undo, old ranks and finite later-page ambiguity.
+New model-error coverage is typed synthetic failure, not actual HTTP or live-model
+qualification. The unchanged controlled HTTP gate separately retains all 53 old
+pairs under both 503 and timeout (106 subcases). None reads personal routine/history.
+For borrowing, finding objects and small requests, `SUZAKU_VOCABULARY_QA_SCOPE=requests`
+runs six fixed EN/ZH/JA cases plus three Chinese progress controls (nine workflows).
+All six also run in the complete and all-fourteen-pack gates; independent expectations
+live in `tests/daily_requests_*.rs`. All old tuples, candidate/rank limits and explicit
+commit checks are retained. Typed missing/error/timeout/503/empty fixtures are not
+new-request HTTP or live-model qualification.
+For clothing and things to carry before leaving, `SUZAKU_VOCABULARY_QA_SCOPE=carry`
+runs six fixed EN/ZH/JA cases plus three Chinese progress controls (nine workflows).
+All six also run in the complete and all-fourteen-pack gates; independent expectations
+live in `tests/daily_carry_*.rs`. Old word ranks and tuples remain protected, including
+the old `glass` word alongside the newly authored `glasses` form. This is finite
+offline input fallback, not personal packing/history access or live-model qualification.
+For washing, tidying and the final checks before leaving,
+`SUZAKU_VOCABULARY_QA_SCOPE=care` runs six fixed EN/ZH/JA cases plus three
+Chinese progress controls (nine workflows). All six also run in the complete
+and all-fourteen-pack gates; independent expectations live in
+`tests/daily_care_*.rs`. The finite authored fallback adds English wash/hair/hands
+without changing old ranks, decoder rules, model protocols or candidate capacity.
+It does not read personal routines or provide medical/hygiene guidance.
+For raw half-Pinyin whole-word/sentence transitions, use
+`SUZAKU_VOCABULARY_QA_SCOPE=transition bash scripts/test-linux-apps.sh vocabulary`.
+This independent focused diagnostic checks `zaishiyi` and
+`chumenqianshoushiyixi`, each with its whole Word and both fixed Sentences,
+physical page-local numeric selection/undo, Space continuity and exact saved
+commits while observing the live panel and editor focus. The latter's second
+sentence must be on page two. It is not appended to the complete builtin/pack
+gates and cannot report their success. Use the same serial/resource-safe environment above.
+For separate adopted-Han chains, use
+`SUZAKU_VOCABULARY_QA_SCOPE=adopted-transition bash scripts/test-linux-apps.sh vocabulary`.
+It constructs two fixed chains entirely through physical ASCII Pinyin and numeric
+Word/Sentence adoption, each with and without Space before the unfinished tail
+(four variants). It checks stage-specific exact undo, literal input, typed Word
+and authored Sentence, actual page-local selection and one Enter's exact GTK
+insertion, with a live panel and the editor focused at each observation. It does
+not replace the complete builtin/pack gates, accept host-injected drafts, qualify
+an installed version or measure physical-keyboard comfort. The broader matrix in
+`tests/chinese_partial_continuation.rs` remains direct-engine coverage only.
 For daily reactions/meeting/rest, food/weather/arrangement, communication/coordination and
 social check-ins/invitations/polite declines and object location/borrowing/quantities, use
 `SUZAKU_VOCABULARY_QA_SCOPE=daily`; this reports thirty vocabulary cases plus the three
@@ -459,10 +622,16 @@ and EN/ZH/JA family), use
 `SUZAKU_VOCABULARY_QA_SCOPE=packs bash scripts/test-linux-apps.sh vocabulary`.
 This separate gate uses the selected installation's adjacent `suzaku_tool` to export/install
 all fourteen recommended packs into the private QA data directory **before** starting its host and panel. It
-checks 48 vocabulary workflows plus three Chinese and two Japanese builtin
-sentence-progress workflows (53 total), including the
+checks 74 vocabulary workflows plus three Chinese and two Japanese builtin
+sentence-progress workflows (79 total), including the
 live companion's system-font draft rendering and editor focus. It neither reads nor changes
 the personal pack registry, and does not replace the default builtin gate.
+The shell runner executes `packs-part-1` and `packs-part-2` sequentially with fresh
+private sessions and the unchanged 240-second limit per session. Each part loads all
+fourteen packs and opens the real panel; only both successful parts count as `packs`.
+The first part has all five progress controls (42 + 37 workflows); an exact-tuple
+Counter guard prevents omissions, and `scripts/test-vocabulary-partitions.py`
+protects old tuples, physical assertions, fail-closed scopes and fail-fast dispatch.
 The native pack-only scope installs all fourteen recommended packs and checks fourteen
 representative workflows in both default and inline-preedit modes. Family regression
 tests separately cover all 60 explicit English forms, 36 Chinese and 24 Japanese readings,
@@ -559,7 +728,7 @@ or make a slow/filtered response pass; use `suzaku_tool model probe` for that ga
 `diagnose_synthetic_translation_holdouts` prints results/rejections without claiming semantic success.
 Run these probes sequentially, without simultaneous inference or builds, to avoid skewing latency.
 
-The `keyboard` gate has 44 physical-keycode workflows in real GTK: Caps/Shift/NumLock, numeric
+The `keyboard` gate has 49 physical-keycode workflows in real GTK: Caps/Shift/NumLock, numeric
 adoption versus keypad literals, US/UK/German/French/US-international layouts, AltGr, dead keys,
 Compose, mid-draft layout/lock changes, bilingual adoption holds, modifier release order, quick
 separate taps, repeating navigation and releasing adoption keys after switching between two
@@ -569,6 +738,26 @@ Wayland or arbitrary-keyboard-remapping acceptance. See the
 [keyboard layout audit](docs/bug-audit-keyboard-layouts-2026-09-24.md),
 [shortcut repeat audit](docs/bug-audit-shortcut-repeat-2026-09-24.md) and
 [focus follow-up](docs/bug-audit-shortcut-focus-2026-09-24.md).
+It then appends four EN/ZH NumLock-off keypad row/page workflows without changing the original
+49-group assertion. They use the existing cached physical KP2/4/6/8/3/9 positions, fresh boundary
+snapshots, deliberate moves, adoption undo, Space and exact single application commits. Keymaps
+and lock indicators must remain unchanged. The private row-boundary gate
+`SUZAKU_NATIVE_ROW_BOUNDARIES_ONLY=1 bash scripts/test-linux-ci.sh ibus` appends 24 fixed
+six-alias/profile/language cases; the old row/paging/hold/multilingual matrices stay intact.
+`python3 -B scripts/test-keypad-navigation-coverage.py` checks that additive structure and
+after-Compose C dispatch, not actual input execution. Neither new gate qualifies physical hardware,
+all Compose tables, all keypad keys, an installed version or native Wayland.
+Run `SUZAKU_KEYBOARD_CUSTOM_SHORTCUTS_ONLY=1 bash scripts/test-linux-apps.sh keyboard`
+for the separate seven-group custom-combination gate. It physically types EN/ZH,
+holds and releases Ctrl/Alt/Shift in both orders, navigates rows/pages, adopts and
+undoes before Space continuation and exact Return submission, preserves pending
+Compose, and clicks the actual panel settings recorder/clear controls. Full U
+settings patches, rejection atomicity and restoring the default language chord
+are mandatory additional checks. This opt-in does not run or replace the legacy
+49 groups. `python3 -B scripts/test-keyboard-custom-scope.py` is a five-test
+fixture-shape guard, not native acceptance. To test an installation without
+rebuilding, set `SUZAKU_APP_QA_BIN_DIR` to its `bin` directory; all configuration,
+documents and injected events still belong only to a fresh private session.
 The `popup` gate uses stock IBus GTK3 on an 800x600 private display: 46 checks for text/ordinal
 glyph clicks, paging, scrolling, dismissal and bounded long previews. It is not GNOME Shell's
 candidate UI. Ordinals are rendered inside each candidate hit target to avoid stock IBus

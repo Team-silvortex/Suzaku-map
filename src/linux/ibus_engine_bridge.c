@@ -38,7 +38,7 @@ extern bool suzaku_host_ime_poll_prediction(void);
 extern bool suzaku_host_ime_prediction_pending(void);
 extern void suzaku_host_ime_set_private(bool private_input);
 extern unsigned int suzaku_host_ime_language_kind(void);
-extern unsigned int suzaku_host_ime_alt_shortcut(uint32_t key);
+extern unsigned int suzaku_host_ime_shortcut(uint32_t key, uint32_t modifiers);
 extern char *suzaku_host_ime_control_utf8(const char *command);
 extern void *suzaku_host_ime_control_start_utf8(const char *command, uint32_t timeout_ms);
 extern char *suzaku_host_ime_control_poll_utf8(void *job);
@@ -425,6 +425,25 @@ static void suzaku_ibus_engine_hold_adoption(SuzakuIBusEngine *self, guint keyco
     if (keycode != 0) { g_hash_table_add(self->held_adoption_keys, GUINT_TO_POINTER(keycode)); }
 }
 
+static guint suzaku_ibus_shortcut_action(guint keyval, guint state) {
+    /* Native modifier bits are not the protocol. Only Caps/Num Lock can be
+     * ignored; Mod5/AltGr, desktop modifiers and unknown bits are not aliases.
+     * Ctrl+Alt can also represent AltGr on layouts without an explicit Mod5. */
+    const guint allowed = IBUS_CONTROL_MASK | IBUS_MOD1_MASK | IBUS_SHIFT_MASK |
+                          IBUS_LOCK_MASK | IBUS_MOD2_MASK;
+    if ((state & ~allowed) != 0 ||
+        (state & (IBUS_CONTROL_MASK | IBUS_MOD1_MASK)) == (IBUS_CONTROL_MASK | IBUS_MOD1_MASK) ||
+        (state & (IBUS_CONTROL_MASK | IBUS_MOD1_MASK)) == 0) { return 0; }
+    gunichar key = ibus_keyval_to_unicode(keyval);
+    if (key == 0) { return 0; }
+    uint32_t modifiers = ((state & IBUS_CONTROL_MASK) != 0 ? 1u : 0u) |
+                         ((state & IBUS_MOD1_MASK) != 0 ? 2u : 0u) |
+                         ((state & IBUS_SHIFT_MASK) != 0 ? 4u : 0u);
+    /* The settings layer owns accepted logical keys, case folding, presets
+     * (including the fixed Alt+; alias) and replacement language bindings. */
+    return suzaku_host_ime_shortcut(key, modifiers);
+}
+
 #include "ibus_language.inc.c"
 
 static gboolean suzaku_ibus_engine_process_key_event(
@@ -446,19 +465,40 @@ static gboolean suzaku_ibus_engine_process_key_event(
      * Compose state as a client delivering the complete chord in one event. */
     if (suzaku_ibus_engine_is_composing(self) &&
         (keyval == IBUS_KEY_Control_L || keyval == IBUS_KEY_Control_R ||
-         keyval == IBUS_KEY_Shift_L || keyval == IBUS_KEY_Shift_R)) { return FALSE; }
-    if (self->language_feedback != NULL) {
+         keyval == IBUS_KEY_Shift_L || keyval == IBUS_KEY_Shift_R ||
+         keyval == IBUS_KEY_Alt_L || keyval == IBUS_KEY_Alt_R)) { return FALSE; }
+    if (self->language_feedback != NULL && self->language_job == NULL) {
         g_clear_pointer(&self->language_feedback, g_free);
-        suzaku_ibus_engine_render(self);
+        suzaku_ibus_engine_render_presentation(self);
     }
-    /* Focus-local bilingual toggle, even without a draft. Keep Compose and
-     * AltGr/desktop chords untouched; Caps/Num Lock are never changed. */
-    if (keyval == IBUS_KEY_space &&
-        (state & ~(IBUS_LOCK_MASK | IBUS_MOD2_MASK)) == (IBUS_CONTROL_MASK | IBUS_SHIFT_MASK)) {
-        if (self->private_input || suzaku_ibus_engine_is_composing(self)) { return FALSE; }
-        suzaku_ibus_engine_hold_adoption(self, keycode);
-        suzaku_ibus_start_language_change(self);
-        return TRUE;
+    /* Resolve once, before the Ctrl/system early return. Language alone can
+     * own an empty draft; every candidate alias needs a public, valid draft.
+     * Preset keys and custom aliases share the same focus/Compose/hold rules. */
+    if (!self->private_input) {
+        guint shortcut = suzaku_ibus_shortcut_action(keyval, state);
+        /* A recognized chord must not cancel a pending Compose sequence when
+         * it falls through to the application's Ctrl/Alt early return. Resolve
+         * the gesture, but never dispatch it until Compose has finished. */
+        if (shortcut != 0 && suzaku_ibus_engine_is_composing(self)) { return FALSE; }
+        if (shortcut == 6) {
+            suzaku_ibus_engine_hold_adoption(self, keycode);
+            suzaku_ibus_start_language_change(self);
+            return TRUE;
+        }
+        if (shortcut >= 1 && shortcut <= 5 && self->input->len > 0 && suzaku_host_ime_candidate_count() > 0 &&
+            suzaku_host_ime_selected_index() < suzaku_host_ime_candidate_count()) {
+            switch (shortcut) {
+            case 1: suzaku_ibus_engine_move_selection(self, -1); return TRUE;
+            case 2: suzaku_ibus_engine_move_selection(self, 1); return TRUE;
+            case 3: suzaku_ibus_engine_change_page(self, FALSE); return TRUE;
+            case 4: suzaku_ibus_engine_change_page(self, TRUE); return TRUE;
+            case 5:
+                suzaku_ibus_engine_hold_adoption(self, keycode);
+                suzaku_ibus_engine_complete(self, FALSE);
+                return TRUE;
+            default: break;
+            }
+        }
     }
     if (keyval == IBUS_KEY_BackSpace && self->input->len > 0 &&
         suzaku_host_ime_language_kind() == 2 && (state & IBUS_CONTROL_MASK) != 0 &&
@@ -470,24 +510,6 @@ static gboolean suzaku_ibus_engine_process_key_event(
     if ((state & SUZAKU_SYSTEM_MODIFIERS) != 0) {
         suzaku_ibus_engine_cancel_compose(self);
         return FALSE;
-    }
-    /* Optional home-row aliases only own exact Alt chords in a public draft.
-     * Locks are harmless; Shift, AltGr, system modifiers and Compose are not.
-     * No aliases commit text, switch language or register global key grabs. */
-    if (self->input->len > 0 && !self->private_input &&
-        !suzaku_ibus_engine_is_composing(self) &&
-        (state & ~(IBUS_LOCK_MASK | IBUS_MOD2_MASK)) == IBUS_MOD1_MASK) {
-        switch (suzaku_host_ime_alt_shortcut(ibus_keyval_to_unicode(keyval))) {
-        case 1: suzaku_ibus_engine_move_selection(self, -1); return TRUE;
-        case 2: suzaku_ibus_engine_move_selection(self, 1); return TRUE;
-        case 3: suzaku_ibus_engine_change_page(self, FALSE); return TRUE;
-        case 4: suzaku_ibus_engine_change_page(self, TRUE); return TRUE;
-        case 5:
-            suzaku_ibus_engine_hold_adoption(self, keycode);
-            suzaku_ibus_engine_complete(self, FALSE);
-            return TRUE;
-        default: break;
-        }
     }
     /* Alt+digits enter literal numbers. Leave Shift's layout-resolved symbols
      * intact, and never interpret AltGr or desktop shortcuts as number choices. */
@@ -542,12 +564,17 @@ static gboolean suzaku_ibus_engine_process_key_event(
         suzaku_ibus_engine_end_input(self);
         return TRUE;
     }
-    if (keyval == IBUS_KEY_Page_Up || keyval == IBUS_KEY_Page_Down) {
+    /* NumLock-off keypad navigation is the same gesture, not a literal digit.
+     * Keep raw keysyms through Compose above; do not remap physical keycodes. */
+    if (keyval == IBUS_KEY_Page_Up || keyval == IBUS_KEY_Page_Down ||
+        keyval == IBUS_KEY_KP_Prior || keyval == IBUS_KEY_KP_Next) {
         if (self->input->len == 0) { return FALSE; }
-        suzaku_ibus_engine_change_page(self, keyval == IBUS_KEY_Page_Down);
+        suzaku_ibus_engine_change_page(self,
+            keyval == IBUS_KEY_Page_Down || keyval == IBUS_KEY_KP_Next);
         return TRUE;
     }
-    if (keyval == IBUS_KEY_Up || keyval == IBUS_KEY_Left) {
+    if (keyval == IBUS_KEY_Up || keyval == IBUS_KEY_Left ||
+        keyval == IBUS_KEY_KP_Up || keyval == IBUS_KEY_KP_Left) {
         if (self->input->len == 0) {
             return FALSE;
         }
@@ -562,7 +589,8 @@ static gboolean suzaku_ibus_engine_process_key_event(
         suzaku_ibus_engine_move_selection(self, -1);
         return TRUE;
     }
-    if (keyval == IBUS_KEY_Down || keyval == IBUS_KEY_Right || keyval == IBUS_KEY_Tab) {
+    if (keyval == IBUS_KEY_Down || keyval == IBUS_KEY_Right || keyval == IBUS_KEY_Tab ||
+        keyval == IBUS_KEY_KP_Down || keyval == IBUS_KEY_KP_Right) {
         if (self->input->len == 0) {
             return FALSE;
         }
@@ -899,6 +927,16 @@ static gboolean suzaku_ibus_control_ready(gpointer data) {
     return G_SOURCE_REMOVE;
 }
 
+static gboolean suzaku_ibus_is_control_request(const gchar *request, gsize bytes_read) {
+    /* A six-binding settings patch needs more than the legacy control limit.
+     * Extend only U: other controls keep their original strict 128-byte bound.
+     * The IPC reader has its own larger frame cap; never accept invalid UTF-8. */
+    return bytes_read > 0 &&
+        (bytes_read < 128 || (request[0] == 'U' && bytes_read <= 1024)) &&
+        (request[0] == 'S' || request[0] == 'L' || request[0] == 'P' || request[0] == 'R' || request[0] == 'U') &&
+        g_utf8_validate(request, (gssize)bytes_read, NULL);
+}
+
 static void suzaku_ibus_ipc_dispatch(SuzakuIpcClient *client) {
     GSocketConnection *connection = client->connection;
     gsize bytes_read = client->input->len;
@@ -920,9 +958,7 @@ static void suzaku_ibus_ipc_dispatch(SuzakuIpcClient *client) {
         return;
     }
 
-    if (bytes_read > 0 && bytes_read < 128 &&
-        (request[0] == 'S' || request[0] == 'L' || request[0] == 'P' || request[0] == 'R' || request[0] == 'U') &&
-        g_utf8_validate(request, (gssize)bytes_read, NULL)) {
+    if (suzaku_ibus_is_control_request(request, bytes_read)) {
         if (request[0] != 'S') {
             suzaku_ipc_start_control(client, request);
             return;

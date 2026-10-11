@@ -8,6 +8,31 @@ case "$suzaku_apps_suite" in
   gtk|gtk3|vocabulary|browser|firefox|vscode|model|qt5|qt6|cross|popup|candidates|bottom-layout|auto-layout|lifecycle|bus-restart|keyboard|editor) ;;
   *) printf 'Usage: bash scripts/test-linux-apps.sh [gtk|gtk3|vocabulary|browser|firefox|vscode|model|qt5|qt6|cross|popup|candidates|bottom-layout|auto-layout|lifecycle|bus-restart|keyboard|editor]\n' >&2; exit 2 ;;
 esac
+# Reject a misspelled vocabulary scope before any dependency/build/session work.
+# Complete builtin and all-pack gates have distinct, sequential private parts;
+# a focused part cannot report a complete-gate success.
+suzaku_apps_select_vocabulary_partitions() {
+  suzaku_apps_vocabulary_parts=()
+  [[ $suzaku_apps_suite == vocabulary ]] || return 0
+  case "${SUZAKU_VOCABULARY_QA_SCOPE-all}" in
+    all) suzaku_apps_vocabulary_parts=(part-1 part-2 part-3) ;;
+    packs) suzaku_apps_vocabulary_parts=(packs-part-1 packs-part-2) ;;
+    home|daily|japanese|followup|leisure|clarification|courtesy|location|time|shopping|transit|contact|routine|requests|carry|care|transition|adopted-transition|part-1|part-2|part-3|packs-part-1|packs-part-2) ;;
+    *) printf 'Invalid SUZAKU_VOCABULARY_QA_SCOPE: %s\n' "${SUZAKU_VOCABULARY_QA_SCOPE-all}" >&2; return 2 ;;
+  esac
+}
+suzaku_apps_select_vocabulary_partitions
+suzaku_apps_run_vocabulary_partitions() {
+  for suzaku_apps_part in "${suzaku_apps_vocabulary_parts[@]}"; do
+    env SUZAKU_APP_QA_BIN_DIR="$suzaku_apps_bins" \
+      SUZAKU_VOCABULARY_QA_SCOPE="$suzaku_apps_part" \
+      bash "$suzaku_apps_root/scripts/test-linux-apps.sh" vocabulary
+  done
+  case "${SUZAKU_VOCABULARY_QA_SCOPE-all}" in
+    all) printf 'PASS: complete vocabulary scope=all; all three mixed-language parts passed.\n' ;;
+    packs) printf 'PASS: complete all-14-pack vocabulary scope=packs; both mixed-language parts passed.\n' ;;
+  esac
+}
 # Existing suites retain their explicit synchronous IBus transport. The GTK3
 # diagnostic also exercises the installed client's default, without inheriting
 # a desktop override or changing any user environment/configuration.
@@ -91,6 +116,11 @@ suzaku_apps_binaries=(panel linux_ime_host)
 if [[ $suzaku_apps_suite == candidates || $suzaku_apps_suite == bottom-layout || $suzaku_apps_suite == auto-layout ]]; then
   suzaku_apps_binaries+=(suzaku_tool)
 fi
+if [[ $suzaku_apps_suite == vocabulary ]]; then
+  case "${SUZAKU_VOCABULARY_QA_SCOPE-all}" in
+    packs|packs-part-1|packs-part-2) suzaku_apps_binaries+=(suzaku_tool) ;;
+  esac
+fi
 if [[ -z ${SUZAKU_APP_QA_BIN_DIR:-} ]]; then
   suzaku_apps_build_args=()
   for suzaku_apps_binary in "${suzaku_apps_binaries[@]}"; do
@@ -105,16 +135,11 @@ for suzaku_apps_binary in "${suzaku_apps_binaries[@]}"; do
   test -x "$suzaku_apps_bins/$suzaku_apps_binary"
 done
 # Keep the growing full vocabulary gate within the unchanged per-session
-# deadline. Build once above, then run three mixed-language partitions with
-# independent displays/buses/configuration; each includes EN/ZH/JA, and no
-# single part is the complete gate.
-if [[ $suzaku_apps_suite == vocabulary && ${SUZAKU_VOCABULARY_QA_SCOPE-all} == all ]]; then
-  for suzaku_apps_part in part-1 part-2 part-3; do
-    env SUZAKU_APP_QA_BIN_DIR="$suzaku_apps_bins" \
-      SUZAKU_VOCABULARY_QA_SCOPE="$suzaku_apps_part" \
-      bash "$suzaku_apps_root/scripts/test-linux-apps.sh" vocabulary
-  done
-  printf 'PASS: complete vocabulary scope=all; all three mixed-language parts passed.\n'
+# deadline. Build once above, then run three builtin or two all-pack parts
+# with independent displays/buses/configuration. Each includes EN/ZH/JA;
+# all-pack parts each export/install all 14 packs and render the companion.
+if [[ $suzaku_apps_suite == vocabulary && ${#suzaku_apps_vocabulary_parts[@]} -gt 0 ]]; then
+  suzaku_apps_run_vocabulary_partitions
   exit 0
 fi
 suzaku_apps_tmp=$(mktemp -d /tmp/suzaku-app-qa.XXXXXX)

@@ -1,13 +1,14 @@
 //! Reconcile the two panel windows with acknowledged native settings, one write at a time.
 use suzaku_map::ime::gpu::{LlmTemperaturePreset, PanelChromeState};
 use suzaku_map::ime::settings::{ImeSettings, PanelImeSettingsPatch};
-use suzaku_map::ime::shortcuts::ShortcutProfile;
+use suzaku_map::ime::shortcuts::{ShortcutBindings, ShortcutProfile};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 struct Controls {
     enabled: bool,
     temperature: LlmTemperaturePreset,
     shortcuts: ShortcutProfile,
+    bindings: ShortcutBindings,
 }
 
 impl Controls {
@@ -16,6 +17,7 @@ impl Controls {
             enabled: chrome.llm_enabled,
             temperature: chrome.llm_temperature,
             shortcuts: chrome.shortcut_profile,
+            bindings: chrome.shortcut_bindings,
         }
     }
     fn from_settings(settings: &ImeSettings) -> Self {
@@ -23,6 +25,7 @@ impl Controls {
             enabled: settings.llm_enabled,
             temperature: LlmTemperaturePreset::from_tenths(settings.provider.temperature_tenths),
             shortcuts: settings.shortcut_profile,
+            bindings: settings.shortcut_bindings,
         }
     }
 }
@@ -52,9 +55,10 @@ impl PanelImeSettingsSync {
                 chrome.llm_temperature = controls.temperature;
             }
             if previous.map_or(chrome.shortcut_edit_generation == 0, |old| {
-                chrome.shortcut_profile == old.shortcuts
+                chrome.shortcut_profile == old.shortcuts && chrome.shortcut_bindings == old.bindings
             }) {
                 chrome.shortcut_profile = controls.shortcuts;
+                chrome.shortcut_bindings = controls.bindings;
             }
         }
     }
@@ -82,6 +86,7 @@ impl PanelImeSettingsSync {
                 .then_some(desired.temperature.tenths()),
             shortcut_profile: (desired.shortcuts != confirmed.shortcuts)
                 .then_some(desired.shortcuts),
+            shortcut_bindings: (desired.bindings != confirmed.bindings).then_some(desired.bindings),
         })
     }
 
@@ -105,9 +110,11 @@ impl PanelImeSettingsSync {
                 chrome.llm_temperature = confirmed.temperature;
             }
             if chrome.shortcut_profile == sent.shortcuts
+                && chrome.shortcut_bindings == sent.bindings
                 && chrome.shortcut_edit_generation == edits[2]
             {
                 chrome.shortcut_profile = confirmed.shortcuts;
+                chrome.shortcut_bindings = confirmed.bindings;
             }
         }
     }
@@ -116,6 +123,124 @@ impl PanelImeSettingsSync {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use suzaku_map::ime::shortcuts::{ShortcutAction, ShortcutChord};
+
+    fn bindings(chord: &str) -> ShortcutBindings {
+        ShortcutBindings::default().with_binding(
+            ShortcutAction::Next,
+            Some(ShortcutChord::parse(chord).unwrap()),
+        )
+    }
+
+    #[test]
+    fn custom_binding_edits_survive_refresh_and_late_acknowledgements() {
+        let mut native = ImeSettings::default();
+        let mut chrome = PanelChromeState::default();
+        let mut sync = PanelImeSettingsSync::default();
+        chrome.shortcut_bindings = bindings("Ctrl+J");
+        chrome.shortcut_edit_generation = 1;
+        sync.observe(&native, &mut chrome);
+        assert_eq!(chrome.shortcut_bindings, bindings("Ctrl+J"));
+        let first = sync.next_patch(&chrome).unwrap();
+        assert_eq!(
+            first.to_json(),
+            serde_json::json!({"shortcut_bindings":{"next":"Ctrl+J"}})
+        );
+        chrome.shortcut_bindings = bindings("Ctrl+Shift+J");
+        chrome.shortcut_edit_generation += 1;
+        sync.observe(&native, &mut chrome);
+        first.apply(&mut native).unwrap();
+        sync.finish(Some(&native), &mut chrome);
+        assert_eq!(chrome.shortcut_bindings, bindings("Ctrl+Shift+J"));
+        let second = sync.next_patch(&chrome).unwrap();
+        second.apply(&mut native).unwrap();
+        sync.finish(Some(&native), &mut chrome);
+        assert_eq!(native.shortcut_bindings, bindings("Ctrl+Shift+J"));
+        assert!(sync.next_patch(&chrome).is_none());
+    }
+
+    #[test]
+    fn failed_custom_save_rolls_back_profile_and_bindings_as_one_control() {
+        let native = ImeSettings::default();
+        let mut chrome = PanelChromeState::default();
+        let mut sync = PanelImeSettingsSync::default();
+        sync.observe(&native, &mut chrome);
+        chrome.shortcut_profile = ShortcutProfile::HomeRow;
+        chrome.shortcut_bindings = bindings("Ctrl+J");
+        chrome.shortcut_edit_generation = 1;
+        let sent = sync.next_patch(&chrome).unwrap();
+        assert_eq!(sent.shortcut_profile, Some(ShortcutProfile::HomeRow));
+        assert_eq!(sent.shortcut_bindings, Some(bindings("Ctrl+J")));
+        sync.finish(None, &mut chrome);
+        assert_eq!(chrome.shortcut_profile, ShortcutProfile::Standard);
+        assert_eq!(chrome.shortcut_bindings, ShortcutBindings::default());
+        assert!(sync.next_patch(&chrome).is_none());
+    }
+
+    #[test]
+    fn newer_shortcut_pair_is_not_partially_reverted_by_an_old_failure() {
+        let native = ImeSettings::default();
+        let mut chrome = PanelChromeState::default();
+        let mut sync = PanelImeSettingsSync::default();
+        sync.observe(&native, &mut chrome);
+        chrome.shortcut_profile = ShortcutProfile::HomeRow;
+        chrome.shortcut_bindings = bindings("Ctrl+J");
+        chrome.shortcut_edit_generation = 1;
+        sync.next_patch(&chrome).unwrap();
+        chrome.shortcut_bindings = bindings("Ctrl+Shift+J");
+        chrome.shortcut_edit_generation += 1;
+        sync.finish(None, &mut chrome);
+        assert_eq!(chrome.shortcut_profile, ShortcutProfile::HomeRow);
+        assert_eq!(chrome.shortcut_bindings, bindings("Ctrl+Shift+J"));
+        let newer = sync.next_patch(&chrome).unwrap();
+        assert_eq!(newer.shortcut_profile, Some(ShortcutProfile::HomeRow));
+        assert_eq!(newer.shortcut_bindings, Some(bindings("Ctrl+Shift+J")));
+        sync.finish(None, &mut chrome);
+        assert_eq!(chrome.shortcut_profile, ShortcutProfile::Standard);
+        assert_eq!(chrome.shortcut_bindings, ShortcutBindings::default());
+        assert!(sync.next_patch(&chrome).is_none());
+    }
+
+    #[test]
+    fn clear_bindings_is_an_explicit_persisted_empty_object() {
+        let mut native = ImeSettings {
+            shortcut_bindings: bindings("Ctrl+J"),
+            ..Default::default()
+        };
+        let mut chrome = PanelChromeState::default();
+        let mut sync = PanelImeSettingsSync::default();
+        sync.observe(&native, &mut chrome);
+        assert_eq!(chrome.shortcut_bindings, native.shortcut_bindings);
+        chrome.shortcut_bindings = ShortcutBindings::default();
+        chrome.shortcut_edit_generation += 1;
+        let clear = sync.next_patch(&chrome).unwrap();
+        assert_eq!(clear.to_json(), serde_json::json!({"shortcut_bindings":{}}));
+        clear.apply(&mut native).unwrap();
+        sync.finish(Some(&native), &mut chrome);
+        assert_eq!(native.shortcut_bindings, ShortcutBindings::default());
+        assert!(sync.next_patch(&chrome).is_none());
+    }
+
+    #[test]
+    fn first_status_does_not_override_an_explicit_default_shortcut_choice() {
+        let native = ImeSettings {
+            shortcut_profile: ShortcutProfile::HomeRow,
+            shortcut_bindings: bindings("Ctrl+J"),
+            ..Default::default()
+        };
+        let mut chrome = PanelChromeState {
+            shortcut_edit_generation: 1,
+            ..Default::default()
+        };
+        let mut sync = PanelImeSettingsSync::default();
+        sync.observe(&native, &mut chrome);
+        assert_eq!(chrome.shortcut_profile, ShortcutProfile::Standard);
+        assert_eq!(chrome.shortcut_bindings, ShortcutBindings::default());
+        let patch = sync.next_patch(&chrome).unwrap();
+        assert_eq!(patch.shortcut_profile, Some(ShortcutProfile::Standard));
+        assert_eq!(patch.shortcut_bindings, Some(ShortcutBindings::default()));
+    }
+
     #[test]
     fn shortcut_edits_reconcile_failures_late_acks_and_unsent_choices_independently() {
         let mut native = ImeSettings::default();
@@ -171,6 +296,7 @@ mod tests {
                 enabled: None,
                 temperature_tenths: Some(7),
                 shortcut_profile: None,
+                shortcut_bindings: None,
             }
         );
         assert!(sync.next_patch(&chrome).is_none());
@@ -205,6 +331,7 @@ mod tests {
                 enabled: Some(true),
                 temperature_tenths: Some(7),
                 shortcut_profile: None,
+                shortcut_bindings: None,
             }
         );
         second.apply(&mut native).unwrap();
@@ -256,6 +383,7 @@ mod tests {
                 enabled: Some(false),
                 temperature_tenths: None,
                 shortcut_profile: None,
+                shortcut_bindings: None,
             }
         );
 

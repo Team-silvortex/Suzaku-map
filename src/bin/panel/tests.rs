@@ -8,6 +8,32 @@ fn panel_chrome_defaults_to_llm_disabled() {
 }
 
 #[test]
+fn settings_mirroring_keeps_recording_local_without_missing_saved_controls() {
+    use suzaku_map::ime::shortcuts::{ShortcutAction, ShortcutBindings, ShortcutChord};
+    let mut main = PanelChromeState::default();
+    let mut settings = main.clone();
+    settings.shortcut_recording = Some(ShortcutAction::Next);
+    settings.shortcut_recording_error = "conflict".into();
+    assert!(!mirror_settings_chrome(&mut settings, &main));
+    main.shortcut_bindings = ShortcutBindings::default().with_binding(
+        ShortcutAction::Previous,
+        Some(ShortcutChord::parse("Ctrl+K").unwrap()),
+    );
+    main.shortcut_edit_generation += 1;
+    assert!(mirror_settings_chrome(&mut settings, &main));
+    assert_eq!(settings.shortcut_bindings, main.shortcut_bindings);
+    assert_eq!(
+        settings.shortcut_edit_generation,
+        main.shortcut_edit_generation
+    );
+    assert_eq!(settings.shortcut_recording, Some(ShortcutAction::Next));
+    assert_eq!(settings.shortcut_recording_error, "conflict");
+    assert_eq!(main.shortcut_recording, None);
+    assert!(main.shortcut_recording_error.is_empty());
+    assert!(!mirror_settings_chrome(&mut settings, &main));
+}
+
+#[test]
 fn voice_fallback_only_runs_when_bridge_is_unavailable() {
     assert!(!PanelState::voice_fallback_allowed(
         VoicePermissionState::Pending,

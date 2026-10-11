@@ -42,7 +42,7 @@ static gboolean suzaku_ibus_language_ready(gpointer data) {
         suzaku_companion_context++;
         g_clear_pointer(&self->language_feedback, g_free);
         suzaku_ibus_engine_sync_input(self);
-        suzaku_ibus_language_feedback(self, "已切换输入语言，草稿保留 · Ctrl+Shift+Space");
+        suzaku_ibus_language_feedback(self, "已切换输入语言，草稿保留");
     } else {
         suzaku_ibus_language_feedback(self, strstr(response, "正在保存") != NULL ?
             "设置正在保存，语言切换未保存；请稍后重试" :

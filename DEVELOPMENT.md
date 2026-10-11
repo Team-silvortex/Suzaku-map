@@ -3,7 +3,7 @@
 Historical implementation notes, including earlier behavior and experimental platforms.
 Start with the [README](README.md) and [known limitations](docs/known-limitations.md).
 
-Current source version: **0.8.6 — Everyday vocabulary and Japanese continuation**.
+Current source version: **0.8.7 — Custom shortcuts and continuous everyday input**.
 
 ## Current priority: Chinese and English input on Linux
 
@@ -41,6 +41,1316 @@ checks and clean-container installation checks to pass before publication. Other
 are added only after their own acceptance, not implied by the shared version number.
 This is a release requirement, not a claim that automatic publication is implemented or
 that existing 0.7.x tags already have assets. See [Linux packaging](docs/linux-packaging-data.md).
+
+### 0.8.7 release preparation — 2026 10 12
+
+- Synchronize Cargo/package version to 0.8.7 and macOS/Android build number 37;
+  update current user-facing documentation and add release notes. Preserve
+  historical 0.8.6 installation reports, fixture text and optional pack versions.
+  No dependency update or personal installation change is part of this release.
+- Collect the accumulated custom-shortcut, authored daily fallback, Chinese
+  continuation and late-prediction repairs together with their regression
+  fixtures. Detailed development entries below retain first failures and exact
+  validation boundaries; source-only guards are not native or human acceptance.
+- Release validation receipts are retained in
+  `/tmp/suzaku-release-0.8.7.rIFkAV`. Compile/native/package checks run serially
+  under task-owned resource limits. The first versioned full all-feature Rust
+  run passes **1,713 tests**, zero failures and **30 explicitly ignored** native
+  or live fixture checks across 126 result groups. Strict all-feature/all-target
+  Clippy passes with warnings denied; formatting, diff checks, all nineteen
+  source/adapter guard suites, tensor validation and 250 audit-report links pass.
+  These source guards are not end-to-end native acceptance. Local ShellCheck is
+  unavailable; the remote CI still requires it rather than treating it as passed.
+- The checksum-pinned Gitleaks 8.30.1 directory scan initially reports a generic
+  API-key match in a fixed regression AST SHA-256 constant. Preserve both first
+  and diagnostic logs, verify the independently captured hash, and add a narrow
+  `gitleaks:allow` comment to that exact hash line, without changing the value,
+  coverage or assertions. An initial misplaced annotation did not resolve it;
+  the corrected exact-line scan passes with no leaks. Do not use broad file or
+  rule exclusions. The remote gate still scans the full committed history.
+- The earlier 0.8.6 remote Linux run failed at its native session deadline and
+  did not produce an approved Release. The new partitioned full gate preserves
+  every original assertion and deadline. Publication of 0.8.7 still requires
+  its own exact clean commit's CI, package-content and Ubuntu 24.04 installation
+  checks; neither the earlier local runs nor host-built glibc 2.43 packages
+  replace those gates. Publish Linux Alpha assets only after all gates pass.
+
+### Unreleased — Late prediction errors and long-draft diagnostics 2026 10 11
+
+- Follow the preceding late-reply audit into the shared error branch. Two
+  independent read-only reviews find no new confirmed production defect:
+  ordinary errors and caught provider panics use the same stopped/generation
+  publication gate. Successful context undo already clears obsolete work and
+  diagnostics; no-history undo intentionally preserves them. Selecting a local
+  row after a completed failure retains model-health feedback, not a stale
+  in-flight error. Do not change these semantics merely to remove a diagnostic.
+- Append four tests / 28 fixed workflows to the existing engine module without
+  changing its original seven tests / 28 workflows, helpers or deadlines.
+  Exact first 508 lines / 21,016 bytes retain SHA
+  `cd558a00d4281a00f5095e713614c24a8af4c83064b91bac1e8b2ec1879286b4`
+  before and after formatting. The module now has 11 tests / 56 workflows.
+  All provider waits remain three seconds and result waits two seconds.
+- Sixteen late-error paths cover long edit/restore ABA, multibyte 256→257→256,
+  cleared-field same-draft recreation and pending context undo, each in EN/ZH
+  and plain/IBus-mixed engine modes. Release obsolete typed HttpStatus(429),
+  then require a fresh request on the same single worker before checking exact
+  whole frame/pool, Pending and no diagnostic. The fresh provider stays blocked
+  during the negative check; its later exact Model/Sentence success cannot mask
+  an incorrectly published error. ABA request inputs match completely.
+- The other twelve paths positively accept current HttpStatus(404) before
+  selecting the exact complete Local literal row. Successful history undo
+  removes only committed context, clears the diagnostic and becomes Idle;
+  no-history undo keeps the entire Unavailable/error/choice state unchanged.
+  A subsequent deliberate reseed clears the old diagnostic and accepts a new
+  complete prediction. Provider-none undo stays Disabled and preserves the
+  complete selected pool through both undo outcomes, one exact commit,
+  duplicate rejection and engine context/history clearing. This last fixture
+  does not exercise disabling an already-in-flight provider.
+- The first all-feature run passes all 92 tests across eight related suites:
+  conflict 11, history 4, core 13, prediction 27, long completion 13, protocol
+  16, preservation 5 and English spacing 3. No production repair, retry or
+  assertion/deadline weakening is needed. Separately, first default and first
+  inline-preedit native fallback gates each pass all 106 real loopback failure
+  workflows: 20 English, 20 Chinese and 13 Japanese examples × HTTP 503/timeout.
+  Pending/Unavailable keep immediate local words/sentences, numeric adoption,
+  exact spelling undo, Space continuity and single exact commits. Update the
+  contributing guide's outdated 16-example/32-workflow count; no cases changed.
+  Each native gate retains its 120-second private-session deadline.
+- Receipts are retained in `/tmp/suzaku-prediction-error-audit.3Eigl7` under
+  serial task-owned 2 GiB high / 3 GiB max / zero-swap scopes. Whole-file SHA
+  checks confirm engine/worker, native fixture/runner, C bridge/language and
+  slow-fsync shim are unchanged. Record evidence without increasing maturity.
+  These new 28 engine cases do not qualify provider-panic recovery, transport
+  cancellation or native keystrokes; the separate fallback runs do not replace
+  the complete native core/controlled-save/GTK/physical-input gates. No no-GPU
+  build retry, live-model/Wayland acceptance, installation, desktop input,
+  personal-settings write, commit, push or release.
+  Strict all-feature/all-target Clippy, formatting and diff checks pass;
+  tensor validation passes 21 checks with 68 functions / 77 cells unchanged,
+  and all 250 audit-report links resolve. Update the source fingerprint and
+  evidence only. Daily service remains active at PID 1549795 with Rime selected.
+
+### Unreleased — Late prediction and committed-context undo 2026 10 11
+
+- Audit delayed model replies during manual editing using a dedicated
+  provider-neutral engine suite, not another shared native helper. Independent
+  reviews identify a shared-engine bug: successful committed-history `undo()`
+  changes the context captured by a pending prediction without invalidating
+  its generation. This is not native/panel completion-adoption undo, which
+  already replaces the seed and cancels predictions through its own history.
+- The first all-feature regression run passes five tests and fails exactly the
+  two context-undo tests: an observed in-flight cancellation token remains live,
+  and an already-ready prediction retains Ready status after its context is
+  removed. Preserve this red receipt; do not change test or provider deadlines.
+  Fix only successful history undo by cancelling prediction after the history
+  pop succeeds. No-history undo remains a strict no-op. Keep the entire live
+  draft, candidate pool, source/kind, selected index and explicit-choice lock;
+  do not rebuild/restart, clear displayed model choices or alter adoption undo.
+- Add seven fixed tests / 28 EN/ZH × plain/IBus-mixed engine workflows: long
+  byte-identical edit/restore ABA, selected-row cancellation then edit/unlock,
+  multibyte 256→257→256 scalar-budget ABA, old-field context clear plus same
+  draft recreation, pending context undo, no-history Pending undo, and ready
+  selected-model context undo with exact once-only commit. The provider ignores
+  cancellation deliberately. After releasing the old reply, receipt of the
+  next request proves the same worker processed it before whole-snapshot and
+  whole-candidate negative assertions. ABA inputs match exactly, so input
+  rejection cannot mask generation bugs. Every live fresh response must add
+  the exact Model/Sentence row; cancelled-status polling is not a drain oracle.
+- The first post-fix all-feature run passes all 88 tests across eight suites:
+  new conflict 7, commit history 4, engine core 13, prediction 27, long draft
+  completion 13, protocol 16, preservation 5 and English spacing 3. Another 34
+  host tests pass, including unchanged draft/history semantics.
+  An additional no-GPU build fails before entering the new suite with 17
+  existing unguarded GPU/winit import errors. This already-documented feature
+  boundary remains unqualified; preserve its first failure separately, do not
+  count it as a passing gate or broaden this undo fix into platform refactoring.
+  The supported desktop validation uses `--all-features`. Receipts are retained in
+  `/tmp/suzaku-prediction-edit-audit.WxFhuO`; builds stay serial in task-owned
+  2 GiB high / 3 GiB max / zero-swap scopes. No deadline/assertion weakening,
+  lexicon/native-fixture change, installation, desktop input, personal-setting
+  write, commit, push or release. New engine cases do not qualify HTTP socket
+  cancellation, physical keys, native display modes or real-model quality.
+- Separately, the first existing private native core partition passes in both
+  default and inline-preedit modes, including old socket-cancellation, length,
+  row/page, long local/model completion, adoption/Compose undo, committed
+  context, preference and focus/privacy/restart workflows. Do not confuse
+  this with the complete core-plus-HTTP-failure gate or a rerun of controlled
+  settings-save/GTK/physical-input tests. Whole-file SHA checks confirm the
+  native runner, fixture, C bridge/language and slow-fsync shim are unchanged.
+  Independent continuation/model-fixture guards pass 16/19 tests; tensor checks
+  pass 21 and audit-report links resolve all 250 references. Update evidence
+  and source fingerprint without increasing the 68-function/77-cell scores.
+  Daily service remains active at PID 1549795, with Rime still selected.
+  Strict all-feature/all-target Clippy, final formatting and diff checks pass.
+  The unchanged CI all-feature test command discovers the new integration
+  module automatically; no CI/runner rewrite or remote run was needed.
+
+### Unreleased — Word-to-sentence editing during custom language saves 2026 10 11
+
+- Continue the long-draft custom-language audit with one appended helper and
+  one exact adjacent call in the controlled gate. Read-only production and
+  independent fixture reviews find missing combination coverage, not a new
+  confirmed defect. Leave all production C/Rust, lexicons, shared helpers,
+  runner, isolation, one-second language deadline and old matrices unchanged.
+  Exact append-only projection recovers the whole pre-edit native SHA
+  `811d7c23545c35c9508477f44d186699de2b2b0806fc1df24dc1d20c09d84670`
+  and the four pre-edit historical guards, without replacing old assertions.
+- Add 16 fixed workflows: standard/home-row × EN→ZH / ZH→EN × successful/
+  failed saves × held sentence/continued literal edit. Authored English uses
+  `Earlier note. ` × 30 + `please sen` → `please send` →
+  `please send me the details.`; Chinese uses `前文。` × 100 + `hui yi` →
+  `会议` → `会议 什么时候开始？`. The explicitly owned long prefix comes
+  from a revision-bound companion action, with actual native tail events
+  drained individually. Candidates must match full text, Local source and
+  Word/Sentence kind; use configured row bindings, not display labels.
+- Start the real durable-write barrier before adopting the word. While the
+  language save is blocked, adopt via A38, preserve held L46 through modifier
+  release/repeats, release A38, type Space, adopt the entire sentence, use
+  clamped row/page gestures, undo exactly to full word-plus-Space, then release
+  A38 and re-adopt. Every stage requires the original context/language, visible
+  pending hint, one worker, unchanged disk bytes and zero commits. Edited cases
+  then type x and Alt+7; the entire two-key editing/verification step remains
+  under the unchanged 250 ms bound, not just the individual key calls.
+- Success keeps the latest entire sentence or edited draft, persists the
+  target language, retires the old context/actions and discards old undo.
+  Actual fsync EIO keeps original language/disk/context and the latest sentence
+  undo: Backspace restores complete word-plus-Space, not the original raw
+  reading. This is deliberately different from successful `sentence[:-1]`;
+  never use the coincident `please sen`/`please send` single-delete result as
+  the success/failure oracle. Edited cases in both branches delete only 7,
+  then x, then the sentence's final scalar, without reviving old undo.
+- Held adoption/language codes, changed keysyms and wrong releases remain
+  inert across acknowledgement and clamped row/page boundaries. Wait for zero
+  workers/no temporary files, release matching held keys, keep complete text
+  through Space, explicitly select its exact local literal row, then Enter
+  commits once and retires context; release/empty Enter cannot duplicate it.
+  Cleanup preserves primary errors and fully restores private settings plus
+  persisted JSON before reporting PASS.
+- First default and first inline-preedit controlled gates each pass all old
+  75 workflows plus the new 16; no native retry or production repair was needed.
+  The new independent source-only guard passes 16 checks; historical boundary/
+  custom-language/held/model-fixture/language/keypad/custom-long/keyboard-scope
+  checks pass 15/13/18/19/13/13/11/5. All first full guard runs pass. Projection
+  also freezes exact added support blocks, so unrelated new assertions cannot
+  be silently stripped while preserving only an old hash.
+  Strict all-feature/all-target Clippy, formatting and diff checks pass. Wire
+  the independent source-only guard into the existing CI block and update
+  evidence/source fingerprint without raising maturity scores. Receipts live
+  in `/tmp/suzaku-custom-continuation-audit.QWrXFY`; heavy gates remain serial
+  in task-owned 2 GiB high / 3 GiB max / zero-swap scopes. Daily service stays
+  PID 1549795 with Rime selected. No installation, desktop input, personal
+  settings change, commit, push or release.
+  This turn does not rerun the full Rust/native/HTTP/physical GTK suites or
+  qualify live-model/physical-keyboard/Wayland quality. Acknowledgement while
+  stopped at the undone word-plus-Space, other binding choices and late model
+  candidates during manual editing remain distinct follow-ups.
+
+### Unreleased — Custom language ownership and Compose boundaries 2026 10 11
+
+- Extend the preceding private long-draft audit, not the desktop installation.
+  Independent lifecycle review finds an untested combination, not a confirmed
+  production defect. Append one helper and one exact call after the existing
+  controlled long-custom helper. Keep every old workflow, shared helper,
+  deadline, runner and production C/Rust/lexicon byte unchanged. An independent
+  guard precisely removes the addition to recover whole-native SHA
+  `918bc1306587da6294de8f08e3f3b0afe77ca9be464c8659818578c5af6fa78c`
+  and projects three historical guards back to their pre-edit hashes.
+- Add 28 authored workflows: two shortcut profiles × both EN/ZH directions ×
+  explicit FocusOut, direct transfer to another engine without prior FocusOut,
+  password, PIN, private hint, pending Compose and completed Compose. Use the
+  same complete six custom bindings and distinct long `hel`→`hello` /
+  `hui yi`→`会议` undo oracles. A revision-bound owned prefix precedes drained
+  actual native tail, adoption and Ctrl+Shift+L events; do not infer physical
+  typing of the prefix or real-model quality from these fixtures.
+- The actual fsync barrier retains one settings worker and P0 reports busy
+  after cancellation. Original disk bytes and language stay unchanged.
+  Focus/privacy boundaries retire the old context, clear its long draft and
+  allow new public native letters with old held codes 38 and 46. After a
+  direct transfer, late old-engine Reset, FocusOut, password ContentType and
+  keys leave the new owner's complete fresh frame and both commit lists intact.
+  Password/PIN keys return unhandled; private-hint local typing is handled but
+  every snapshot stays redacted, then returning public retires that private
+  context too. These are deliberately different assertions.
+- Beginning Compose cancels the pending save without retiring the context.
+  Pending Compose first releases both held codes, then checks physical
+  modifiers and registered custom chords fall through with an unchanged whole
+  frame. Two Backspaces first cancel the unfinished sequence, then restore the
+  entire raw spelling. Completed `é` keeps the exact full draft; deleting the
+  accent then the adopted word's last scalar cannot revive old undo. Do not
+  assert the replaced default Ctrl+Shift+Space is inert during Compose: it is
+  an ordinary system shortcut and follows the existing cancellation path.
+- Both first default and first inline-preedit controlled gates pass their
+  unchanged 47 workflows plus all new 28. After worker exit require zero
+  workers, no temporary files, identical settled frame and unchanged disk;
+  Space preserves full text and deliberate exact selection/Enter commits once
+  to only the owning engine. PASS follows successful private settings/watcher
+  restoration; primary errors remain primary. Receipts are in
+  `/tmp/suzaku-custom-boundary-audit.HWFmex`.
+- The independent source-only boundary guard passes 15 checks; historical
+  custom-language/held/model-fixture/language/keypad/custom-long/keyboard-scope
+  checks pass 13/18/19/13/13/11/5. All first complete runs pass, without native
+  retries or production fixes. Strict all-feature/all-target Clippy, formatting
+  and diff checks pass. Wire
+  the independent source-only guard alongside existing checks and update
+  evidence/fingerprint without raising maturity scores. Heavy native gates
+  remain serial in task-owned 2 GiB high / 3 GiB max / zero-swap scopes. The
+  daily service remains PID 1549795 with Rime selected; no installation,
+  desktop keys, personal configuration changes, commit, push or release.
+  This turn does not rerun the complete native/HTTP fallback, physical GTK or
+  full Rust suites. Same-engine repeated FocusIn, pending successful-switch
+  word-to-sentence editing, physical keyboard/Wayland ergonomics and real-model
+  quality remain distinct follow-ups.
+
+### Unreleased — Custom language saves on long drafts 2026 10 11
+
+- Continue the preceding shortcut audit with two appended helpers and three
+  exact adjacent calls in the native fixture. Independent review finds a
+  missing regression matrix, not a confirmed production defect. No C/Rust,
+  lexicon, worker, runner, isolation or deadline changes. The new source-only
+  guard removes exactly these additions to recover the complete pre-edit
+  native SHA `b101512a7dadccfa924ee7a7835d21be684f3904d2b8f9237dffebc8bf0f3dc8`.
+  It also precisely projects the two adapted historical guards back to their
+  pre-edit hashes; their old matrices and assertions remain frozen.
+- Four normal workflows cover standard/home-row × EN→ZH / ZH→EN with all six
+  custom bindings. Owned revision-bound long prefixes precede actual native
+  tail keys and custom adoption/language events. Fixed `hel`→`hello` and
+  `hui yi`→`会议` distinguish successful ordinary deletion from complete raw
+  undo. Success preserves the entire draft, retires old undo/context actions,
+  keeps held physical identities through inert page/row boundaries and allows
+  immediate reuse after the matching release. Space continues the full draft;
+  an explicit Enter submits it once, without an empty-Enter duplicate.
+- Sixteen controlled workflows cover both profiles/directions × success,
+  real fsync EIO, Reset cancellation and explicit full-draft commit cancellation.
+  A real durable-write barrier checks bounded native response, worker count one,
+  busy save-channel rejection and unchanged disk bytes. Failure retains the
+  original language and full raw undo; success persists the language and clears
+  old undo. Cancellation retires the context without a late language apply;
+  new native typing works while the canceled worker still holds its permit.
+  After release require worker count zero and no temporary settings file.
+  Commit-cancellation checks two deliberate submissions: the original full
+  draft at cancellation, then the independently edited new-context draft.
+- The first default normal and controlled gates both pass. Tighten only the
+  new commit-cancellation fixture to select the exact full draft before Enter,
+  avoiding an assumption about the first candidate; do not alter ranking.
+  Final default and inline-preedit normal gates each pass old 26+12+4 and new
+  four cases. Final default and inline controlled gates each pass old 27+4
+  and new sixteen cases. The full default non-fallback native core also passes,
+  including recovery and both normal additions. This is not a rerun of the
+  separate 106-case HTTP fallback gate or the complete native matrix.
+- Root source-only checks pass custom-language/held/model-fixture/language/
+  keypad/custom-long/keyboard-scope 13/18/19/13/13/11/5 respectively. Strict
+  all-feature/all-target Clippy, formatting and diff checks pass. Add the new
+  independent guard to the existing CI check block; this is local validation,
+  not a claim that remote CI ran. Update linked evidence and the source
+  fingerprint without raising any maturity score.
+- Receipts remain in `/tmp/suzaku-custom-language-audit.fo2SnG`. Heavy gates
+  run serially in task-owned 2 GiB high / 3 GiB max / zero-swap scopes; all
+  native sessions use private buses and settings. No installation, commit,
+  push, release, desktop input or personal configuration changes. Custom long
+  drafts with Compose/privacy/focus cancellation, adoption/word-to-sentence
+  editing during a successful pending switch, physical keyboard/Wayland
+  ergonomics and real-model quality remain separate follow-ups. This turn
+  does not rerun the full Rust or physical GTK suites.
+
+### Unreleased — Long drafts with custom shortcuts 2026 10 11
+
+- Read-only audits find a coverage gap, not a confirmed production defect:
+  the private custom shortcut gate previously used short `hel`/`nihao` drafts.
+  Append `run_long_checks` and one call immediately after the unchanged old
+  `run_checks`. Keep the whole old fixture, runner, preflight, deadlines and
+  six phase groups unchanged; no C/Rust implementation or lexicon edits.
+- Add ten fixed workflows: standard/home-row × English/Chinese × word/sentence
+  (eight), plus a genuine long-English multi-page case per profile (two).
+  English uses `Earlier note. ` × 30 + `please sen`; Chinese uses `前文。` × 100
+  + `hui yi`. Expected complete word/sentence payloads are authored constants,
+  selected by exact text, Local source and kind, never by display labels.
+  The revision-bound companion prepares an explicitly owned prefix; actual
+  IBus events type each tail character with bounded frame drainage. These are
+  not claims of physical typing of long prefixes or free-form model quality.
+- Exercise configured Ctrl+N/P rows, Ctrl+Shift+F / Alt+Shift+B pages and
+  Alt+Shift+A adoption. Check held code 38 with changed keysyms/modifiers,
+  wrong and matching releases; clamped row/page operations compare complete
+  fresh snapshots and retain adoption undo. Backspace restores the entire raw
+  draft. Space retains the full text; word cases continue to a fixed sentence,
+  undo exactly to the adopted word plus Space, then re-adopt. Alt+7 stays
+  literal. Enter emits exactly one full CommitText with a retired context;
+  release and a second empty Enter cannot duplicate it. Long `note ` × 60 +
+  `hel` requires more than six rows, traverses all pages and both inert boundaries,
+  then adopts/undoes the complete `prefix + hello`.
+- Preserve the first failure (`native-custom-first.log`): all ten input actions
+  finish, but this new helper incorrectly tries restoring `language` with the
+  deliberately narrow U protocol. The host correctly rejects that field.
+  Repair only the new cleanup to restore with separate L then narrow U; require
+  both current settings and complete persisted JSON to equal the saved settings.
+  Primary failures remain primary; a cleanup failure after successful assertions
+  fails the gate. Publish the new PASS only after successful restoration.
+- Final default private IBus gate passes all old phase groups and ten new cases.
+  The separate source-built GTK/XTest custom gate passes its unchanged seven
+  groups plus full-U, atomic rejection/clear and actual settings-window
+  recording/acknowledgement/clear/close. The compiled C adapter passes seven
+  checks; focused Rust tests pass 27 (custom settings 8, long completion 13,
+  English window 6). Strict all-feature/all-target Clippy, formatting and diff
+  checks pass. Existing language/keypad/held/model-fixture/keyboard-scope guards
+  pass 13/13/18/19/5 respectively. The new independent source-only guard passes
+  eleven checks and projects
+  only the helper and exact adjacent call out to recover the frozen old whole-file
+  SHA `ea2c9e0ed59a791d479dc46723142fffa4468fb7d4128ac5ae6ad29a15db4dc1`;
+  it also checks the fixed matrix, actual chord paths and strict cleanup.
+- Evidence and the implementation/test source fingerprint are updated without
+  changing any maturity score. Logs live in `/tmp/suzaku-custom-long-audit.4ijcsB`;
+  synthetic GTK files remain in `/tmp/suzaku-app-qa.zQ7iv6`. Builds/native gates
+  run serially in task-owned 2 GiB high / 3 GiB max / zero-swap scopes. Daily
+  service remains PID 1549795 and the selected desktop engine remains Rime.
+  No installation, commit, push, release or personal configuration change.
+  This turn does not rerun the complete native/model-fallback matrix, legacy
+  49+4 GTK gate or all Rust tests; long-draft custom language switching,
+  controlled write failures/cancellation, real Wayland delivery and physical
+  keyboard comfort remain separate follow-ups.
+
+### Unreleased — Held adoption across language and paging 2026 10 11
+
+- The first new private-engine probe passes all old 26 language cases and
+  twelve adoption workflows, then fails at a clamped PageUp after a successful
+  keyboard language switch (`native-language-first.log`). A diagnostic run
+  preserves the exact defect: only companion revision changes, 597→598
+  (`native-language-red-diagnostic.log`). The completed-feedback clear calls
+  full render before the otherwise inert page branch. Change only that call
+  to presentation render: dismiss the hint without republishing input state
+  or emitting another inline-preedit update. No draft, key semantics, worker,
+  deadline, held-key set, candidate ranking or language algorithm change.
+- Append four fixed normal workflows: standard/home-row × EN numeric `hello`
+  adoption across ZH acknowledgement and clamped PageUp, or ZH literal `hel`
+  Shift+Enter across EN acknowledgement and genuine PageDown→6/PageUp→0.
+  Same physical-code repeats, changed keysyms/modifiers and other releases
+  cannot edit, adopt or commit. Success retires old-language undo (`hello`→`hell`);
+  a released key can immediately edit/adopt again, with exact new undo, Space
+  continuity and one explicit final commit. The first repaired run exposes a
+  new fixture's wrong assumption that the Chinese literal row is first
+  (`native-language-fixed-first.log`); select the exact local Literal `hel`
+  through the unchanged relative helper instead of changing ranks or text.
+- Append four controlled slow-save workflows: both profiles × success/failure,
+  with numeric `hello` adoption held before the language chord and through its
+  durable-write barrier. Assert progress, bounded input response, exact disk,
+  context and draft, pending/settled boundary snapshots, held repeats, success
+  `hell` versus failed-save `hel` undo, matching-code release and exact commits.
+  The first default slow gate passes its old 27 and new four cases. The first
+  inline slow gate records a new observation race, revision 250→251 at the
+  settled boundary (`native-pending-inline.log`): the success callback publishes
+  once when rebuilding the draft and again for the acknowledgement hint.
+  A client-only cached frame may lag that second publication. Read fresh host
+  snapshots before and after each gesture, synchronizing the original watcher
+  before the key, while keeping complete-frame/revision equality and deadlines.
+  Independent read-only audit confirms this cause; no extra production change.
+- The final default core gate passes its entire original non-fallback partition
+  plus all four normal additions (`native-core-default.log`). This is not a new
+  run of the separate 106-case HTTP fallback gate. Portal startup warnings stay
+  in every receipt. The final inline language gate passes old 26+12 and new four
+  (`native-language-inline-final.log`); the final default/inline slow gates
+  each pass all old 27 plus new four (`native-pending-default-final.log`,
+  `native-pending-inline-final.log`). Neither new helper replaces an old matrix
+  or modifies shared typing, selection or peer code.
+- Eighteen independent [held-language guards](scripts/test-held-language-coverage.py)
+  pass (`held-static-root-final.log`). Remove only two new helpers and three
+  exact adjacent calls to recover the complete prior native-file SHA; freeze
+  eleven old functions, the worker and runner. C projection permits only the
+  one presentation-render substitution and requires it in current source.
+  Thirteen language and thirteen keypad guards retain their old hashes/matrices,
+  updating only the exact status-render expectation/projection. Nineteen HTTP
+  fixture guards retain their old core prefix and tail digests after deleting
+  only the three new argument/order-checked calls; all HTTP 53-pair assertions
+  and deadlines remain fixed. Actual static shape failures are retained in
+  `language-static-red.log` and `partition-static-red.log`, not hidden by new hashes.
+  Add the new held guard alongside the existing two CI commands; YAML parsing
+  verifies all three. No claim that remote CI has run.
+- Extend only the extracted adapter's render stubs/counters and existing
+  feedback assertions: dispatch makes no feedback-dismissal render call while
+  saving, and completed/failed feedback dismissal calls presentation once,
+  full render zero times. Input-edit helpers are stubs here; this compiled check
+  does not measure their normal real draft/preedit rendering. All seven checks
+  pass (`adapter-final.log`), retaining five structure tests and the old seven
+  adapter subcases. The first actual owned XTest→GTK gate passes all unchanged
+  49 workflow groups plus the unchanged four keypad flows (`keyboard-default.log`);
+  this does not add physical coverage of the eight new held-language combinations.
+  Five physical-custom scope guards, 21 tensor checks and all 250 repository audit
+  links pass. The latter runs against the working tree, not a newly built package.
+  Strict all-feature/all-target Clippy passes in 27.84 seconds with warnings
+  denied; formatting and whitespace checks pass. No kernel OOM entry is recorded
+  during this window. The daily service remains running as PID 1549795 and the
+  desktop input method remains Rime; no personal input state was altered.
+  Source SHA is `ce5f27b47b9341e19bc5119f28d413724438c27d3c354689152d7233c6c758c8`;
+  all 77 maturity cells stay unchanged. Receipt directory:
+  `/tmp/suzaku-held-transition-audit.BJKfKB`. A misspelled scope property and a
+  missing link-checker argument were rejected before their requested validation;
+  those invocation logs are retained separately, not counted as successful checks.
+  Heavy gates are serial with one build job, 2 GiB high / 3 GiB max / zero-swap
+  task-owned scopes. No install, release, commit, push, personal input-method
+  switch, physical-hardware or real-model acceptance.
+
+### Unreleased — NumLock-off keypad navigation 2026 10 11
+
+- A new fixed private-engine probe reproduces `KP_Up` falling through despite
+  a live draft (`native-red.log`); all old row-boundary checks pass first.
+  NumLock-on keypad digits are already explicitly literal input, not numbered
+  candidate keys, so do not change that contract. This is a bounded ergonomic
+  compatibility addition, not a claim that old keypad-navigation coverage failed.
+- Add only `KP_Up/Down/Left/Right/Prior/Next` to the existing row/page branches.
+  Keep raw keysyms through Compose first, then use the unchanged move/page
+  helpers. Clamped rows and missing pages retain the entire frame and adoption
+  undo; genuine navigation remains deliberate. No physical-keycode remapping,
+  new input hook, NumLock/LED change, keypad Home/End/Insert/Delete support,
+  settings worker, dictionary or Rust input algorithm change.
+- Append 24 fixed native cases: two profiles × EN/ZH × six navigation keysyms.
+  Check real relative movement, page starts, complete fresh snapshots at the
+  boundaries, unselected Space spelling, immediate adoption undo, no commits,
+  and empty/password/numeric/modifier ownership. Default and inline row gates
+  both pass the old matrix and all 24 additions (`native-default.log`,
+  `native-inline.log`). The first default native core gate passes its complete
+  non-fallback partition (`native-core-default.log`); the separate 106-case HTTP
+  fallback gate is not rerun this turn. Preserve portal warnings and all limits.
+- The first actual private XTest→GTK keyboard run passes all old 49 workflow
+  groups plus four additions (`keyboard-default.log`). Use previously cached
+  physical KP2/4/6/8/3/9 positions with NumLock off, not injected IBus keyvals.
+  EN/ZH row/page movement, boundary snapshots, adoption/undo, Space and exact
+  single application commits pass; the observed editor stays empty until Enter.
+  XKB state/keymap are unchanged. A new fixture's initially authored language
+  wait was corrected in review before execution: repeated equal-value `L` can
+  preserve revision, so confirm persisted/frame language and the empty draft,
+  not a forced revision increase. No legacy assertion or deadline was changed.
+- A separate adjacent check exposes a previous-turn fixture omission:
+  the extracted real C adapter now reads `language_job`, but the adapter test's
+  stub struct did not declare it. Preserve the actual compiler failure in
+  `custom-native-static.log`. Add the matching presence-only pointer, reset it
+  between fixtures, and a new adapter test for pending feedback surviving input
+  and release, followed by normal completed/failed feedback clearing. All five
+  structure checks and both compiled-adapter tests pass (`custom-native-final.log`);
+  the old seven adapter subcases and two-second bounds stay unchanged.
+- Thirteen new [keypad guards](scripts/test-keypad-navigation-coverage.py) pass
+  (`static-root-final.log`). Exact source projection restores the pre-change
+  whole C and GTK files; old 49/custom-7 globals/helpers, digit path, Compose
+  handling and held/page/multilingual matrices remain fixed. Guard the six-key
+  after-Compose placement and fixed 24/4 matrices. This static order check is
+  not execution of a custom Compose sequence containing keypad navigation.
+  Existing nineteen HTTP-fixture, thirteen language-workflow and five physical
+  custom-scope guards pass. Add both language/keypad guard commands to CI without
+  replacing its old stages; parsed YAML confirms the new stage's exact commands.
+- Strict all-feature/all-target Clippy passes in 29.00 seconds; workspace
+  formatting and whitespace checks pass. The tensor freshness check, all 21
+  tensor guard tests and all 250 packaged audit links pass. No kernel OOM entry
+  appears during this validation window. The daily `suzaku-ibus.service` remains
+  running and the selected desktop input method remains Rime.
+- Source SHA is `450ff3f74e47ce0a0f3c370d62e9afba118351a2e2589e430b8b7064fecdbaa3`;
+  all 77 maturity cells stay unchanged. Receipt directory:
+  `/tmp/suzaku-keypad-flow-audit.0nFQOH`. Heavy validation remains serial with
+  2 GiB high / 3 GiB max / zero-swap scopes. No new physical-hardware,
+  installed-version, native Wayland, arbitrary keypad/Compose, real-model or
+  remote-CI acceptance. Long-held adoption across keyboard-language switching
+  and real paging was still a separate combined probe in this keypad-only turn;
+  the subsequent held-language chapter above records that coverage. It is not
+  inferred from these independent chains. No install, release, commit or push.
+
+### Unreleased — Language-switch adoption workflows 2026 10 11
+
+- A controlled private IBus probe reproduces an auxiliary-feedback defect:
+  while a keyboard language switch is still saving, numeric word adoption
+  prematurely clears `正在切换输入语言…`. All nine existing slow-settings
+  and ten delayed-language cases pass before the new `en/success-adopt` case
+  fails (`native-pending-red.log`). Preserve this actual RED separately from
+  the independent static guard's earlier shape failures (`static-red.log`).
+- Change only the ordinary-key feedback-clear condition to require no live
+  `language_job`. Adoption, undo and further typing retain the progress hint
+  while saving. Success/failure/timeout still retire the job before publishing
+  feedback; focus, Reset, privacy, commit and Compose independently cancel and
+  clear it. No input-loop disk work, language protocol, worker-permit, key
+  semantics, one-second language deadline or native-session deadline changes.
+- Append two private-engine helpers without replacing old coverage. Twelve
+  fixed success workflows cover both shortcut profiles, EN→ZH / ZH→EN and
+  an ASCII-first mixed `API。nihao` prefix. Each deliberately adopts Word and
+  Sentence rows via page-local numbers, restores exact spelling with Backspace,
+  adopts again, continues with Space and Alt+7, deletes three Unicode scalars
+  without reviving old undo, and commits the exact local payload once. Empty
+  Enter remains application pass-through. Same-payload English rows can be
+  Word rather than Literal; their exact text/source is the commit contract.
+- Eight controlled pending workflows cover adoption, adoption→undo,
+  adoption→ordinary edit, and failed save in both directions. Assert visible
+  progress before adoption, immediately afterwards, and after undo/edit,
+  all before releasing the `fsync` barrier. Success keeps the latest draft and
+  retires old-language undo; failure keeps old language, exact on-disk settings
+  and unchanged adoption undo. Cleanup releases the private worker and retains
+  the primary failure instead of masking it with teardown errors.
+- Default and inline focused language gates pass the unchanged 26 cases plus
+  twelve new workflows (`native-language-default.log`, `native-language-inline.log`).
+  Both slow-I/O modes pass the unchanged nineteen plus eight new workflows
+  (`native-pending-default-final.log`, `native-pending-inline.log`). The earlier
+  repaired default run remains separately retained (`native-pending-default.log`).
+  The first complete default IBus gate passes core plus all 106 controlled HTTP
+  fallback cases (`native-complete-default.log`). Inline coverage is focused,
+  not a claim that its complete HTTP gate ran. Preserve portal startup warnings.
+- The independent [workflow guard](scripts/test-language-workflow-coverage.py)
+  passes thirteen checks: pre-edit hashes freeze both old language matrices and
+  three shared typing/selection/private-peer nodes; projection permits only the
+  exact two appended calls. Fixed new matrices, ordered adoption/commit checks,
+  pending feedback stages and branch-specific undo are protected. Nineteen
+  existing native HTTP-fixture guards and 21 tensor checks pass separately;
+  these static checks are not native execution. All 77 maturity scores stay
+  unchanged. Current implementation/test source SHA is
+  `b520bbdf862a72644e3c698060fa58cd9959404766e5fc40da4604b537d6157d`.
+- Receipt directory: `/tmp/suzaku-language-flow-audit.e5z2vR`. Heavy checks
+  remain serial in task-owned 2 GiB high / 3 GiB max / zero-swap scopes.
+  Strict all-feature/all-target Clippy passes with warnings denied
+  (`clippy-final.log`, 28.32 seconds); formatting and patch whitespace pass.
+  This turn does not modify Rust input algorithms, dictionaries, settings
+  workers, version/lock files, the CI runner or the slow-write fixture.
+  Private Unicode protocol typing is not physical GTK/keyboard acceptance,
+  real-model quality, a new installation or remote CI. The documented external
+  settings-write publication window is not claimed fixed. No install, release,
+  commit or push; the personal service and engine remain untouched.
+
+### Unreleased — Chinese mixed-literal draft boundaries 2026 10 11
+
+- An actual two-case probe confirms `已确认 API。nihao` has only its Literal
+  choice in a short draft, while the same suffix after a long frozen Han prefix
+  already converts to `你好`: one pass / one failure (`probe-red.log`). The
+  long case is a positive control, not a second newly repaired defect.
+- Add failure-only short routing: when a draft has at most 256 Unicode scalars
+  and the whole decoder has no non-Literal conversion, reuse the existing
+  written Han/CJK boundary and decode its tail once. Freeze the exact raw prefix,
+  including acronyms, case, digits and Unicode. Share the old long-draft boundary
+  and protected-token check; keep authored-progress routing ahead of that fallback.
+  No recursive hint, new language detector, ASCII boundary splitting or unknown
+  word inference. Successful whole conversions, local kinds, old homophone ranks,
+  beam/completion caps, twelve displayed choices and model budgets are retained.
+- First focused regression passes 59 checks (`focused-first.log`). The independent
+  expanded matrix initially records thirteen passes / two failures
+  (`matrix-first.log`). One new fixture incorrectly expected the exact context
+  `我想学习中文` to match across an inserted internal Han-space; retain its
+  no-gap sentence expectation, and correctly require the existing shorter `中文`
+  sentence for the spaced case. Word/Literal/raw-prefix assertions stay unchanged.
+  This is a fixture correction, not a claimed production fix for gap matching.
+- The other failure exposes an older closing-quote hole: `zaishiyi'` consumes
+  its terminal apostrophe as the boundary before an untyped `ci`, manufacturing
+  a quote-free `再试一次` Word and authored sentence. Reject only Prefix matches
+  ending in an apostrophe. Exact readings still leave closing quotes to the
+  decoder; real internal syllable separators, horizontal padding and tones remain.
+  A separate unit guard checks Prefix/Exact boundary semantics. No quote assertion
+  is relaxed; the first repaired quote check passes (`quote-fixed-first.log`).
+- Seven focused Rust targets pass 72 checks (`focused-final.log`). Strengthened
+  final [mixed guards](tests/chinese_mixed_boundary.rs) pass all fifteen
+  (`matrix-final.log`): short/long and 255/256/257-scalar raw prefixes, partial
+  words and existing sentences, exact submission/undo, adoption and Space,
+  tone/numeric distinctions, protected tokens, invalid splits and seven vertical
+  boundaries. Quote preservation includes bare/adopted readings, short/long mixed
+  prefixes and trailing horizontal padding, without discarding a closing quote.
+- Existing private native bilingual checks pass all 102 workflows in default
+  and inline preedit sessions separately (`native-bilingual-default.log`,
+  `native-bilingual-inline.log`): numeric adoption, exact spelling undo, continued
+  typing and single commits. These unchanged IBus-protocol cases do not qualify
+  the new Unicode mixed fixtures through GTK typing or a physical keyboard,
+  nor replace complete native HTTP, installed-version or real-model acceptance.
+  Preserved portal startup warnings are not hidden. Receipt directory:
+  `/tmp/suzaku-mixed-boundary-audit.QSky0U`.
+- The first full all-feature Rust run passes 1,702 tests / zero failures /
+  thirty ignored across 125 result entries (`full-rust-first.log`,
+  `full-rust-summary.log`). Ignored opt-in cases are not executed acceptance.
+  Heavy build/native/test checks remain serialized in task-owned 2 GiB high /
+  3 GiB max / zero-swap scopes; no failure log is overwritten or deadline relaxed.
+  The ten fallback-vocabulary checks finish in 75.45 seconds, rather than
+  hanging. Strict all-feature/all-target Clippy passes with warnings denied
+  (`clippy-first.log`, 27.77 seconds).
+- Lightweight gates pass: 22 vocabulary partition guards, 21 tensor checks,
+  nineteen native HTTP-fixture shape tests and six pack-shipping checks. These
+  shape tests are not execution of the 106 native HTTP subcases. Workspace
+  formatting and patch whitespace pass; all 250 repository audit links resolve,
+  not a new package/install qualification. Current tensor source SHA is
+  `f1cd5393bbceff4578b5c3edeb6df5d7cb1255a93a0e78dc85fee9022027f16d`;
+  all 77 maturity scores remain unchanged.
+- The resource audit confirms EN/JA/ZH JSON, Cargo version/lock and English
+  source are byte-identical to this turn's start, and all fourteen packs match
+  the prior frozen audit (`resource-guard-readonly-audit.log`). `draft.rs` is an
+  intentional production refactor, not counted as an unchanged resource.
+  Chinese changes are boundary recovery and the quote Prefix guard, not new
+  vocabulary, personal history, C/host/core engine or model-protocol changes.
+  Read-only desktop checks retain the active daily host at PID 1549795 and Rime;
+  no kernel OOM entries are observed since this turn's 20:40 baseline. No version
+  bump, install, service restart, commit or push.
+
+### Unreleased — basic Chinese connectors and adopted input flow 2026 10 11
+
+- The direct adopted-word path lacks two basic standalone readings. The actual
+  pre-data RED fails all three independent tests (`data-red.log`): missing
+  `hai -> 还` metadata/Word, and `优惠券hai zai` autocompletes to longer entries
+  instead of offering Sentence `优惠券还在`. The loops stop at those first
+  failures; they do not independently establish a second `hou` failure. Existing
+  longer-word adoption and normal editing could already construct the Han context;
+  these basic readings improve direct input rather than making physical testing possible.
+- Append only Word `hai -> 还` and `hou -> 后` to the JSON resource. All 2,920
+  previous reading records, flags/order and other fields are unchanged
+  (`append-audit.log`); totals are now 2,922 readings / 687 contexts / 1,372
+  sentences. Bare `hai` and `hou` intentionally prefer the new exact words;
+  old whole-word primary choices remain, not necessarily every combined array.
+  No `huan` alias, new `候` / `厚` entry, authored sentence or context.
+  EN/JA JSON and Cargo version/lock remain byte-identical to this turn's baseline
+  (`unchanged-core.sha256`), and fourteen packs are unchanged. Chinese production
+  source is unchanged; its later unit-test count update is separately audited below.
+  Vocabulary remains model/host/decoder-independent; no personal history or corpus.
+- First focused Rust run passes 59 checks (`focused-first.log`), including the
+  original three new expectations and all six adjacent targets. Five additional
+  [guards](tests/chinese_function_words.rs) pass with the original three unchanged
+  (`function-guards-first.log`, eight total): full old-data fingerprints, old
+  whole-word/prefix priority, selectable longer completions, page limits,
+  protected tokens, invalid splits, vertical boundaries and immutable Han prefixes.
+- Add separate `adopted-transition` QA: two physical Pinyin/numeric bootstrap
+  chains, each with and without Space before the partial tail (four variants).
+  Start `优惠券` / `登录失败` is Word; composed `优惠券还在` /
+  `登录失败后可以` is Sentence, followed by verified Word completion and an
+  existing authored Sentence. The fixture checks exact stage-specific undo,
+  empty editor before commit and one physical Enter's exact insertion through
+  unchanged shared helpers. Tail candidates are required within twelve, not
+  falsely promised on page one or necessarily forced onto page two.
+  Static RED records twenty passes / two missing-scope/helper errors
+  (`partition-red.log`); all 22 guards pass after implementation (`partition-root.log`).
+  The old raw workflow and four shared helpers are fingerprint-locked, as are
+  ALL167/PACK74 tuples, old loops/paging/pack preparation and the 240-second limit.
+  This focused scope cannot report a complete builtin/pack/native-HTTP gate.
+- Formatting initially reports only the new test's edition-2024 layout
+  (`fmt.log`); formatting alone fixes it (`fmt-repair.log`, `fmt-final.log`).
+  Assertions and semantic expectations remain unchanged. Receipt directory:
+  `/tmp/suzaku-adopted-flow-audit.sMuTqz`.
+- The first full Rust run records 1,684 passes / two failures / 30 ignored over
+  124 result entries (`full-rust.log`, exit 101). Both failures are exact reading
+  counts, actual 2,922 versus the previous 2,920, in the language unit test and
+  migrated-resource test; no behavior assertion fails. Update only those two
+  exact metadata baselines to 2,922, retaining all old fingerprints, ranks,
+  context/sentence counts and behavioral assertions. Replacing that one unit-test
+  count back to 2,920 recreates the starting Chinese source SHA exactly
+  (`production-unchanged.log`), proving no production-code delta in this turn.
+  The first targeted command accidentally filters out all 23 integration tests
+  (`metadata-targeted.log`), so its exit zero is not acceptance. The correctly
+  selected integrations execute and pass all 23 (`metadata-integrations.log`),
+  followed by the previously failed continuation unit test, one pass
+  (`metadata-continuations.log`). No assertion is weakened or deadline extended.
+- Current two-reading panel/host/tool binaries were rebuilt before the native
+  check (`build.log`). All four `adopted-transition` variants pass actual
+  XTest -> GTK -> IBus input (`gtk-adopted-first.log`): both entirely physical
+  Pinyin/numeric Han chains, with and without literal Space, Word/Sentence
+  bridge types, each adoption's exact undo, selectable tail Word and authored
+  Sentence, actual page-local adoption and once-only Enter's exact buffer/file.
+  The live panel agrees with host revision/context/cursor and page rows while
+  the editor stays focused at each observation and empty before commit.
+  These cases select whichever page contains the target; they do not themselves
+  promise a second-page target or qualify broader matrix spellings. Private files:
+  `/tmp/suzaku-app-qa.x1Yo8h`. Portal fallback/inhibit warnings remain visible
+  in the preserved log, not hidden or counted as candidate failures.
+- Both original raw `transition` groups also pass in a separate fresh private
+  session (`gtk-raw-transition.log`, `/tmp/suzaku-app-qa.L2Dv6G`), including
+  the second 收拾 sentence's mandatory page-two numeric selection, Word/both
+  Sentence adoption and exact undo, Space continuation and once-only saved commits.
+  Neither focused session runs or claims complete builtin, all-fourteen-pack,
+  native HTTP/model, installed-version or personal-desktop acceptance.
+- Final all-feature Rust executes and passes 1,686 tests / zero failures /
+  30 ignored across 124 result entries (`full-rust-final.log`,
+  `full-rust-summary.log`). Opt-in ignored tests are not executed acceptance.
+  The fallback-vocabulary target passes all ten cases in 76.16 seconds; it is
+  not a hung native session. Heavy checks are serialized in task-owned 2 GiB
+  high / 3 GiB max / zero-swap scopes; preserved failures are not overwritten.
+  Lightweight gates pass: 22 partition guards, 21 tensor checks, nineteen
+  native HTTP-fixture shape checks and six pack-shipping checks. The HTTP shape
+  result is not execution of the 106 native HTTP subcases. Python/shell syntax,
+  formatting and patch whitespace pass; 250 repository audit links resolve,
+  not a new package/install qualification. Tensor source SHA is
+  `17ea2814b467f54b4da09fd13bd9fa61527c61246bf249c3135a6384a3110637`,
+  all 77 maturity scores unchanged. No version bump, install, commit or push.
+- Strict all-feature/all-target Clippy passes with warnings denied
+  (`clippy-first.log`, 30.72 seconds). Final read-only desktop check still
+  shows the original daily service active at PID 1549795 and selected engine
+  Rime; the installed input service was not replaced or restarted. No kernel
+  OOM entry is observed since this turn's 20:00 baseline. This does not diagnose
+  older OOM incidents or turn private automated events into physical-user acceptance.
+
+### Unreleased — adopted Chinese partial sentence progress 2026 10 11
+
+- Fix an existing-data continuation gap, without another vocabulary batch:
+  `登录失败后可以zaishiyi` already offers Word `登录失败后可以再试一次`,
+  but its authored sentence `登录失败后可以再试一次。` was absent. The
+  correct verified Word is the sixth decoder choice; both sentence emission
+  and long-draft routing previously inspected only the first five. The actual
+  independent [probe](tests/chinese_partial_sentence_probe.rs) RED is one pass /
+  one failure (`probe-red.log`). `优惠券还在youxi` already passes because
+  `有效` is enough sentence progress; keep it as a positive control, not a
+  second claimed defect. The preliminary read-only decoder analysis was not
+  evidence that both inputs failed.
+- Reuse existing typed decoder choices: the original first five retain their
+  order, followed by at most four already verified Word completion paths.
+  Actual emission still uses the precise-primary-Word guard and exact authored
+  suffix validation. The long-draft hint only retains the raw Han context;
+  it cannot emit or inject completion text. No new last-Pinyin-span parser,
+  reading, beam width, completion cap, score, page quota or model budget.
+- The first focused run passes all 53 unchanged/new checks (`focused-first.log`),
+  including the two probes and old care, sentence-progress, horizontal-reading,
+  long-draft and vocabulary-quality suites. Nine further independent
+  [regression tests](tests/chinese_partial_continuation.rs) pass
+  (`matrix-first.log`): five spellings, six horizontal paddings, frozen
+  café/emoji prefixes, 255/256/257/512-scalar boundaries, Word/Sentence/Literal
+  once-only commits/undo, adopted-word progress, wrong Han, invalid splits,
+  unknown tails, seven vertical boundaries, protected tokens and the unchanged
+  `shijian` / `世间` first-page rule. These are engine checks, not physical typing.
+- Add a separate focused `transition` GTK diagnostic for the previous raw
+  inputs `zaishiyi` and `chumenqianshoushiyixi`. It does not append to ALL167
+  or PACK74, replace the complete gates or run their unrelated progress controls.
+  All old tuples, complete tuple hashes, three physical loop hashes, old paging
+  and pack-prepare hashes, and the 240-second deadline remain unchanged.
+  Static RED retains the old fifteen passes and four missing-scope/helper
+  errors (`partition-red.log`); final nineteen guards pass, including independent
+  page-local number mapping (`partition-root.log`, `partition-green.log`).
+- Rebuilt current panel/host/tool binaries (`build.log`) before the private
+  native check. Both raw input groups pass actual XTest -> GTK -> IBus
+  acceptance (`gtk-transition-first.log`): whole Word and both fixed Sentences,
+  physical page-local numeric adoption, second-page selection of the second
+  收拾 sentence, exact raw undo, Space continuity and one physical Enter's exact
+  saved insertion. The actual panel frame agrees with host revision/context/cursor,
+  page rows and local numbers; editor focus is retained at each observation and
+  the owned buffer stays empty before commit. The one-Enter check observes a
+  short stable exact buffer; it does not send another empty-draft Enter or claim
+  arbitrary delayed-event coverage. No host-injected draft or keyboard-map change.
+- The two adopted-Han contexts above are core-engine coverage, not new physical
+  GTK coverage in that run: their direct bootstrap lacked independent `还` / `后`
+  readings. Existing longer-word adoption and editing could also construct the
+  Han context, but that route was not exercised here. No new complete builtin, all-pack, native HTTP/model,
+  personal-desktop or installed-version acceptance is claimed by this diagnostic.
+  Existing private portal warnings remain in the log, not hidden or counted as
+  candidate failures. Synthetic session files: `/tmp/suzaku-app-qa.4rpCz0`.
+- Final all-feature Rust passes 1,678 tests / zero failures / 30 ignored across
+  123 result entries (`full-rust.log`); opt-in ignored tests are not counted as
+  executed. Strict all-feature/all-target Clippy passes with warnings denied
+  (`clippy.log`, 46.00 seconds). Heavy checks run sequentially under task-owned
+  2 GiB high / 3 GiB max / zero-swap limits; no timeout or assertion is relaxed.
+  Tensor tests pass 21, partition guards 19, unchanged native-HTTP fixture
+  shape tests 19 and pack-shipping checks six. The HTTP shape result is not
+  execution of the 106 native HTTP subcases. Formatting, Python/shell syntax
+  and patch whitespace pass. The first audit-link command omitted its root
+  argument and exits with usage (`audit-links.log`), not a product defect;
+  the correctly scoped repository check passes all 250 links
+  (`audit-links-final.log`), not a new package build/install qualification.
+  The functional tensor records the new evidence/source fingerprint
+  `9f47e91365c8f1e4104277eb3a2a20291ec2ebc495119d2630aa987837731679`
+  without changing any of its 77 maturity scores.
+- EN/ZH/JA JSON and Cargo version/lock files are byte-identical to this turn's
+  starting snapshot (`frozen-resources.sha256`); totals and the strict English
+  6,144 index ceiling are unchanged. No personal history or external corpus.
+  Detailed receipts: `/tmp/suzaku-transition-audit.6kwZWi`. The daily input
+  service is not replaced or restarted: final read-only check remains active at
+  PID 1549795, with the desktop still using Rime. No commit, push or release requested.
+
+### Unreleased — washing tidying and before leaving 2026 10 11
+
+- Append EN `daily_care`: three missing basic forms (`wash`, `hair`, `hands`),
+  eight contexts and sixteen original sentences. Append ZH 24 readings /
+  eight contexts / sixteen sentences and JA twelve readings / six contexts /
+  twelve sentences. Current totals: EN 6,143 indexed forms / 693 contexts /
+  1,350 sentences; ZH 2,920 readings / 687 contexts / 1,372 sentences;
+  JA 366 readings / 184 contexts / 367 continuation records. The existing
+  English index guard stays strictly below 6,144; further word growth needs
+  separate capacity work rather than silently raising this guard.
+- Independent [English](tests/daily_care_english.rs),
+  [Chinese](tests/daily_care_chinese.rs) and
+  [Japanese](tests/daily_care_japanese.rs) expectations precede data.
+  Actual unchanged-data RED passes six tests and fails 22 missing-candidate
+  expectations (`red.log`). No third-party corpus or personal history is used.
+  Read-only append audit confirms every old top-level field, nested value,
+  ordered entry and separator flag unchanged, including all 6,140 old English
+  first-index positions. All fourteen recommended packs remain byte-identical
+  to HEAD, with no new context collision (`append-audit.txt`, `en-review.txt`).
+- The first complete-data run passes 79 tests and fails three new expectations
+  (`first-append.log`), not a regression of an old fixture. Two broad contexts
+  already have both sentences but their second new sentences are on page two:
+  EN `i'll check the ` preserves old `latest` / `latest version.`, and complete
+  ZH `我先洗把脸zaichumen` preserves old 在 and 出门-prefix words. Add specific
+  page-two exact selection/one-time commit/undo and independent old-choice
+  checks; specific English `li` and Chinese unfinished `zaichume` remain strict
+  first-page expectations. No page size, score or old data change.
+- The third failure is a genuine continuation-generation gap, not pagination:
+  `chumenqianshoushiyixi` offers the correct whole Word 出门前收拾一下, but its
+  two fixed sentences are absent. The correct completion lies beyond the
+  decoder's first five converted paths, which are finished alternate syllable
+  splits. Generate additional continuations only from the already verified
+  at-most-five whole-reading Word candidates, after the original decoder
+  outputs, and only from each word's exact own context. Keep beam width,
+  completion-table size, scoring, ranking implementation and candidate limit
+  unchanged; never infer a shorter embedded context or rewrite adopted text.
+- Preserve the first fix run (`focused-fix.log`): 83 passes / one new
+  first-page assumption fails. Both previously missing sentences now exist;
+  the second occupies page two. Keep the original first-page word choices and
+  scores; explicitly verify page two rather than change quotas. Final focused
+  run passes all 85 tests (`focused-final.log`), including 31 new tests, all
+  prior carry fixtures, resource contracts and Japanese boundary/coexistence
+  checks. Five full/partial Pinyin spellings, old primary conversion, literal
+  input, exact commits and undo are checked without relaxing old assertions.
+- The first full Rust run exposes a genuine old-page regression: new 时间安排
+  sentences move 世间 to page two for exact `shijian`. Keep that old first-page
+  assertion unchanged. The failed run is retained (`full-rust.log`, 1,609 passes /
+  one failure / 29 ignored across 112 result entries, then fail-fast stops).
+  Restrict the supplemental whole-word continuation path to inputs whose primary
+  conversion is not already a dictionary Word. Accurate word/homophone inputs
+  keep their previous continuation behavior; this deliberately does not promise
+  extra sentences for a broad exact prefix such as `youxian` -> 优先.
+  All 50 focused care/old-quality checks pass after this guard
+  (`exact-word-guard.log`). An additional independent regression using only the
+  old 再试一次 reading/context passes actual Rust validation in all five partial
+  spellings (`old-word-generalization.log`): its correct completion beyond the
+  first five split paths now produces both existing sentences, with exact
+  once-only commit/undo. Exact 时间/世间 remains first-page, and invalid syllable
+  splits, line boundaries and protected/unknown prefixes cannot manufacture
+  these sentences. Empty conversion lists are also ineligible for supplementation.
+- Other coverage includes case/apostrophes, horizontal padding, long Unicode
+  frozen-prefix progress, line/protected-token controls, Romaji/Kana and five
+  typed synthetic model failure/empty paths. Japanese 片付け remains canonical
+  `かたづけ` / `kataduke`; this is not a new `katazuke` alias or a change to its
+  existing >256-character limit. Host-like reseeding is not physical typing.
+- Append six independent EN/ZH/JA GTK tuples while preserving every old tuple,
+  physical assertion, loop fingerprint and original 240-second deadline.
+  Complete builtin is 167 fixed cases + six controls = 173 workflows in
+  parts 62 / 56 / 55. Complete all-fourteen-pack is 74 fixed cases + five
+  controls = 79 workflows in parts 42 / 37. Focused `care` is six new cases
+  + three Chinese controls = nine, not a complete builtin-gate pass.
+  All fifteen partition guards pass (`partition-final.log`), with actual
+  unchanged-runner RED retained in `partition-red.log`. Old ALL161/PACK68
+  exact-tuple fingerprints are now frozen alongside all earlier fingerprints.
+- Final complete all-feature Rust passes 1,667 tests / zero failures /
+  30 ignored across 121 result entries (`full-rust-final.log`). This includes
+  all 32 new tests and every unchanged old first-page assertion; ignored
+  native tests are not claimed as executed. Twenty-one tensor tests, fifteen
+  partition guards, nineteen unchanged HTTP-fixture shape tests, six
+  pack-shipping checks and 250 audit links pass, with formatting, shell/Python
+  syntax and patch whitespace. The full run uses no-fail-fast only to retain
+  all target results; no assertion or time limit is changed.
+- Strict all-feature/all-target Clippy passes with warnings denied
+  (`clippy.log`, 31.08 seconds). Current panel/host/tool binaries build
+  successfully (`build.log`), before any private native acceptance run.
+- Focused physical GTK acceptance passes all nine workflows (`gtk-care.log`):
+  six new independent EN/ZH/JA word/sentence samples plus three old Chinese
+  progress controls. Actual editor focus, numeric adoption, exact spelling undo,
+  Space continuity and saved text equality pass within the original private
+  session deadline. Portal idle-inhibition warnings are retained, not assertion
+  failures. This is not the full 173-workflow builtin gate or physical-keyboard
+  comfort/personal-desktop acceptance. New page-two core tests are exact index
+  selection/commit/undo, not a claim of physical paging for these specific seeds.
+- Complete all-fourteen-pack physical GTK coexistence passes all 79 workflows
+  in two fresh private sessions (42 / 37, `gtk-packs.log`). Each session
+  exports/installs every pack with the current adjacent tool before host/panel
+  startup, then checks the live companion/system-font draft, editor focus,
+  labels, numeric word/sentence adoption, exact spelling undo, Space continuity
+  and saved exact commits. Both original 240-second deadlines are unchanged;
+  no old case, tuple or physical assertion is skipped. Portal warnings remain
+  in the retained log. The harness cleans only its own synthetic temporary
+  files, not personal files. This is complete pack coexistence, not the full
+  builtin, HTTP/live-model, Wayland/personal-desktop or physical-keyboard gate.
+- Final source digest is
+  `3e2657b78d7f78e0fad93abdabe4b1d9b7a77791ebd15c64649d83f4db26c079`;
+  add evidence only for F16/F17/F18/F19/F67, with all 77 maturity rows unchanged.
+  Validation remains serialized in task-owned MemoryHigh 2 GiB / MemoryMax
+  3 GiB / MemorySwapMax 0 scopes with one build job. Final read-only desktop
+  checks still show daily host PID 1549795 active and Rime selected.
+- Receipt directory: `/tmp/suzaku-care-audit.4NPe3r`. Source remains dirty
+  0.8.6; no installation, version, commit, push or release requested. Embedded
+  vocabulary requires a later rebuild/reinstall for daily use. Typed provider
+  errors and nineteen unchanged HTTP-fixture shape checks are not a new actual
+  HTTP/live-model gate; the old 53-pair HTTP matrix stays unchanged. No personal
+  desktop keys, input-source change or remote-CI acceptance is implied.
+
+### Unreleased — clothing and carry before leaving 2026 10 11
+
+- Append EN `daily_carry`: one explicit form (`glasses`), eight contexts and
+  sixteen original sentences. Append ZH 24 readings / eight contexts / sixteen
+  sentences, JA twelve readings / six contexts / twelve sentences. Totals:
+  EN 6,140 indexed forms / 685 contexts / 1,334 sentences; ZH 2,896 readings /
+  679 contexts / 1,356 sentences; JA 354 readings / 178 contexts / 355
+  continuation records. No decoder, model protocol, candidate capacity or
+  index-budget change; 6,140 remains strictly below 6,144.
+- Independent [English](tests/daily_carry_english.rs),
+  [Chinese](tests/daily_carry_chinese.rs) and
+  [Japanese](tests/daily_carry_japanese.rs) fixed expectations run before data:
+  actual unchanged-data RED has six passes and 21 missing-data failures
+  (`red.log`). English and Chinese/Japanese data are authored independently,
+  with no third-party corpus or personal history.
+- Preserve the dirty baseline: all 28 English layers / 677 contexts / 1,318
+  sentences and all 6,139 first-index positions, 2,872 Chinese readings /
+  671 contexts and 342 Japanese readings / 172 contexts. Read-only semantic
+  audit confirms all old top-level fields, ordered entries, flags and nested
+  values unchanged; only the fixed append is present. All fourteen recommended
+  pack files are byte-identical to HEAD and no new context collides with them
+  (`append-audit.txt`). Old `glass` stays a Word; `glasse` reaches `glasses`.
+- Preserve the first append run (`first-append.log`): it compiled the English
+  append before the parallel Chinese/Japanese append had finished, so those
+  missing-data failures are not a test of the final resources. English passes
+  all nine new tests; two historical English zero-growth assertions fail
+  because they compare their own old baseline to every future layer. Fix each
+  equality to its immutable own append window and additionally assert every
+  old word's rank against the current full index; retain all old hashes.
+- The first complete-data focused run passes 109 tests and fails two new
+  Chinese first-page assumptions (`focused.log`). `koudaijianchayixi` has
+  old 以 + 谢谢/现在 branches; complete `我先换双鞋zaichumen` has old 在/再
+  and 出门-prefix choices. Their second new sentences occupy page two.
+  Keep old first-page words/capacity, add explicit second-page exact selection,
+  one-time commit/undo and independent ambiguity checks. Preserve a subsequent
+  nine-pass / one-fail result (`chinese-pages.log`): unfinished `zaichume`
+  has its second sentence on page one, unlike complete `zaichumen`. Only the
+  verified complete spelling takes the page-two branch; partial/Hanji and all
+  other first-page assertions stay strict. Final focused acceptance passes
+  all 112 tests (`focused-final.log`), including all 28 new tests.
+- Coverage includes full/partial spelling, case/apostrophes, Romaji/Kana,
+  horizontal spacing, long Unicode frozen-prefix continuation, literal
+  preservation, explicit selection/commit/undo, line/protected-token controls
+  and five typed synthetic model error/empty paths. Core reseeding is not
+  physical typing; Japanese's existing >256-character bound remains a limit.
+- Append six complete EN/ZH/JA GTK tuples to both builtin and pack gates;
+  every old tuple, physical assertion and original 240-second deadline remains.
+  Builtin is 161 fixed cases + six progress/paging controls = 167 workflows
+  (60 / 54 / 53). All-fourteen-pack is 68 fixed cases + five controls = 73
+  (39 / 34), each part a fresh private session with all packs and the real panel.
+  Focused `carry` is six new cases + three Chinese controls = nine, not a
+  complete-gate pass. Fourteen partition guards pass after retained actual
+  unchanged-runner RED (`partition-red.log`, `partition-final.log`); historical
+  ALL149/PACK56 and ALL155/PACK62 hashes and old loop fingerprints stay fixed.
+- Complete all-feature Rust passes 1,635 tests / zero failures / 30 ignored
+  across 118 result entries (`full-rust.log`). Ignored native tests are not
+  claimed as executed. Twenty-one tensor tests, nineteen unchanged controlled
+  HTTP-fixture shape tests and six pack-shipping checks pass, with formatting,
+  shell/Python syntax, patch whitespace and 250 audit links. The audit-link
+  check's first invocation omitted its required directory (`audit-links.log`);
+  corrected invocation succeeds (`audit-links-final.log`), not a code fix or
+  assertion change. The initial read-only maturity comparison used the wrong
+  JSON key `tensor`; corrected `cells` comparison verifies all 77 rows unchanged.
+- Strict all-feature/all-target Clippy passes with warnings denied
+  (`clippy.log`, 26.77 seconds); current panel/host/tool binaries build
+  successfully (`build.log`, 0.23 seconds).
+- Focused physical GTK acceptance passes all nine workflows (`gtk-carry.log`):
+  six independent new EN/ZH/JA word/sentence fixtures plus three existing
+  Chinese progress controls. Real editor focus, numeric adoption, exact
+  spelling undo, Space continuity and saved-text equality are checked under
+  the original private-session deadline. Portal idle-inhibition warnings are
+  preserved, not assertion failures. This does not claim the full 167-workflow
+  builtin gate, personal desktop or physical-keyboard acceptance. The harness
+  cleans only its own synthetic temporary files; the outer receipt logs stay.
+- Complete all-fourteen-pack physical GTK coexistence passes all 73 workflows
+  in both fresh private sessions (39 / 34, `gtk-packs.log`). Each session
+  exports/installs all fourteen packs through the current adjacent tool before
+  host/panel startup and verifies the live companion's system-font draft and
+  editor focus, labels, numeric adoption/undo, Space continuity and saved exact
+  word/sentence commits, including all six new samples. Both original
+  240-second limits are unchanged; no case, old tuple or assertion is skipped.
+  Portal idle-inhibition warnings remain in the retained log. Synthetic private
+  test files are cleaned by the harness, not personal files. This is not the
+  full builtin gate, a new HTTP/live-model gate or personal-desktop acceptance.
+- Current source digest is
+  `e9402497ebf3189740c89a47bc920f0a00152409aba998481e1d4a67d15808f1`;
+  evidence is added only for F16/F17/F18/F19/F67 without raising any score.
+  Validation is serialized in task-owned MemoryHigh 2 GiB / MemoryMax 3 GiB /
+  MemorySwapMax 0 scopes with one build job. Read-only desktop checks still
+  show daily host PID 1549795 active and Rime selected.
+- Receipt directory: `/tmp/suzaku-carry-audit.kKXYJB`. The source remains
+  dirty 0.8.6, with no installation, version, commit, push or release requested.
+  Embedded vocabulary needs a later rebuild/reinstall for daily use. Typed
+  failures do not count as new HTTP or real-model acceptance; the frozen old
+  53-pair HTTP fixture remains unchanged. No personal-history/packing access,
+  physical-keyboard comfort, personal-desktop or remote-CI acceptance is implied.
+
+### Unreleased — borrowing finding and small requests 2026 10 11
+
+- Append EN 8 contexts / 16 original sentences in `daily_requests`, ZH
+  24 readings / 8 contexts / 16 sentences and JA 12 readings / 6 contexts /
+  12 sentences. Current totals: EN 6,139 indexed forms / 677 contexts /
+  1,318 sentences; ZH 2,872 readings / 671 contexts / 1,340 sentences;
+  JA 342 readings / 172 contexts / 343 continuation records. English has
+  zero index growth; no decoder, model protocol, capacity or budget change.
+- Independent [English](tests/daily_requests_english.rs),
+  [Chinese](tests/daily_requests_chinese.rs) and
+  [Japanese](tests/daily_requests_japanese.rs) expectations are fixed before
+  data. Actual unchanged-data RED passes eight tests and fails 19 missing-data
+  expectations (`red.log`); after appending, all 27 new tests pass.
+  The complete focused run passes 84 tests, including prior routine fixtures,
+  resource contracts, optional Japanese family coexistence and Japanese
+  completion boundaries (`focused.log`). No old assertion is weakened.
+- Freeze the current dirty baseline, not only HEAD: 27 English layers /
+  669 contexts / 1,302 sentences and all 6,139 first-index ranks, 2,848 Chinese
+  readings / 663 contexts, 330 Japanese readings / 166 contexts. New complete
+  content/order/type/separator fingerprints coexist with all earlier ones.
+  Readings and contexts only append; all fourteen optional pack files remain
+  unchanged. No third-party corpus or personal history is used.
+- Coverage includes full and specific partial spellings, case/apostrophes,
+  Romaji/Kana, horizontal spaces, literal preservation, deliberate selection,
+  adopted-word continuation, exact one-time commit/undo, line/protected-token
+  boundaries and typed synthetic missing/unavailable/timeout/503/empty errors.
+  Host-like reseeding is not physical typing; the actual GTK harness is separate.
+  Japanese >256-character negative controls preserve the existing bounded
+  prediction limitation, not a claim of newly generalized long Japanese input.
+- Append six independent GTK requests tuples to both the complete and pack
+  lists without removing/reordering old tuples. Full builtin list is 155 fixed
+  cases plus five progress controls and one paging control = 161 workflows
+  (58 / 52 / 51). Packs are 62 fixed cases plus five progress controls = 67.
+  Since the previous 61-workflow pack session was near its 240-second limit,
+  partition the complete pack gate into two fresh mixed-language sessions
+  (36 / 31); each still installs all fourteen packs and starts the real panel.
+  The original deadline and every old physical assertion remain unchanged.
+  Exact-tuple guards, old-loop fingerprints, fail-closed scopes and fail-fast
+  dispatch live in [partition regressions](scripts/test-vocabulary-partitions.py).
+- Complete all-feature Rust passes 1,607 tests / zero failures / 30 ignored
+  across 115 result entries (`full-rust.log`). Strict all-feature/all-target
+  Clippy passes with warnings denied (`clippy.log`, 48.15 seconds); formatting
+  and patch whitespace pass. The three current application binaries build
+  successfully (`build.log`). Ignored native tests are not claimed as executed.
+- New builtin physical GTK diagnostic passes all nine workflows: six new
+  independent EN/ZH/JA samples plus three Chinese sentence-progress controls
+  (`gtk-requests.log`). Numeric word/sentence adoption, exact spelling undo,
+  Space continuity and actual editor saved-text checks run under the original
+  240-second private-session limit. Synthetic files are
+  `/tmp/suzaku-app-qa.FTOXDc`. This is focused new-request acceptance, not the
+  full 161-workflow builtin gate or personal-desktop/physical-keyboard comfort.
+- Complete all-fourteen-pack GTK coexistence passes 67 workflows in both
+  fresh sessions (36 / 31, `gtk-packs.log`), each under its unchanged
+  240-second deadline. All packs are CLI exported/installed into private QA
+  data before host/panel startup; real companion system-font draft preview,
+  editor focus, labels, numeric adoption/undo, Space continuity and saved
+  exact commits are checked, including all six new request samples. Synthetic
+  files are `/tmp/suzaku-app-qa.rq7KrR` and `/tmp/suzaku-app-qa.ccchXw`.
+  Portal idle-inhibition warnings are retained; no assertion is relaxed.
+- Thirteen lightweight partition tests pass (`partition-green-final.log`),
+  after preserved unchanged-runner RED (`partition-red.log`) and one new
+  fixture AST-selection error (`partition-first.log`); fix only the new AST
+  lookup's `Expr` wrapper, without changing a physical assertion. CI now runs
+  this guard. Also pass 21 tensor tests, 19 frozen native HTTP-fixture shape
+  tests, six pack-shipping tests, 250 audit links and Python/shell syntax.
+  These static checks do not execute the old 106 HTTP subcases in this round.
+  The first format check identifies only new Chinese-test formatting; project
+  formatting fixes it, with no semantic edit. Original outputs remain retained.
+- Final tensor digest is
+  `4862a76fcbc87ffcea20140ee192666755434806d0524c38db5361ee593aa7cc`;
+  all 77 maturity scores match HEAD, with new evidence only for F16/F17/F18/F19/F67.
+  Read-only desktop checks still show daily host PID 1549795 active and Rime
+  selected. Validation is serialized in task-owned MemoryHigh 2 GiB /
+  MemoryMax 3 GiB / MemorySwapMax 0 scopes, with one build job.
+- Validation receipts and current JSON baselines are kept in
+  `/tmp/suzaku-requests-audit.ResqCG`. The source version remains dirty 0.8.6;
+  no new version, release, commit, push, installation, personal registry or
+  input-source change is requested. Embedded data needs a later rebuild/reinstall
+  for daily use. New typed errors do not count as new HTTP or real-model acceptance;
+  the old frozen 53-pair HTTP function remains unchanged.
+
+### Unreleased — daily routine/status fallback 2026 10 11
+
+- Append finite authored waking, bedtime, work/rest and everyday-status expressions:
+  EN 12 contexts / 24 sentences, ZH 32 readings / 12 contexts / 24 sentences,
+  JA 16 readings / 8 contexts / 16 sentences. Current totals are EN 6,139
+  indexed forms / 669 contexts / 1,302 sentences; ZH 2,848 readings /
+  663 contexts / 1,324 sentences; JA 330 readings / 166 contexts /
+  331 continuation records. English reuses existing forms: zero index growth.
+  No model protocol, decoder, candidate capacity or 6,144-form limit changes.
+- Independent [English](tests/daily_routine_english.rs),
+  [Chinese](tests/daily_routine_chinese.rs) and
+  [Japanese](tests/daily_routine_japanese.rs) fixtures precede the data append.
+  The actual unchanged-data RED has six passes and 23 failures (`red.log`):
+  22 missing-data expectations and one incorrect new legacy-sentence fixture.
+  That fixture is corrected to the existing `i'll be home late tonight.`;
+  no old sentence is changed or created to make it pass.
+- First focused append validation passes 43 tests and fails one new Japanese
+  first-page assumption (`green.log`). `kib` also matches existing 希望;
+  its old word/sentences retain page one and both new 気分 sentences are
+  independently selected/committed/undone on page two. Specific `kibu` remains
+  a first-page probe. First full Rust validation (`full-rust.log`) finds the
+  same kind of new-fixture error at Kana `しごとがえ`: preserve the exact
+  `仕事がえ` progress, existing 選ぶ/映画 words and first new sentence on
+  page one; select the second new sentence on page two. This now has its own
+  test rather than being claimed as an unambiguous two-sentence first-page case.
+- That first full run also finds three stale current-total guards: Chinese and
+  English library tests and the Japanese optional-family test. Update only
+  the explicit current counts. All historical content/rank assertions and
+  the family package's exact metadata, absent/enabled and startup checks stay
+  in place. The new routine suites now contain 31 independent tests.
+- Read-only append audit confirms every old JSON metadata/array prefix against
+  HEAD, old EN 26 layers / 657 contexts / 1,278 sentences, ZH 2,816 readings /
+  651 contexts and JA 314 readings / 158 contexts, including types, flags,
+  contents and order. All 6,139 old English first-index ranks and 49 historical
+  resource hash constants remain unchanged. All fourteen pack filenames/bytes
+  are unchanged, with no merged context, type or separator-flag conflicts
+  (`append-audit.txt`). No personal input/history is used to author this data.
+- New fixtures cover full/specific partial spellings, uppercase and Kana,
+  apostrophes and horizontal spacing, long Unicode drafts, adopted-word
+  continuation, literal text, single explicit commits/undo, seven line/control
+  boundaries and five typed synthetic missing/unavailable/timeout/503/empty
+  model paths. Host-like cumulative `seed(&raw)` tests are not physical-key
+  acceptance. The old complete 53-pair HTTP function and its frozen AST hash
+  remain unchanged; its actual 106 HTTP subcases do not become new-routine
+  HTTP coverage. No live model or personal-desktop qualification is implied.
+- Eight fixed routine samples are appended to the physical GTK complete and
+  all-fourteen-pack gates without removing or reordering old tuples. The
+  complete fixed list is 149 samples, split 50 / 50 / 49; five progress
+  controls and one page control make 56 / 50 / 49 = 155 workflows.
+  Packs have 56 fixed samples plus five progress controls = 61 workflows.
+  A focused `routine` diagnostic is eight samples plus three Chinese controls,
+  not a complete gate. Original 240-second sessions, focus/saved-text checks,
+  numeric adoption/undo and the exact partition-Counter guard remain in place.
+- Final all-feature Rust passes 1,580 tests / zero failures / 30 ignored
+  across 112 result entries (`full-rust-final.log`), including all 31 new
+  routine tests, corrected current-total guards and unchanged old regressions.
+  The ignored private/native tests are not claimed as executed by this command.
+- Strict all-feature/all-target Clippy passes with warnings denied
+  (`clippy.log`, 26.78 seconds); project formatting and patch whitespace pass.
+- The complete private GTK editor gate passes all 155 workflows, with all
+  three mixed-language parts passing (56 / 50 / 49) under their unchanged
+  240-second per-session limits (`gtk-all.log`). Physical XTest input covers
+  labels, numeric adoption, exact spelling undo, Space continuity and saved
+  word/sentence commits, including all eight new routine samples. Retained
+  synthetic files are `/tmp/suzaku-app-qa.9XudpZ`,
+  `/tmp/suzaku-app-qa.xor7p5` and `/tmp/suzaku-app-qa.4tlRix`.
+  Portal fallback/idle-inhibition warnings are preserved; no focus or
+  saved-text assertion is relaxed. This is private GTK/IBus acceptance,
+  not personal-desktop or human physical-keyboard qualification.
+- With all fourteen recommended packages exported/installed only into private
+  QA data before host/panel startup, the GTK coexistence gate passes all
+  61 workflows (`gtk-packs.log`, original 240-second deadline), including all
+  eight new routine samples, live system-font draft preview, editor focus,
+  numeric adoption/undo, Space continuity and exact saved commits. Synthetic
+  files are `/tmp/suzaku-app-qa.QhGbQm`; the personal pack registry is untouched.
+- The unchanged 53-pair focused private IBus HTTP fixture passes all 106
+  503/actual-timeout subcases on the final built-in data: EN 40 / ZH 40 /
+  JA 26 (`native-fallback.log`). Pending/Unavailable retain local choices,
+  numeric adoption, exact undo, Space continuity and single commits. Original
+  500 ms request timeout, wait limits and 120-second outer session are kept.
+  This is the old complete fallback diagnostic, not new-routine HTTP coverage,
+  the complete native/core matrix, inline-preedit or live-model acceptance.
+  Private portal bus-startup warnings are retained alongside the passing
+  request-received/finished, fallback and commit checks.
+- Final static validation passes 21 tensor tests, 19 native HTTP-fixture
+  shape tests, six pack-shipping tests, all 250 audit-document links,
+  project formatting, patch whitespace and Python/shell syntax. Tensor
+  digest is `26a2ba97f13716f3876ff796a93212385ae51f4eb65cbdf784e8425db443e5ec`;
+  all 77 scores match HEAD and only F16/F17/F18/F19/F67 gain routine evidence.
+  Final read-only desktop checks still show active daily host PID 1549795
+  and Rime selected. No private fixtures modify that installation or registry.
+- Validation is serialized with one build job in task-owned MemoryHigh 2 GiB /
+  MemoryMax 3 GiB / MemorySwapMax 0 scopes. An initial binary-build command
+  named the nonexistent `linux_ibus_probe`; its rejected command is retained
+  (`build.log`) and the actual `linux_ime_probe` build succeeds
+  (`build-correct.log`). An initial format check identifies only the new
+  Chinese test's default-edition formatting; project-edition formatting fixes
+  it without a semantic change. Failures are preserved, not treated as passes.
+- Source remains 0.8.6 and dirty; no release, commit, push, install or personal
+  configuration/input-source change is requested in this round. Embedded
+  additions require a later rebuild/reinstall to reach the daily installation.
+  All 77 maturity scores stay unchanged. Original remote Linux CI timeout is
+  not resolved or requalified by these local checks. Receipts are retained in
+  `/tmp/suzaku-routine-audit.HL3K2V`.
+
+### Unreleased — bounded custom shortcuts 2026 10 11
+
+- Settings → Shortcuts records six context-local actions: previous/next choice,
+  previous/next page, editable adoption and EN/ZH switching. The shared logical
+  protocol accepts Ctrl **or** Alt, optional Shift and A–Z/Space only; rejects
+  AltGr, Super, Alt+Space, duplicates and another action's effective preset.
+  Candidate bindings add aliases; a custom language binding replaces the default
+  Ctrl+Shift+Space until cleared. Reset keeps the selected shortcut profile.
+- The fixed-size bindings object is model/platform independent and included in
+  configuration backups. Profile/bindings are validated together before any
+  mutation. Narrow asynchronous saves retain the existing owner, baseline and
+  deadlines; late acknowledgements cannot partially roll back a newer pair.
+  The Linux client must not reduce enabled+bindings to legacy P0/P1. Only U
+  controls gain a 1024-byte payload cap; other controls keep the old <128 bound.
+- Recording is local to a focused settings window, before panel/editor commands;
+  Esc, focus loss, closing and IME preedit cancel it. A known physical command key
+  remains consumed until release even if modifiers are released first. Recording
+  and errors do not mirror into the main window or persist as input text. All
+  eight interfaces have translated controls, wrapped instructions and errors.
+- First UI validation passed 245 panel tests but failed one of eight new tests:
+  narrow/Large recording chips clipped translated text. Only new record controls
+  now share multiline measurement/render/hit geometry; the unchanged assertion
+  passes in all interface locales. Fixed focused results: 245 panel tests,
+  eight custom-settings tests and four localization tests, zero failures.
+- Two new native fixtures initially failed before exercising input: dynamic
+  RegisterComponent is not listed by list_engines, and the settings test window
+  started hidden. Registration is now proved by NameHasOwner and an actual
+  Factory.CreateEngine; the recorder uses the production window-show completion
+  and X11 VIEWABLE before focusing. No sleeps/retries or deadline increases.
+  Fresh isolated IBus six-group acceptance and the real X11/winit recorder pass;
+  the extended native settings acknowledgement/reload probe also passes.
+- Actual private IBus coverage includes six-field U persistence, case/lock
+  normalization, aliases, paging/clamps, adoption hold/release/undo, Space and
+  exact explicit commit, language replacement/reset, Compose/privacy/focus,
+  invalid-patch atomicity, persisted reload and actual control size boundaries.
+  Existing shortcut flows and all 26 EN/ZH language-key flows pass. The extracted
+  C/fixture suite passes six tests and existing controlled-HTTP/runner checks pass
+  19; neither is a substitute for the actual IBus acceptance.
+- Initial feature-disabled lib compilation encountered the existing ungated
+  GPU/winit boundary. The supported all-feature lib run then exposed an incorrect
+  new test assumption: selecting a candidate normally cancels prediction. The
+  fixture re-arms its held synthetic provider before testing narrow settings;
+  no production timing or assertions are relaxed. Fixed lib: 540 passes, two
+  ignored. Receipts (including initial failures):
+  `/tmp/suzaku-shortcut-audit.bHMlP4`. ShellCheck is unavailable locally; shell
+  syntax, formatting, 21 tensor tests and 242 source audit links pass.
+- New `ibus-custom-shortcuts` and existing `ui` CI gates contain these regressions;
+  no remote run is implied. At that source-validation checkpoint no personal
+  settings, daily 0.8.6 installation, version, release, commit or push changed.
+  The approved installation follow-up below records the subsequent daily update.
+  Global chord interception, hardware
+  comfort and real-model quality remain separate checks; all maturity scores
+  remain unchanged. See [shortcut usage](docs/shortcuts.md).
+- Final serial all-feature Rust regression passes **1,548 tests / zero failures /
+  30 ignored** across 109 result entries (`rust-all-first.log`). The original
+  ignored gates remain opt-in, not implicitly qualified by this result. The
+  isolated application gate passes all 49 strict physical-keyboard groups
+  (`gtk-physical-keyboard-first.log`), including held legacy adoption, layouts,
+  Caps/Num Lock, Compose and focus return; it does not certify arbitrary new
+  custom chords against GNOME interceptors or personal hardware. The updated
+  tensor source digest is
+  `cc3a5c87b6f5c9f7c1ae63c19769c510964bc127af2ff7011d276c9c5c98e7e4`.
+- Strict all-feature/all-target Clippy passes with warnings denied (25.64s,
+  `clippy-first.log`). The wired `ibus-custom-shortcuts` runner also passes in
+  its own fresh session (`ibus-custom-runner.log`), independently of the direct
+  fixture run. All heavy checks are serial, one build job, under task-local
+  MemoryHigh 2 GiB / MemoryMax 3 GiB / MemorySwapMax 0; no desktop-wide limits,
+  keyboard mappings or other processes are changed.
+
+### 0.8.6 custom-shortcut development installation — 2026 10 11
+
+- Built the four optimized binaries serially, then packaged and tested them from
+  an independent extraction before updating the user-local installation. This
+  remains version **0.8.6**, based on `81bbce8` with `source_dirty=true`, not a
+  new tagged release. Build libc is glibc 2.43, not Ubuntu 24.04 qualification.
+- Package checking exposed a missing linked 0.8.6 installation report. Ship it
+  and extend the audit-link checker to `install-audit-*` as well as `bug-audit-*`.
+  The original artifact's corrected checker fails on the four missing links;
+  the fixed package passes. Five package-CLI tests, five physical-fixture shape
+  tests, six extracted native-adapter checks, formatting and strict all-target
+  Clippy pass. The lightweight checks are not application acceptance.
+- The tested package passes the six-group private IBus custom-control gate,
+  all **32 GTK3 workflows** with `SUZAKU_GTK3_QA_INPUT_TASKS=1`, and the new
+  **seven physical custom-key groups** plus full U/rejection/clear gates and
+  actual installed-panel recording, host persistence ACK and clear. CI wires
+  the physical custom opt-in separately from the unchanged legacy 49 groups.
+  No remote CI is rerun or inferred green.
+- First upgrade preparation fails before any program replacement because its
+  helper compared GNOME array strings as unquoted Bash patterns. Exact byte
+  comparisons and a synthetic bracketed-value reproduction prove unchanged
+  preferences; quote both right sides and add non-sensitive stage/line errors.
+  The corrected helper passes without bypassing a check or changing deadlines.
+  It keeps the old host connected until the official registrar captures Rime,
+  then restarts the user service. All four installed files and actual new host
+  PID **1549795** match the tested package; original settings, registry, launchers,
+  service preference, Rime and source/MRU bytes are preserved.
+- Directly using `/home/chiharukiryu/.local/libexec/suzaku`, fresh private sessions
+  again pass the seven custom physical groups/actual recorder, all **49 legacy
+  physical-keyboard groups**, and all **32 GTK3 workflows**. These use synthetic
+  documents and isolated Xvfb/D-Bus/IBus/configuration, never personal desktop
+  key injection. They do not prove a post-ACK rendered binding label, personal
+  GNOME/Wayland chord delivery, hardware LEDs, real-model quality or full CI.
+- Retain first failures, both recovery backups and receipts under
+  `/tmp/suzaku-custom-install.5LTNSX`; move the unused first staging directory
+  there instead of leaving it beside the installed binaries. The successful
+  recovery backup is `install-custom-shortcuts-20261011.puxbWq` in the user backup
+  directory. Heavy checks use one build job and the same task-local 2/3 GiB
+  memory limits with no scope swap. No personal shortcut choice, version, commit,
+  push or release changed. See the [installation report](docs/install-audit-0.8.6-2026-10-11.md).
+  The final implementation/test fingerprint is
+  `a58d25bf174635449a6f784ba11542387e6adc67941f1da7ce48c36bf4af12f4`;
+  all 77 maturity scores remain unchanged.
 
 ### 0.8.6 release preparation 2026 10 11
 
@@ -90,6 +1400,35 @@ that existing 0.7.x tags already have assets. See [Linux packaging](docs/linux-p
   `/tmp/suzaku-release-0.8.6.1VPDay`. Exact clean commit CI, packaging and clean
   installation gates are still required before publishing Release assets;
   this preparation does not update the personal input method or settings.
+
+### 0.8.6 installed input tasks 2026 10 11
+
+The clean `81bbce8` tar build and package checks pass on this machine (glibc 2.43,
+not a clean Ubuntu 24.04 release acceptance). Its four binaries pass all 147
+vocabulary/progress workflows, both 32-workflow GTK3 transports, 49 keyboard groups,
+and 115 browser/Qt checks on owned displays, buses, settings and synthetic documents.
+Eight opt-in GTK3 tasks add long physical English typing, literal numbers/punctuation,
+adoption undo, real language chords, Japanese adopted-alias tails and consecutive
+three-language commits without bypassing the original 24 baseline workflows.
+
+The exact 0.8.6 remote Linux CI fails at the native session's 120-second boundary,
+with 77 of 106 HTTP fallback subcases completed. The uncommitted runner follow-up
+builds once and separates the full core and fallback into two original-limit
+sessions. Frozen AST checks retain the original prefix, all 53 pairs and complete
+tail controls. Nineteen lightweight checks and the first complete local native run
+pass, including all 106 fallback cases; this does not turn the remote failure green.
+
+After these gates, the authorized daily user installation upgrades from 0.8.1 to
+0.8.6, with backups and exact binary/process verification. An initial manual-stop
+attempt fails registration preflight and rolls back; the corrected atomic-rename
+sequence lets the official registrar capture Rime before restarting the service.
+Rime, settings, eight installed packs, input-source/MRU state, autostart and launchers
+remain intact. Installed-file GTK3 default transport passes all 32 workflows;
+installed native candidate default and synchronous transports each pass 30, with all ten English cards
+clicked. Full receipts and scope are in the
+[installation audit](docs/install-audit-0.8.6-2026-10-11.md). No production fix,
+model inference, personal desktop key injection, CI rerun or Release publication
+is implied; all 77 maturity scores remain unchanged.
 
 ### Unreleased contact vocabulary 2026 10 11
 
@@ -3985,8 +5324,11 @@ override, restoring Auto, restarting again, and the shared bottom-layout input c
 Each layout now includes three private offline-pack byte-budget workflows: Unicode
 single-entry overflow, aggregate-frame overflow and JSON escaping. They install with the
 adjacent `suzaku_tool` before host startup, then verify real drawing, number adoption,
-Backspace undo and exact card-click submission. Current follow/bottom/auto counts are
-26/33/36 per transport; the previous counts below are historical validation records.
+Backspace undo and exact card-click submission. Follow/bottom/auto counts are
+`T + 20` / `T + 29` / `T + 32`, where `T` is the complete observed English card
+count. The earlier 26/33/36 checkpoint used six cards; 0.8.6's installed default
+follow-caret check has ten cards and 30 workflows. These numbers do not establish
+new bottom/auto acceptance; the counts below remain historical validation records.
 Both transports of all three suites are included in the Linux CI workflow. This does not qualify
 physical touch, GNOME Shell/native Wayland positioning, or install the changed binaries into a
 desktop session.

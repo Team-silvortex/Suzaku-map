@@ -399,7 +399,11 @@ pub struct PanelChromeState {
     pub prediction_edit_generation: [u64; 2],
     /// Canonical persistence lives in ImeSettings, not the panel appearance file.
     pub shortcut_profile: crate::ime::shortcuts::ShortcutProfile,
+    pub shortcut_bindings: crate::ime::shortcuts::ShortcutBindings,
     pub shortcut_edit_generation: u64,
+    /// Window-local recording state; never persisted or mirrored to another window.
+    pub shortcut_recording: Option<crate::ime::shortcuts::ShortcutAction>,
+    pub shortcut_recording_error: String,
     pub settings_save_failed: bool,
     pub pointer_tap_slop_tenths: u16,
     pub pointer_tap_max_ms: u16,
@@ -460,7 +464,10 @@ impl Default for PanelChromeState {
             llm_temperature: LlmTemperaturePreset::Balanced,
             prediction_edit_generation: [0; 2],
             shortcut_profile: Default::default(),
+            shortcut_bindings: Default::default(),
             shortcut_edit_generation: 0,
+            shortcut_recording: None,
+            shortcut_recording_error: String::new(),
             settings_save_failed: false,
             pointer_tap_slop_tenths: 100,
             pointer_tap_max_ms: 420,
@@ -484,6 +491,92 @@ impl Default for PanelChromeState {
 }
 
 impl PanelChromeState {
+    pub fn cancel_shortcut_recording(&mut self) {
+        self.shortcut_recording = None;
+        self.shortcut_recording_error.clear();
+    }
+
+    pub fn toggle_shortcut_recording(&mut self, action: crate::ime::shortcuts::ShortcutAction) {
+        self.shortcut_recording = (self.shortcut_recording != Some(action)).then_some(action);
+        self.shortcut_recording_error.clear();
+        self.settings_search_focused = false;
+        self.settings_keyboard_focus = Some(InteractionKind::RecordShortcut(action));
+    }
+
+    /// Returns whether a recording owned this key, even when validation rejects it.
+    pub fn record_shortcut_key(&mut self, key: u32, modifiers: u32) -> bool {
+        let Some(action) = self.shortcut_recording else {
+            return false;
+        };
+        let result =
+            crate::ime::shortcuts::ShortcutChord::from_event(key, modifiers).and_then(|chord| {
+                let bindings = self.shortcut_bindings.with_binding(action, Some(chord));
+                bindings.validate(self.shortcut_profile)?;
+                Ok(bindings)
+            });
+        self.apply_shortcut_bindings(result);
+        true
+    }
+
+    pub fn clear_shortcut_binding(&mut self, action: crate::ime::shortcuts::ShortcutAction) {
+        self.cancel_shortcut_recording();
+        let bindings = self.shortcut_bindings.with_binding(action, None);
+        self.apply_shortcut_bindings(bindings.validate(self.shortcut_profile).map(|()| bindings));
+    }
+
+    pub fn reset_custom_shortcuts(&mut self) {
+        self.cancel_shortcut_recording();
+        self.apply_shortcut_bindings(Ok(Default::default()));
+    }
+
+    pub fn change_shortcut_profile(&mut self, profile: crate::ime::shortcuts::ShortcutProfile) {
+        self.cancel_shortcut_recording();
+        match self.shortcut_bindings.validate(profile) {
+            Ok(()) => {
+                self.shortcut_profile = profile;
+                self.shortcut_edit_generation = self.shortcut_edit_generation.wrapping_add(1);
+            }
+            Err(error) => self.shortcut_recording_error = shortcut_ui_error(&error).into(),
+        }
+    }
+
+    fn apply_shortcut_bindings(
+        &mut self,
+        result: Result<crate::ime::shortcuts::ShortcutBindings, String>,
+    ) {
+        match result {
+            Ok(bindings) => {
+                self.shortcut_bindings = bindings;
+                // Explicit same-value choices are still user intent before host status arrives.
+                self.shortcut_edit_generation = self.shortcut_edit_generation.wrapping_add(1);
+                self.cancel_shortcut_recording();
+            }
+            Err(error) => self.shortcut_recording_error = shortcut_ui_error(&error).into(),
+        }
+    }
+
+    /// Candidate custom keys are aliases; the language custom key replaces its default.
+    pub fn shortcut_binding_label(&self, action: crate::ime::shortcuts::ShortcutAction) -> String {
+        if let Some(chord) = self.shortcut_bindings.get(action) {
+            return chord.display();
+        }
+        self.shortcut_profile
+            .reference()
+            .into_iter()
+            .find(|(label, _)| *label == action.label())
+            .and_then(|(_, keys)| {
+                if self.shortcut_profile == crate::ime::shortcuts::ShortcutProfile::HomeRow
+                    && action != crate::ime::shortcuts::ShortcutAction::SwitchLanguage
+                {
+                    keys.last().copied()
+                } else {
+                    keys.first().copied()
+                }
+            })
+            .map(str::to_string)
+            .unwrap_or_default()
+    }
+
     pub const fn effective_panel_layout(&self) -> PanelLayoutMode {
         match (self.panel_layout_mode, self.detected_panel_layout) {
             (PanelLayoutMode::Auto, PanelLayoutMode::BottomDock) => PanelLayoutMode::BottomDock,
@@ -579,6 +672,26 @@ impl PanelChromeState {
     }
 }
 
+fn shortcut_ui_error(error: &str) -> &'static str {
+    match error {
+        "快捷键只支持字母 A–Z 或 Space" => "Use a letter A–Z or Space.",
+        "快捷键须包含 Ctrl 或 Alt，不支持 Ctrl+Alt、Super 或其他修饰键" => {
+            "Use Ctrl or Alt, optionally Shift. Ctrl+Alt and Super are not supported."
+        }
+        "Alt+Space 保留给桌面窗口操作" => "Alt+Space is reserved for the desktop.",
+        "不同快捷键操作不能使用相同组合" => {
+            "This key is already assigned to another action."
+        }
+        "快捷键与当前语言切换组合冲突" => {
+            "This key conflicts with the language switch."
+        }
+        "快捷键与主键区预设冲突，请修改组合或切换标准方案" => {
+            "This key conflicts with Home row. Change the key or use Standard keys."
+        }
+        _ => "This key combination is not available. Choose another key.",
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum InteractionKind {
     SeedInput,
@@ -598,6 +711,9 @@ pub enum InteractionKind {
     RetrySaveSettings,
     SetSettingsCategory(SettingsCategory),
     SetShortcutProfile(crate::ime::shortcuts::ShortcutProfile),
+    RecordShortcut(crate::ime::shortcuts::ShortcutAction),
+    ClearShortcutBinding(crate::ime::shortcuts::ShortcutAction),
+    ResetCustomShortcuts,
     /// Read-only reference identity; never inserted into interactive targets.
     ShortcutReference(usize),
     SetTextScale(DisplayTextScale),

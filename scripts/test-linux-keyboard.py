@@ -12,6 +12,8 @@ spec = importlib.util.spec_from_file_location(
 qa = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(qa)  # Validate private session/display/config BEFORE any XKB changes.
 assert qa.os.environ["SUZAKU_APP_QA_SUITE"] == "keyboard"
+custom_shortcuts_mode = qa.os.environ.get("SUZAKU_KEYBOARD_CUSTOM_SHORTCUTS_ONLY", "0")
+assert custom_shortcuts_mode in ("0", "1"), "custom shortcut scope must be 0 or 1"
 IBus = qa.IBus
 passed = 0
 
@@ -155,6 +157,365 @@ def finish(seed, label, initial, keymap, enter="Return"):
     print("PASS:", label, flush=True)
 
 
+CUSTOM_BINDINGS = {
+    "previous": "Ctrl+P",
+    "next": "Ctrl+N",
+    "previous-page": "Alt+Shift+B",
+    "next-page": "Ctrl+Shift+F",
+    "adopt": "Alt+Shift+A",
+    "switch-language": "Ctrl+Shift+L",
+}
+
+
+def settings():
+    return qa.json.loads(qa.command("S"))["settings"]
+
+
+def fresh_snapshot():
+    observed = qa.Watch()
+    try:
+        def ready():
+            observed.drain()
+            return observed.latest is not None
+        qa.wait(ready, "fresh owned subscription snapshot")
+        return observed.latest
+    finally:
+        observed.sock.close()
+
+
+def update(patch):
+    result = qa.json.loads(qa.command("U" + qa.json.dumps(patch, separators=(",", ":"))))
+    assert result["ok"], result
+    assert qa.json.loads((qa.root / "ime.json").read_bytes()) == result["settings"], \
+        "a shortcut control must acknowledge its actual persisted settings"
+    return result["settings"]
+
+
+def select_custom(text):
+    target = next(i for i, candidate in enumerate(qa.watch.latest["candidates"])
+                  if candidate["text"] == text)
+    while qa.watch.latest["selected"] != target:
+        before = qa.watch.latest["selected"]
+        forward = before < target
+        keyboard.press("n" if forward else "p", "Control_L")
+        qa.wait(lambda: qa.watch.latest["selected"] == before + (1 if forward else -1),
+                "physical custom candidate navigation")
+
+
+def custom_panel_recording():
+    """Click the real installed panel, then observe the real U acknowledgement."""
+    assert qa.seed_is("") and x.focused_within(window)
+    companion = qa.spawn([str(qa.bins / "panel")])
+    index = qa.processes.index(companion)
+
+    def frame(kind):
+        assert companion.poll() is None, "owned installed companion exited"
+        lines = (qa.root / f"process-{index}.log").read_text().splitlines()
+        for line in reversed(lines):
+            if line.startswith("Suzaku frame: "):
+                try:
+                    value = qa.json.loads(line.removeprefix("Suzaku frame: "))
+                except qa.json.JSONDecodeError:
+                    continue
+                if value.get("window") == kind:
+                    return value
+        return {}
+
+    def click(kind, surface="Settings"):
+        title = "Suzaku · Panel Settings" if surface == "Settings" else "Suzaku · Input"
+        qa.wait(lambda: (value := frame(surface)).get("viewport_settled") is True and
+                any(item["kind"] == kind for item in value.get("controls", [])),
+                f"installed {surface} presents {kind}")
+        xid = x.window(title)
+        assert xid is not None and "Map State: IsViewable" in qa.subprocess.run(
+            ["xwininfo", "-id", str(xid)], capture_output=True, text=True, timeout=2).stdout
+        if surface == "Settings":
+            assert x.focused_within(xid), "recording injection requires owned settings focus"
+        else:
+            assert x.focused_within(window), "no-focus companion must retain owned editor focus"
+        value = frame(surface)
+        rect = next(item["rect"] for item in value["controls"] if item["kind"] == kind)
+        px, py = value["position"]
+        x.click(round(px + rect[0] + rect[2] / 2), round(py + rect[1] + rect[3] / 2))
+
+    qa.wait(lambda: frame("Main").get("runtime_font") and x.window("Suzaku · Input"),
+            "installed companion is rendered without stealing focus", timeout=30)
+    assert x.focused_within(window), "companion launch stole application focus"
+    click("SettingsToggle", "Main")
+    qa.wait(lambda: x.window("Suzaku · Panel Settings"), "actual installed settings window")
+    settings_window = x.window("Suzaku · Panel Settings")
+    x.focus(settings_window)
+    click("SetSettingsCategory(Shortcuts)")
+    click("SettingsSearchInput")
+    keyboard.type("previous")
+    click("RecordShortcut(Previous)")
+    keyboard.press("g", "Control_L", "Shift_L", duration=.65, release_modifiers_after=.1)
+    qa.wait(lambda: settings()["shortcut_bindings"].get("previous") == "Ctrl+Shift+G",
+            "installed recorder received its durable native acknowledgement")
+    saved = qa.json.loads((qa.root / "ime.json").read_bytes())
+    assert saved == settings() and saved["shortcut_bindings"] == {"previous": "Ctrl+Shift+G"}
+    # The still-held command after modifiers are released must not contaminate
+    # the search. If it did, the original action row would disappear here.
+    click("ClearShortcutBinding(Previous)")
+    qa.wait(lambda: settings()["shortcut_bindings"] == {}, "real single-action clear acknowledged")
+    assert qa.json.loads((qa.root / "ime.json").read_bytes()) == settings()
+    click("SettingsToggle")
+    qa.wait(lambda: "Map State: IsViewable" not in qa.subprocess.run(
+        ["xwininfo", "-id", str(settings_window)], capture_output=True, text=True,
+        timeout=2).stdout, "real installed settings close hides its own window")
+    x.focus(window)
+    qa.settle_input(bus, x, window)
+    expect("")
+    qa.save_document(x, document, "")
+    print("PASS: installed panel click/physical recording/early modifier release/durable U ACK/single clear/close", flush=True)
+
+
+def run_custom_shortcuts():
+    """Mutually exclusive installed-binary acceptance, not the legacy 49-group gate."""
+    global passed
+    assert x.focused_within(window) and editor.poll() is None
+    clean()
+    initial_settings = settings()
+    before = fresh_snapshot()
+    payload = {"llm_enabled": False, "shortcut_profile": "standard",
+               "shortcut_bindings": CUSTOM_BINDINGS}
+    assert 128 < len(("U" + qa.json.dumps(payload, separators=(",", ":"))).encode()) <= 1024
+    saved = update(payload)
+    assert saved == dict(initial_settings, **payload)
+    acknowledged = fresh_snapshot()
+    qa.wait(lambda: qa.watch.latest["revision"] >= acknowledged["revision"],
+            "full shortcut patch subscription publication")
+    for field in ("context", "seed", "selected", "candidates"):
+        assert acknowledged[field] == before[field], ("shortcut control changed draft", field)
+    print("PASS: actual full six-key U request persists beyond the legacy 128-byte control boundary", flush=True)
+
+    # Both languages use real XTest events, the actual application IM context,
+    # subscription observations and exact saved-buffer assertions.
+    for language, original, adopted in [("en", "hel", "hello"), ("zh-Hans", "nihao", "你好")]:
+        for early_release in (False, True):
+            clean()
+            revision = qa.watch.latest["revision"]
+            assert qa.json.loads(qa.command("L" + language))["ok"]
+            qa.wait(lambda: qa.watch.latest["revision"] > revision, "physical custom test language")
+            initial, keymap = keyboard.state(), keyboard.map()
+            keyboard.type(original)
+            expect(original)
+            assert len(qa.watch.latest["candidates"]) > 1
+            candidates = qa.watch.latest["candidates"]
+            keyboard.press("n", "Control_L")
+            qa.wait(lambda: qa.watch.latest["selected"] == 1, "custom next row")
+            keyboard.press("p", "Control_L")
+            qa.wait(lambda: qa.watch.latest["selected"] == 0, "custom previous row")
+            if language == "en":
+                assert len(candidates) > 6, "physical custom paging needs a second fallback page"
+                keyboard.press("f", "Control_L", "Shift_L")
+                qa.wait(lambda: qa.watch.latest["selected"] == 6, "custom next page")
+                keyboard.press("b", "Alt_L", "Shift_L")
+                qa.wait(lambda: qa.watch.latest["selected"] == 0, "custom previous page")
+                # Server-generated navigation repeats remain continuous, unlike adoption.
+                duration = .4 + len(candidates) * .06
+                keyboard.press("n", "Control_L", duration=duration)
+                qa.wait(lambda: qa.watch.latest["selected"] == len(candidates) - 1,
+                        "held custom next clamps at final row")
+                keyboard.press("p", "Control_L", duration=duration)
+                qa.wait(lambda: qa.watch.latest["selected"] == 0,
+                        "held custom previous returns to first row")
+            assert qa.watch.latest["candidates"] == candidates
+            expect(original)
+            select_custom(adopted)
+            keyboard.press("a", "Alt_L", "Shift_L", duration=.65,
+                           release_modifiers_after=.1 if early_release else None)
+            expect(adopted)
+            qa.save_document(x, document, "")
+            keyboard.press("BackSpace")
+            expect(original)
+            # A genuine release allows immediate reuse, not a time debounce.
+            select_custom(adopted)
+            keyboard.press("a", "Alt_L", "Shift_L")
+            expect(adopted)
+            keyboard.press("BackSpace")
+            expect(original)
+            select_custom(adopted)
+            keyboard.press("a", "Alt_L", "Shift_L")
+            expect(adopted)
+            keyboard.press(" ")
+            finish(adopted + " ", f"custom {language}, early release={early_release}: rows/pages/repeat/adopt/undo/reuse/Space/single commit",
+                   initial, keymap)
+
+    for draft, early_release in [("", False), ("nihao", True)]:
+        clean()
+        assert qa.json.loads(qa.command("Len"))["ok"]
+        keyboard.type(draft)
+        expect(draft)
+        baseline = qa.watch.latest.copy()
+        keyboard.press(" ", "Control_L", "Shift_L")
+        expect(draft)
+        assert settings()["language"] == "en", "custom binding did not replace the default language chord"
+        assert qa.watch.latest["context"] == baseline["context"]
+        initial, keymap = keyboard.state(), keyboard.map()
+        keyboard.press("l", "Control_L", "Shift_L", duration=.65,
+                       release_modifiers_after=.1 if early_release else None)
+        qa.wait(lambda: settings()["language"] == "zh-Hans" and
+                qa.watch.latest["context"] > baseline["context"] and qa.seed_is(draft),
+                "held custom language switches exactly once and preserves the draft")
+        qa.save_document(x, document, "")
+        switched_context = qa.watch.latest["context"]
+        keyboard.press("l", "Control_L", "Shift_L")
+        qa.wait(lambda: settings()["language"] == "en" and
+                qa.watch.latest["context"] > switched_context and qa.seed_is(draft),
+                "released custom language chord is immediately reusable")
+        assert keyboard.state() == initial and keyboard.map() == keymap
+        qa.save_document(x, document, "")
+        passed += 1
+        print("PASS: custom language replaces default, hold/early release/real release preserves", repr(draft), flush=True)
+
+    clean()
+    assert qa.json.loads(qa.command("Len"))["ok"]
+    layout("us", "intl")
+    initial, keymap = keyboard.state(), keyboard.map()
+    keyboard.press("'")
+    keyboard.press("l", "Control_L", "Shift_L")
+    assert settings()["language"] == "en", "custom language must not dispatch during pending Compose"
+    keyboard.press("a", "Alt_L", "Shift_L")
+    keyboard.press("e")
+    finish("é", "custom chords and physical pure Ctrl/Shift/Alt preserve pending Compose", initial, keymap)
+
+    clean()
+    keyboard.type("hel")
+    expect("hel")
+    select_custom("hello")
+    keyboard.press("a", "Alt_L", "Shift_L")
+    expect("hello")
+    before, file_before = settings(), (qa.root / "ime.json").read_bytes()
+    snapshot = qa.watch.latest.copy()
+    for invalid in [
+        {"shortcut_bindings": dict(CUSTOM_BINDINGS, previous="Ctrl+N")},
+        {"shortcut_bindings": dict(CUSTOM_BINDINGS, adopt="Alt+Space")},
+        {"shortcut_bindings": dict(CUSTOM_BINDINGS, adopt="Ctrl+Alt+A")},
+        {"shortcut_profile": "home-row", "shortcut_bindings": dict(CUSTOM_BINDINGS, previous="Alt+J")},
+    ]:
+        invalid["llm_enabled"] = True  # No partial model-toggle application either.
+        result = qa.json.loads(qa.command("U" + qa.json.dumps(invalid, separators=(",", ":"))))
+        assert not result["ok"], result
+        assert settings() == before and (qa.root / "ime.json").read_bytes() == file_before
+        qa.pump()
+        assert qa.watch.latest == snapshot, "invalid shortcut patch changed the live draft/selection"
+    keyboard.press("BackSpace")
+    expect("hel")
+    qa.save_document(x, document, "")
+    print("PASS: duplicate/reserved/AltGr/profile-conflicting patches reject atomically and preserve adoption undo", flush=True)
+
+    clean()
+    update({"shortcut_bindings": {}})
+    context = qa.watch.latest["context"]
+    keyboard.press("l", "Control_L", "Shift_L")
+    assert settings()["language"] == "en" and qa.watch.latest["context"] == context
+    keyboard.press(" ", "Control_L", "Shift_L")
+    qa.wait(lambda: settings()["language"] == "zh-Hans" and qa.watch.latest["context"] > context,
+            "clear custom keys restores default physical language chord")
+    expect("")
+    keyboard.press(" ", "Control_L", "Shift_L")
+    qa.wait(lambda: settings()["language"] == "en", "default language switches back after release")
+    print("PASS: full clear restores default language chord and removes its previous custom alias", flush=True)
+    custom_panel_recording()
+    assert passed == 7, passed
+    assert x.focused_within(window) and editor.poll() is None and settings()["shortcut_bindings"] == {}
+    assert not settings()["llm_enabled"]
+    print("RESULT: 7 strict physical custom workflow groups plus full-U/atomic-clear/real installed-recorder gates passed; legacy 49-group gate is separate", flush=True)
+
+
+def run_keypad_navigation():
+    """NumLock-off physical keypad navigation uses the existing draft controls."""
+    saved_language = settings()["language"]
+    initial_passed = passed
+    new_checked = 0
+    cases = [("en", "hel", "hello"), ("zh-Hans", "nihao", "你好")]
+
+    def unchanged(key, label):
+        baseline = fresh_snapshot()
+        keyboard.press(key)
+        current = fresh_snapshot()
+        assert current == baseline, (label, baseline, current)
+        assert x.focused() == window and editor.poll() is None
+
+    def move(key, target, label):
+        baseline = fresh_snapshot()
+        keyboard.press(key)
+        qa.wait(lambda: qa.watch.latest["selected"] == target, label)
+        current = fresh_snapshot()
+        assert current["selected"] == target and current["revision"] > baseline["revision"], label
+        for field in ["host", "context", "focused", "private", "language", "seed", "candidates"]:
+            assert current[field] == baseline[field], (label, field, baseline, current)
+        assert x.focused() == window and editor.poll() is None
+
+    try:
+        assert not settings()["llm_enabled"]
+        for language, seed, word in cases:
+            for mode in ["rows", "pages"]:
+                clean()
+                assert qa.json.loads(qa.command("L" + language))["ok"]
+                qa.wait(lambda: settings()["language"] == language
+                        and qa.watch.latest["language"] == language and not qa.watch.latest["seed"],
+                        "keypad navigation language")
+                keyboard.locks(num=False)
+                initial, keymap = keyboard.state(), keyboard.map()
+                keyboard.type(seed)
+                expect(seed)
+                qa.save_document(x, document, "")
+                count = len(qa.watch.latest["candidates"])
+                assert qa.watch.latest["selected"] == 0
+                if mode == "rows":
+                    assert count >= 3, "keypad row fixture requires adjacent candidates"
+                    unchanged("KP_8", "keypad Up at first row")
+                    unchanged("KP_4", "keypad Left at first row")
+                    for target in range(1, count):
+                        move("KP_2" if target % 2 else "KP_6", target,
+                             "keypad Down/Right advances one row")
+                    unchanged("KP_2", "keypad Down at last row")
+                    unchanged("KP_6", "keypad Right at last row")
+                    for target in reversed(range(count - 1)):
+                        move("KP_8" if target % 2 else "KP_4", target,
+                             "keypad Up/Left reverses one row")
+                else:
+                    assert count > 6, "keypad page fixture requires a second candidate page"
+                    unchanged("KP_9", "keypad PageUp at first page")
+                    for target in range(6, count, 6):
+                        move("KP_3", target, "keypad PageDown selects adjacent page start")
+                    unchanged("KP_3", "keypad PageDown at last page")
+                    for target in reversed(range(0, (count - 1) // 6 * 6, 6)):
+                        move("KP_9", target, "keypad PageUp selects adjacent page start")
+                    unchanged("KP_9", "keypad PageUp after returning to first page")
+                expect(seed)
+                qa.save_document(x, document, "")
+                qa.choose_number(x, word)
+                expect(word)
+                qa.save_document(x, document, "")
+                # Only unavailable navigation is tested here: a genuine move
+                # deliberately retires adoption undo under the existing contract.
+                if mode == "rows":
+                    unchanged("KP_8", "adopted word keypad Up preserves undo")
+                    unchanged("KP_4", "adopted word keypad Left preserves undo")
+                else:
+                    unchanged("KP_9", "adopted word missing keypad page preserves undo")
+                keyboard.press("BackSpace")
+                expect(seed)
+                qa.save_document(x, document, "")
+                qa.choose_number(x, word)
+                expect(word)
+                keyboard.press(" ")
+                expect(word + " ")
+                qa.save_document(x, document, "")
+                finish(word + " ", f"{language} NumLock-off keypad {mode}: boundaries/moves/undo/Space/single commit",
+                       initial, keymap)
+                new_checked += 1
+        assert new_checked == 4, new_checked
+        assert passed == initial_passed + 4, passed
+        print("RESULT: 4 appended strict physical keypad-navigation workflow groups passed", flush=True)
+    finally:
+        assert qa.json.loads(qa.command("L" + saved_language))["ok"]
+        qa.wait(lambda: settings()["language"] == saved_language, "restore keypad navigation language")
+
+
 try:
     layout()
     bus, x = qa.start()
@@ -169,6 +530,10 @@ try:
     assert bus.set_global_engine("dev.suzaku.linux.ime")
     qa.settle_input(bus, x, window)
     qa.prepare_editor(x, document)
+
+    if custom_shortcuts_mode == "1":
+        run_custom_shortcuts()
+        sys.exit(0)  # finally still closes only this fixture's owned processes.
 
     # First prove that the private server actually generates autorepeat.
     keyboard.press("q", duration=.65)
@@ -505,6 +870,7 @@ try:
 
     assert passed == 49, passed
     print("RESULT: 49 strict physical-keyboard workflow groups passed", flush=True)
+    run_keypad_navigation()
 except Exception:
     if "keyboard" in globals():
         print("QA keyboard state:", keyboard.state())

@@ -33,7 +33,7 @@ def audit_links(text):
         if uri.scheme or uri.netloc:
             continue
         path = Path(unquote(uri.path))
-        if re.fullmatch(r"bug-audit-[\w.-]+\.md", path.name):
+        if re.fullmatch(r"(?:bug|install)-audit-[\w.-]+\.md", path.name):
             yield path
 
 

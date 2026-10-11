@@ -456,7 +456,10 @@ impl PanelApp {
             // Use this acknowledged snapshot, never a separately reread disk configuration.
             panel.confirmed_model_config = Some(ime_settings.provider.clone());
             let previous = (panel.chrome.llm_enabled, panel.chrome.llm_temperature);
-            let previous_shortcuts = panel.chrome.shortcut_profile;
+            let previous_shortcuts = (
+                panel.chrome.shortcut_profile,
+                panel.chrome.shortcut_bindings,
+            );
             if configuration_changed {
                 panel.cancel_translation();
             }
@@ -486,7 +489,13 @@ impl PanelApp {
                     panel.window.request_redraw();
                 }
             }
-            if previous_shortcuts != panel.chrome.shortcut_profile {
+            if previous_shortcuts
+                != (
+                    panel.chrome.shortcut_profile,
+                    panel.chrome.shortcut_bindings,
+                )
+            {
+                panel.last_scene = None;
                 panel.window.request_redraw();
             }
             if let Some(settings) = self.settings.as_mut() {
@@ -495,8 +504,10 @@ impl PanelApp {
                 settings.chrome.prediction_edit_generation =
                     panel.chrome.prediction_edit_generation;
                 settings.chrome.shortcut_profile = panel.chrome.shortcut_profile;
+                settings.chrome.shortcut_bindings = panel.chrome.shortcut_bindings;
                 settings.chrome.shortcut_edit_generation = panel.chrome.shortcut_edit_generation;
                 settings.chrome.settings_save_failed = panel.chrome.settings_save_failed;
+                settings.last_scene = None;
                 settings.window.request_redraw();
             }
         }
@@ -552,8 +563,7 @@ impl PanelApp {
         panel.window.request_redraw();
         let chrome = panel.chrome.clone();
         if let Some(settings) = self.settings.as_mut() {
-            if settings.chrome != chrome {
-                settings.chrome = chrome;
+            if mirror_settings_chrome(&mut settings.chrome, &chrome) {
                 settings.apply_window_decorations();
                 settings.window.request_redraw();
             }
@@ -688,8 +698,7 @@ impl ApplicationHandler<PanelUserEvent> for PanelApp {
                         panel.window.request_redraw();
                     }
                     if panel.chrome.settings_open {
-                        if settings.chrome != panel.chrome {
-                            settings.chrome = panel.chrome.clone();
+                        if mirror_settings_chrome(&mut settings.chrome, &panel.chrome) {
                             settings.apply_window_decorations();
                             settings.window.request_redraw();
                         }
@@ -765,9 +774,8 @@ impl ApplicationHandler<PanelUserEvent> for PanelApp {
             self.settings = None;
         }
         if let Some(settings) = self.settings.as_mut()
-            && settings.chrome != panel.chrome
+            && mirror_settings_chrome(&mut settings.chrome, &panel.chrome)
         {
-            settings.chrome = panel.chrome.clone();
             settings.apply_window_decorations();
             settings.window.request_redraw();
         }
@@ -1035,8 +1043,10 @@ impl PanelState {
 
     async fn new_settings(
         window: Arc<Window>,
-        chrome: PanelChromeState,
+        mut chrome: PanelChromeState,
     ) -> Result<Self, Box<dyn Error>> {
+        chrome.shortcut_recording = None;
+        chrome.shortcut_recording_error.clear();
         Self::new_with_kind(window, PanelWindowKind::Settings, Some(chrome)).await
     }
 
@@ -1260,7 +1270,10 @@ impl PanelState {
             llm_temperature: LlmTemperaturePreset::Balanced,
             prediction_edit_generation: [0; 2],
             shortcut_profile: Default::default(),
+            shortcut_bindings: Default::default(),
             shortcut_edit_generation: 0,
+            shortcut_recording: None,
+            shortcut_recording_error: String::new(),
             settings_save_failed: false,
             pointer_tap_slop_tenths: 100,
             pointer_tap_max_ms: 420,
@@ -1470,6 +1483,18 @@ impl PanelState {
         state.sync_text_input_state();
         Ok(state)
     }
+}
+
+/// Recording belongs to the focused settings window, not the mirrored main panel.
+fn mirror_settings_chrome(settings: &mut PanelChromeState, main: &PanelChromeState) -> bool {
+    let mut next = main.clone();
+    next.shortcut_recording = settings.shortcut_recording;
+    next.shortcut_recording_error = settings.shortcut_recording_error.clone();
+    if *settings == next {
+        return false;
+    }
+    *settings = next;
+    true
 }
 
 fn apply_pointer_stability_env_overrides(chrome: &mut PanelChromeState) {

@@ -278,6 +278,120 @@ fn assert_settings_keyboard(settings: &mut PanelState) {
     );
 }
 
+fn assert_custom_shortcut_controls(
+    app: &mut PanelApp,
+    event_loop: &ActiveEventLoop,
+    native: &mut ImeSettings,
+) {
+    use suzaku_map::ime::shortcuts::{ShortcutAction, ShortcutBindings};
+    use winit::keyboard::{Key, ModifiersState};
+
+    fn click(settings: &mut PanelState, kind: InteractionKind, search: &str) {
+        settings.chrome.settings_search_query = search.into();
+        settings.chrome.settings_scroll_offset = 0.0;
+        settings.last_scene = None;
+        crate::native_sync::present_test_frame(settings);
+        let scene = settings.last_scene.as_ref().unwrap();
+        let rect = scene
+            .interactive_targets
+            .iter()
+            .find(|target| target.kind == kind)
+            .expect("custom shortcut control is visible")
+            .rect;
+        settings.cursor_position = Some((rect[0] + rect[2] / 2.0, rect[1] + rect[3] / 2.0));
+        settings.begin_primary_press(false);
+        settings.complete_primary_release(false);
+    }
+
+    fn acknowledge(app: &mut PanelApp, event_loop: &ActiveEventLoop, native: &mut ImeSettings) {
+        let id = app.settings.as_ref().unwrap().window.id();
+        app.window_event(event_loop, id, WindowEvent::RedrawRequested);
+        let patch = app
+            .ime_settings_sync
+            .next_patch(&app.panel.as_ref().unwrap().chrome)
+            .expect("confirmed UI edit requests a native settings patch");
+        patch.apply(native).unwrap();
+        app.user_event(
+            event_loop,
+            PanelUserEvent::PanelImeSettingsApplied(Some(native.clone())),
+        );
+        for state in [app.panel.as_ref().unwrap(), app.settings.as_ref().unwrap()] {
+            assert_eq!(state.chrome.shortcut_bindings, native.shortcut_bindings);
+            assert_eq!(state.chrome.shortcut_profile, native.shortcut_profile);
+        }
+    }
+
+    let draft = app.panel.as_ref().unwrap().chrome.seed_text.clone();
+    let original_focus = app.settings.as_ref().unwrap().is_focused;
+    app.settings.as_mut().unwrap().set_window_focus(true);
+    for (action, key) in ShortcutAction::ALL
+        .into_iter()
+        .zip(['k', 'j', 'h', 'l', 'a', 'g'])
+    {
+        let settings = app.settings.as_mut().unwrap();
+        click(
+            settings,
+            InteractionKind::RecordShortcut(action),
+            action.label(),
+        );
+        assert_eq!(settings.chrome.shortcut_recording, Some(action));
+        let generation = settings.chrome.shortcut_edit_generation;
+        // A redraw/mirror before accepting a key must retain this window's recording,
+        // while the main panel must never inherit the temporary state.
+        let id = settings.window.id();
+        app.window_event(event_loop, id, WindowEvent::RedrawRequested);
+        assert_eq!(app.panel.as_ref().unwrap().chrome.shortcut_recording, None);
+        let settings = app.settings.as_mut().unwrap();
+        assert_eq!(settings.chrome.shortcut_recording, Some(action));
+        settings.modifiers = ModifiersState::CONTROL;
+        settings.handle_settings_key(&Key::Character(key.to_string().into()), None, false);
+        assert_eq!(settings.chrome.shortcut_edit_generation, generation + 1);
+        assert_eq!(settings.chrome.shortcut_recording, None);
+        settings.modifiers = ModifiersState::empty();
+        acknowledge(app, event_loop, native);
+    }
+    let settings = app.settings.as_mut().unwrap();
+    click(
+        settings,
+        InteractionKind::ClearShortcutBinding(ShortcutAction::Previous),
+        "Previous",
+    );
+    assert_eq!(
+        settings
+            .chrome
+            .shortcut_bindings
+            .get(ShortcutAction::Previous),
+        None
+    );
+    assert!(
+        settings
+            .chrome
+            .shortcut_bindings
+            .get(ShortcutAction::Next)
+            .is_some()
+    );
+    acknowledge(app, event_loop, native);
+    let settings = app.settings.as_mut().unwrap();
+    click(
+        settings,
+        InteractionKind::ResetCustomShortcuts,
+        "Custom keys",
+    );
+    assert_eq!(
+        settings.chrome.shortcut_bindings,
+        ShortcutBindings::default()
+    );
+    acknowledge(app, event_loop, native);
+    assert_eq!(app.panel.as_ref().unwrap().chrome.seed_text, draft);
+    app.settings
+        .as_mut()
+        .unwrap()
+        .set_window_focus(original_focus);
+    println!(
+        "PASS: all six custom-key controls record, mirror acknowledged bindings without recording state, restore one action and reset aliases without changing drafts"
+    );
+}
+
 impl ApplicationHandler<PanelUserEvent> for SettingsProbe {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         let window = Arc::new(event_loop.create_window(panel_window_attributes()).unwrap());
@@ -341,6 +455,7 @@ impl ApplicationHandler<PanelUserEvent> for SettingsProbe {
         assert_native_titlebar_preference(&mut app, event_loop);
         assert_ui_language_preferences(&mut app, event_loop);
         assert_shortcut_preferences(&mut app, event_loop, &mut native);
+        assert_custom_shortcut_controls(&mut app, event_loop, &mut native);
 
         for (selected, succeeds) in [
             (LlmTemperaturePreset::Focused, true),

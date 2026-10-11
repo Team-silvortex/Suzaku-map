@@ -43,6 +43,8 @@ pub(super) fn handle_panel_window_event(
 
         match event {
             WindowEvent::CloseRequested if allow_exit => {
+                state.chrome.cancel_shortcut_recording();
+                state.text_input.clear_shortcut_hold();
                 state.close_requested = true;
             }
             WindowEvent::Resized(size) => {
@@ -153,7 +155,36 @@ pub(super) fn handle_panel_window_event(
                 event,
                 is_synthetic,
                 ..
-            } if event.state == ElementState::Pressed && !is_synthetic => {
+            } if !is_synthetic => {
+                if state
+                    .text_input
+                    .consume_recorded_hold(event.physical_key, event.state == ElementState::Pressed)
+                {
+                    return;
+                }
+                if event.state != ElementState::Pressed {
+                    return;
+                }
+                let recording_key = if matches!(event.physical_key, PhysicalKey::Code(_)) {
+                    event.logical_key.clone()
+                } else {
+                    // Unknown physical identities cannot be safely held until release.
+                    winit::keyboard::Key::Character("".into())
+                };
+                if super::keyboard::capture_shortcut_recording(
+                    &mut state.chrome,
+                    &recording_key,
+                    state.modifiers,
+                    event.repeat,
+                    state.kind == PanelWindowKind::Settings && state.is_focused,
+                    state.text_input.composing(),
+                ) {
+                    state.text_input.hold_recorded_key(event.physical_key);
+                    state.last_scene = None;
+                    state.reveal_settings_focus();
+                    state.window.request_redraw();
+                    return;
+                }
                 // IME preedit owns its editing keys; do not run panel shortcuts.
                 if state.text_input.composing() {
                     return;

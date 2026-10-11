@@ -165,3 +165,51 @@ fn packaged_audit_links_cover_references_inline_links_and_flattened_guides() {
     );
     assert!(check_extra().status.success());
 }
+
+#[test]
+fn packaged_installation_audits_cannot_be_missing_empty_or_resolved_from_a_flat_guide() {
+    let f = Fixture::new();
+    fs::create_dir(f.0.join("docs")).unwrap();
+    let name = "install-audit-0.8.6-2026-10-11.md";
+    f.write(
+        "docs/functional-network.md",
+        format!(
+            "[installation]: {name}#results\n\n[inline]({name})\n\
+             [remote](https://example.invalid/install-audit-remote.md)\n\
+             ```text\n[example](install-audit-example.md)\n```\n"
+        ),
+    );
+    let check = || {
+        Command::new("python3")
+            .arg(concat!(
+                env!("CARGO_MANIFEST_DIR"),
+                "/scripts/check-package-audit-links.py"
+            ))
+            .arg(&f.0)
+            .output()
+            .unwrap()
+    };
+    let missing = check();
+    assert!(!missing.status.success());
+    assert!(String::from_utf8_lossy(&missing.stderr).contains(name));
+    f.write(&format!("docs/{name}"), "");
+    assert!(
+        !check().status.success(),
+        "empty installation reports are missing"
+    );
+    f.write(&format!("docs/{name}"), "installation results");
+    assert!(check().status.success());
+    f.write(
+        "linux-packaging-data.md",
+        format!("[installation]({name})\n"),
+    );
+    assert!(
+        !check().status.success(),
+        "flat installation guide must resolve its own links"
+    );
+    f.write(
+        "linux-packaging-data.md",
+        format!("[installation](docs/{name})\n"),
+    );
+    assert!(check().status.success());
+}
