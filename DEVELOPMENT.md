@@ -122,6 +122,63 @@ that existing 0.7.x tags already have assets. See [Linux packaging](docs/linux-p
   with its matching system Python 3.14. Remote Ubuntu 24.04 installs matching
   Python/GI dependencies and must pass the same mandatory gate independently.
 
+### 0.8.7 bounded CI lanes — 2026 10 12
+
+- The corrected format commit is
+  `f0e2bc184a3f9d9fc65c3e0b3f79578099eea8be`. Its exact
+  [CI 38157429301](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/38157429301)
+  passes formatting, both desktop compile jobs, full-history secret scanning,
+  and every Linux source, Rust, native, UI, GTK, physical-keyboard, lifecycle,
+  Qt, settings and data gate (steps 6–42). The Linux job nevertheless ends
+  cancelled: GitHub's original annotation explicitly reports the **40-minute
+  overall job limit**. Release compilation starts at 17:33:59 UTC and is
+  cancelled at 17:35:08; package construction, contents, clean installation and
+  final upload are skipped. This is not a successful CI or release result.
+  The artifact API returns zero artifacts. Keep the original cancellation log,
+  annotations and final job audit in `/tmp/suzaku-release-0.8.7.rIFkAV`.
+- Split the growing monolithic workflow into independent Ubuntu 24.04 lanes
+  for source/Rust/native/UI, real-application/data workflows, and release
+  construction/package-content/clean-installation gates. Each keeps the original
+  40-minute job limit; all pre-existing commands, environment conditions,
+  assertions, case sets and private-session deadlines remain intact. This is
+  parallel orchestration on separate CI machines, not concurrent heavy checks
+  on the user's memory-constrained desktop or a retry-until-green policy.
+- Package handoff uses a clearly named **unaccepted staging** artifact from the
+  same run and SHA, retained for one day. Only a final job requiring all three
+  lanes, formatting, full-history secret scanning and both desktop matrix jobs
+  may upload the original accepted `suzaku-linux-ARCH-SHA` artifact (14 days).
+  A staging artifact, an earlier partially passing run or a source tag alone
+  never authorizes publication. Keep the existing aggregate check display name
+  for required-status compatibility; isolate cache-write keys by lane.
+- Independent review finds an important required-check edge: a default-success
+  dependency join would be skipped after upstream failure, which GitHub treats
+  as not blocking even a required check ([official conditions reference](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-jobs-with-conditions)).
+  The final job must therefore always report a result, with a mandatory first
+  step rejecting any missing, failed, cancelled or skipped upstream result.
+  All later checkout/download/binding/upload steps retain default-success
+  behavior and are skipped after that failure. This is always **reporting**,
+  never always **publishing**; freeze the exact ordering and fail-closed body.
+- Add source-level graph regressions for preserved gate groups, unchanged
+  limits, exact-SHA handoff, mandatory failure propagation and fail-closed final
+  dependencies. These checks
+  cannot qualify actual parallel CI, native input or package installation.
+  The new exact clean commit must pass every lane and the final aggregate
+  before tagging/publishing. Version remains 0.8.7 / build 37, with unchanged
+  product code, Cargo dependencies, optional packs and personal installation.
+- The local private custom-shortcut gate and all nineteen UI/instance checks
+  also pass on the format-follow-up source. Their first results are retained
+  in `custom-shortcuts-first.log` and `ui-first.log`; they do not replace the
+  new exact-commit remote release gates or human daily-desktop acceptance.
+- The revised graph guard first passes all **18 tests** on both Python 3.12.3
+  and 3.14.4. Its actual frozen result predicate admits one all-success input
+  and rejects 43 failed/cancelled/skipped/missing-result or invalid-ID cases
+  with nonzero exits. Two independent source comparisons confirm all original
+  gate/setup/global hashes, plus the binding body, are unchanged. Preserve
+  `/tmp/suzaku-ci-release-graph.B24KYv` and its separate initial sixteen-test
+  design logs; those earlier logs do not validate the corrected required-check
+  behavior. No local heavy rebuild or installed-user-state change is needed
+  for this CI-only change; complete remote execution remains mandatory.
+
 ### Unreleased — Late prediction errors and long-draft diagnostics 2026 10 11
 
 - Follow the preceding late-reply audit into the shared error branch. Two

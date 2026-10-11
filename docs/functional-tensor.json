@@ -2,10 +2,10 @@
   "schema_version": 1,
   "snapshot": {
     "date": "2026-10-12",
-    "head": "05515551c5b97b4af9c67400399f719c5634f963",
+    "head": "f0e2bc184a3f9d9fc65c3e0b3f79578099eea8be",
     "dirty": true,
-    "source_sha256": "46133574d37b49eb1ed2736755e70de2213942ca05f4b590e9d61b21aeff9586",
-    "note": "0.8.7发布跟进工作区盘点，head记录兼容修复前基线0551555而非本文件所属提交；评分是有边界的人工序数评估，不是质量概率。后续修复执行范围见 E-pointer-preference、E-window-boundary、E-recovery-fixture、E-prose-paging、E-chinese-partial-spacing；词库扩充见 E-daily-objects、E-daily-choices、E-japanese-choices；10-04崩溃及10-07有界sender诊断见E-daemon-abort，探测清理顺序修复见E-daemon-probe，非已确认修复上游根因。10-11干净81bbce8包的私有输入任务及0.8.1到0.8.6日常升级见E-installed-input-tasks，随后自定义快捷键开发快照安装与复测见E-installed-custom-shortcuts。0.8.6原远端Linux CI超时及0.8.7首轮Python格式失败均不改记通过；0.8.7须独立精确提交CI和打包安装门禁后发布，当前盘点不代表全绿发布、真实模型或个人桌面输入验收。源指纹仅覆盖 implementations.paths/tests。"
+    "source_sha256": "10f42747f65182bcd2cf176d6274b1bcdfd1cea22720af8159da54f0ac310914",
+    "note": "0.8.7发布跟进工作区盘点，head记录CI拆分前基线f0e2bc1而非本文件所属提交；评分是有边界的人工序数评估，不是质量概率。后续修复执行范围见 E-pointer-preference、E-window-boundary、E-recovery-fixture、E-prose-paging、E-chinese-partial-spacing；词库扩充见 E-daily-objects、E-daily-choices、E-japanese-choices；10-04崩溃及10-07有界sender诊断见E-daemon-abort，探测清理顺序修复见E-daemon-probe，非已确认修复上游根因。10-11干净81bbce8包的私有输入任务及0.8.1到0.8.6日常升级见E-installed-input-tasks，随后自定义快捷键开发快照安装与复测见E-installed-custom-shortcuts。0.8.6原远端超时、0.8.7首轮Python格式失败及修正后40min任务取消均不改记通过；新CI分路仍须独立精确提交全部门禁、打包安装和最终汇合成功后发布，当前盘点不代表全绿发布、真实模型或个人桌面输入验收。源指纹仅覆盖 implementations.paths/tests。"
   },
   "architectures": [
     {
@@ -898,6 +898,7 @@
         "scripts/test-vocabulary-partitions.py",
         "scripts/run-ast-guard.py",
         "scripts/test-ast-guard.py",
+        "scripts/test-ci-release-graph.py",
         "scripts/test-native-probe-teardown.py",
         "scripts/test-gtk3-event-observer.py",
         "scripts/test-ibus-signal-lifetime.py",
@@ -1326,6 +1327,13 @@
     }
   ],
   "evidence": [
+    {
+      "id": "E-ci-lanes",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", ".github/workflows/ci.yml", "scripts/test-ci-release-graph.py"],
+      "scope": "2026-10-12完整原回归通过但40min聚合任务取消；不延长时限的并行CI及全门汇合",
+      "note": "f0e2bc1的CI38157429301四非Linux job与Linux6–42原回归均通过；GitHub明确40min总任务超时，43release编译取消、44–47包/安装/上传全skip，artifact为0，旧结果不是发布验收。CI仅分成独立Ubuntu24原guard/Rust/native/UI、应用/数据、release/包/干净安装三路，各40min、原命令/env/用例/断言/会话时限不改；全门及format/secrets/双desktop成功后最终汇合才上传原accepted名字。1天unaccepted staging仅同run同SHA交接，非Release。新源图guard防漏门/放宽时限/跨SHA和条件旁路；静态通过不代替新精确CI全路验收。无生产代码、个人安装或评分变动。"
+    },
     {
       "id": "E-python-ast-format",
       "kind": "historical_run",
@@ -2886,6 +2894,7 @@
         2
       ],
       "evidence": [
+        "E-ci-lanes",
         "E-python-ast-format",
         "E-daemon-abort",
         "E-daemon-probe",
@@ -2895,7 +2904,7 @@
         "E-package",
         "E-linux-delivery"
       ],
-      "limit": "0.8.6原远端Linux CI在120s会话处超时；本机完整分区通过不替代远端重跑。没有自动Release上传；普通测试跳过的opt-in须单独跑。"
+      "limit": "0.8.6原远端120s会话超时、0.8.7首轮摘要失败及后续40min任务取消均保留；新并行源图不代表精确CI全路已通过。只有全部门成功的最终artifact可验收，staging非Release；普通测试跳过的opt-in须单独跑。"
     },
     {
       "a": "A10",

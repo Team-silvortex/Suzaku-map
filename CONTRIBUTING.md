@@ -845,6 +845,18 @@ bash scripts/test-linux-install.sh dist
 
 Use a new output directory for rebuilds; existing packages are not overwritten. Container checks
 do not install on the host. All CI gates are in [.github/workflows/ci.yml](.github/workflows/ci.yml).
+CI runs source/Rust/native/UI, real-application/data, and release/package/install
+lanes on separate Ubuntu 24.04 runners with unchanged 40-minute limits. Only the
+final all-gates join publishes the accepted `suzaku-linux-ARCH-SHA` artifact;
+the one-day, explicitly unaccepted staging package is not release acceptance.
+The required aggregate always reports a result, but its first step requires
+every upstream result to be success; missing, failed, cancelled or skipped gates
+fail the aggregate and prevent all later download/upload steps.
+Local heavy checks remain serial and resource-capped. Graph/source guards are
+not a substitute for running every exact-commit lane successfully.
+The source-only graph check is `/usr/bin/python3 -B scripts/test-ci-release-graph.py`
+and requires PyYAML (`python3-yaml` on the Ubuntu baseline); CI installs it
+explicitly for that interpreter.
 
 ## Keeping local disk use bounded
 

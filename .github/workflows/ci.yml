@@ -61,7 +61,7 @@ jobs:
       - run: cargo fmt --all --check
 
   linux:
-    name: Linux lint, tests, native input and release build
+    name: Linux lint, tests and native input
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
@@ -92,9 +92,14 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-${{ runner.arch }}-linux-ci-v1-${{ env.RUSTUP_TOOLCHAIN }}-${{ hashFiles('Cargo.lock') }}-${{ github.sha }}
+          key: ${{ runner.os }}-${{ runner.arch }}-linux-ci-v2-core-${{ env.RUSTUP_TOOLCHAIN }}-${{ hashFiles('Cargo.lock') }}-${{ github.sha }}
           restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-linux-ci-v2-core-${{ env.RUSTUP_TOOLCHAIN }}-${{ hashFiles('Cargo.lock') }}-
             ${{ runner.os }}-${{ runner.arch }}-linux-ci-v1-${{ env.RUSTUP_TOOLCHAIN }}-${{ hashFiles('Cargo.lock') }}-
+      - name: Install source-only workflow guard dependency
+        run: sudo apt-get install --no-install-recommends -y python3-yaml
+      - name: Test parallel release graph and unchanged regression gates
+        run: /usr/bin/python3 -B scripts/test-ci-release-graph.py
       - name: Lint the native test runner
         run: shellcheck scripts/test-linux-ci.sh scripts/test-linux-apps.sh scripts/test-linux-service.sh scripts/test-tool-chain-audit.sh scripts/test-settings-chain-audit.sh scripts/test-data-chain-audit.sh scripts/package-linux.sh scripts/test-linux-package.sh scripts/test-linux-install.sh scripts/fixtures/linux-install-container.sh scripts/fixtures/trace-native-ibus.sh
       - name: Test strict editor observation and save barriers
@@ -156,6 +161,43 @@ jobs:
         run: bash scripts/test-linux-ci.sh ibus
       - name: Test isolated windows, keyboard input and multilingual GPU rendering
         run: bash scripts/test-linux-ci.sh ui
+
+  linux-apps:
+    name: Linux application workflows and recovery
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      LIBGL_ALWAYS_SOFTWARE: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Install Linux test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            build-essential pkg-config libibus-1.0-dev libglib2.0-dev \
+            libx11-dev libxkbcommon-dev libxkbcommon-x11-0 libwayland-dev \
+            libegl1-mesa-dev libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers \
+            dbus-daemon ibus gir1.2-ibus-1.0 gir1.2-pango-1.0 python3-gi \
+            xvfb xauth fontconfig fonts-dejavu-core fonts-noto-cjk shellcheck \
+            dpkg-dev jq desktop-file-utils gnome-text-editor zenity x11-utils x11-xkb-utils libxtst6 \
+            ibus-gtk3 ibus-gtk4 gir1.2-gtk-3.0 gir1.2-atspi-2.0 at-spi2-core \
+            python3-pyqt5 python3-pyqt6 qt6-qpa-plugins
+      - name: Install Rust
+        run: rustup toolchain install "$RUSTUP_TOOLCHAIN" --profile minimal --component clippy
+      - name: Cache Cargo downloads and build outputs
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-${{ runner.arch }}-linux-ci-v2-apps-${{ env.RUSTUP_TOOLCHAIN }}-${{ hashFiles('Cargo.lock') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-linux-ci-v2-apps-${{ env.RUSTUP_TOOLCHAIN }}-${{ hashFiles('Cargo.lock') }}-
+            ${{ runner.os }}-${{ runner.arch }}-linux-ci-v1-${{ env.RUSTUP_TOOLCHAIN }}-${{ hashFiles('Cargo.lock') }}-
       - name: Test English and Chinese typing in real GTK applications on an isolated display
         run: bash scripts/test-linux-apps.sh
       - name: Test GTK3 per-key drafts with default and synchronous IBus transport
@@ -200,6 +242,43 @@ jobs:
         run: >-
           timeout --kill-after=3s 25s dbus-run-session -- env SUZAKU_DATA_QA=1
           /usr/bin/python3 scripts/test-data-folders.py
+
+  linux-package:
+    name: Linux release packages and clean installation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      LIBGL_ALWAYS_SOFTWARE: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Install Linux test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            build-essential pkg-config libibus-1.0-dev libglib2.0-dev \
+            libx11-dev libxkbcommon-dev libxkbcommon-x11-0 libwayland-dev \
+            libegl1-mesa-dev libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers \
+            dbus-daemon ibus gir1.2-ibus-1.0 gir1.2-pango-1.0 python3-gi \
+            xvfb xauth fontconfig fonts-dejavu-core fonts-noto-cjk shellcheck \
+            dpkg-dev jq desktop-file-utils gnome-text-editor zenity x11-utils x11-xkb-utils libxtst6 \
+            ibus-gtk3 ibus-gtk4 gir1.2-gtk-3.0 gir1.2-atspi-2.0 at-spi2-core \
+            python3-pyqt5 python3-pyqt6 qt6-qpa-plugins
+      - name: Install Rust
+        run: rustup toolchain install "$RUSTUP_TOOLCHAIN" --profile minimal --component clippy
+      - name: Cache Cargo downloads and build outputs
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-${{ runner.arch }}-linux-ci-v2-package-${{ env.RUSTUP_TOOLCHAIN }}-${{ hashFiles('Cargo.lock') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-linux-ci-v2-package-${{ env.RUSTUP_TOOLCHAIN }}-${{ hashFiles('Cargo.lock') }}-
+            ${{ runner.os }}-${{ runner.arch }}-linux-ci-v1-${{ env.RUSTUP_TOOLCHAIN }}-${{ hashFiles('Cargo.lock') }}-
       - name: Build Linux release binaries
         run: >-
           cargo build --locked --release --all-features
@@ -210,7 +289,85 @@ jobs:
         run: bash scripts/test-linux-package.sh dist
       - name: Install, upgrade and remove in a clean Ubuntu container
         run: bash scripts/test-linux-install.sh dist
-      - name: Upload Linux packages and checksums
+      # This is only a short-lived handoff. It is not the accepted download.
+      - name: Stage unaccepted Linux packages and checksums
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: suzaku-linux-unaccepted-${{ runner.arch }}-${{ github.sha }}-${{ github.run_id }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 1
+
+  linux-artifacts:
+    # Keep the previous required-check display name on the all-gates join.
+    name: Linux lint, tests, native input and release build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    needs: [linux, linux-apps, linux-package, secrets, format, desktop-check]
+    # Always report failures for the required check; never always publish.
+    if: ${{ always() }}
+    steps:
+      - name: Require every regression and package gate to succeed
+        env:
+          SUZAKU_REQUIRED_RESULTS: ${{ toJSON(needs) }}
+        run: |
+          /usr/bin/python3 - <<'PY'
+          import json, os
+          needs = json.loads(os.environ["SUZAKU_REQUIRED_RESULTS"])
+          expected = {"linux", "linux-apps", "linux-package", "secrets", "format", "desktop-check"}
+          if set(needs) != expected:
+              raise SystemExit("Missing or unexpected required gate results")
+          failures = {name: values.get("result") for name, values in needs.items() if values.get("result") != "success"}
+          if failures:
+              raise SystemExit(f"Required gates did not succeed: {failures}")
+          print("PASS: every required regression and installation gate succeeded")
+          PY
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Download this run's unaccepted Linux candidate
+        # Official v4.3.0 tag was checked via the upstream Git refs API; node20.
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: suzaku-linux-unaccepted-${{ runner.arch }}-${{ github.sha }}-${{ github.run_id }}
+          path: dist
+      - name: Bind downloaded packages to the accepted source revision
+        env:
+          SUZAKU_ACCEPTED_REVISION: ${{ github.sha }}
+        run: |
+          /usr/bin/python3 - <<'PY'
+          import hashlib, json, os, subprocess, tarfile, tempfile, tomllib
+          from pathlib import Path
+          version = tomllib.loads(Path("Cargo.toml").read_text())["package"]["version"]
+          target = "x86_64-unknown-linux-gnu"
+          root = f"suzaku-{version}-{target}"
+          packages = [f"{root}.tar.gz", f"suzaku_{version}_amd64.deb"]
+          assets = Path("dist")
+          expected = set(packages + [name + ".sha256" for name in packages])
+          assert {path.name for path in assets.iterdir()} == expected, "exact four assets required"
+          for name in expected:
+              path = assets / name
+              assert path.is_file() and not path.is_symlink(), name
+          for name in packages:
+              with (assets / name).open("rb") as stream:
+                  digest = hashlib.file_digest(stream, "sha256").hexdigest()
+              assert (assets / (name + ".sha256")).read_text() == f"{digest}  {name}\n", name
+          with tarfile.open(assets / packages[0], "r:gz") as archive:
+              tar_manifest = archive.extractfile(f"{root}/manifest.json").read()
+          with tempfile.TemporaryDirectory(prefix="suzaku-artifact-binding.") as temporary:
+              subprocess.run(["dpkg-deb", "--extract", str(assets / packages[1]), temporary], check=True)
+              deb_manifest = (Path(temporary) / "usr/share/doc/suzaku/manifest.json").read_bytes()
+          assert tar_manifest == deb_manifest, "tar/deb manifests must be identical"
+          manifest = json.loads(tar_manifest)
+          epoch = int(subprocess.check_output(["git", "log", "-1", "--format=%ct"], text=True))
+          assert manifest["format"] == 1 and manifest["version"] == version
+          assert manifest["target"] == target and manifest["revision"] == os.environ["SUZAKU_ACCEPTED_REVISION"]
+          assert manifest["source_dirty"] is False and manifest["build_libc"] == "glibc 2.39"
+          assert manifest["source_date_epoch"] == epoch
+          assert manifest["models_bundled"] is False and manifest["user_data_bundled"] is False
+          print("PASS: exact four candidate assets, bound checksums and clean source manifests")
+          PY
+      - name: Upload accepted Linux packages and checksums
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: suzaku-linux-${{ runner.arch }}-${{ github.sha }}
