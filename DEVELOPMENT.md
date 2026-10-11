@@ -75,6 +75,53 @@ that existing 0.7.x tags already have assets. See [Linux packaging](docs/linux-p
   checks; neither the earlier local runs nor host-built glibc 2.43 packages
   replace those gates. Publish Linux Alpha assets only after all gates pass.
 
+### 0.8.7 CI format compatibility follow-up — 2026 10 12
+
+- The first pushed release-preparation commit is
+  `05515551c5b97b4af9c67400399f719c5634f963`. Its exact
+  [CI 38154577312](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/38154577312)
+  fails the frozen native-model AST check before full Rust/native/packaging
+  stages: two of nineteen checks produce different digests. Formatting, full
+  history secret scanning and macOS/Windows compile checks pass; Linux fails,
+  zero package artifacts exist and no tag or Release is published from that run.
+  Keep the first failure and diagnostic logs in the release receipt directory.
+- The same current source under the already available `/usr/bin/python3.12`
+  reproduces the two exact CI digests on its first local run. Python 3.14's
+  default AST dump omits empty list fields that 3.12 includes. This is a fixture
+  fingerprint-format compatibility defect, not permission to refresh historical
+  hashes, remove assertions or change any native/model deadline.
+- Add a strictly allowlisted source-guard entry point with the independently
+  frozen compact AST representation. Only the five guard basenames may run;
+  restore `ast.dump` and arguments after execution, preserve target exceptions
+  and exit codes, reject arbitrary scripts/options, retain required None and
+  literal data, and never mutate the input AST. The five original guard files
+  and their historical SHA assertions remain byte-for-byte unchanged, so the
+  later guard projection chain also remains intact. No production/native code,
+  global Python configuration, model behavior or keyboard semantics change.
+- Before this source-only compatibility fix, the first versioned local full
+  default and full inline native IBus gates both pass: each completes the entire
+  original core plus all 106 HTTP-failure/timeout fallback subcases in separate
+  fresh sessions with unchanged 120-second deadlines. These source-build
+  private-bus checks do not install, change the daily input source or qualify
+  human/physical-device/native Wayland or live-model quality acceptance.
+- Validation of the compatibility follow-up and its exact clean-commit CI must
+  finish independently before tagging or publishing Linux Alpha packages.
+  Version remains 0.8.7 / build 37; dependency and optional pack versions remain
+  unchanged. The tensor records source evidence without increasing maturity.
+- Python 3.12.3 and 3.14.4 each pass the new thirteen format/scope checks plus
+  all five original wrapped guard suites (19 + 13 + 13 + 18 + 22 = 85), for
+  **196 total checks**. Five original whole-file SHA checks pass. Receipts are
+  in `/tmp/suzaku-ast-guard-compat.vhVGkh`; retain the first thirteen-check 3.12
+  result before interruption and the later error-propagation review/result.
+  Do not count source checks as native input acceptance.
+- The other source/adapter checks also run with the available local 3.12.
+  Its GI signal-lifetime check fails at import because this machine's PyGObject
+  extension is built for system Python 3.14, not the secondary 3.12 interpreter.
+  Preserve that failure as an environment limitation; do not skip or patch the
+  check. The unchanged signal-lifetime gate separately passes all six tests
+  with its matching system Python 3.14. Remote Ubuntu 24.04 installs matching
+  Python/GI dependencies and must pass the same mandatory gate independently.
+
 ### Unreleased — Late prediction errors and long-draft diagnostics 2026 10 11
 
 - Follow the preceding late-reply audit into the shared error branch. Two

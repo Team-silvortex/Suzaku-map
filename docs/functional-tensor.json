@@ -2,10 +2,10 @@
   "schema_version": 1,
   "snapshot": {
     "date": "2026-10-12",
-    "head": "81bbce81fed2fba6de9a2c954a41067a31237239",
+    "head": "05515551c5b97b4af9c67400399f719c5634f963",
     "dirty": true,
-    "source_sha256": "3cdf89efe80b4b61070893c9819ba3d9a2ae27d12b74daa9d4b1c255d4573742",
-    "note": "0.8.7提交前的工作区能力盘点，head记录基线81bbce8而非本文件所属提交；评分是有边界的人工序数评估，不是质量概率。后续修复执行范围见 E-pointer-preference、E-window-boundary、E-recovery-fixture、E-prose-paging、E-chinese-partial-spacing；词库扩充见 E-daily-objects、E-daily-choices、E-japanese-choices；10-04崩溃及10-07有界sender诊断见E-daemon-abort，探测清理顺序修复见E-daemon-probe，非已确认修复上游根因。10-11干净81bbce8包的私有输入任务及0.8.1到0.8.6日常升级见E-installed-input-tasks，随后自定义快捷键开发快照安装与复测见E-installed-custom-shortcuts。0.8.6原远端Linux CI超时不改记通过；0.8.7须独立精确提交CI和打包安装门禁后发布，当前盘点不代表全绿发布、真实模型或个人桌面输入验收。源指纹仅覆盖 implementations.paths/tests。"
+    "source_sha256": "46133574d37b49eb1ed2736755e70de2213942ca05f4b590e9d61b21aeff9586",
+    "note": "0.8.7发布跟进工作区盘点，head记录兼容修复前基线0551555而非本文件所属提交；评分是有边界的人工序数评估，不是质量概率。后续修复执行范围见 E-pointer-preference、E-window-boundary、E-recovery-fixture、E-prose-paging、E-chinese-partial-spacing；词库扩充见 E-daily-objects、E-daily-choices、E-japanese-choices；10-04崩溃及10-07有界sender诊断见E-daemon-abort，探测清理顺序修复见E-daemon-probe，非已确认修复上游根因。10-11干净81bbce8包的私有输入任务及0.8.1到0.8.6日常升级见E-installed-input-tasks，随后自定义快捷键开发快照安装与复测见E-installed-custom-shortcuts。0.8.6原远端Linux CI超时及0.8.7首轮Python格式失败均不改记通过；0.8.7须独立精确提交CI和打包安装门禁后发布，当前盘点不代表全绿发布、真实模型或个人桌面输入验收。源指纹仅覆盖 implementations.paths/tests。"
   },
   "architectures": [
     {
@@ -896,6 +896,8 @@
         "scripts/test-native-ibus-trace.py",
         "scripts/test-native-model-fixture.py",
         "scripts/test-vocabulary-partitions.py",
+        "scripts/run-ast-guard.py",
+        "scripts/test-ast-guard.py",
         "scripts/test-native-probe-teardown.py",
         "scripts/test-gtk3-event-observer.py",
         "scripts/test-ibus-signal-lifetime.py",
@@ -1324,6 +1326,13 @@
     }
   ],
   "evidence": [
+    {
+      "id": "E-python-ast-format",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "scripts/run-ast-guard.py", "scripts/test-ast-guard.py"],
+      "scope": "2026-10-12五项冻结AST检查的Python3.12/3.14格式兼容与受限执行",
+      "note": "0.8.7首轮CI38154577312两摘要失败，本机3.12首次精确复现而3.14旧值一致。仅新增白名单入口、固定历史compact格式；五原guard全文/SHA断言/期限不改。两版本各13格式/范围负例与原19+13+13+18+22检查通过，共196；None和literal保留，不修改AST，任意路径/选项拒绝、异常和退出码传播、进程状态恢复。另本机3.12 GI ABI导入失败保留，系统3.14独立6项信号检查通过；远端精确CI和Ubuntu打包安装仍独立门禁，无生产修复或成熟度上调。"
+    },
     {
       "id": "E-prediction-error-boundaries",
       "kind": "historical_run",
@@ -2877,6 +2886,7 @@
         2
       ],
       "evidence": [
+        "E-python-ast-format",
         "E-daemon-abort",
         "E-daemon-probe",
         "E-recovery-fixture",

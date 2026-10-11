@@ -47,9 +47,27 @@ all original non-fallback workflows, including the controls after model failures
 and assertions. Both parts must pass. `SUZAKU_IBUS_INLINE_PREEDIT=1` is inherited
 by both; focused `SUZAKU_NATIVE_*_ONLY=1` requests remain single-session checks
 and do not claim the complete gate. Multiple focused modes are rejected before
-building or starting a bus. `python3 scripts/test-native-model-fixture.py` tests
+building or starting a bus. `python3 -B scripts/run-ast-guard.py test-native-model-fixture.py` tests
 dispatch, conflict/failure handling and frozen pre-partition assertion coverage
 without a model, display or IBus host.
+
+Five historical AST-fingerprint guards use the narrow
+`scripts/run-ast-guard.py` entry point for portable Python 3.12/3.14 checks:
+
+```bash
+python3 -B scripts/test-ast-guard.py
+python3 -B scripts/run-ast-guard.py test-native-model-fixture.py
+python3 -B scripts/run-ast-guard.py test-language-workflow-coverage.py
+python3 -B scripts/run-ast-guard.py test-keypad-navigation-coverage.py
+python3 -B scripts/run-ast-guard.py test-held-language-coverage.py
+python3 -B scripts/run-ast-guard.py test-vocabulary-partitions.py
+```
+
+Python's default AST dump format differs between these versions. The entry point
+uses the historical compact representation only in the selected guard process;
+it preserves all frozen hashes, original guard files, assertions, deadlines and
+failure exit codes. It rejects other scripts/options and never changes native
+IBus execution, the user's Python installation or any production code.
 
 The separate `ibus-custom-shortcuts` gate uses rebuilt binaries, its own fresh
 private bus/config/Compose copy and the unchanged 120-second session limit.
@@ -176,7 +194,7 @@ same 72 native UTF-8 byte-limit workflows and reports time per language. Use it
 under the serial/resource-safe scope above to diagnose discarded long-draft
 decoder work; timing is diagnostic, not a new or relaxed acceptance threshold.
 The ordinary full gate still runs these cases under its unchanged 120-second
-session deadline. `python3 scripts/test-native-model-fixture.py` checks the
+session deadline. `python3 -B scripts/run-ast-guard.py test-native-model-fixture.py` checks the
 isolated HTTP fixture without GI, native processes or networking: explicit gates
 own Pending/Ready, ungated replies retain their 80ms delay, and cancellation,
 error responses and five-second gate limits stay intact. Stable-negative
@@ -325,7 +343,7 @@ regression (24 profile/language/draft/lock combinations, two long Unicode drafts
 full IBus modes include it. Twelve additional word/sentence workflows cover both profiles,
 both directions and a mixed `API。nihao` prefix, then numeric adoption, exact undo, Space,
 Alt+7, ordinary deletion and exactly one final commit. Run
-`python3 -B scripts/test-language-workflow-coverage.py` for the independent static guard:
+`python3 -B scripts/run-ast-guard.py test-language-workflow-coverage.py` for the independent static guard:
 it freezes the old matrices/shared helpers and only permits the two appended workflow calls.
 This guard is not native execution; private protocol probes are not physical-keyboard acceptance.
 The focused language gate and full core gate additionally run four fixed held-adoption
@@ -336,7 +354,7 @@ repeats, exact disk/context guards, different undo lifetimes, matching physical-
 Space continuity and one explicit commit. Boundary checks take fresh host snapshots before
 and after the gesture and retain complete-frame/revision equality. This prevents delayed
 acknowledgement frames on separate sockets from masquerading as key-induced changes.
-Run `python3 -B scripts/test-held-language-coverage.py` for the independent source-only guard:
+Run `python3 -B scripts/run-ast-guard.py test-held-language-coverage.py` for the independent source-only guard:
 it restores the complete prior native source by removing the two held helpers and three exact
 adjacent calls, plus the separately enumerated later custom-language additions; it freezes
 old matrices/worker/runner and permits only the status-render fix.
@@ -744,7 +762,7 @@ snapshots, deliberate moves, adoption undo, Space and exact single application c
 and lock indicators must remain unchanged. The private row-boundary gate
 `SUZAKU_NATIVE_ROW_BOUNDARIES_ONLY=1 bash scripts/test-linux-ci.sh ibus` appends 24 fixed
 six-alias/profile/language cases; the old row/paging/hold/multilingual matrices stay intact.
-`python3 -B scripts/test-keypad-navigation-coverage.py` checks that additive structure and
+`python3 -B scripts/run-ast-guard.py test-keypad-navigation-coverage.py` checks that additive structure and
 after-Compose C dispatch, not actual input execution. Neither new gate qualifies physical hardware,
 all Compose tables, all keypad keys, an installed version or native Wayland.
 Run `SUZAKU_KEYBOARD_CUSTOM_SHORTCUTS_ONLY=1 bash scripts/test-linux-apps.sh keyboard`

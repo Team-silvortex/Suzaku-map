@@ -110,17 +110,19 @@ jobs:
       - name: Test private IBus diagnostic isolation and failure propagation
         run: python3 scripts/test-native-ibus-trace.py
       - name: Test controlled native model replies and unchanged timing guards
-        run: python3 scripts/test-native-model-fixture.py
+        run: |
+          python3 -B scripts/test-ast-guard.py
+          python3 -B scripts/run-ast-guard.py test-native-model-fixture.py
       - name: Test appended language and keypad workflow guards
         run: |
-          python3 -B scripts/test-language-workflow-coverage.py
-          python3 -B scripts/test-keypad-navigation-coverage.py
-          python3 -B scripts/test-held-language-coverage.py
+          python3 -B scripts/run-ast-guard.py test-language-workflow-coverage.py
+          python3 -B scripts/run-ast-guard.py test-keypad-navigation-coverage.py
+          python3 -B scripts/run-ast-guard.py test-held-language-coverage.py
           python3 -B scripts/test-custom-language-coverage.py
           python3 -B scripts/test-custom-boundary-coverage.py
           python3 -B scripts/test-custom-continuation-coverage.py
       - name: Test complete vocabulary partitions and unchanged physical assertions
-        run: python3 -B scripts/test-vocabulary-partitions.py
+        run: python3 -B scripts/run-ast-guard.py test-vocabulary-partitions.py
       - name: Test final native probe unsubscribe and close ordering
         run: python3 scripts/test-native-probe-teardown.py
       - name: Test bounded custom shortcut parsing and native adapter guards
