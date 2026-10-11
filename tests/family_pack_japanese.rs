@@ -292,8 +292,8 @@ fn family_catalog_is_optional_and_does_not_change_uninstalled_builtin() {
                 24
             );
             let builtin = lexicon::builtin("ja").unwrap();
-            assert_eq!(builtin.readings().len(), 202);
-            assert_eq!(builtin.continuations().count(), 102);
+            assert_eq!(builtin.readings().len(), 314);
+            assert_eq!(builtin.continuations().count(), 158);
             assert!(
                 WORDS
                     .iter()

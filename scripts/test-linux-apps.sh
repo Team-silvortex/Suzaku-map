@@ -105,16 +105,16 @@ for suzaku_apps_binary in "${suzaku_apps_binaries[@]}"; do
   test -x "$suzaku_apps_bins/$suzaku_apps_binary"
 done
 # Keep the growing full vocabulary gate within the unchanged per-session
-# deadline. Build once above, then run both mixed-language partitions with
-# independent displays/buses/configuration; each includes EN/ZH/JA, and neither
-# part is the complete gate.
+# deadline. Build once above, then run three mixed-language partitions with
+# independent displays/buses/configuration; each includes EN/ZH/JA, and no
+# single part is the complete gate.
 if [[ $suzaku_apps_suite == vocabulary && ${SUZAKU_VOCABULARY_QA_SCOPE-all} == all ]]; then
-  for suzaku_apps_part in part-1 part-2; do
+  for suzaku_apps_part in part-1 part-2 part-3; do
     env SUZAKU_APP_QA_BIN_DIR="$suzaku_apps_bins" \
       SUZAKU_VOCABULARY_QA_SCOPE="$suzaku_apps_part" \
       bash "$suzaku_apps_root/scripts/test-linux-apps.sh" vocabulary
   done
-  printf 'PASS: complete vocabulary scope=all; both mixed-language parts passed.\n'
+  printf 'PASS: complete vocabulary scope=all; all three mixed-language parts passed.\n'
   exit 0
 fi
 suzaku_apps_tmp=$(mktemp -d /tmp/suzaku-app-qa.XXXXXX)

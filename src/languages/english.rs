@@ -666,7 +666,7 @@ mod tests {
     use super::*;
 
     // Current total, independent of the immutable per-layer historical baselines.
-    const EXPECTED_DICTIONARY_WORDS: usize = 6134;
+    const EXPECTED_DICTIONARY_WORDS: usize = 6139;
 
     fn layer_words(id: &str) -> impl Iterator<Item = &'static str> {
         vocabulary()
@@ -1976,8 +1976,8 @@ mod tests {
                 "unreachable sentence: {sentence}"
             );
         }
-        assert_eq!(keys.len(), 577);
-        assert_eq!(sentences.len(), 1118);
+        assert_eq!(keys.len(), 657);
+        assert_eq!(sentences.len(), 1278);
     }
 
     #[test]

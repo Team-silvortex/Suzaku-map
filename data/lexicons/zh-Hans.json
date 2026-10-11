@@ -2593,7 +2593,231 @@
     {"reading": "zai'shuo'de'xiang'xi'yi'dian", "text": "再说得详细一点", "kind": "word"},
     {"reading": "shuo'de'jian'dan'yi'dian", "text": "说得简单一点", "kind": "word"},
     {"reading": "jie'shi'yi'xia'yuan'yin", "text": "解释一下原因", "kind": "word"},
-    {"reading": "neng'bu'neng'xiang'xi'shuo'shuo", "text": "能不能详细说说", "kind": "word"}
+    {"reading": "neng'bu'neng'xiang'xi'shuo'shuo", "text": "能不能详细说说", "kind": "word"},
+    {"reading": "xie'xie'ni'bang'mang", "text": "谢谢你帮忙", "kind": "word"},
+    {"reading": "xie'xie'ni'ti'xing'wo", "text": "谢谢你提醒我", "kind": "word"},
+    {"reading": "xie'xie'ni'deng'wo", "text": "谢谢你等我", "kind": "word"},
+    {"reading": "xie'xie'ni'pei'wo", "text": "谢谢你陪我", "kind": "word"},
+    {"reading": "xie'xie'ni'li'jie", "text": "谢谢你理解", "kind": "word"},
+    {"reading": "gan'xie'ni'de'nai'xin", "text": "感谢你的耐心", "kind": "word"},
+    {"reading": "gan'xie'ni'de'zhi'chi", "text": "感谢你的支持", "kind": "word"},
+    {"reading": "duo'kui'ni'bang'mang", "text": "多亏你帮忙", "kind": "word"},
+    {"reading": "zhen'shi'bang'le'da'mang", "text": "真是帮了大忙", "kind": "word"},
+    {"reading": "rang'ni'fei'xin'le", "text": "让你费心了", "kind": "word"},
+    {"reading": "you'ni'bang'mang'zhen'hao", "text": "有你帮忙真好", "kind": "word"},
+    {"reading": "zhe'ci'duo'xie'ni'le", "text": "这次多谢你了", "kind": "word"},
+    {"reading": "bao'qian'lai'wan'le", "text": "抱歉来晚了", "kind": "word"},
+    {"reading": "bao'qian'rang'ni'deng'le", "text": "抱歉让你等了", "kind": "word"},
+    {"reading": "bao'qian'mei'shuo'qing'chu", "text": "抱歉没说清楚", "kind": "word"},
+    {"reading": "bao'qian'gang'cai'da'duan'ni", "text": "抱歉刚才打断你", "kind": "word"},
+    {"reading": "bu'hao'yi'si'da'rao'ni", "text": "不好意思打扰你", "kind": "word"},
+    {"reading": "bu'hao'yi'si'ma'fan'ni", "text": "不好意思麻烦你", "kind": "word"},
+    {"reading": "gang'cai'shi'wo'shu'hu'le", "text": "刚才是我疏忽了", "kind": "word"},
+    {"reading": "shi'wo'kao'lv'bu'zhou", "text": "是我考虑不周", "kind": "word"},
+    {"reading": "zhe'ci'shi'wo'de'wen'ti", "text": "这次是我的问题", "kind": "word"},
+    {"reading": "wo'hui'zhu'yi'de", "text": "我会注意的", "kind": "word"},
+    {"reading": "qing'ni'duo'bao'han", "text": "请你多包涵", "kind": "word"},
+    {"reading": "rang'ni'dan'xin'le", "text": "让你担心了", "kind": "word"},
+    {"reading": "ma'fan'bang'wo'kan'yi'xia", "text": "麻烦帮我看一下", "kind": "word"},
+    {"reading": "ma'fan'bang'wo'di'yi'xia", "text": "麻烦帮我递一下", "kind": "word"},
+    {"reading": "ma'fan'zai'shuo'man'yi'dian", "text": "麻烦再说慢一点", "kind": "word"},
+    {"reading": "ma'fan'shao'deng'pian'ke", "text": "麻烦稍等片刻", "kind": "word"},
+    {"reading": "neng'qing'ni'bang'ge'mang'ma", "text": "能请你帮个忙吗", "kind": "word"},
+    {"reading": "fang'bian'de'hua'bang'wo'yi'xia", "text": "方便的话帮我一下", "kind": "word"},
+    {"reading": "qing'bang'wo'liu'yi'yi'xia", "text": "请帮我留意一下", "kind": "word"},
+    {"reading": "qing'jie'wo'yong'yi'xia", "text": "请借我用一下", "kind": "word"},
+    {"reading": "qing'wen'ke'yi'zuo'zhe'li'ma", "text": "请问可以坐这里吗", "kind": "word"},
+    {"reading": "qing'wen'xian'zai'fang'bian'ma", "text": "请问现在方便吗", "kind": "word"},
+    {"reading": "lao'fan'ni'que'ren'yi'xia", "text": "劳烦你确认一下", "kind": "word"},
+    {"reading": "ke'yi'rang'wo'xian'guo'ma", "text": "可以让我先过吗", "kind": "word"},
+    {"reading": "bu'yong'xie'wo", "text": "不用谢我", "kind": "word"},
+    {"reading": "bu'yong'fang'zai'xin'shang", "text": "不用放在心上", "kind": "word"},
+    {"reading": "yi'dian'xiao'shi'er'yi", "text": "一点小事而已", "kind": "word"},
+    {"reading": "neng'bang'dao'ni'jiu'hao", "text": "能帮到你就好", "kind": "word"},
+    {"reading": "da'jia'hu'xiang'bang'mang", "text": "大家互相帮忙", "kind": "word"},
+    {"reading": "ni'tai'ke'qi'le", "text": "你太客气了", "kind": "word"},
+    {"reading": "mei'shi'bie'dan'xin", "text": "没事别担心", "kind": "word"},
+    {"reading": "wo'mei'you'jie'yi", "text": "我没有介意", "kind": "word"},
+    {"reading": "bu'bi'zhe'me'jian'wai", "text": "不必这么见外", "kind": "word"},
+    {"reading": "xia'ci'zhu'yi'jiu'hao", "text": "下次注意就好", "kind": "word"},
+    {"reading": "wo'li'jie'ni'de'nan'chu", "text": "我理解你的难处", "kind": "word"},
+    {"reading": "xie'xie'ni'yuan'yi'bang'mang", "text": "谢谢你愿意帮忙", "kind": "word"},
+    {"reading": "men'kou", "text": "门口", "kind": "word"},
+    {"reading": "dui'mian", "text": "对面", "kind": "word"},
+    {"reading": "zuo'bian", "text": "左边", "kind": "word"},
+    {"reading": "you'bian", "text": "右边", "kind": "word"},
+    {"reading": "qian'mian", "text": "前面", "kind": "word"},
+    {"reading": "hou'mian", "text": "后面", "kind": "word"},
+    {"reading": "li'mian", "text": "里面", "kind": "word"},
+    {"reading": "wai'mian", "text": "外面", "kind": "word"},
+    {"reading": "zhe'bian", "text": "这边", "kind": "word"},
+    {"reading": "na'bian", "text": "那边", "kind": "word"},
+    {"reading": "xie'dui'mian", "text": "斜对面", "kind": "word"},
+    {"reading": "guai'jiao", "text": "拐角", "kind": "word"},
+    {"reading": "zhuan'jiao", "text": "转角", "kind": "word"},
+    {"reading": "wang'zuo", "text": "往左", "kind": "word"},
+    {"reading": "wang'you", "text": "往右", "kind": "word"},
+    {"reading": "zou'guo'tou'le", "text": "走过头了", "kind": "word"},
+    {"reading": "zou'cuo'lu'le", "text": "走错路了", "kind": "word"},
+    {"reading": "zai'na'li", "text": "在哪里", "kind": "word"},
+    {"reading": "ni'zai'na'li", "text": "你在哪里", "kind": "word"},
+    {"reading": "wo'zai'zhe'li", "text": "我在这里", "kind": "word"},
+    {"reading": "wo'zai'lou'xia", "text": "我在楼下", "kind": "word"},
+    {"reading": "wo'zai'men'kou", "text": "我在门口", "kind": "word"},
+    {"reading": "ni'zai'ji'lou", "text": "你在几楼", "kind": "word"},
+    {"reading": "wo'kan'jian'ni'le", "text": "我看见你了", "kind": "word"},
+    {"reading": "zai'ru'kou'deng'ni", "text": "在入口等你", "kind": "word"},
+    {"reading": "zai'chu'kou'deng'ni", "text": "在出口等你", "kind": "word"},
+    {"reading": "zan'men'zai'na'er'jian", "text": "咱们在哪儿见", "kind": "word"},
+    {"reading": "huan'ge'di'fang'jian", "text": "换个地方见", "kind": "word"},
+    {"reading": "zai'lu'kou'peng'mian", "text": "在路口碰面", "kind": "word"},
+    {"reading": "cong'na'bian'jin'qu", "text": "从哪边进去", "kind": "word"},
+    {"reading": "cong'zhe'bian'zou", "text": "从这边走", "kind": "word"},
+    {"reading": "rao'dao'hou'mian", "text": "绕到后面", "kind": "word"},
+    {"reading": "wang'qian'zou'yi'dian", "text": "往前走一点", "kind": "word"},
+    {"reading": "li'zhe'li'yuan'ma", "text": "离这里远吗", "kind": "word"},
+    {"reading": "li'zhe'li'bu'yuan", "text": "离这里不远", "kind": "word"},
+    {"reading": "jiu'zai'qian'mian", "text": "就在前面", "kind": "word"},
+    {"reading": "xian'bie'zou'kai", "text": "先别走开", "kind": "word"},
+    {"reading": "deng'wo'guo'qu", "text": "等我过去", "kind": "word"},
+    {"reading": "wo'lai'zhao'ni", "text": "我来找你", "kind": "word"},
+    {"reading": "ni'guo'lai'zhao'wo", "text": "你过来找我", "kind": "word"},
+    {"reading": "wo'guo'qu'jie'ni", "text": "我过去接你", "kind": "word"},
+    {"reading": "wo'hai'mei'zhao'dao", "text": "我还没找到", "kind": "word"},
+    {"reading": "bei'bian", "text": "北边", "kind": "word"},
+    {"reading": "nan'bian", "text": "南边", "kind": "word"},
+    {"reading": "dong'bian", "text": "东边", "kind": "word"},
+    {"reading": "xi'bian", "text": "西边", "kind": "word"},
+    {"reading": "lu'bian", "text": "路边", "kind": "word"},
+    {"reading": "tong'yi'ce", "text": "同一侧", "kind": "word"},
+    {"reading": "lai'de'ji'ma", "text": "来得及吗", "kind": "word"},
+    {"reading": "hai'lai'de'ji", "text": "还来得及", "kind": "word"},
+    {"reading": "lai'de'ji'gan'guo'qu'ma", "text": "来得及赶过去吗", "kind": "word"},
+    {"reading": "hai'you'duo'jiu", "text": "还有多久", "kind": "word"},
+    {"reading": "hai'yao'duo'jiu", "text": "还要多久", "kind": "word"},
+    {"reading": "da'gai'ji'dian'dao", "text": "大概几点到", "kind": "word"},
+    {"reading": "wan'ji'fen'zhong", "text": "晚几分钟", "kind": "word"},
+    {"reading": "zao'ji'fen'zhong", "text": "早几分钟", "kind": "word"},
+    {"reading": "zai'deng'yi'hui", "text": "再等一会", "kind": "word"},
+    {"reading": "neng'zai'deng'yi'hui'er'ma", "text": "能再等一会儿吗", "kind": "word"},
+    {"reading": "wo'zai'deng'yi'hui'er", "text": "我再等一会儿", "kind": "word"},
+    {"reading": "bie'deng'tai'jiu", "text": "别等太久", "kind": "word"},
+    {"reading": "hai'yao'deng'yi'hui'er", "text": "还要等一会儿", "kind": "word"},
+    {"reading": "kuai'lun'dao'wo'le", "text": "快轮到我了", "kind": "word"},
+    {"reading": "shen'me'shi'hou'kai'shi", "text": "什么时候开始", "kind": "word"},
+    {"reading": "shen'me'shi'hou'jie'shu", "text": "什么时候结束", "kind": "word"},
+    {"reading": "ji'dian'neng'dao", "text": "几点能到", "kind": "word"},
+    {"reading": "xian'zai'chu'fa'ma", "text": "现在出发吗", "kind": "word"},
+    {"reading": "wo'men'wan'dian'chu'fa", "text": "我们晚点出发", "kind": "word"},
+    {"reading": "neng'ti'qian'yi'dian'ma", "text": "能提前一点吗", "kind": "word"},
+    {"reading": "neng'tui'chi'yi'dian'ma", "text": "能推迟一点吗", "kind": "word"},
+    {"reading": "neng'gai'dao'ming'tian'ma", "text": "能改到明天吗", "kind": "word"},
+    {"reading": "huan'ge'shi'jian'jian", "text": "换个时间见", "kind": "word"},
+    {"reading": "huan'dao'xia'wu'ba", "text": "换到下午吧", "kind": "word"},
+    {"reading": "gai'dao'zhou'mo'ba", "text": "改到周末吧", "kind": "word"},
+    {"reading": "wang'hou'nuo'yi'dian", "text": "往后挪一点", "kind": "word"},
+    {"reading": "xian'ba'shi'jian'ding'xia'lai", "text": "先把时间定下来", "kind": "word"},
+    {"reading": "ding'hao'shi'jian'gao'su'wo", "text": "定好时间告诉我", "kind": "word"},
+    {"reading": "dao'shi'hou'ti'xing'wo", "text": "到时候提醒我", "kind": "word"},
+    {"reading": "ti'xing'wo'yi'xia", "text": "提醒我一下", "kind": "word"},
+    {"reading": "bie'wang'le'shi'jian", "text": "别忘了时间", "kind": "word"},
+    {"reading": "shi'jian'hai'mei'ding", "text": "时间还没定", "kind": "word"},
+    {"reading": "hai'neng'pian'yi'yi'dian'ma", "text": "还能便宜一点吗", "kind": "word"},
+    {"reading": "neng'shao'yi'dian'ma", "text": "能少一点吗", "kind": "word"},
+    {"reading": "you'you'hui'ma", "text": "有优惠吗", "kind": "word"},
+    {"reading": "zhe'jian'da'zhe'ma", "text": "这件打折吗", "kind": "word"},
+    {"reading": "ke'yi'shi'yi'xia'ma", "text": "可以试一下吗", "kind": "word"},
+    {"reading": "you'da'yi'hao'de'ma", "text": "有大一号的吗", "kind": "word"},
+    {"reading": "you'xiao'yi'hao'de'ma", "text": "有小一号的吗", "kind": "word"},
+    {"reading": "hai'you'bie'de'yan'se'ma", "text": "还有别的颜色吗", "kind": "word"},
+    {"reading": "zhe'jian'hai'you'huo'ma", "text": "这件还有货吗", "kind": "word"},
+    {"reading": "shen'me'shi'hou'bu'huo", "text": "什么时候补货", "kind": "word"},
+    {"reading": "wo'xiang'tui'yi'xia", "text": "我想退一下", "kind": "word"},
+    {"reading": "ke'yi'huan'yi'xia'ma", "text": "可以换一下吗", "kind": "word"},
+    {"reading": "neng'huan'ge'chi'ma'ma", "text": "能换个尺码吗", "kind": "word"},
+    {"reading": "tui'huo'zen'me'chu'li", "text": "退货怎么处理", "kind": "word"},
+    {"reading": "xiao'piao'hai'zai", "text": "小票还在", "kind": "word"},
+    {"reading": "xu'yao'liu'xiao'piao'ma", "text": "需要留小票吗", "kind": "word"},
+    {"reading": "ke'yi'sao'ma'ma", "text": "可以扫码吗", "kind": "word"},
+    {"reading": "neng'shua'ka'ma", "text": "能刷卡吗", "kind": "word"},
+    {"reading": "zhi'chi'xian'jin'ma", "text": "支持现金吗", "kind": "word"},
+    {"reading": "fu'kuan'cheng'gong'le'ma", "text": "付款成功了吗", "kind": "word"},
+    {"reading": "wo'yi'jing'fu'le", "text": "我已经付了", "kind": "word"},
+    {"reading": "bang'wo'kan'yi'xia'jia'ge", "text": "帮我看一下价格", "kind": "word"},
+    {"reading": "zhe'liang'ge'you'shen'me'qu'bie", "text": "这两个有什么区别", "kind": "word"},
+    {"reading": "wo'yao'zhe'yi'jian", "text": "我要这一件", "kind": "word"},
+    {"reading": "xian'bu'mai'le", "text": "先不买了", "kind": "word"},
+    {"reading": "wo'zai'bi'jiao'yi'xia", "text": "我再比较一下", "kind": "word"},
+    {"reading": "xian'bang'wo'liu'zhe", "text": "先帮我留着", "kind": "word"},
+    {"reading": "neng'song'dao'jia'ma", "text": "能送到家吗", "kind": "word"},
+    {"reading": "yun'fei'zen'me'suan", "text": "运费怎么算", "kind": "word"},
+    {"reading": "yi'gong'yao'duo'shao'qian", "text": "一共要多少钱", "kind": "word"},
+    {"reading": "bao'zhuang'neng'jian'dan'yi'dian'ma", "text": "包装能简单一点吗", "kind": "word"},
+    {"reading": "bang'wo'zhuang'dai", "text": "帮我装袋", "kind": "word"},
+    {"reading": "wang'na'bian'zuo'che", "text": "往哪边坐车", "kind": "word"},
+    {"reading": "zuo'na'yi'lu", "text": "坐哪一路", "kind": "word"},
+    {"reading": "zhe'tang'che'dao'na'li", "text": "这趟车到哪里", "kind": "word"},
+    {"reading": "zhe'tang'che'qu'shi'zhong'xin'ma", "text": "这趟车去市中心吗", "kind": "word"},
+    {"reading": "yao'huan'cheng'ma", "text": "要换乘吗", "kind": "word"},
+    {"reading": "zai'na'li'huan'cheng", "text": "在哪里换乘", "kind": "word"},
+    {"reading": "xia'yi'zhan'xia'che", "text": "下一站下车", "kind": "word"},
+    {"reading": "dao'zhan'jiao'wo'yi'xia", "text": "到站叫我一下", "kind": "word"},
+    {"reading": "bie'zuo'guo'zhan'le", "text": "别坐过站了", "kind": "word"},
+    {"reading": "wo'zuo'guo'zhan'le", "text": "我坐过站了", "kind": "word"},
+    {"reading": "zhe'zhan'xia'che'ma", "text": "这站下车吗", "kind": "word"},
+    {"reading": "hai'you'ji'zhan'dao", "text": "还有几站到", "kind": "word"},
+    {"reading": "zai'na'yi'zhan'xia", "text": "在哪一站下", "kind": "word"},
+    {"reading": "mo'ban'che'ji'dian", "text": "末班车几点", "kind": "word"},
+    {"reading": "shou'ban'che'ji'dian", "text": "首班车几点", "kind": "word"},
+    {"reading": "che'piao'zen'me'mai", "text": "车票怎么买", "kind": "word"},
+    {"reading": "neng'mai'dan'cheng'piao'ma", "text": "能买单程票吗", "kind": "word"},
+    {"reading": "neng'mai'wang'fan'piao'ma", "text": "能买往返票吗", "kind": "word"},
+    {"reading": "piao'mai'hao'le'ma", "text": "票买好了吗", "kind": "word"},
+    {"reading": "wo'hai'mei'mai'piao", "text": "我还没买票", "kind": "word"},
+    {"reading": "xu'yao'ti'qian'mai'piao'ma", "text": "需要提前买票吗", "kind": "word"},
+    {"reading": "zai'na'ge'zhan'tai", "text": "在哪个站台", "kind": "word"},
+    {"reading": "qu'na'ge'zhan'tai", "text": "去哪个站台", "kind": "word"},
+    {"reading": "zhan'tai'zai'zhe'bian'ma", "text": "站台在这边吗", "kind": "word"},
+    {"reading": "jian'piao'kou'zai'na'li", "text": "检票口在哪里", "kind": "word"},
+    {"reading": "shen'me'shi'hou'jian'piao", "text": "什么时候检票", "kind": "word"},
+    {"reading": "xian'zai'neng'shang'che'ma", "text": "现在能上车吗", "kind": "word"},
+    {"reading": "zhe'bian'neng'shang'che'ma", "text": "这边能上车吗", "kind": "word"},
+    {"reading": "xian'xia'hou'shang", "text": "先下后上", "kind": "word"},
+    {"reading": "qing'wang'li'mian'zou", "text": "请往里面走", "kind": "word"},
+    {"reading": "xing'li'fang'zai'na'li", "text": "行李放在哪里", "kind": "word"},
+    {"reading": "che'lai'le'jiao'wo", "text": "车来了叫我", "kind": "word"},
+    {"reading": "ni'neng'ting'qing'ma", "text": "你能听清吗", "kind": "word"},
+    {"reading": "wo'ting'de'qing", "text": "我听得清", "kind": "word"},
+    {"reading": "ting'qi'lai'duan'duan'xu'xu", "text": "听起来断断续续", "kind": "word"},
+    {"reading": "sheng'yin'hu'da'hu'xiao", "text": "声音忽大忽小", "kind": "word"},
+    {"reading": "gang'cai'mei'ting'qing", "text": "刚才没听清", "kind": "word"},
+    {"reading": "zai'shuo'man'yi'dian", "text": "再说慢一点", "kind": "word"},
+    {"reading": "li'mai'ke'feng'jin'yi'dian", "text": "离麦克风近一点", "kind": "word"},
+    {"reading": "ni'na'bian'you'hui'sheng", "text": "你那边有回声", "kind": "word"},
+    {"reading": "xian'guan'yi'xia'mai'ke'feng", "text": "先关一下麦克风", "kind": "word"},
+    {"reading": "neng'kai'yi'xia'sheng'yin'ma", "text": "能开一下声音吗", "kind": "word"},
+    {"reading": "wo'ba'sheng'yin'tiao'da'yi'dian", "text": "我把声音调大一点", "kind": "word"},
+    {"reading": "wo'men'chong'xin'bo'yi'xia", "text": "我们重新拨一下", "kind": "word"},
+    {"reading": "dian'hua'tu'ran'duan'le", "text": "电话突然断了", "kind": "word"},
+    {"reading": "wo'zai'da'guo'qu", "text": "我再打过去", "kind": "word"},
+    {"reading": "fang'bian'jie'dian'hua'ma", "text": "方便接电话吗", "kind": "word"},
+    {"reading": "xian'zai'bu'fang'bian'jie", "text": "现在不方便接", "kind": "word"},
+    {"reading": "deng'xia'gei'ni'hui'dian'hua", "text": "等下给你回电话", "kind": "word"},
+    {"reading": "ni'xian'bie'gua", "text": "你先别挂", "kind": "word"},
+    {"reading": "xin'hao'bu'tai'wen'ding", "text": "信号不太稳定", "kind": "word"},
+    {"reading": "wang'luo'you'dian'man", "text": "网络有点慢", "kind": "word"},
+    {"reading": "ke'neng'shi'wang'luo'wen'ti", "text": "可能是网络问题", "kind": "word"},
+    {"reading": "xian'jian'cha'yi'xia'wang'luo", "text": "先检查一下网络", "kind": "word"},
+    {"reading": "lian'shang'wang'luo'le'ma", "text": "连上网络了吗", "kind": "word"},
+    {"reading": "shi'zhe'chong'xin'lian'jie", "text": "试着重新连接", "kind": "word"},
+    {"reading": "huan'ge'wang'luo'shi'shi", "text": "换个网络试试", "kind": "word"},
+    {"reading": "wo'fa'xiao'xi'gei'ni", "text": "我发消息给你", "kind": "word"},
+    {"reading": "xiao'xi'fa'chu'qu'le'ma", "text": "消息发出去了吗", "kind": "word"},
+    {"reading": "xiao'xi'hai'mei'fa'chu'qu", "text": "消息还没发出去", "kind": "word"},
+    {"reading": "shou'dao'le'jiu'hui'wo'yi'xia", "text": "收到了就回我一下", "kind": "word"},
+    {"reading": "lian'xi'shang'le'ma", "text": "联系上了吗", "kind": "word"},
+    {"reading": "wo'hai'mei'lian'xi'shang", "text": "我还没联系上", "kind": "word"},
+    {"reading": "huan'ge'fang'shi'lian'xi", "text": "换个方式联系", "kind": "word"}
   ],
   "continuations": [
     [
@@ -6589,6 +6813,566 @@
       [
         "我说清楚了吗，要不要再举个例子？",
         "我说清楚了吗，你可以用自己的话说说。"
+      ]
+    ],
+    [
+      "谢谢你帮忙",
+      [
+        "谢谢你帮忙确认时间。",
+        "谢谢你帮忙，剩下的我来处理。"
+      ]
+    ],
+    [
+      "谢谢你等我",
+      [
+        "谢谢你等我，我们现在就出发吧。",
+        "谢谢你等我，让你久等了。"
+      ]
+    ],
+    [
+      "感谢你的耐心",
+      [
+        "感谢你的耐心，我再整理一下思路。",
+        "感谢你的耐心，我们慢慢把话说清楚。"
+      ]
+    ],
+    [
+      "多亏你帮忙",
+      [
+        "多亏你帮忙，这件事顺利多了。",
+        "多亏你帮忙提醒，我才及时想起来。"
+      ]
+    ],
+    [
+      "抱歉来晚了",
+      [
+        "抱歉来晚了，路上耽搁了一会儿。",
+        "抱歉来晚了，我们现在开始吧。"
+      ]
+    ],
+    [
+      "抱歉没说清楚",
+      [
+        "抱歉没说清楚，我重新说明一下。",
+        "抱歉没说清楚，让你理解错了。"
+      ]
+    ],
+    [
+      "刚才是我疏忽了",
+      [
+        "刚才是我疏忽了，我现在补上。",
+        "刚才是我疏忽了，谢谢你及时提醒。"
+      ]
+    ],
+    [
+      "让你担心了",
+      [
+        "让你担心了，我这边已经没事了。",
+        "让你担心了，我应该早点告诉你。"
+      ]
+    ],
+    [
+      "能请你帮个忙吗",
+      [
+        "能请你帮个忙吗，我想再确认一下。",
+        "能请你帮个忙吗，帮我拿一下这个袋子。"
+      ]
+    ],
+    [
+      "请帮我留意一下",
+      [
+        "请帮我留意一下时间，快到了就提醒我。",
+        "请帮我留意一下，有消息再告诉我。"
+      ]
+    ],
+    [
+      "请借我用一下",
+      [
+        "请借我用一下，我马上就还给你。",
+        "请借我用一下，我的暂时找不到了。"
+      ]
+    ],
+    [
+      "请问现在方便吗",
+      [
+        "请问现在方便吗，我有件事想请教你。",
+        "请问现在方便吗，不方便的话我晚点再来。"
+      ]
+    ],
+    [
+      "不用放在心上",
+      [
+        "不用放在心上，事情已经说清楚了。",
+        "不用放在心上，下次记得就好。"
+      ]
+    ],
+    [
+      "能帮到你就好",
+      [
+        "能帮到你就好，下次有需要再说。",
+        "能帮到你就好，这点事不用客气。"
+      ]
+    ],
+    [
+      "没事别担心",
+      [
+        "没事别担心，我们慢慢处理。",
+        "没事别担心，我没有放在心上。"
+      ]
+    ],
+    [
+      "我理解你的难处",
+      [
+        "我理解你的难处，我们再想个办法。",
+        "我理解你的难处，你不用急着回答。"
+      ]
+    ],
+    [
+      "门口",
+      [
+        "门口有张长椅，可以在那里等。",
+        "门口见吧，到了说一声。"
+      ]
+    ],
+    [
+      "对面",
+      [
+        "对面就是我们要找的地方。",
+        "对面有个路牌，我们在那里碰面。"
+      ]
+    ],
+    [
+      "左边",
+      [
+        "左边有个入口，先看看标牌。",
+        "左边那条路我还没走过。"
+      ]
+    ],
+    [
+      "右边",
+      [
+        "右边是楼梯，我们从那里上去。",
+        "右边有个空位，你坐那里吧。"
+      ]
+    ],
+    [
+      "走过头了",
+      [
+        "走过头了，我们回刚才的路口看看。",
+        "走过头了，难怪一直没看见入口。"
+      ]
+    ],
+    [
+      "走错路了",
+      [
+        "走错路了，我们先停下来问问。",
+        "走错路了，换条路再试试。"
+      ]
+    ],
+    [
+      "从哪边进去",
+      [
+        "从哪边进去比较方便？",
+        "从哪边进去，我们先看一下指示牌。"
+      ]
+    ],
+    [
+      "往前走一点",
+      [
+        "往前走一点，就能看到那个路口。",
+        "往前走一点，我们在路牌旁边等。"
+      ]
+    ],
+    [
+      "我在楼下",
+      [
+        "我在楼下入口等你。",
+        "我在楼下，你慢慢下来就好。"
+      ]
+    ],
+    [
+      "我在门口",
+      [
+        "我在门口等你，你慢慢来。",
+        "我在门口，到了叫我一声。"
+      ]
+    ],
+    [
+      "你在几楼",
+      [
+        "你在几楼，我上去找你。",
+        "你在几楼，我们先确认一下。"
+      ]
+    ],
+    [
+      "在路口碰面",
+      [
+        "在路口碰面吧，那里比较好找。",
+        "在路口碰面，到了互相说一声。"
+      ]
+    ],
+    [
+      "离这里远吗",
+      [
+        "离这里远吗，走路能到吗？",
+        "离这里远吗，我们先问清楚再走。"
+      ]
+    ],
+    [
+      "等我过去",
+      [
+        "等我过去，我们再一起进去。",
+        "等我过去，你先在原处等一下。"
+      ]
+    ],
+    [
+      "我来找你",
+      [
+        "我来找你，你先别走开。",
+        "我来找你之前，先跟你说一声。"
+      ]
+    ],
+    [
+      "我还没找到",
+      [
+        "我还没找到出口，可能得再问一下。",
+        "我还没找到，你能说得具体一点吗？"
+      ]
+    ],
+    [
+      "来得及吗",
+      [
+        "来得及吗？我们现在就准备出门。",
+        "来得及吗？不行就换个时间。"
+      ]
+    ],
+    [
+      "还有多久",
+      [
+        "还有多久开始？我先去倒杯水。",
+        "还有多久，我们先问清楚再走。"
+      ]
+    ],
+    [
+      "晚几分钟",
+      [
+        "晚几分钟也没关系，路上别着急。",
+        "晚几分钟到的话，先告诉我一声。"
+      ]
+    ],
+    [
+      "再等一会",
+      [
+        "再等一会，我快收拾好了。",
+        "再等一会，我们一起出发。"
+      ]
+    ],
+    [
+      "能再等一会儿吗",
+      [
+        "能再等一会儿吗？我马上回来。",
+        "能再等一会儿吗？还有一点没弄好。"
+      ]
+    ],
+    [
+      "大概几点到",
+      [
+        "大概几点到？我好安排时间。",
+        "大概几点到，你方便时告诉我。"
+      ]
+    ],
+    [
+      "能提前一点吗",
+      [
+        "能提前一点吗？我下午有别的安排。",
+        "能提前一点吗？不方便的话就按原来的时间。"
+      ]
+    ],
+    [
+      "能改到明天吗",
+      [
+        "能改到明天吗？今天有点赶。",
+        "能改到明天吗？我确认好时间再回复你。"
+      ]
+    ],
+    [
+      "换个时间见",
+      [
+        "换个时间见吧，选个大家都方便的。",
+        "换个时间见也可以，我们再商量一下。"
+      ]
+    ],
+    [
+      "先把时间定下来",
+      [
+        "先把时间定下来，再安排其他事情。",
+        "先把时间定下来，地点可以晚点确认。"
+      ]
+    ],
+    [
+      "到时候提醒我",
+      [
+        "到时候提醒我带伞，免得又忘了。",
+        "到时候提醒我，我怕忙起来忘了。"
+      ]
+    ],
+    [
+      "提醒我一下",
+      [
+        "提醒我一下出发时间，我怕记错。",
+        "提醒我一下，我就不会忘了。"
+      ]
+    ],
+    [
+      "还能便宜一点吗",
+      [
+        "还能便宜一点吗？可以的话我就买这一件。",
+        "还能便宜一点吗？不方便的话我再看看。"
+      ]
+    ],
+    [
+      "可以试一下吗",
+      [
+        "可以试一下吗？我想确认尺码。",
+        "可以试一下吗？合适的话我就买。"
+      ]
+    ],
+    [
+      "有大一号的吗",
+      [
+        "有大一号的吗？这一件有点紧。",
+        "有大一号的吗？我想穿得宽松一点。"
+      ]
+    ],
+    [
+      "还有别的颜色吗",
+      [
+        "还有别的颜色吗？我想再比较一下。",
+        "还有别的颜色吗？没有的话就要这一件。"
+      ]
+    ],
+    [
+      "这件还有货吗",
+      [
+        "这件还有货吗？我想今天带走。",
+        "这件还有货吗？没有的话我晚点再来。"
+      ]
+    ],
+    [
+      "可以换一下吗",
+      [
+        "可以换一下吗？这件尺码不合适。",
+        "可以换一下吗？我把小票一起带来了。"
+      ]
+    ],
+    [
+      "能换个尺码吗",
+      [
+        "能换个尺码吗？这件有点小。",
+        "能换个尺码吗？不方便的话我就退掉。"
+      ]
+    ],
+    [
+      "可以扫码吗",
+      [
+        "可以扫码吗？我现在付款。",
+        "可以扫码吗？我没有带现金。"
+      ]
+    ],
+    [
+      "付款成功了吗",
+      [
+        "付款成功了吗？麻烦帮我确认一下。",
+        "付款成功了吗？我这边已经显示扣款了。"
+      ]
+    ],
+    [
+      "我再比较一下",
+      [
+        "我再比较一下价格，晚点决定。",
+        "我再比较一下颜色，再选一件合适的。"
+      ]
+    ],
+    [
+      "运费怎么算",
+      [
+        "运费怎么算？我先确认总价。",
+        "运费怎么算？合适的话就送到家。"
+      ]
+    ],
+    [
+      "一共要多少钱",
+      [
+        "一共要多少钱？我现在付。",
+        "一共要多少钱？请把优惠也算进去。"
+      ]
+    ],
+    [
+      "坐哪一路",
+      [
+        "坐哪一路能到医院？先看一下线路。",
+        "坐哪一路，我们先确认再上车。"
+      ]
+    ],
+    [
+      "这趟车到哪里",
+      [
+        "这趟车到哪里？会经过车站吗？",
+        "这趟车到哪里，麻烦告诉我一下。"
+      ]
+    ],
+    [
+      "要换乘吗",
+      [
+        "要换乘吗？我想先确认路线。",
+        "要换乘吗？不换乘的话更方便。"
+      ]
+    ],
+    [
+      "在哪里换乘",
+      [
+        "在哪里换乘？能帮我指一下吗？",
+        "在哪里换乘，我们看清楚再下车。"
+      ]
+    ],
+    [
+      "下一站下车",
+      [
+        "下一站下车，提前把东西拿好。",
+        "下一站下车，我们一起走。"
+      ]
+    ],
+    [
+      "到站叫我一下",
+      [
+        "到站叫我一下，我怕坐过站。",
+        "到站叫我一下，我先闭眼休息一会儿。"
+      ]
+    ],
+    [
+      "还有几站到",
+      [
+        "还有几站到？我先看一下地图。",
+        "还有几站到，麻烦提醒我一声。"
+      ]
+    ],
+    [
+      "车票怎么买",
+      [
+        "车票怎么买比较方便？能在手机上买吗？",
+        "车票怎么买，我们先问清楚。"
+      ]
+    ],
+    [
+      "票买好了吗",
+      [
+        "票买好了吗？我们准备进站。",
+        "票买好了吗？我来确认一下。"
+      ]
+    ],
+    [
+      "在哪个站台",
+      [
+        "在哪个站台候车？我们先过去等。",
+        "在哪个站台，我们再看一下车票。"
+      ]
+    ],
+    [
+      "现在能上车吗",
+      [
+        "现在能上车吗？我已经准备好了。",
+        "现在能上车吗？不能的话就再等一会儿。"
+      ]
+    ],
+    [
+      "行李放在哪里",
+      [
+        "行李放在哪里比较稳妥？",
+        "行李放在哪里？我怕挡住别人。"
+      ]
+    ],
+    [
+      "你能听清吗",
+      [
+        "你能听清吗？我把声音调大一点。",
+        "你能听清吗？听不清的话我们重新拨。"
+      ]
+    ],
+    [
+      "刚才没听清",
+      [
+        "刚才没听清，麻烦再说一遍。",
+        "刚才没听清，你可以说慢一点吗？"
+      ]
+    ],
+    [
+      "我们重新拨一下",
+      [
+        "我们重新拨一下，看看声音会不会好一点。",
+        "我们重新拨一下，这边听着有点断。"
+      ]
+    ],
+    [
+      "方便接电话吗",
+      [
+        "方便接电话吗？我有点事想问你。",
+        "方便接电话吗？不方便的话晚点再聊。"
+      ]
+    ],
+    [
+      "等下给你回电话",
+      [
+        "等下给你回电话，我现在不方便说话。",
+        "等下给你回电话，等我找个安静的地方。"
+      ]
+    ],
+    [
+      "信号不太稳定",
+      [
+        "信号不太稳定，我们先用消息联系。",
+        "信号不太稳定，我换个地方试试。"
+      ]
+    ],
+    [
+      "网络有点慢",
+      [
+        "网络有点慢，我等一下再发。",
+        "网络有点慢，你先别急。"
+      ]
+    ],
+    [
+      "连上网络了吗",
+      [
+        "连上网络了吗？我们再试一次。",
+        "连上网络了吗？没有的话先检查设置。"
+      ]
+    ],
+    [
+      "换个网络试试",
+      [
+        "换个网络试试，看看能不能连上。",
+        "换个网络试试，可能会好一点。"
+      ]
+    ],
+    [
+      "我发消息给你",
+      [
+        "我发消息给你确认一下时间。",
+        "我发消息给你说明一下情况。"
+      ]
+    ],
+    [
+      "收到了就回我一下",
+      [
+        "收到了就回我一下，我好放心。",
+        "收到了就回我一下，不着急。"
+      ]
+    ],
+    [
+      "换个方式联系",
+      [
+        "换个方式联系也可以，选个方便的。",
+        "换个方式联系，免得一直等不到消息。"
       ]
     ]
   ]

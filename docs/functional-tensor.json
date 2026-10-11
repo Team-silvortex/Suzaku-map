@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "date": "2026-10-07",
-    "head": "1bf93e14db17ffee7d5eab07d05035e87a596db7",
+    "date": "2026-10-11",
+    "head": "f93578e351517df0796d879de7be4e85f576b756",
     "dirty": true,
-    "source_sha256": "632fe3334f9f6b2497f4cf523d047e740fc874587b940a2d63672cf939032389",
+    "source_sha256": "e19550b324458e8acbc9b9b02c60e283b09d48fad6ce4af804a48c104c290504",
     "note": "工作区能力盘点；含未提交文件。评分是有边界的人工序数评估，不是质量概率。后续修复执行范围见 E-pointer-preference、E-window-boundary、E-recovery-fixture、E-prose-paging、E-chinese-partial-spacing；词库扩充见 E-daily-objects、E-daily-choices、E-japanese-choices；10-04崩溃及10-07有界sender诊断见E-daemon-abort，探测清理顺序修复见E-daemon-probe，非已确认修复上游根因；当前未提交快照未核验远端 CI 或更新个人安装；源指纹仅覆盖 implementations.paths/tests。"
   },
   "architectures": [
@@ -306,7 +306,13 @@
         "tests/daily_choices_english.rs",
         "tests/daily_followup_english.rs",
         "tests/daily_leisure_english.rs",
-        "tests/daily_clarification_english.rs"
+        "tests/daily_clarification_english.rs",
+        "tests/daily_courtesy_english.rs",
+        "tests/daily_location_english.rs",
+        "tests/daily_time_english.rs",
+        "tests/daily_shopping_english.rs",
+        "tests/daily_transit_english.rs",
+        "tests/daily_contact_english.rs"
       ]
     },
     {
@@ -327,7 +333,13 @@
         "tests/daily_choices_chinese.rs",
         "tests/daily_followup_chinese.rs",
         "tests/daily_leisure_chinese.rs",
-        "tests/daily_clarification_chinese.rs"
+        "tests/daily_clarification_chinese.rs",
+        "tests/daily_courtesy_chinese.rs",
+        "tests/daily_location_chinese.rs",
+        "tests/daily_time_chinese.rs",
+        "tests/daily_shopping_chinese.rs",
+        "tests/daily_transit_chinese.rs",
+        "tests/daily_contact_chinese.rs"
       ]
     },
     {
@@ -347,6 +359,14 @@
         "tests/daily_coordination_japanese.rs",
         "tests/daily_leisure_japanese.rs",
         "tests/daily_clarification_japanese.rs",
+        "tests/daily_courtesy_japanese.rs",
+        "tests/daily_location_japanese.rs",
+        "tests/daily_time_japanese.rs",
+        "tests/daily_shopping_japanese.rs",
+        "tests/daily_transit_japanese.rs",
+        "tests/daily_contact_japanese.rs",
+        "tests/japanese_completion_boundaries.rs",
+        "tests/release_japanese_tail.rs",
         "tests/japanese_sentence_progress.rs",
         "tests/japanese_reading_boundaries.rs",
         "tests/fallback_vocabulary.rs",
@@ -1266,6 +1286,48 @@
   ],
   "evidence": [
     {
+      "id": "E-daily-contact",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "scope": "2026-10-11中英日电话、网络状态与消息联系；有限原创离线fallback",
+      "note": "英文12搭配24句且6139索引净增长零，中文32读音12语境24句，日语16读音8语境16句。独立固定期望先复现缺项，旧25层英文/645搭配/1254句、中文2784读音/639语境、日语298读音/150语境全文内容、标志和顺序及全部旧英文首次排名继续锁定。中文这个/这边/在哪里/neng首屏保留，日语bango保留旧晩ご飯在番号之前，旧kanji/kou/shit候选页序可达；不改模型协议、解码规则、候选容量或6144索引上限。实际回归与隔离GTK/受控HTTP范围见开发记录；不读取通讯录或消息记录，不拨号、发消息、探测或修改网络，不外推实模质量、个人安装、实体键盘或完整原生矩阵，不提升评分。"
+    },
+    {
+      "id": "E-daily-transit",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "scope": "2026-10-11中英日乘车、换乘、站台与车票；有限原创离线fallback",
+      "note": "英文12搭配24句且6139索引净增长零，中文32读音12语境24句，日语16读音8语境16句。固定期望先复现缺项，旧24层英文/633搭配/1230句、中文2752读音/627语境、日语282读音/142语境全文顺序及全部旧英文首次排名继续锁定。歧义bas保留旧場所首屏，新バス句在第二页可选择并精确撤销；joushake保留乗車け默认和旧け补词，词与首句在第一页、次句在第二页，完整拼写两句仍在首屏。英文连续草稿测试使用宿主同类原文seed流程，不误将整词append接口当按键。不改模型协议、解码规则、候选容量或6144索引上限；实际回归和隔离GTK/受控HTTP范围见开发记录。不查询位置、线路、时刻表或票价，不购票，不外推实模质量、个人安装、实体键盘或完整原生矩阵，不提升评分。"
+    },
+    {
+      "id": "E-daily-shopping",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "scope": "2026-10-11中英日购物、价格、尺码、付款与退换货；有限原创离线fallback",
+      "note": "英文12搭配24句且6139索引净增长零，中文32读音12语境24句，日语16读音8语境16句。独立固定期望先复现缺项，旧23层英文/621搭配/1206句、中文2720读音/615语境、日语266读音/134语境全文顺序及全部旧英文首次排名继续锁定。首次完整回归发现新这个前缀挤掉旧首屏词，仅将两条新表达改为自然的这件并先复现新期望缺失，旧测试/排序容量不放宽；歧义比较简拼显式验证后页选择。具体回归和隔离GTK/受控HTTP范围见开发记录；不改模型协议、解码规则、候选容量或6144索引上限。不查询实时价格、读取购买记录或执行支付，不外推实模质量、个人安装、实体键盘或完整原生矩阵，不提升评分。"
+    },
+    {
+      "id": "E-daily-time",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "scope": "2026-10-11中英日时间、等候、改约和时段；有限原创离线fallback",
+      "note": "英文12搭配24句且6139索引净增长零，中文32读音12语境24句，日语16读音8语境16句。固定期望在追加前复现缺项，旧22层英文/609搭配/1182句、中文2688读音/603语境、日语250读音/126语境全文顺序及英文每个首次排名继续保护；具体回归与隔离GTK/受控HTTP范围见开发记录，不改模型协议、解码规则、候选容量或6144索引上限。不接入日历提醒，不外推实模质量、个人安装、实体键盘或完整原生矩阵，不提升成熟度评分。"
+    },
+    {
+      "id": "E-daily-location",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "scope": "2026-10-08中英日位置、方位、找路和碰面；数据与宿主/模型解耦的有限fallback",
+      "note": "英文5高频词形16搭配32句，6134到6139仍守6144上限，所有旧词首次排名不变；中文48读音16语境32句，日语24读音12语境24句。旧21层英文/593搭配/1150句、中文2640读音/587语境、日语226读音/114语境全文顺序锁定。固定测试先复现缺口；courtesy断言限定原固定批次，不修改旧词句/排名/指纹/限额；日语kou旧词优先且交差点后页可达。新下/中央暴露旧句尾误切与重复拆词；共享完整作者句尾保护和深层重拆过滤保留新词及旧同音/页序，不是通用形态分析。所有实际执行与原失败日志见开发记录；不读取位置、不做真实导航，不外推实模质量、个人桌面、完整原生矩阵或安装验收，不提升评分。"
+    },
+    {
+      "id": "E-daily-courtesy",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "scope": "2026-10-08中英日感谢、道歉、礼貌请求与回应；独立数据和固定fallback回归",
+      "note": "英文16搭配32句，净新增索引零且全部6134首次词序保留；中文48读音16语境32句，日语24读音12语境24句。旧20层英文/577搭配/1118句、中文2592读音/571语境、日语202读音/102语境的完整内容顺序另加历史指纹。新增前固定期望并复现缺口；旧首屏、同音、翻页及6144预算不放宽，不改语言算法或模型协议。具体测试、私有GTK和受控HTTP故障执行范围见开发记录；不是实模质量、个人桌面或新安装包验收，不提升评分。"
+    },
+    {
       "id": "E-daily-clarification",
       "kind": "historical_run",
       "paths": ["DEVELOPMENT.md", "docs/functional-network.md", "data/lexicons/README.md"],
@@ -1285,6 +1347,13 @@
       "paths": ["DEVELOPMENT.md", "docs/functional-network.md"],
       "scope": "2026-10-04未完成拼音尾水平空白与词句候选衔接",
       "note": "Chinese partial-reading spacing：七个独立集成测试先得五失败二通过，匹配视图只去除尾水平空白，Exact偏移和原文不变；汉字间距、内部音节、required_separator、引号及竖直边界仍保留。追加模型失败、全推荐包、原生Space/数字采用/撤回/单次提交；具体执行见开发记录，数据、容量、模型协议不变。不外推个人安装或完整原生门禁，不提升评分；偶发daemon崩溃按用户要求暂缓而非已修复。"
+    },
+    {
+      "id": "E-japanese-alias-tail",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/releases/0.8.6.md"],
+      "scope": "2026-10-11日语已支持片假名Word表记的已采用/中段语法尾保护",
+      "note": "八个独立固定测试先得三通过五失败，严格句子比较仅识别当前词库Word别名，沿用最长已知表记而不选择统一同音归一；保留实际采用写法、词句类型、原文、单次提交撤回及七类竖直边界。首轮定向GREEN及后续全量执行见开发记录；数据、排序、上限、模型协议和评分不变，不增加任意片假名反查、整句候选承诺或个人/真实模型/GTK验收。"
     },
     {
       "id": "E-japanese-boundaries",
@@ -1936,6 +2005,12 @@
         2
       ],
       "evidence": [
+        "E-daily-contact",
+        "E-daily-transit",
+        "E-daily-shopping",
+        "E-daily-time",
+        "E-daily-location",
+        "E-daily-courtesy",
         "E-daily-clarification",
         "E-current",
         "E-language",
@@ -1959,6 +2034,12 @@
         2
       ],
       "evidence": [
+        "E-daily-contact",
+        "E-daily-transit",
+        "E-daily-shopping",
+        "E-daily-time",
+        "E-daily-location",
+        "E-daily-courtesy",
         "E-daily-clarification",
         "E-lexicon-index",
         "E-prediction-preservation",
@@ -1984,6 +2065,12 @@
         2
       ],
       "evidence": [
+        "E-daily-contact",
+        "E-daily-transit",
+        "E-daily-shopping",
+        "E-daily-time",
+        "E-daily-location",
+        "E-daily-courtesy",
         "E-daily-clarification",
         "E-lexicon-index",
         "E-chinese-partial-spacing",
@@ -2008,6 +2095,13 @@
         2
       ],
       "evidence": [
+        "E-japanese-alias-tail",
+        "E-daily-contact",
+        "E-daily-transit",
+        "E-daily-shopping",
+        "E-daily-time",
+        "E-daily-location",
+        "E-daily-courtesy",
         "E-daily-clarification",
         "E-japanese-boundaries",
         "E-japanese-choices",
@@ -2805,6 +2899,13 @@
         2
       ],
       "evidence": [
+        "E-japanese-alias-tail",
+        "E-daily-contact",
+        "E-daily-transit",
+        "E-daily-shopping",
+        "E-daily-time",
+        "E-daily-location",
+        "E-daily-courtesy",
         "E-daily-clarification",
         "E-chinese-partial-spacing",
         "E-japanese-boundaries",

@@ -72,6 +72,10 @@ fn convert_segments(kana: &str) -> String {
     let mut rest = kana;
     let mut output = String::new();
     while !rest.is_empty() {
+        if is_authored_tail(&output, rest) {
+            output.push_str(rest);
+            break;
+        }
         if let Some((length, word)) = conversion_prefix(rest) {
             output.push_str(word);
             rest = &rest[length..];
@@ -82,6 +86,63 @@ fn convert_segments(kana: &str) -> String {
         }
     }
     output
+}
+
+/// Preserve a whole authored sentence's Kana progress after recognized words.
+/// Newly added short nouns must not split its grammatical tail (e.g. 下 in
+/// 勉強したい). This is bounded lexicon matching, not general morphology:
+/// unknown, conflicting or line-separated tails still follow normal conversion.
+fn is_authored_tail(prefix: &str, rest: &str) -> bool {
+    if prefix.is_empty() {
+        return false;
+    }
+    if vocabulary().continuations().any(|(context, sentences)| {
+        prefix.starts_with(context)
+            && sentences.iter().any(|text| {
+                text.strip_prefix(prefix)
+                    .is_some_and(|tail| tail.starts_with(rest))
+            })
+    }) {
+        return true;
+    }
+    // Only the comparison may recognize a Word's existing Katakana alias.
+    // Keep the adopted spelling in output and avoid choosing a canonical
+    // homophone: compare each alias against the authored sentence itself.
+    prefix
+        .chars()
+        .any(|ch| matches!(ch, '\u{30a1}'..='\u{30f6}'))
+        && vocabulary().continuations().any(|(context, sentences)| {
+            sentences.iter().any(|text| {
+                strip_known_alias_prefix(text, prefix).is_some_and(|tail| {
+                    text[..text.len() - tail.len()].starts_with(context) && tail.starts_with(rest)
+                })
+            })
+        })
+}
+
+fn strip_known_alias_prefix<'a>(mut text: &'a str, mut prefix: &str) -> Option<&'a str> {
+    while !prefix.is_empty() {
+        let ch = text.chars().next()?;
+        if prefix.starts_with(ch) {
+            text = &text[ch.len_utf8()..];
+            prefix = &prefix[ch.len_utf8()..];
+            continue;
+        }
+        // Use the same longest recognized written segment as conversion.
+        // Unknown Katakana, shorter fragments and line boundaries cannot
+        // become aliases or disappear from the comparison.
+        let length = known_written_prefix_len(prefix)?;
+        let written = &prefix[..length];
+        let entry = vocabulary().readings().iter().find(|entry| {
+            entry.kind == EntryKind::Word
+                && entry.reading.len() == length
+                && written.chars().eq(entry.reading.chars().map(katakana_char))
+                && text.starts_with(&entry.text)
+        })?;
+        text = &text[entry.text.len()..];
+        prefix = &prefix[length..];
+    }
+    Some(text)
 }
 
 fn is_line_boundary(ch: char) -> bool {
@@ -134,15 +195,36 @@ fn word_completions(seed: &str) -> Vec<(String, crate::ime::candidate_mix::Candi
     let mut output = Vec::new();
     while offset < kana.len() {
         let rest = &kana[offset..];
+        let authored_tail = is_authored_tail(&prefix, rest);
+        let earlier_completions = output.len();
         for (reading, word) in kanji() {
             if (reading != rest || offset > 0)
                 && queries.iter().any(|query| {
-                    query
-                        .strip_prefix(&kana[..offset])
-                        .is_some_and(|tail| !tail.is_empty() && reading.starts_with(tail))
+                    query.strip_prefix(&kana[..offset]).is_some_and(|tail| {
+                        !tail.is_empty()
+                                && reading.starts_with(tail)
+                                // Protect exact short-word substitutions for
+                                // vowel probes as well as completed Kana tails.
+                                && !(reading == tail
+                                    && word != tail
+                                    && is_authored_tail(&prefix, tail))
+                    })
                 })
             {
                 let text = format!("{prefix}{word}");
+                // A deeper split must not extend an already completable word
+                // by reinterpreting its tail (準備中 -> 準備中央). Keep other
+                // ambiguities and all homophones at the same reading depth.
+                if output[..earlier_completions]
+                    .iter()
+                    .any(|(existing, kind)| {
+                        *kind == CandidateKind::Word
+                            && text != *existing
+                            && text.starts_with(existing)
+                    })
+                {
+                    continue;
+                }
                 if !output.iter().any(|(value, _)| value == &text) {
                     output.push((
                         text,
@@ -159,6 +241,12 @@ fn word_completions(seed: &str) -> Vec<(String, crate::ime::candidate_mix::Candi
             }
         }
         if let Some((length, word)) = conversion_prefix(rest) {
+            // Stop only an actual dictionary split of the authored tail.
+            // Particles and genuine partial-word completions must still work
+            // (e.g. 準備ができ -> 準備ができれば alongside the authored sentence).
+            if authored_tail {
+                break;
+            }
             prefix.push_str(word);
             offset += length;
         } else {

@@ -4724,6 +4724,49 @@ def check_model_unavailable_vocabulary(context, watch, commits, lookup):
         ("zh-Hans", "xu jie tu shu", "续借图书", "续借图书可以在网上办理吗？"),
         ("en", "did you get my me", "did you get my message", "did you get my message?"),
         ("zh-Hans", "bang wo kan kan", "帮我看看", "帮我看看有没有漏掉什么。"),
+        ("en", "thank you for being so pa", "thank you for being so patient",
+         "thank you for being so patient with me."),
+        ("en", "sorry to keep you wa", "sorry to keep you waiting", "sorry to keep you waiting."),
+        ("zh-Hans", "xie xie ni bang mang", "谢谢你帮忙", "谢谢你帮忙确认时间。"),
+        ("zh-Hans", "bao qian lai wan le", "抱歉来晚了", "抱歉来晚了，路上耽搁了一会儿。"),
+        ("ja", "kansha", "感謝", "感謝の気持ちを伝えたいです。"),
+        ("ja", "otesuu", "お手数", "お手数ですが、もう一度教えてください。"),
+        ("en", "can we walk across the st", "can we walk across the street",
+         "can we walk across the street here?"),
+        ("en", "i'll wait on the corne", "i'll wait on the corner",
+         "i'll wait on the corner by the cafe."),
+        ("zh-Hans", "wo zai lou xia", "我在楼下", "我在楼下入口等你。"),
+        ("zh-Hans", "zou guo tou le", "走过头了", "走过头了，我们回刚才的路口看看。"),
+        ("ja", "chizu", "地図", "地図を見ながら一緒に行きましょう。"),
+        ("ja", "menomae", "目の前", "目の前にある入口で待っています。"),
+        ("ja", "junbichu", "準備中", "準備中なので、終わったら連絡します。"),
+        ("en", "can we move this to to", "can we move this to tomorrow",
+         "can we move this to tomorrow morning?"),
+        ("en", "please give me another mi", "please give me another minute",
+         "please give me another minute to get ready."),
+        ("zh-Hans", "nenggaidaomingtianma", "能改到明天吗", "能改到明天吗？今天有点赶。"),
+        ("zh-Hans", "daoshihoutixingwo", "到时候提醒我", "到时候提醒我带伞，免得又忘了。"),
+        ("ja", "gozen", "午前", "午前の予定を確認しましょう。"),
+        ("ja", "kon'ya", "今夜", "今夜の待ち合わせは何時ですか。"),
+        ("en", "does this price include ta", "does this price include tax",
+         "does this price include tax?"),
+        ("en", "can i pay with my ca", "can i pay with my card", "can i pay with my card?"),
+        ("zh-Hans", "hai neng pian yi yi dian ma", "还能便宜一点吗", "还能便宜一点吗？可以的话我就买这一件。"),
+        ("zh-Hans", "ke yi sao ma ma", "可以扫码吗", "可以扫码吗？我现在付款。"),
+        ("ja", "nedan", "値段", "値段を教えてください。"),
+        ("ja", "shiharai", "支払い", "支払いはカードでできますか。"),
+        ("en", "which platform should we us", "which platform should we use", "which platform should we use?"),
+        ("en", "can i buy my ticket on", "can i buy my ticket online", "can i buy my ticket online?"),
+        ("zh-Hans", "yao huan cheng ma", "要换乘吗", "要换乘吗？我想先确认路线。"),
+        ("zh-Hans", "che piao zen me mai", "车票怎么买", "车票怎么买比较方便？能在手机上买吗？"),
+        ("ja", "densha", "電車", "電車は何時に出発しますか。"),
+        ("ja", "joushaken", "乗車券", "乗車券はどこで買えますか。"),
+        ("en", "can you hear me cl", "can you hear me clearly", "can you hear me clearly?"),
+        ("en", "please send me your nu", "please send me your number", "please send me your number."),
+        ("zh-Hans", "ni neng ting qing ma", "你能听清吗", "你能听清吗？我把声音调大一点。"),
+        ("zh-Hans", "huan ge wang luo shi shi", "换个网络试试", "换个网络试试，看看能不能连上。"),
+        ("ja", "tsuuwa", "通話", "通話は今できますか。"),
+        ("ja", "setsuzoku", "接続", "接続を確認してから送ります。"),
     ]
 
     def start(seed):
@@ -4796,10 +4839,21 @@ def check_model_unavailable_vocabulary(context, watch, commits, lookup):
                                    and c["source"] == "local"
                                    for c in watch.latest["candidates"][:6]), (seed, watch.latest)
                     assert commits[before:] == [sentence]
+                    if language == "ja":
+                        # Conversion consumes Japanese reading separators. The
+                        # unchanged raw choice, not the default conversion,
+                        # explicitly submits literal padding after a failure.
+                        literal = next(i for i, c in enumerate(watch.latest["candidates"][:6])
+                                       if c["text"] == word + " " and c["kind"] == "literal"
+                                       and c["source"] == "local")
+                        select_keyboard_candidate(context, watch, literal,
+                                                  "select exact Japanese fallback padding")
+                        assert watch.latest["seed"] == word + " "
+                        assert commits[before:] == [sentence]
                     assert context.process_key_event(IBus.KEY_Return, 0, 0)
                     wait(lambda: commits[before:] == [sentence, word + " "] and not watch.latest["seed"],
                          "fallback word and literal Space commit exactly")
-                    print(f"PASS: {language} {failure}: immediate local word/sentence candidates survive Pending/Unavailable; numeric adoption, undo, Space and exact commits")
+                    print(f"PASS: {language} {failure} {seed!r}: immediate local word/sentence candidates survive Pending/Unavailable; numeric adoption, undo, Space and exact commits")
                 finally:
                     assert json.loads(command("P0"))["ok"]
                     gate["release"].set()
@@ -6448,6 +6502,21 @@ try:
         watch = Watch()
         wait(lambda: watch.latest is not None and watch.latest["focused"], "bilingual-only context")
         check_bilingual_core_completion(context, watch, commits)
+        raise SystemExit(0)
+    if os.environ.get("SUZAKU_NATIVE_FALLBACK_ONLY") == "1":
+        # Focused diagnostic only: the default full gate still calls this same
+        # check, including every old sample and both controlled HTTP failures.
+        context = create_context(bus, "suzaku-fallback-qa")
+        commits = []
+        lookup = observe_lookup(context)
+        context.connect("commit-text", lambda _, text: commits.append(text.get_text()))
+        context.focus_in()
+        assert bus.set_global_engine("dev.suzaku.linux.ime")
+        assert json.loads(command("P0"))["ok"]
+        watch = Watch()
+        wait(lambda: watch.latest is not None and watch.latest["focused"], "fallback-only context")
+        check_model_unavailable_vocabulary(context, watch, commits, lookup)
+        print("PASS: focused local-fallback HTTP diagnostic; not the complete native gate", flush=True)
         raise SystemExit(0)
     if os.environ.get("SUZAKU_NATIVE_SHORTCUTS_ONLY") == "1":
         check_candidate_page_boundaries(bus)

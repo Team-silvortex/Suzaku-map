@@ -373,20 +373,40 @@ XTest through desktop input authorization. A successful injection call is not pr
 the widget received a key. Stop on focus loss or missing delivery; do not disable the
 portal, retry keys or count the private-display pass as desktop acceptance. Establish
 delivery independently of Suzaku before attributing a synthetic-input failure to the IME.
-The `vocabulary` gate exercises 104 offline English/Chinese/Japanese vocabulary workflows and three
-multi-word Chinese sentence-progress workflows in the real
+The `vocabulary` gate exercises 141 offline English/Chinese/Japanese vocabulary workflows,
+three Chinese and two Japanese sentence-progress workflows, and one physical later-page
+selection workflow in the real
 GTK editor: physical spelling, word/sentence labels, numeric adoption, exact undo, Space
 continuation and saved word/sentence commits. Authored sentence continuations must remain on
 page one after Space where a continuation exists. It uses no companion-seeded text or live model.
 For a focused home-life diagnostic, set `SUZAKU_VOCABULARY_QA_SCOPE=home` with the `vocabulary`
 runner. This explicitly reports four vocabulary cases plus three sentence-progress cases, not a
 complete-gate pass. CI keeps the default `all` scope. As the corpus grows, the shell runner
-executes all cases in two sequential private sessions (`part-1` / `part-2`), with the original
-240-second deadline **per session**. Alternating case indices keep all three languages in each part;
-the first part includes three sentence-progress controls and one clarification paging check
-(56 + 52 = 108 workflows total).
-Only both successful parts count as the complete gate. No case or assertion is skipped;
-explicit `home`, `daily`, `followup`, `leisure`, `clarification` and `packs` scopes still report only their own coverage.
+executes all cases in three sequential private sessions (`part-1` / `part-2` / `part-3`), with the original
+240-second deadline **per session**. Every third case index keeps all three languages in each part;
+a Counter guard preserves all complete tuples, including any intentional duplicates.
+The first part includes all five sentence-progress controls and the clarification paging check
+(53 + 47 + 47 = 147 workflows total).
+Only all three successful parts count as the complete gate. No case or assertion is skipped;
+explicit `home`, `daily`, `japanese`, `followup`, `leisure`, `clarification`, `courtesy`,
+`location`, `time`, `shopping`, `transit`, `contact` and `packs` scopes still report only their own coverage.
+For time, waiting and rescheduling, `SUZAKU_VOCABULARY_QA_SCOPE=time` runs six fixed
+EN/ZH/JA vocabulary cases plus three existing Chinese progress controls (nine workflows).
+All six are also included in the complete gate and in the all-fourteen-pack gate;
+fixed independent expectations live in `tests/daily_time_*.rs`.
+For shopping, prices and payments, `SUZAKU_VOCABULARY_QA_SCOPE=shopping` runs six fixed
+EN/ZH/JA vocabulary cases plus three existing Chinese progress controls (nine workflows).
+All six also run in the complete and all-fourteen-pack gates; fixed independent expectations
+live in `tests/daily_shopping_*.rs`. These are authored input expressions, not live shopping services.
+For boarding, transfers and tickets, `SUZAKU_VOCABULARY_QA_SCOPE=transit` runs six fixed
+EN/ZH/JA vocabulary cases plus three existing Chinese progress controls (nine workflows).
+All six also run in the complete and all-fourteen-pack gates; fixed independent expectations
+live in `tests/daily_transit_*.rs`. They do not query routes, timetables or fares or buy tickets.
+For phone, network and message-contact expressions, `SUZAKU_VOCABULARY_QA_SCOPE=contact`
+runs six fixed EN/ZH/JA vocabulary cases plus three existing Chinese progress controls
+(nine workflows). All six also run in the complete and all-fourteen-pack gates; fixed
+independent expectations live in `tests/daily_contact_*.rs`. They do not read contacts or
+message history, place calls, send messages or change network settings.
 For daily reactions/meeting/rest, food/weather/arrangement, communication/coordination and
 social check-ins/invitations/polite declines and object location/borrowing/quantities, use
 `SUZAKU_VOCABULARY_QA_SCOPE=daily`; this reports thirty vocabulary cases plus the three
@@ -439,7 +459,8 @@ and EN/ZH/JA family), use
 `SUZAKU_VOCABULARY_QA_SCOPE=packs bash scripts/test-linux-apps.sh vocabulary`.
 This separate gate uses the selected installation's adjacent `suzaku_tool` to export/install
 all fourteen recommended packs into the private QA data directory **before** starting its host and panel. It
-checks eleven pack workflows plus three builtin sentence-progress workflows (14 total), including the
+checks 48 vocabulary workflows plus three Chinese and two Japanese builtin
+sentence-progress workflows (53 total), including the
 live companion's system-font draft rendering and editor focus. It neither reads nor changes
 the personal pack registry, and does not replace the default builtin gate.
 The native pack-only scope installs all fourteen recommended packs and checks fourteen
