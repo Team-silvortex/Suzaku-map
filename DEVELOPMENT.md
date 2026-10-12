@@ -42,6 +42,59 @@ are added only after their own acceptance, not implied by the shared version num
 This is a release requirement, not a claim that automatic publication is implemented or
 that existing 0.7.x tags already have assets. See [Linux packaging](docs/linux-packaging-data.md).
 
+### 0.8.8 settings-focus fixture repair — 2026 10 12
+
+- Remote run [38224763030](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/38224763030)
+  for `0d2236b2a637f1295445ecf1fcd2c99c45828caa` fails the application job's
+  auto-layout settings-return stability check. The final host frame is unfocused
+  and empty while X11 still owns the editor. The old assertion text incorrectly
+  suggests that this alone proves a newly created draft; it does not. Preserve
+  the remote receipt in `/tmp/suzaku-release-0.8.8.WCaoLg`; publication is paused.
+- The unchanged local baseline passes 42 auto-layout workflows, so the exact
+  remote failure is not locally reproduced. Deterministic event ordering does
+  expose a fixture gap: an old focused snapshot can satisfy the return wait
+  before delayed host focus events arrive. The first new guard has ten failures
+  across eleven tests against the old code; retain it and subsequent receipts
+  in `/tmp/suzaku-auto-focus.9wCnyI`.
+- Settings now requires a fresh host/context/revision boundary and a different
+  IBus input context before changing layout, then a fresh boundary after the
+  final pre-restore snapshot and the exact original input context on return.
+  The first repair incorrectly required the outbound host to stay unfocused;
+  its native failure is retained. Global-engine IBus may instead focus a fallback
+  context. Add a deterministic focused-fallback case and use input-context
+  identity plus freshness, not that boolean assumption, for the handoff.
+- Review adds two failing cases for an intermediate focused fallback and loss
+  of the original input context during stability. A further failing case guards
+  host replacement/private frames during settings, before recording a new
+  return baseline. Both the initial late rejection and the corrected pre-restore
+  rejection are recorded. The final guard passes all 15 cases, executing the
+  real fixture functions with controlled event timing.
+  Transient nonempty frames and GTK insertions remain failures even if later
+  cleared; late focus loss still fails immediately. The original 4-second wait,
+  150-ms stability interval and 240-second runner deadline are unchanged. A
+  Linux Rust integration target runs this guard in the existing full-test gate;
+  no CI command, gate, runner or production code is changed.
+- A matrix command mistakenly uses `SUZAKU_GTK3_QA_SYNC_MODE=0`; the unchanged
+  runner rejects it before starting a native workflow. Preserve that receipt
+  separately and correct only the invocation to the documented `default` value.
+- The final source passes both default and synchronous GTK/IBus transports for
+  auto-layout (42 each), bottom-layout (39 each) and caret-following candidates
+  (30 each): **222 native workflows across six isolated sessions**, including
+  real card clicks, pagination, adoption/undo, touch keys and window movement.
+  `accepted-*-sync*.log` identifies these final local receipts, not accepted
+  release artifacts. All native/build runs are serial in task-owned 2 GiB
+  high/4 GiB max, zero-scope-swap scopes with one Cargo build job.
+- The new Rust integration target passes and executes the 15-case guard in the
+  normal test path. Strict all-feature/all-target Clippy, 18 release-graph,
+  13 X11-focus and 21 tensor-validator checks, the refreshed source digest,
+  250 audit links, formatting and diff checks pass. All unrelated fixture AST
+  bodies, the complete native runner and CI workflow remain byte-for-byte
+  unchanged against the candidate. This is targeted validation, not a new full
+  Rust-suite or packaging run; the earlier 1,794-test result remains historical.
+- Local isolation checks do not qualify a new clean remote commit or establish
+  the exact cause of the original remote ordering. No tag, release asset,
+  personal installation or input-method service is changed by this repair.
+
 ### 0.8.8 release preparation — 2026 10 12
 
 - Synchronize Cargo/package version to 0.8.8 and macOS/Android build number 38.

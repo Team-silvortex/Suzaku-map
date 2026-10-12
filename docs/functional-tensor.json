@@ -4,7 +4,7 @@
     "date": "2026-10-12",
     "head": "98ee5764e8ae494d5d4cc0c2af694e307645d011",
     "dirty": true,
-    "source_sha256": "fc67751f0d2d74e7538cdcd3f33d4e5cc3e61e2cc72ed2a269345dad4a0dcc5c",
+    "source_sha256": "d1c41940acaa0c218732ecbf8f2a8b22a438b5505194403f1f01fa123f9553f1",
     "note": "0.8.7发布后的未提交工作区盘点，head记录已发布基线98ee576而非本次修复提交；评分是有边界的人工序数评估，不是质量概率。重复引擎控件见E-shared-noop-controls；旧77单元评分不提高。F69/preference-file记录文件底层，native-preference及E-native-preference记录Linux源码宿主默认后台保存/启动恢复/有界退出/异步清除确认，第一轮八组私有IBus及1752全量通过，退出恢复见E-preference-lifecycle：敏感temp红测保留，专属空间安全回收，九组native及1758全量零失败30显式ignored通过；不代表日常安装已升级、托盘视觉或实体键盘验收，其他宿主仍内存。第一阶段及计数失败保留，非改记通过。后续历史修复范围见E-pointer-preference、E-window-boundary、E-recovery-fixture、E-prose-paging、E-chinese-partial-spacing；词库扩充见E-daily-objects、E-daily-choices、E-japanese-choices。10-04崩溃及10-07有界sender诊断见E-daemon-abort，探测清理顺序见E-daemon-probe，非已确认修复上游根因。10-11安装范围见E-installed-input-tasks和E-installed-custom-shortcuts。0.8.6原远端超时、0.8.7首轮Python格式失败及40min取消均不改记通过；后续干净98ee576的CI38161577941八项、Ubuntu24打包安装及最终汇合成功，四资产复核后公开发布，但这些结果不代表本次未提交工作区的远端CI、打包安装、真实模型或个人桌面验收。源指纹仅覆盖implementations.paths/tests。"
   },
   "architectures": [
@@ -822,7 +822,9 @@
       ],
       "tests": [
         "src/ime/gpu/bottom_dock_tests.rs",
-        "scripts/test-linux-native-candidates.py"
+        "scripts/test-linux-native-candidates.py",
+        "scripts/test-native-settings-focus.py",
+        "tests/native_settings_focus.rs"
       ]
     },
     {
@@ -838,7 +840,9 @@
       "tests": [
         "tests/panel_layout_settings.rs",
         "src/platform/panel_layout.rs",
-        "scripts/test-linux-native-candidates.py"
+        "scripts/test-linux-native-candidates.py",
+        "scripts/test-native-settings-focus.py",
+        "tests/native_settings_focus.rs"
       ]
     },
     {
@@ -1398,6 +1402,13 @@
       "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "tests/daily_household_english.rs", "tests/daily_household_chinese.rs", "tests/offline_pack_quality.rs"],
       "scope": "2026-10-12中英家务、清洁和日常整理；有限原创离线fallback",
       "note": "英文追加8搭配16句复用现有词形，6143索引及旧30层/693搭配/1350句和首次索引位置不变；中文追加24读音8语境16句，旧2922读音/687语境/1372句及标记顺序指纹不变。衣夹追加为yi'jia同音，原衣架仍首选。独立英文1pass6fail、中文2pass5fail及全包quality缺dishes的RED保留；补数据后7+7新项和全14包组合quality首次通过。旧回归首轮两个失败是function-word历史总量断言，不改历史指纹/候选行为，将历史检查限定原窗口，并精确更新全资源当前数量。未改语言算法、候选/模型预算、日语或推荐包字节，旧评分不提高；typed模型失败与引擎reseed不代表原生键盘/HTTP或实模验收。准确回归与严格检查结果见开发记录；未安装、提交、推送或发布。"
+    },
+    {
+      "id": "E-settings-focus-fixture",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "scripts/test-linux-native-candidates.py", "scripts/test-native-settings-focus.py", "tests/native_settings_focus.rs"],
+      "scope": "2026-10-12设置布局夹具的异步焦点确认；非生产输入代码修复或远端验收",
+      "note": "0d2236b的CI38224763030应用门禁失焦失败保留，发布暂停；原样本地auto42通过不等于复现或修复远端根因。可控延迟暴露旧快照提前放行；离开/返回原输入框需IBus上下文身份与同宿主新context/revision，设置中间fallback不能确认返回，稳定阶段仍核对原上下文。第一版误要求离开时focused=false的真实测试失败保留，明确fallback可聚焦后修正；15确定性用例保留临时草稿/插入、缺ACK/换宿主/private及迟到失焦失败，原4s/150ms/240s界限不变。完整执行范围见开发记录，不提高评分、不改个人安装或恢复自动发布。"
     },
     {
       "id": "E-preference-feedback",
@@ -3162,13 +3173,14 @@
         2
       ],
       "evidence": [
+        "E-settings-focus-fixture",
         "E-x11-event-clicks",
         "E-current",
         "E-native",
         "E-screen-keys-history",
         "E-linux-delivery"
       ],
-      "limit": "候选/键盘底部布局，设置可选；未物理触屏与桌面软键盘避让验收。"
+      "limit": "候选/键盘底部布局，设置可选；焦点夹具修复见E-settings-focus-fixture，原远端失败未改记通过；未物理触屏与桌面软键盘避让验收。"
     },
     {
       "a": "A10",
@@ -3181,11 +3193,12 @@
         2
       ],
       "evidence": [
+        "E-settings-focus-fixture",
         "E-current",
         "E-native",
         "E-linux-delivery"
       ],
-      "limit": "启发式默认建议，手动覆盖优先；平台判定不是平板姿态/硬件能力认证。"
+      "limit": "启发式默认建议，手动覆盖优先；焦点夹具修复见E-settings-focus-fixture，仍需新精确远端CI；平台判定不是平板姿态/硬件能力认证。"
     },
     {
       "a": "A03",

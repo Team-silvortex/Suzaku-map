@@ -169,8 +169,35 @@ def persisted_layout():
     return values.get("panel_layout_mode")
 
 
+def settings_focus_ack(baseline, focused):
+    """An X11 focus request is not an acknowledgement from the IBus host."""
+    frame = qa.watch.latest
+    return (frame is not None and frame["host"] == baseline["host"] and
+            frame["context"] > baseline["context"] and
+            frame["revision"] > baseline["revision"] and
+            (focused is None or frame["focused"] == focused) and not frame["private"] and
+            not frame["seed"] and not frame["candidates"])
+
+
 def set_layout_from_settings(mode):
     assert seed_is("") and buffer_text() == committed == ""
+    before = qa.watch.latest
+    editor_context = bus.current_input_context()
+    assert editor_context is not None, "owned editor has no IBus input context"
+    first_frame, first_insertion = len(qa.watch.frames), len(insertions)
+
+    def unchanged_input():
+        # Observe every received frame, not only the latest empty/blurred one.
+        # A transient draft or insert followed by a reset must remain a failure.
+        assert len(insertions) == first_insertion, "settings interaction inserted text"
+        assert buffer_text() == committed == "", "settings interaction changed the GTK buffer"
+        for frame in qa.watch.frames[first_frame:]:
+            assert frame["host"] == before["host"] and not frame["private"], \
+                "settings interaction replaced the host or entered a private context"
+            assert not frame["seed"] and not frame["candidates"], \
+                "settings interaction created a draft or candidates"
+        return True
+
     show_owned_main()
     detected = window_frame("Main").get("detected_layout_mode")
     assert detected in ("follow-caret", "bottom-dock")
@@ -182,6 +209,14 @@ def set_layout_from_settings(mode):
          "owned settings window is mapped and presents a fresh frame")
     settings_xid = x.window("Suzaku · Panel Settings")
     x.focus(settings_xid)
+    # Consume the actual handoff before changing/closing Settings. Otherwise the
+    # old focused snapshot can satisfy the later restore wait before a queued
+    # FocusOut arrives. Geometry frames and XSync cannot prove this boundary.
+    # Global-engine IBus may focus a fallback context instead of staying blurred.
+    wait(lambda: unchanged_input() and not owned_focus() and
+         bus.current_input_context() != editor_context and settings_focus_ack(before, None),
+         "IBus acknowledges leaving the owned editor for settings")
+    departed = qa.watch.latest
     choice = {"auto": "Auto", "bottom-dock": "BottomDock", "follow-caret": "FollowCaret"}[mode]
     previous_frame_line = window_frame("Settings").get("_qa_log_line", 0)
     click_control(f"SetPanelLayoutMode({choice})", "Settings")
@@ -197,15 +232,27 @@ def set_layout_from_settings(mode):
     # Restore the owned editor's keyboard focus without raising it over the
     # companion. This no-WM fixture cannot maintain compositor stacking layers;
     # the general app-launch focus helper also raises its target window.
+    # Settings can produce further fallback focus events while its layout is
+    # changing. None of those old snapshots acknowledges returning to the editor.
+    unchanged_input()
+    before_restore = qa.watch.latest
     assert x.x.XSetInputFocus(x.display, xid, 1, 0)
     x.x.XSync(x.display, 0)
     view.grab_focus()
-    wait(lambda: owned_focus() and seed_is("") and
+    wait(lambda: unchanged_input() and owned_focus() and seed_is("") and
+         bus.current_input_context() == editor_context and
+         settings_focus_ack(before_restore, True) and
          window_frame("Main").get("layout_mode") == effective and
          window_frame("Main").get("layout_preference") == mode and
          window_frame("Main").get("detected_layout_mode") == detected,
          "original empty TextView focus and selected layout restored")
-    stable(lambda: seed_is(""), "settings interaction unexpectedly created a draft")
+    restored = qa.watch.latest
+    stable(lambda: unchanged_input() and owned_focus() and seed_is("") and
+           bus.current_input_context() == editor_context,
+           "settings interaction lost host focus or changed the empty draft")
+    print(f"SETTINGS FOCUS ACK: {mode}; context "
+          f"{before['context']} -> {departed['context']} -> "
+          f"{before_restore['context']} -> {restored['context']}", flush=True)
 
 
 def pump():
