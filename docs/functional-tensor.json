@@ -2,10 +2,10 @@
   "schema_version": 1,
   "snapshot": {
     "date": "2026-10-12",
-    "head": "f0e2bc184a3f9d9fc65c3e0b3f79578099eea8be",
+    "head": "98ee5764e8ae494d5d4cc0c2af694e307645d011",
     "dirty": true,
-    "source_sha256": "10f42747f65182bcd2cf176d6274b1bcdfd1cea22720af8159da54f0ac310914",
-    "note": "0.8.7发布跟进工作区盘点，head记录CI拆分前基线f0e2bc1而非本文件所属提交；评分是有边界的人工序数评估，不是质量概率。后续修复执行范围见 E-pointer-preference、E-window-boundary、E-recovery-fixture、E-prose-paging、E-chinese-partial-spacing；词库扩充见 E-daily-objects、E-daily-choices、E-japanese-choices；10-04崩溃及10-07有界sender诊断见E-daemon-abort，探测清理顺序修复见E-daemon-probe，非已确认修复上游根因。10-11干净81bbce8包的私有输入任务及0.8.1到0.8.6日常升级见E-installed-input-tasks，随后自定义快捷键开发快照安装与复测见E-installed-custom-shortcuts。0.8.6原远端超时、0.8.7首轮Python格式失败及修正后40min任务取消均不改记通过；新CI分路仍须独立精确提交全部门禁、打包安装和最终汇合成功后发布，当前盘点不代表全绿发布、真实模型或个人桌面输入验收。源指纹仅覆盖 implementations.paths/tests。"
+    "source_sha256": "fc67751f0d2d74e7538cdcd3f33d4e5cc3e61e2cc72ed2a269345dad4a0dcc5c",
+    "note": "0.8.7发布后的未提交工作区盘点，head记录已发布基线98ee576而非本次修复提交；评分是有边界的人工序数评估，不是质量概率。重复引擎控件见E-shared-noop-controls；旧77单元评分不提高。F69/preference-file记录文件底层，native-preference及E-native-preference记录Linux源码宿主默认后台保存/启动恢复/有界退出/异步清除确认，第一轮八组私有IBus及1752全量通过，退出恢复见E-preference-lifecycle：敏感temp红测保留，专属空间安全回收，九组native及1758全量零失败30显式ignored通过；不代表日常安装已升级、托盘视觉或实体键盘验收，其他宿主仍内存。第一阶段及计数失败保留，非改记通过。后续历史修复范围见E-pointer-preference、E-window-boundary、E-recovery-fixture、E-prose-paging、E-chinese-partial-spacing；词库扩充见E-daily-objects、E-daily-choices、E-japanese-choices。10-04崩溃及10-07有界sender诊断见E-daemon-abort，探测清理顺序见E-daemon-probe，非已确认修复上游根因。10-11安装范围见E-installed-input-tasks和E-installed-custom-shortcuts。0.8.6原远端超时、0.8.7首轮Python格式失败及40min取消均不改记通过；后续干净98ee576的CI38161577941八项、Ubuntu24打包安装及最终汇合成功，四资产复核后公开发布，但这些结果不代表本次未提交工作区的远端CI、打包安装、真实模型或个人桌面验收。源指纹仅覆盖implementations.paths/tests。"
   },
   "architectures": [
     {
@@ -101,7 +101,7 @@
     "score_zero": "0 只表示按该项定义明确缺失或失败；不得用 null 填 0。",
     "aggregation": "不计算总平均、百分比、完成率或跨平台均分。I/T 高分不补偿 V/O 未确认。评分仅针对 scope 内有边界的功能。",
     "evidence": "实现路径支持 I；tests 是可复现入口而非执行证明。T>=3 必须绑定历史运行记录。V 只评当前快照真实环境，历史个人安装记录留在证据，不转抄到 V。O=2 只表示交付流程存在，不等于当前产物可下载。",
-    "coverage": "架构归属不是调用图。一个功能可在多个实现切片出现，parents 为功能分解关系，不代表运行顺序。原始 F01-F59 编号不变；F60-F68 将原先交叉能力独立索引。",
+    "coverage": "架构归属不是调用图。一个功能可在多个实现切片出现，parents 为功能分解关系，不代表运行顺序。原始 F01-F59 编号不变；F60-F69 将原先交叉能力及新增底层独立索引。",
     "exclusions": [
       "不把 Xvfb/私有 DBus/XTest 当成人工 GNOME、native Wayland 或物理触摸验收",
       "不把回退成功当作 LLM 质量或默认期限达标",
@@ -226,6 +226,7 @@
         "tests/ime_engine.rs",
         "tests/ime_prediction.rs",
         "tests/commit_history.rs",
+        "tests/ime_noop_controls.rs",
         "tests/prediction_edit_conflicts.rs",
         "tests/long_draft_budget.rs"
       ]
@@ -259,6 +260,52 @@
         "tests/preference_learning.rs",
         "tests/ime_prediction.rs",
         "scripts/test-native-sync.py"
+      ]
+    },
+    {
+      "id": "preference-file",
+      "a": "A02",
+      "title": "偏好快照格式、私有文件与有界写者",
+      "scope": "模型/词库无关的有界API及Linux后台存储，宿主接线另见native-preference",
+      "paths": [
+        "Cargo.toml",
+        "Cargo.lock",
+        "src/preferences.rs",
+        "src/preferences/persistence.rs",
+        "src/preferences/store.rs",
+        "src/preferences/worker.rs",
+        "src/data/files.rs",
+        "src/ime/preferences.rs",
+        "src/ime/core_engine.rs"
+      ],
+      "tests": [
+        "tests/preference_persistence.rs",
+        "tests/preference_learning.rs",
+        "src/preferences/worker.rs"
+      ]
+    },
+    {
+      "id": "native-preference",
+      "a": "A01",
+      "title": "Linux偏好默认落盘、恢复与清除确认",
+      "scope": "源码原生宿主、托盘/CLI协议；非已安装程序或标签视觉验收",
+      "paths": [
+        "src/ime_host.rs",
+        "src/ime_host/control.rs",
+        "src/ime_host/persistence.rs",
+        "src/bin/linux_ime_host.rs",
+        "src/platform/linux_ibus_host.rs",
+        "src/platform/linux_ime_control.rs",
+        "src/bin/panel/tray.rs",
+        "src/ui/catalog.tsv",
+        "src/bin/suzaku_tool.rs",
+        "src/bin/suzaku_tool/preferences.rs"
+      ],
+      "tests": [
+        "tests/preference_host.rs",
+        "scripts/test-preference-host.py",
+        "scripts/fixtures/preference-fsync.c",
+        "src/platform/linux_ime_control.rs"
       ]
     },
     {
@@ -337,7 +384,9 @@
         "tests/daily_routine_english.rs",
         "tests/daily_requests_english.rs",
         "tests/daily_carry_english.rs",
-        "tests/daily_care_english.rs"
+        "tests/daily_care_english.rs",
+        "tests/daily_household_english.rs",
+        "tests/daily_mealtime_english.rs"
       ]
     },
     {
@@ -369,6 +418,8 @@
         "tests/daily_requests_chinese.rs",
         "tests/daily_carry_chinese.rs",
         "tests/daily_care_chinese.rs",
+        "tests/daily_household_chinese.rs",
+        "tests/daily_mealtime_chinese.rs",
         "tests/chinese_partial_sentence_probe.rs",
         "tests/chinese_partial_continuation.rs",
         "tests/chinese_function_words.rs",
@@ -1324,9 +1375,58 @@
         "F15",
         "F42"
       ]
+    },
+    {
+      "id": "F69",
+      "title": "输入偏好文件存储与恢复",
+      "parents": [
+        "F66"
+      ]
     }
   ],
   "evidence": [
+    {
+      "id": "E-daily-mealtime",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "tests/daily_mealtime_english.rs", "tests/daily_mealtime_chinese.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-12中英用餐、餐具与打包；有限原创离线fallback",
+      "note": "英文追加8搭配16句，复用既有6143索引词形；中文追加24读音8语境16句，盛饭读cheng、剩饭读sheng。保留旧31英文层/701搭配/1366句及全部首次索引位置，中文2946读音/695语境/1388句及标记顺序指纹不变。固定预期先运行RED：中文2pass5fail、英文1pass6fail，全14包组合缺rice短句另有失败记录。验证完整/半截拼写、采用后长稿与空白续写、字面/行边界保护、精确提交撤回及typed模型失败；准确最终实跑结果见开发记录。英文预算/候选容量、算法、模型接口、日语和推荐包数据不改，旧评分不提高；未安装/提交/推送，不外推实体键盘、原生GTK、HTTP或真实模型质量。"
+    },
+    {
+      "id": "E-daily-household",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "tests/daily_household_english.rs", "tests/daily_household_chinese.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-12中英家务、清洁和日常整理；有限原创离线fallback",
+      "note": "英文追加8搭配16句复用现有词形，6143索引及旧30层/693搭配/1350句和首次索引位置不变；中文追加24读音8语境16句，旧2922读音/687语境/1372句及标记顺序指纹不变。衣夹追加为yi'jia同音，原衣架仍首选。独立英文1pass6fail、中文2pass5fail及全包quality缺dishes的RED保留；补数据后7+7新项和全14包组合quality首次通过。旧回归首轮两个失败是function-word历史总量断言，不改历史指纹/候选行为，将历史检查限定原窗口，并精确更新全资源当前数量。未改语言算法、候选/模型预算、日语或推荐包字节，旧评分不提高；typed模型失败与引擎reseed不代表原生键盘/HTTP或实模验收。准确回归与严格检查结果见开发记录；未安装、提交、推送或发布。"
+    },
+    {
+      "id": "E-preference-feedback",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/ibus-candidates.md", "docs/known-limitations.md", "src/bin/panel/tray.rs", "src/platform/linux_ime_control.rs", "src/ui/catalog.tsv"],
+      "scope": "2026-10-12偏好清除超时后的托盘只读确认、状态反馈与八语言资源；源码和私有测试",
+      "note": "保留原700ms预算和一次F，超时后保留已接受epoch/id；只读S解析严格clear状态，后续刷新仅匹配原凭据才确认成功，重启/替代/无效状态无假成功。托盘区分saving/clearing，显示有界数量、确认结果和独立失败原因，学习恢复后撤销旧成功提示；按需合并刷新不轮询，激活prepare不等刷新。新增31项八语言资源（含18文件错误）；14协议、19托盘、3本地化定向项及原九组真实私有IBus通过。未改存储策略、默认开关、原生夹具/期限或旧评分，未替换个人安装、打包、提交或推送，不代表桌面菜单视觉、实体键盘、Wayland或实际模型验收。"
+    },
+    {
+      "id": "E-preference-lifecycle",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/ibus-candidates.md", "docs/known-limitations.md", "src/data/files.rs", "src/preferences/store.rs", "src/preferences/worker.rs", "tests/preference_persistence.rs", "scripts/test-preference-host.py", "tests/preference_host.rs"],
+      "scope": "2026-10-12Linux偏好保存中SIGTERM及有界退出后的专属临时文件恢复；隔离私有文件/总线",
+      "note": "原八workflow/会话及700ms退出时限不改，新增真实held fsync退出：及时释放保存最新合并选择并恢复排名，超时准确警告未确认/正式文件保持；首轮重启遗留1敏感temp红测保留。独立.suzaku-preferences-pid-seq.tmp namespace，exclusive lease内128目录项/64temp上限、先全量private singlelink regular/no-follow预检后unlink+dir sync，启动及显式clear/reset不回放partial、不扫通用settings/backup temp，取消/链接/不安全/超限不删除。新4文件负例含5不安全类型及两budget；新namespace校验与bootstrap超时worker保lease/迟到cache丢弃单测，超时诊断不再假称另一writer。首558lib零失败2ignored、19持久化/13学习及9组native通过；首次全量1758零失败30显式ignored共129组、严格Clippy通过，新增精确接近8次频率断言后9组native再次通过；旧完整默认/inline门禁各含全部106HTTP失败/超时通过，原120s私有会话界限不变，9原源guard/21张量/18CI图通过；不提高旧评分，不代表安装/托盘视觉/实体键盘/Wayland/真实模型；强杀和退出超时仍可能丢最新未确认数据及暂留摘要到后续安全回收。"
+    },
+    {
+      "id": "E-native-preference",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/ibus-candidates.md", "docs/known-limitations.md", "tests/preference_host.rs", "scripts/test-preference-host.py", "scripts/fixtures/preference-fsync.c"],
+      "scope": "2026-10-12Linux源码宿主默认持久化；私有总线、合成中英输入、实际文件同步及清除客户端",
+      "note": "500ms输入循环前worker冷恢复、一个在途+最新save+优先clear，磁盘操作不持session/queue锁，clear/private/superseding拒旧staged写；SIGTERM主循环退出后700ms有界冲刷。普通state与显式配置namespace隔离，memory显式optout及原QA内存语义保留；新原生gate不设QA旧marker或mode，验证真实默认。F仅返回accepted，原700ms单deadline只S查询epoch+id exact complete才确认，空ACK/换宿主/替代/失败/超时无假成功且不重发F。9worker+4client+1policy专项及556lib零失败2ignored通过；首native六组断言完成但报告误期望7而失败保留，仅修新计数后六组通过，再追加state隔离/memory两组共8通过，正常all-feature Rust门禁不skip。首次最终全量1752零失败30显式ignored共129组；原C/nativefixture/runner/原slowsettings和deadline不改，九原source guard过。私有实际stage/目录fsync阻塞时输入响应、staged取消无temp/回写、700ms CLI未确认与后续durable receipt、EIO、private、坏文件显式重建均验证。强杀/OOM未确认保存仍可能丢失，不等于GUI标签/安装/实体键盘/Wayland/真实模型验收。"
+    },
+    {
+      "id": "E-preference-persistence",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/ibus-candidates.md", "docs/known-limitations.md", "tests/preference_persistence.rs"],
+      "scope": "2026-10-12偏好持久化第一阶段：可移植编解码、Linux私有文件和引擎冷恢复API",
+      "note": "目标默认开启可随时清除，但未接宿主后台保存/启动恢复/退出冲刷/托盘磁盘清除确认，当前native仅内存且个人安装不动。v1 HMAC-SHA256-128按域/字节长度区分语言querycandidate，32byte随机key同文件不等于匿名化/加密；512KiB/2048有界严格解析，24h半衰期覆盖停机/单调时钟，倒退不增加。私有owned目录/0600 regular singlelink/no-follow/nonblock，协作独占锁、临时fsync+rename+父目录sync，坏文件/检测外部编辑保留，非同UID恶意race CAS。清除后mutation revision及同revision tombstone拒绝旧保存；独立owner拒绝foreign snapshot/旧receipt。首27专项/1736全量通过后追加foreign receipt红测，owner修复后首全量1737零失败30显式ignored共128组；15新集成含两个实际进程/文件、late/private restore与live selection，熵故障单测保留RAM但拒export。不把这些当native/UI/慢I/O/安装/真实模型验收，不改旧断言/期限或旧成熟度。"
+    },
     {
       "id": "E-ci-lanes",
       "kind": "historical_run",
@@ -1340,6 +1440,13 @@
       "paths": ["DEVELOPMENT.md", "scripts/run-ast-guard.py", "scripts/test-ast-guard.py"],
       "scope": "2026-10-12五项冻结AST检查的Python3.12/3.14格式兼容与受限执行",
       "note": "0.8.7首轮CI38154577312两摘要失败，本机3.12首次精确复现而3.14旧值一致。仅新增白名单入口、固定历史compact格式；五原guard全文/SHA断言/期限不改。两版本各13格式/范围负例与原19+13+13+18+22检查通过，共196；None和literal保留，不修改AST，任意路径/选项拒绝、异常和退出码传播、进程状态恢复。另本机3.12 GI ABI导入失败保留，系统3.14独立6项信号检查通过；远端精确CI和Ubuntu打包安装仍独立门禁，无生产修复或成熟度上调。"
+    },
+    {
+      "id": "E-shared-noop-controls",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "src/ime/core_engine.rs", "tests/ime_noop_controls.rs", "tests/prediction_edit_conflicts.rs"],
+      "scope": "2026-10-12共享引擎重复语言/信号控件；固定短长离线选择和中英受控预测",
+      "note": "初次离线4/5与受控新增3/3失败记录保留；原11预测测试完整字节前缀不改。等值语言别名/已应用信号不rebuild，保留全文/池/明确选择和Pending token/Ready model/error；首次信号置信度仍初始化，实际切换/弱信号仍刷新，active plugin dirty保留惰性替换语义，inactive注册不扰动当前选择。新5离线测试每等值控件17固定EN/ZH/JA短长Word/Sentence组合，加首次/变化信号与plugin正例；3受控测试为EN/ZH×普通/IBus混排×Pending/Ready/error共12组合，原request正向接受、一次精确提交/undo及真正seed后新请求成功。首修19专项全过。非原生显示模式/HTTP socket/实体键盘/安装/Wayland/真实模型验收，不改settings worker/Native dispatch/词库/协议/时限，不提高评分；全量与Clippy结果见开发记录，已发布98ee576的CI成功不代表此工作区发布验收。"
     },
     {
       "id": "E-prediction-error-boundaries",
@@ -2214,6 +2321,8 @@
         2
       ],
       "evidence": [
+        "E-daily-mealtime",
+        "E-daily-household",
         "E-daily-care",
         "E-daily-carry",
         "E-daily-requests",
@@ -2247,6 +2356,8 @@
         2
       ],
       "evidence": [
+        "E-daily-mealtime",
+        "E-daily-household",
         "E-daily-care",
         "E-daily-carry",
         "E-daily-requests",
@@ -2282,6 +2393,8 @@
         2
       ],
       "evidence": [
+        "E-daily-mealtime",
+        "E-daily-household",
         "E-chinese-mixed-boundary",
         "E-chinese-adopted-flow",
         "E-chinese-partial-progress",
@@ -2371,6 +2484,7 @@
         2
       ],
       "evidence": [
+        "E-shared-noop-controls",
         "E-linux-delivery"
       ],
       "limit": "状态机/内存undo存在；眼动、手追踪只是信号类型，没有设备采集闭环。"
@@ -2449,6 +2563,7 @@
         2
       ],
       "evidence": [
+        "E-shared-noop-controls",
         "E-prediction-error-boundaries",
         "E-prediction-edit-conflicts",
         "E-prediction-preservation",
@@ -2488,6 +2603,7 @@
         2
       ],
       "evidence": [
+        "E-shared-noop-controls",
         "E-prediction-error-boundaries",
         "E-prediction-preservation",
         "E-prediction-protocol",
@@ -3125,6 +3241,42 @@
         "E-linux-delivery"
       ],
       "limit": "进程内有界指纹缓存；确认选择才学习，不保存正文/跨重启历史。英文采用后变为.com/:world等词元即取消暂存；真实标点边界保留，删除回旧拼写不复活选择。"
+    },
+    {
+      "a": "A02",
+      "f": "F69",
+      "i": "preference-file",
+      "m": [
+        3,
+        3,
+        null,
+        2
+      ],
+      "evidence": [
+        "E-preference-persistence",
+        "E-preference-lifecycle",
+        "E-native-preference",
+        "E-linux-delivery"
+      ],
+      "limit": "有界格式/文件/单写者、优先清除与取消；Linux宿主默认接线见native-preference。包含随机key的指纹文件仍敏感，不自动备份，不保证安全擦除或同UID恶意并发防护；强杀/挂起仍可能丢失最新未确认保存。未安装或发布。"
+    },
+    {
+      "a": "A01",
+      "f": "F69",
+      "i": "native-preference",
+      "m": [
+        3,
+        3,
+        null,
+        2
+      ],
+      "evidence": [
+        "E-preference-feedback",
+        "E-preference-lifecycle",
+        "E-native-preference",
+        "E-linux-delivery"
+      ],
+      "limit": "Linux源码宿主默认后台持久化、启动恢复/有界退出及托盘/CLI清除ACK；九组真实私有IBus非个人安装、菜单标签视觉、实体键盘或Wayland验收。退出超时仍可能暂留专属temp直到下次安全回收；其他宿主仍内存；文件错误回退RAM并显示错误，超时/断线不确认删除，不保证强杀零丢失。"
     },
     {
       "a": "A03",

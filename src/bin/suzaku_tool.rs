@@ -15,6 +15,9 @@ mod data;
 #[path = "suzaku_tool/pack.rs"]
 mod pack;
 
+#[path = "suzaku_tool/preferences.rs"]
+mod preferences;
+
 const CONNECTION_NAME: &str = "dev.suzaku.linux.ime";
 const IBUS_COMPONENT_NAME: &str = "org.freedesktop.IBus.Suzaku";
 const IBUS_USER_SERVICE_NAME: &str = "suzaku-ibus.service";
@@ -47,6 +50,7 @@ fn run() -> i32 {
         }
         "data" => data::run(&args[2..]),
         "pack" => pack::run(&args[2..]),
+        "preferences" => preferences::run(&args[2..]),
         "model" | "llama" => model::run(&args[2..]),
         "linux-register" => linux_register(&args[2..]),
         "linux-register-ime" => linux_register(&args[2..]),
@@ -75,6 +79,7 @@ fn run() -> i32 {
 
 fn print_help() {
     println!("Usage:");
+    println!("  suzaku_tool preferences [status|clear] (running Linux host only)");
     println!(
         "  suzaku_tool pack [list|catalog|export ID FILE|validate FILE|install FILE [--replace]|enable ID|disable ID|remove ID|preview LANGUAGE TEXT]"
     );

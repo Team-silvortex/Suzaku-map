@@ -163,6 +163,7 @@ pub fn run() -> Result<(), String> {
         .map_err(|_| "IBus engine name contains a null byte".to_string())?;
     let version = CString::new(env!("CARGO_PKG_VERSION"))
         .map_err(|_| "Package version contains a null byte".to_string())?;
+    let _shutdown_signals = ShutdownSignals::install()?;
 
     let code = unsafe {
         suzaku_linux_ibus_run(
@@ -175,5 +176,47 @@ pub fn run() -> Result<(), String> {
         Ok(())
     } else {
         Err(format!("IBus engine host exited with status {code}"))
+    }
+}
+
+// GLib dispatches these handlers on the main context, not in an async signal
+// handler. Ordinary service termination thus returns through the host's bounded
+// off-input-loop flush instead of abruptly dropping its latest confirmed save.
+unsafe extern "C" {
+    fn g_unix_signal_add(
+        signal: i32,
+        callback: unsafe extern "C" fn(*mut std::ffi::c_void) -> i32,
+        data: *mut std::ffi::c_void,
+    ) -> u32;
+    fn g_source_remove(source: u32) -> i32;
+    fn ibus_quit();
+}
+struct ShutdownSignals([u32; 2]);
+impl ShutdownSignals {
+    fn install() -> Result<Self, String> {
+        unsafe extern "C" fn stop(_: *mut std::ffi::c_void) -> i32 {
+            unsafe {
+                ibus_quit();
+            }
+            1 // Retain source ownership until run's guard removes it.
+        }
+        let sources = [libc::SIGTERM, libc::SIGINT]
+            .map(|signal| unsafe { g_unix_signal_add(signal, stop, std::ptr::null_mut()) });
+        let guard = Self(sources);
+        if sources.contains(&0) {
+            return Err("Could not register graceful host shutdown".into());
+        }
+        Ok(guard)
+    }
+}
+impl Drop for ShutdownSignals {
+    fn drop(&mut self) {
+        for source in self.0 {
+            if source != 0 {
+                unsafe {
+                    g_source_remove(source);
+                }
+            }
+        }
     }
 }

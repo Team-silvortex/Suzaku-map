@@ -16,7 +16,10 @@ mod platform {
     use suzaku_map::languages::model::{ModelProviderConfig, ModelScope, runtime as model_runtime};
     #[cfg(feature = "linux-ibus")]
     use suzaku_map::platform::linux_ibus_recovery::{Event as RecoveryEvent, Monitor};
-    use suzaku_map::platform::linux_ime_control::{self, NativeImeStatus};
+    use suzaku_map::platform::linux_ime_control::{
+        self, NativeImeStatus, NativePreferenceClearState, NativePreferenceStatus,
+        PreferenceClearFailure, PreferenceClearReceipt,
+    };
     use suzaku_map::ui::UiLanguage;
 
     const TRAY_ICON_SIZES: [i32; 4] = [22, 32, 48, 64];
@@ -80,9 +83,127 @@ mod platform {
     }
 
     #[derive(Default)]
+    struct PreferenceMenuState {
+        clearing: bool,
+        awaiting: Option<PreferenceClearReceipt>,
+        notice: Option<&'static str>,
+        detail: Option<String>,
+    }
+
+    impl PreferenceMenuState {
+        fn begin(&mut self) {
+            self.clearing = true;
+            self.awaiting = None;
+            self.notice = None;
+            self.detail = None;
+        }
+
+        fn finish(&mut self, result: &Result<NativeImeStatus, PreferenceClearFailure>) {
+            self.clearing = false;
+            match result {
+                Ok(state) => {
+                    self.awaiting = None;
+                    self.detail = None;
+                    self.notice = Some(if state.preferences.enabled {
+                        "Candidate preferences cleared (memory + local file)"
+                    } else {
+                        "Candidate preferences cleared (memory only)"
+                    });
+                    self.observe(&state.preferences);
+                }
+                Err(failure) => {
+                    self.awaiting = failure.receipt.clone();
+                    self.notice = Some("Candidate preference clear unconfirmed; refresh status");
+                    self.detail = Some(failure.message.clone());
+                }
+            }
+        }
+
+        fn observe(&mut self, preferences: &NativePreferenceStatus) {
+            // A restart or someone else's later clear cannot confirm this request.
+            if let (Some(receipt), Some(clear)) = (&self.awaiting, &preferences.clear)
+                && receipt == &clear.receipt
+            {
+                match clear.state {
+                    NativePreferenceClearState::Pending => {}
+                    NativePreferenceClearState::Complete => {
+                        self.awaiting = None;
+                        self.detail = None;
+                        self.notice = Some("Candidate preferences cleared (memory + local file)");
+                    }
+                    NativePreferenceClearState::Failed => {
+                        self.awaiting = None;
+                        self.notice = Some("Candidate preference clear failed");
+                        self.detail = clear.error.clone().or_else(|| preferences.error.clone());
+                    }
+                }
+            }
+            // Learning can resume immediately after a successful clear. Show the
+            // current cache rather than leaving an empty-cache message indefinitely.
+            if (preferences.entries > 0 || preferences.pending || preferences.error.is_some())
+                && matches!(
+                    self.notice,
+                    Some("Candidate preferences cleared (memory + local file)")
+                        | Some("Candidate preferences cleared (memory only)")
+                )
+            {
+                self.notice = None;
+            }
+        }
+
+        fn clear_pending(preferences: &NativePreferenceStatus) -> bool {
+            preferences
+                .clear
+                .as_ref()
+                .is_some_and(|clear| clear.state == NativePreferenceClearState::Pending)
+        }
+
+        fn detail<'a>(
+            &'a self,
+            preferences: Option<&'a NativePreferenceStatus>,
+        ) -> Option<&'a str> {
+            self.detail
+                .as_deref()
+                .or_else(|| self.notice.and_then(|_| preferences?.error.as_deref()))
+        }
+
+        fn label(&self, preferences: Option<&NativePreferenceStatus>, ui: UiLanguage) -> String {
+            if self.clearing {
+                return "Candidate preferences: clearing…".into();
+            }
+            let Some(preferences) = preferences else {
+                return self
+                    .notice
+                    .filter(|_| self.awaiting.is_some())
+                    .unwrap_or("Candidate preferences unavailable")
+                    .into();
+            };
+            if Self::clear_pending(preferences) {
+                return "Candidate preferences: clearing…".into();
+            }
+            if let Some(notice) = self.notice {
+                return notice.into();
+            }
+            if let Some(error) = &preferences.error {
+                // message() intentionally preserves template payloads. Translate
+                // this program-owned inner message before localizing the menu.
+                format!("Candidate preferences: {}", ui.message(error))
+            } else if preferences.pending {
+                "Candidate preferences: saving locally…".into()
+            } else if preferences.memory_only {
+                "Candidate preferences: memory only".into()
+            } else {
+                "Candidate preferences: local persistence".into()
+            }
+        }
+    }
+
+    #[derive(Default)]
     struct InputMethodMenuState {
         system: InputMethodState,
         busy: bool,
+        refresh_pending: bool,
+        preferences: PreferenceMenuState,
         status_error: Option<String>,
         operation_error: Option<String>,
         native: Option<NativeImeStatus>,
@@ -92,6 +213,23 @@ mod platform {
     }
 
     impl InputMethodMenuState {
+        fn request_refresh(&mut self, control_tx: &Sender<TrayControl>) {
+            if self.busy || self.refresh_pending {
+                return;
+            }
+            self.refresh_pending = true;
+            if control_tx.send(TrayControl::RefreshInputMethod).is_err() {
+                self.refresh_pending = false;
+                self.operation_error = Some("Tray controller unavailable; restart Suzaku".into());
+            }
+        }
+
+        fn observe_native(&mut self, state: NativeImeStatus) {
+            self.preferences.observe(&state.preferences);
+            self.native = Some(state);
+            self.native_error = None;
+        }
+
         fn request_control(
             &mut self,
             control_tx: &Sender<TrayControl>,
@@ -102,11 +240,14 @@ mod platform {
                 return;
             }
             let activating = matches!(command, TrayControl::ActivateInputMethod);
+            let clearing = matches!(command, TrayControl::ClearPreferences);
             self.busy = true;
             self.operation_error = None;
             if control_tx.send(command).is_err() {
                 self.busy = false;
                 self.operation_error = Some("Tray controller unavailable; restart Suzaku".into());
+            } else if clearing {
+                self.preferences.begin();
             } else if activating {
                 // The tray callback holds the ksni service lock. Publish preparation
                 // before that callback returns, so later Show/Hide actions stay newer
@@ -344,12 +485,16 @@ mod platform {
 
         fn menu_about_to_show(&mut self) {
             // Refresh on demand, without polling or blocking the tray's D-Bus callbacks.
-            if !self.input_method.busy {
-                let _ = self.control_tx.send(TrayControl::RefreshInputMethod);
-            }
+            self.input_method.request_refresh(&self.control_tx);
         }
 
         fn menu(&self) -> Vec<MenuItem<Self>> {
+            let preference_detail = self.input_method.preferences.detail(
+                self.input_method
+                    .native
+                    .as_ref()
+                    .map(|state| &state.preferences),
+            );
             let mut menu = vec![
                 CheckmarkItem {
                     label: "Activate Suzaku".into(),
@@ -535,8 +680,59 @@ mod platform {
                 }
                 .into(),
                 StandardItem {
-                    label: "Clear candidate preferences (memory only)".into(),
-                    enabled: !self.input_method.busy && self.input_method.native.is_some(),
+                    label: self.input_method.preferences.label(
+                        self.input_method
+                            .native
+                            .as_ref()
+                            .map(|state| &state.preferences),
+                        self.ui_language,
+                    ),
+                    enabled: false,
+                    ..Default::default()
+                }
+                .into(),
+                StandardItem {
+                    label: preference_detail.unwrap_or_default().into(),
+                    visible: preference_detail.is_some(),
+                    enabled: false,
+                    ..Default::default()
+                }
+                .into(),
+                StandardItem {
+                    label: self.input_method.native.as_ref().map_or_else(
+                        || "Candidate preferences unavailable".into(),
+                        |state| format!("Remembered preferences: {}", state.preferences.entries),
+                    ),
+                    visible: self.input_method.native.is_some(),
+                    enabled: false,
+                    ..Default::default()
+                }
+                .into(),
+                StandardItem {
+                    label: "Refresh candidate preferences".into(),
+                    enabled: !self.input_method.busy && !self.input_method.refresh_pending,
+                    activate: Box::new(|tray: &mut Self| {
+                        tray.input_method.request_refresh(&tray.control_tx);
+                    }),
+                    ..Default::default()
+                }
+                .into(),
+                StandardItem {
+                    label: if self
+                        .input_method
+                        .native
+                        .as_ref()
+                        .is_some_and(|state| state.preferences.enabled)
+                    {
+                        "Clear candidate preferences (memory + local file)"
+                    } else {
+                        "Clear candidate preferences (memory only)"
+                    }
+                    .into(),
+                    enabled: !self.input_method.busy
+                        && self.input_method.native.as_ref().is_some_and(|state| {
+                            !PreferenceMenuState::clear_pending(&state.preferences)
+                        }),
                     activate: Box::new(|tray: &mut Self| {
                         tray.request_input_method(TrayControl::ClearPreferences)
                     }),
@@ -762,6 +958,9 @@ mod platform {
                         }
                         TrayControl::RefreshInputMethod => {
                             refresh_input_method(&handle, &mut input_method);
+                            let _ = handle.update(|tray| {
+                                tray.input_method.refresh_pending = false;
+                            });
                         }
                         #[cfg(feature = "linux-ibus")]
                         TrayControl::EngineRecovery(event) => {
@@ -797,7 +996,10 @@ mod platform {
                             publish_native_settings(&handle, linux_ime_control::reload_settings());
                         }
                         TrayControl::ClearPreferences => {
-                            publish_native_settings(&handle, linux_ime_control::clear_preferences());
+                            publish_preference_clear(
+                                &handle,
+                                linux_ime_control::clear_preferences_tracked(),
+                            );
                         }
                         TrayControl::CheckModel(ref config)
                         | TrayControl::WarmModel(ref config) => {
@@ -957,8 +1159,7 @@ mod platform {
         let _ = handle.update(|tray| {
             match native {
                 Ok(state) => {
-                    tray.input_method.native = Some(state);
-                    tray.input_method.native_error = None;
+                    tray.input_method.observe_native(state);
                 }
                 Err(error) => {
                     tray.input_method.native = None;
@@ -977,6 +1178,35 @@ mod platform {
         publish_settings_result(handle, result, false);
     }
 
+    fn publish_preference_clear(
+        handle: &TrayHandle,
+        result: Result<NativeImeStatus, PreferenceClearFailure>,
+    ) {
+        // One read-only reconciliation after a failed/unconfirmed request. Further
+        // reads happen only on menu open or explicit refresh; never resend F here.
+        let refreshed = result.as_ref().err().map(|_| linux_ime_control::status());
+        let _ = handle.update(|tray| {
+            tray.input_method.busy = false;
+            tray.input_method.preferences.finish(&result);
+            let native = match result {
+                Ok(state) => Ok(state),
+                Err(_) => refreshed.expect("failed clear has a status refresh"),
+            };
+            match native {
+                Ok(state) => tray.input_method.observe_native(state),
+                Err(error) => {
+                    tray.input_method.native = None;
+                    tray.input_method.native_error = Some(error);
+                }
+            }
+            if let Some(state) = &tray.input_method.native {
+                tray.send(PanelUserEvent::InputMethodSettingsChanged(
+                    state.settings.clone(),
+                ));
+            }
+        });
+    }
+
     fn publish_settings_result(
         handle: &TrayHandle,
         result: Result<NativeImeStatus, String>,
@@ -990,8 +1220,7 @@ mod platform {
         let _ = handle.update(|tray| {
             tray.input_method.busy = false;
             if let Some(state) = confirmed {
-                tray.input_method.native = Some(state);
-                tray.input_method.native_error = None;
+                tray.input_method.observe_native(state);
             } else {
                 tray.input_method.native = None;
                 tray.input_method.native_error = error.clone();
@@ -1035,6 +1264,246 @@ mod platform {
             InputMethodMenuState, InputMethodState, TRAY_ICON_SIZES, menu_label, suzaku_icon,
         };
         use crate::input_method::SUZAKU_ENGINE;
+
+        fn preference_status() -> super::NativeImeStatus {
+            use super::*;
+            NativeImeStatus {
+                settings: Default::default(),
+                prediction: "Disabled".into(),
+                prediction_error: None,
+                preferences: NativePreferenceStatus {
+                    enabled: true,
+                    memory_only: false,
+                    pending: false,
+                    error: None,
+                    entries: 0,
+                    clear: Some(linux_ime_control::NativePreferenceClearStatus {
+                        receipt: PreferenceClearReceipt {
+                            epoch: "a".repeat(32),
+                            id: 7,
+                        },
+                        state: NativePreferenceClearState::Complete,
+                        error: None,
+                    }),
+                },
+            }
+        }
+
+        #[test]
+        fn preference_refresh_confirms_only_the_original_clear_and_preserves_other_errors() {
+            use super::*;
+            for terminal in [
+                NativePreferenceClearState::Complete,
+                NativePreferenceClearState::Failed,
+            ] {
+                let mut native = preference_status();
+                let receipt = native.preferences.clear.as_ref().unwrap().receipt.clone();
+                let mut state = InputMethodMenuState {
+                    operation_error: Some("Unrelated activation error".into()),
+                    ..Default::default()
+                };
+                state.preferences.finish(&Err(PreferenceClearFailure {
+                    message: "Timed out".into(),
+                    receipt: Some(receipt.clone()),
+                }));
+                assert_eq!(state.preferences.detail(None), Some("Timed out"));
+                for variant in 0..3 {
+                    let mut unrelated = native.clone();
+                    match variant {
+                        0 => {
+                            unrelated.preferences.clear.as_mut().unwrap().receipt.epoch =
+                                "b".repeat(32)
+                        }
+                        1 => unrelated.preferences.clear.as_mut().unwrap().receipt.id += 1,
+                        _ => unrelated.preferences.clear = None,
+                    }
+                    state.observe_native(unrelated);
+                    assert_eq!(state.preferences.awaiting, Some(receipt.clone()));
+                    assert_eq!(
+                        state.preferences.notice,
+                        Some("Candidate preference clear unconfirmed; refresh status")
+                    );
+                }
+                assert_eq!(
+                    state.preferences.label(None, UiLanguage::English),
+                    "Candidate preference clear unconfirmed; refresh status"
+                );
+                native.preferences.clear.as_mut().unwrap().state =
+                    NativePreferenceClearState::Pending;
+                state.observe_native(native.clone());
+                assert_eq!(
+                    state
+                        .preferences
+                        .label(Some(&native.preferences), UiLanguage::English),
+                    "Candidate preferences: clearing…"
+                );
+                assert!(state.preferences.awaiting.is_some());
+                native.preferences.clear.as_mut().unwrap().state = terminal.clone();
+                if terminal == NativePreferenceClearState::Failed {
+                    native.preferences.clear.as_mut().unwrap().error =
+                        Some("Preference storage is already in use".into());
+                }
+                state.observe_native(native);
+                assert!(state.preferences.awaiting.is_none());
+                assert_eq!(
+                    state.preferences.notice,
+                    Some(if terminal == NativePreferenceClearState::Complete {
+                        "Candidate preferences cleared (memory + local file)"
+                    } else {
+                        "Candidate preference clear failed"
+                    })
+                );
+                assert_eq!(
+                    state.operation_error.as_deref(),
+                    Some("Unrelated activation error")
+                );
+                assert_eq!(
+                    state.preferences.detail(None),
+                    if terminal == NativePreferenceClearState::Failed {
+                        Some("Preference storage is already in use")
+                    } else {
+                        None
+                    }
+                );
+                state.preferences.begin();
+                assert!(state.preferences.detail(None).is_none());
+            }
+        }
+
+        #[test]
+        fn clear_feedback_tracks_queue_success_resumed_learning_and_unaccepted_failure() {
+            use super::*;
+            let (tx, rx) = mpsc::channel();
+            let mut state = InputMethodMenuState::default();
+            state.request_control(&tx, TrayControl::ClearPreferences, |_| {
+                panic!("no activation")
+            });
+            assert!(matches!(rx.try_recv(), Ok(TrayControl::ClearPreferences)));
+            assert_eq!(
+                state.preferences.label(None, UiLanguage::English),
+                "Candidate preferences: clearing…"
+            );
+            let mut native = preference_status();
+            state.preferences.finish(&Ok(native.clone()));
+            assert!(!state.preferences.clearing);
+            assert_eq!(
+                state.preferences.notice,
+                Some("Candidate preferences cleared (memory + local file)")
+            );
+            native.preferences.entries = 1;
+            state.observe_native(native.clone());
+            assert!(state.preferences.notice.is_none());
+            native.preferences.enabled = false;
+            native.preferences.memory_only = true;
+            native.preferences.entries = 0;
+            native.preferences.clear = None;
+            state.preferences.finish(&Ok(native.clone()));
+            assert_eq!(
+                state.preferences.notice,
+                Some("Candidate preferences cleared (memory only)")
+            );
+            state.preferences.finish(&Err(PreferenceClearFailure {
+                message: "No acknowledgement".into(),
+                receipt: None,
+            }));
+            state.observe_native(preference_status());
+            assert_eq!(
+                state.preferences.notice,
+                Some("Candidate preference clear unconfirmed; refresh status")
+            );
+        }
+
+        #[test]
+        fn preference_status_and_storage_errors_are_localized_before_menu_bounding() {
+            use super::*;
+            let feedback = PreferenceMenuState::default();
+            let mut native = preference_status();
+            native.preferences.error = Some("Invalid preference document".into());
+            for ui in UiLanguage::ALL
+                .into_iter()
+                .filter(|ui| *ui != UiLanguage::System)
+            {
+                let label = feedback.label(Some(&native.preferences), ui);
+                let expected = ui
+                    .tr("Candidate preferences: {}")
+                    .replace("{}", ui.tr("Invalid preference document"));
+                assert_eq!(ui.message(&label), expected);
+                let keys = [
+                    "Candidate preferences: clearing…",
+                    "Candidate preference clear unconfirmed; refresh status",
+                    "Candidate preference clear failed",
+                    "Candidate preferences cleared (memory + local file)",
+                    "Candidate preferences cleared (memory only)",
+                    "Clear candidate preferences (memory + local file)",
+                    "Refresh candidate preferences",
+                    "Remembered preferences: {}",
+                ];
+                let mut menu: Vec<MenuItem<()>> = keys
+                    .iter()
+                    .map(|key| {
+                        StandardItem {
+                            label: key.replace("{}", "2048"),
+                            enabled: false,
+                            ..Default::default()
+                        }
+                        .into()
+                    })
+                    .collect();
+                localize_menu(&mut menu, ui);
+                for (item, key) in menu.iter().zip(keys) {
+                    let MenuItem::Standard(item) = item else {
+                        panic!("standard row")
+                    };
+                    assert_eq!(item.label, menu_label(&ui.tr(key).replace("{}", "2048")));
+                    if ui != UiLanguage::English {
+                        assert_ne!(ui.tr(key), key);
+                    }
+                }
+            }
+            native.preferences.error = None;
+            native.preferences.pending = true;
+            assert_eq!(
+                feedback.label(Some(&native.preferences), UiLanguage::English),
+                "Candidate preferences: saving locally…"
+            );
+            native.preferences.clear.as_mut().unwrap().state = NativePreferenceClearState::Pending;
+            assert_eq!(
+                feedback.label(Some(&native.preferences), UiLanguage::English),
+                "Candidate preferences: clearing…"
+            );
+        }
+
+        #[test]
+        fn refresh_is_coalesced_without_delaying_activation_preparation() {
+            use super::*;
+            let (tx, rx) = mpsc::channel();
+            let mut state = InputMethodMenuState::default();
+            state.request_refresh(&tx);
+            state.request_refresh(&tx);
+            assert!(state.refresh_pending);
+            assert!(!state.busy);
+            let mut prepared = false;
+            state.request_control(&tx, TrayControl::ActivateInputMethod, |_| prepared = true);
+            assert!(prepared);
+            state.request_refresh(&tx);
+            assert!(matches!(rx.try_recv(), Ok(TrayControl::RefreshInputMethod)));
+            assert!(matches!(
+                rx.try_recv(),
+                Ok(TrayControl::ActivateInputMethod)
+            ));
+            assert!(rx.try_recv().is_err());
+            state.refresh_pending = false; // Worker finished only its queued read.
+            assert!(state.busy);
+            state.busy = false;
+            drop(rx);
+            state.request_refresh(&tx);
+            assert!(!state.refresh_pending);
+            assert!(!state.busy);
+            assert_eq!(
+                state.operation_error.as_deref(),
+                Some("Tray controller unavailable; restart Suzaku")
+            );
+        }
 
         #[test]
         fn activation_prepares_before_delayed_worker_and_newer_visibility_actions() {

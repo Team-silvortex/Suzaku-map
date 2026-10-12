@@ -8,6 +8,8 @@ use std::ffi::{CStr, CString};
 use std::sync::{Arc, Mutex, OnceLock};
 
 mod control;
+#[cfg(target_os = "linux")]
+pub mod persistence;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct HostImeUpdate {
@@ -24,6 +26,8 @@ pub struct HostImeSession {
     active: bool,
     settings: ImeSettings,
     private: bool,
+    #[cfg(target_os = "linux")]
+    preferences: persistence::HostPreferences,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -50,6 +54,8 @@ impl HostImeSession {
             active: false,
             settings,
             private: false,
+            #[cfg(target_os = "linux")]
+            preferences: Default::default(),
         }
     }
 
@@ -127,10 +133,69 @@ impl HostImeSession {
     pub fn set_private(&mut self, private: bool) {
         if self.private != private {
             self.private = private;
+            #[cfg(target_os = "linux")]
+            if let Some(writer) = &self.preferences.writer {
+                writer.set_private(private);
+                // A canceled public save may be queued again on leaving privacy;
+                // the worker's clear fence still rejects pre-clear revisions.
+                if !private && self.engine.preference_revision() != 0 {
+                    self.preferences.queued_revision = None;
+                }
+            }
             self.engine.clear_session_context();
             self.engine.set_preferences_enabled(!private);
             self.apply_settings(self.settings.clone());
         }
+    }
+
+    #[cfg(target_os = "linux")]
+    fn schedule_preferences(&mut self) {
+        if self.private || self.preferences.writer.is_none() {
+            return;
+        }
+        let revision = self.engine.preference_revision();
+        if self.preferences.queued_revision == Some(revision) {
+            return;
+        }
+        match self.engine.preference_snapshot() {
+            Ok(snapshot) => {
+                self.preferences.writer.as_ref().unwrap().schedule(snapshot);
+                self.preferences.queued_revision = Some(revision);
+            }
+            Err(error) => self.preferences.error = Some(error),
+        }
+    }
+
+    fn clear_preferences_control(&mut self) -> serde_json::Value {
+        #[cfg(target_os = "linux")]
+        if self.preferences.enabled {
+            let snapshot = self.engine.clear_preference_snapshot();
+            let result = snapshot.and_then(|snapshot| {
+                self.preferences.queued_revision = Some(snapshot.revision());
+                self.preferences
+                    .writer
+                    .as_ref()
+                    .ok_or(
+                        self.preferences
+                            .error
+                            .unwrap_or(crate::preferences::persistence::PreferenceError::Busy),
+                    )?
+                    .clear(snapshot, std::time::Duration::from_millis(500))
+            });
+            return match result {
+                Ok(id) => {
+                    let mut response = control::response(
+                        self,
+                        Err("偏好文件清除请求已接受，完成前不能确认已清除".into()),
+                    );
+                    response["preference_clear_accepted"] = id.into();
+                    response
+                }
+                Err(error) => control::response(self, Err(error.to_string())),
+            };
+        }
+        self.engine.clear_preferences();
+        control::response(self, Ok(()))
     }
 
     pub fn current_update(&self) -> HostImeUpdate {
@@ -176,7 +241,10 @@ fn shared_last_commit() -> &'static Mutex<Option<String>> {
 fn with_shared_host_ime_session<T>(f: impl FnOnce(&mut HostImeSession) -> T) -> T {
     let mutex = shared_host_ime_session();
     let mut guard = mutex.lock().expect("shared host ime session lock poisoned");
-    f(&mut guard)
+    let result = f(&mut guard);
+    #[cfg(target_os = "linux")]
+    guard.schedule_preferences();
+    result
 }
 
 pub fn host_bridge_snapshot() -> HostImeBridgeSnapshot {
@@ -436,8 +504,7 @@ pub extern "C" fn suzaku_host_ime_control_utf8(
     };
     let value = with_shared_host_ime_session(|session| {
         if command == "F" {
-            session.engine.clear_preferences();
-            return control::response(session, Ok(()));
+            return session.clear_preferences_control();
         }
         let result = control::settings_for_command(&command, &session.settings, ImeSettings::load)
             .and_then(|change| {

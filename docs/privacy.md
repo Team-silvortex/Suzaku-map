@@ -6,7 +6,8 @@ These are implementation boundaries, not a security certification.
 ## Local data
 
 Drafts, candidate lists, translations, handwriting/voice drafts and short committed context remain
-in memory. Suzaku does not persist input history. Backups include recognized settings and key-variable
+in memory. Suzaku does not persist verbatim input history, but the candidate preferences described
+below are sensitive learned data. Backups include recognized settings and key-variable
 names, not key values, drafts, model weights or transcripts. Backups are unencrypted and may reveal
 provider addresses and preferences; review before sharing. See [data management](linux-packaging-data.md).
 
@@ -18,21 +19,49 @@ never include private records in packages you distribute. Pack validation is not
 Once a pack's suggestion is adopted into an ordinary draft, existing opt-in provider rules apply to
 that draft exactly as for manually typed text; importing vocabulary does not grant cloud consent.
 
-The 0.7.3 IBus frequency cache is separate from settings and dictionaries. It retains
-at most 2,048 salted fingerprints of language/query/candidate tuples and decaying counts, rather
-than draft text. Hashing is not encryption or an anonymity guarantee. Confirmed
-preferences can affect existing suggestions across ordinary fields during the host's lifetime;
-the cache never generates text or sends its contents to a model. Private fields neither read
-nor update it. Pending adoptions are discarded on cancellation, editing away the chosen prefix,
-focus/language/provider/privacy boundaries, or cache clear. A number/Shift+Enter/Space adoption
-is not learned until its text survives to a successful engine commit. Native delivery still uses
-IBus's normal commit signal, not an application-level receipt.
+Since 0.8.8, the Linux/IBus host persists candidate preferences by default, separately from settings
+and dictionaries. At most 2,048 language/query/candidate fingerprints and decaying counts are saved
+in a versioned file capped at 512 KiB, together with a save timestamp and the fingerprint key.
+**The key is in the same file: HMAC fingerprints are not encryption or anonymization.** Someone who
+can read it can test guesses of common input. The file contains no draft text, pending adoptions or
+undo history, but must still be treated as sensitive data. Counts decay with a 24-hour half-life,
+including time while the host is stopped. The cache only reorders existing suggestions; it neither
+generates text nor sends its contents to a model.
 
-No cache file, input history, backup entry or background persistence worker is created. The tray's
-**Clear candidate preferences (memory only)** action discards both confirmed and pending learning
-without changing a live selection; the next draft rebuild uses defaults. Restarting the host also
-forgets it. This is process-lifetime personalization, not a persistent user dictionary; unhinted
-masked fields have the same limitations described below.
+The default file is `$XDG_STATE_HOME/suzaku-ime/preferences-v1.json`, or
+`$HOME/.local/state/suzaku-ime/preferences-v1.json` when unset. An absolute `SUZAKU_IME_CONFIG`
+instead places it in `candidate-preferences/preferences-v1.json` next to that configuration.
+Linux storage requires owned private directories and single-link regular files (new directories
+0700, files 0600); visible symlinks and unsafe permissions are rejected. A bounded background worker
+owns file I/O. Invalid files, contention, startup timeout or detected external changes are reported
+without silently replacing the existing file; basic input can continue with memory-only learning.
+Normal exit allows a bounded save, but a crash, OOM or stalled filesystem can lose recent changes.
+Interrupted saves may leave private `.suzaku-preferences-<pid>-<sequence>.tmp` snapshots; a later
+disk-mode start or explicit clear validates and removes that bounded staging set without restoring it.
+
+Private fields neither read nor update preferences. Pending adoptions are discarded on cancellation,
+editing away the chosen prefix, focus/language/provider/privacy boundaries, or cache clear.
+A number/Shift+Enter/Space adoption is not learned until its text survives to a successful engine
+commit. Native delivery still uses IBus's normal commit signal, not an application-level receipt.
+Unhinted masked fields have the same limitations described below.
+
+The tray's **Clear candidate preferences (memory + local file)** action and
+`suzaku-tool preferences clear` discard confirmed and pending learning without changing a live
+selection. Completion is reported only after file deletion and parent-directory synchronization;
+an accepted request is not yet completion. Timeout/disconnection means unconfirmed: refresh the
+status, rather than assuming deletion or repeatedly clearing. A refresh must match the same host
+and clear operation; failures remain visible. Explicit clear can remove a corrupt but otherwise
+valid private file; unsafe permissions, a competing writer or an external conflict can prevent it.
+Older queued saves cannot recreate a cleared file, but later confirmed choices can start learning
+again. Deletion is not secure erasure and cannot remove copies in filesystem snapshots or backups.
+
+Set `SUZAKU_PREFERENCE_MODE=memory` in the host's launch environment before startup to disable
+preference file reads/writes while retaining session-only learning. This does not delete an existing
+file, and the tray's **Clear candidate preferences (memory only)** action in that mode clears only
+RAM. To remove the local file, use the confirmed disk-mode clear before switching modes or uninstalling.
+Preferences are excluded from Suzaku's settings backup/restore and exports, and upgrades and uninstall
+do not delete them. Other backup tools may still copy the state directory. See
+[data management](linux-packaging-data.md#候选偏好文件) for paths and controls.
 
 The native companion channel contains active preedit/candidates, not surrounding application text
 or accumulated committed history. Password/PIN and declared numeric/decimal/phone fields bypass

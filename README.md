@@ -3,7 +3,7 @@
 A local-first, continuous-writing input method with word and sentence candidates,
 optional language models, and a compact floating companion panel.
 
-**0.8.7 · Linux / IBus Alpha preview.** Current validation targets **Ubuntu 24.04,
+**0.8.8 · Linux / IBus Alpha preview.** Current validation targets **Ubuntu 24.04,
 amd64, IBus, X11 or GNOME with XWayland**. Keep your usual input method available
 as a fallback. Other platforms remain experimental.
 
@@ -34,16 +34,16 @@ as a fallback. Other platforms remain experimental.
   these are **not** eight native input dictionaries.
 - Linux configuration backup and preview-first restore. Packages do not collect personal data.
 
-0.8.7 adds six configurable input shortcuts in **Settings → Shortcuts**:
+Six configurable input shortcuts are available in **Settings → Shortcuts**:
 previous/next candidate, previous/next page, adoption and English/Chinese switching.
 Bindings support Ctrl or Alt, optional Shift, and a letter or Space (except reserved
 Alt+Space combinations), with conflict checks,
 recording cancellation and per-action/all-binding reset. They are input-context shortcuts,
 not global hotkeys; desktop/application interception remains possible. See [shortcut rules](docs/shortcuts.md).
 
-Four authored daily-life batches add **196 sentence/continuation records** across English,
-Chinese and Japanese, plus common Chinese `还` and `后` readings. Built-in totals are now
-**6,143 English indexed forms / 1,350 sentences**, **2,922 Chinese readings / 1,372 sentences**,
+0.8.8 adds authored household and mealtime expressions: **64 English/Chinese sentences**
+and **48 Chinese readings**, including tableware, tidying and taking food away. Built-in totals are now
+**6,143 English indexed forms / 1,382 sentences**, **2,970 Chinese readings / 1,404 sentences**,
 and **366 Japanese readings / 367 continuation records**. English ranks, earlier authored
 record order and candidate budgets remain protected; bare `hai`/`hou` now prefer `还`/`后`.
 Fourteen optional data-only packs remain separate.
@@ -58,8 +58,10 @@ The prediction protocol remains model-independent; no model is bundled or requir
 Native-panel previews retain complete text and absolute selection indexes.
 
 Optional pack changes still require host/panel restart. Space continues writing; deliberate
-adoption and exact submission remain separate. In-memory preferences learn only confirmed
-choices; no typed history is saved. See [0.8.7 release notes](docs/releases/0.8.7.md),
+adoption and exact submission remain separate. Linux candidate preferences now persist by default,
+learning only confirmed choices; the tray exposes save/clear status and can clear them at any time.
+The local cache stores keyed fingerprints and counts, not raw drafts, but is still sensitive data.
+See [0.8.8 release notes](docs/releases/0.8.8.md),
 [lexicon scope](data/lexicons/README.md) and [known limitations](docs/known-limitations.md).
 Source publication does not update an existing installation. Native Wayland, real-model quality,
 broader Japanese morphology and non-Linux native behavior remain outside current acceptance.
@@ -70,11 +72,11 @@ Get the matching `.deb` and `.sha256` from [Releases](https://github.com/chiharu
 For 0.7.x, source tags can precede downloadable packages; use a release with attached packages or
 build from source. Starting with **0.8.0**, downloadable Linux packages and checksums are a
 [release requirement](docs/linux-packaging-data.md#从-080-开始的发布要求).
-Once published, use the matching 0.8.7 Release assets in the download directory on Ubuntu 24.04 amd64:
+Once published, use the matching 0.8.8 Release assets in the download directory on Ubuntu 24.04 amd64:
 
 ```bash
-sha256sum -c suzaku_0.8.7_amd64.deb.sha256
-sudo apt install ./suzaku_0.8.7_amd64.deb
+sha256sum -c suzaku_0.8.8_amd64.deb.sha256
+sudo apt install ./suzaku_0.8.8_amd64.deb
 ```
 
 Installation alone does not activate an input method or start a user service. Register once
@@ -168,9 +170,12 @@ A local gateway can forward data elsewhere; trust and configure the server separ
 Enabled suggestions can send the current draft, local conversion and up to 160 characters of
 committed context from the current focus session. Explicit translation sends its source draft.
 Suzaku does not collect surrounding application text or write an input history to disk.
-0.7.3 adds bounded, decaying IBus candidate preferences in memory only.
+0.8.8 saves bounded, decaying IBus candidate preferences locally by default on Linux.
 Confirmed explicit choices can adjust existing candidates; private fields do not learn or use them.
-The tray can clear preferences, and restarting the host forgets them. See [candidate learning](docs/ibus-candidates.md#偏好频率缓存).
+The tray can clear preferences and reports pending or failed deletion truthfully. Fingerprints,
+counts and their key persist across restarts; this is not encryption or anonymity. Explicit
+`SUZAKU_PREFERENCE_MODE=memory` keeps a host in memory-only mode without deleting an existing
+disk cache. See [candidate learning](docs/ibus-candidates.md#偏好频率缓存).
 See [privacy boundaries](docs/privacy.md); third-party provider retention is outside this guarantee.
 
 ## Build and contribute
@@ -194,7 +199,7 @@ keys, never real typing logs or credentials. For security concerns, read [SECURI
 - [Keyboard shortcuts / 快捷键](docs/shortcuts.md) — EN/ZH toggle, opt-in IBus home-row layout and in-panel reference
 - [Translation](docs/translation.md) · [Interface languages](docs/interface-languages.md)
 - [Linux installation/data](docs/linux-packaging-data.md) · [Known limitations](docs/known-limitations.md)
-- [0.8.7 release notes](docs/releases/0.8.7.md) · [Development history and architecture](DEVELOPMENT.md)
+- [0.8.8 release notes](docs/releases/0.8.8.md) · [Development history and architecture](DEVELOPMENT.md)
 
 MIT licensed; see [LICENSE](LICENSE). Packages include dependency license metadata and available
 license/notice files. External model weights have their own licenses.

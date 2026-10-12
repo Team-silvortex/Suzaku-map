@@ -32,10 +32,13 @@ fn choice(ime: &XRTabletImeEngine, text: &str, kind: CandidateKind) -> usize {
 #[test]
 fn common_still_and_after_words_are_explicit_independent_data() {
     let vocabulary = lexicon::builtin("zh-Hans").unwrap();
-    assert_eq!(vocabulary.continuations().count(), 687);
+    // This historical two-word addition did not add contexts. Later layers
+    // have their own fixed windows; retain this released prefix unchanged.
+    assert_eq!(vocabulary.continuations().take(687).count(), 687);
     assert_eq!(
         vocabulary
             .continuations()
+            .take(687)
             .map(|(_, values)| values.len())
             .sum::<usize>(),
         1372
@@ -131,7 +134,7 @@ fn function_words_append_only_after_the_frozen_care_vocabulary() {
     assert_eq!(vocabulary.language(), "zh-Hans");
     assert!(vocabulary.word_layers().is_empty());
     assert_eq!(vocabulary.phrase_endings().count(), 0);
-    assert_eq!(vocabulary.readings().len(), 2922);
+    assert!(vocabulary.readings().len() >= 2922);
     let mut reading_hash = 0xcbf29ce484222325_u64;
     for entry in vocabulary.readings().iter().take(2920) {
         let kind = match entry.kind {
@@ -156,7 +159,7 @@ fn function_words_append_only_after_the_frozen_care_vocabulary() {
     let mut context_hash = 0xcbf29ce484222325_u64;
     let mut context_count = 0;
     let mut sentence_count = 0;
-    for (context, values) in vocabulary.continuations() {
+    for (context, values) in vocabulary.continuations().take(687) {
         context_count += 1;
         sentence_count += values.len();
         for text in std::iter::once(context).chain(values.iter().map(String::as_str)) {
@@ -168,7 +171,7 @@ fn function_words_append_only_after_the_frozen_care_vocabulary() {
     }
     assert_eq!((context_count, sentence_count), (687, 1372));
     assert_eq!(context_hash, 0x06df73a06ff2be69);
-    for (entry, (reading, text)) in vocabulary.readings()[2920..]
+    for (entry, (reading, text)) in vocabulary.readings()[2920..2922]
         .iter()
         .zip([("hai", "还"), ("hou", "后")])
     {

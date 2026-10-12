@@ -16,9 +16,14 @@
 输入先同步给出本地候选，再异步接收可选模型增强；不等模型失败后才生成本地候选。
 这一定位不新增模型开关或提供器分支，也不承诺任意文本都有完整句子建议。
 
+0.8.8 纳入下列家务、吃饭与餐具两轮扩充，相对 0.8.7 新增 **48 条中文读音、
+64 条中英短句**。当前总量为 **6,143 项英文索引、709 组搭配、1,382 句；
+2,970 条中文读音、703 组语境、1,404 句**；日语及十四个推荐包不变。
+见 [0.8.8 发布说明](../../docs/releases/0.8.8.md)。已有安装仍须重建或升级。
+
 0.8.7 源码纳入下列四轮日用扩充与 `还` / `后` 两个基础读音；相对 0.8.6，
 新增 **4 个英文索引词形、106 条中文读音、52 条日语读音，196 条三语句子/续句记录**。
-当前总量为 **6,143 项英文索引、693 组搭配、1,350 句；2,922 条中文读音、
+0.8.7 发布时总量为 **6,143 项英文索引、693 组搭配、1,350 句；2,922 条中文读音、
 687 组语境、1,372 句；366 条日语读音、184 组语境、367 条续句记录**。
 词库仍与模型及宿主解耦，旧排序和容量保护不变；需重建/重装后才生效。
 参见 [0.8.7 发布说明](../../docs/releases/0.8.7.md)。下列“未发布”标题保留各轮
@@ -30,6 +35,55 @@
 2,816 条中文读音、651 组语境、1,300 句；314 条日语读音、158 组语境、
 315 条续句记录**。下文各轮记录保留当时的基线和验证范围；嵌入词库仍须重建/重装，
 不会自动更新既有安装。[0.8.6 发布说明](../../docs/releases/0.8.6.md)列出交付门槛。
+
+## 未发布：吃饭前后 餐具与打包
+
+英文 `daily_mealtime` 追加 **8 组搭配、16 句**，复用已有词形；中文追加
+**24 条读音、8 组语境、16 句**。当前源码为 **6,143 项英文索引、709 组搭配、
+1,382 句；2,970 条中文读音、703 组语境、1,404 句**。日语和十四个推荐包不变。
+
+- `could you pass the ri` → `could you pass the rice` / `could you pass the rice, please?`
+- `i'll set the ta` → `i'll set the table` / `i'll set the table while you finish cooking.`
+- `fan hao le` → `饭好了` / `饭好了，过来一起吃吧。`
+- `sheng xia de da ba` → `剩下的打包` / `剩下的打包带走，麻烦给我一个袋子。`
+- `剩下的打包  dai zo` → `剩下的打包  带走，麻烦给我一个袋子。`
+
+覆盖递菜、摆餐具、添饭、用餐进度、吃不下和打包；补入饭勺、公筷、餐垫、汤勺、
+打包盒等常用词。“盛饭”“帮我盛一碗”使用 `cheng` 读音，“剩饭”使用 `sheng`。
+这些是原创输入预设，不查询菜单或个人饮食记录，也不是食品保存建议。
+
+[英文](../../tests/daily_mealtime_english.rs)和[中文](../../tests/daily_mealtime_chinese.rs)
+各七项固定回归先验证缺口，再补独立数据。旧 31 层英文、全部 6,143 项索引位置，
+旧 2,946 条中文读音/695 组语境的内容与顺序保持；现有半截拼写、字面空白、
+长稿、选词续写和提交撤回规则不变。新增表达也进入
+[十四包组合回归](../../tests/offline_pack_quality.rs)。英文索引预算、候选容量、
+模型接口及语言算法未改；日常安装未替换，须重建/重装才能使用新增数据。
+准确验证范围见[开发记录](../../DEVELOPMENT.md)。
+
+## 未发布：家务 清洁与日常整理
+
+英文 `daily_household` 追加 **8 组搭配、16 句**，复用已有词形，索引净增长为零；
+中文追加 **24 条读音、8 组语境、16 句**。该轮完成后为 **6,143 项英文索引、
+701 组搭配、1,366 句；2,946 条中文读音、695 组语境、1,388 句**。
+日语及十四个推荐包的数据不变。
+
+- `i can wash the di` → `i can wash the dishes` / `i can wash the dishes after dinner.`
+- `please wipe the ta` → `please wipe the table` / `please wipe the table before we eat.`
+- `wo lai xi wan` → `我来洗碗` / `我来洗碗，你把桌子擦一下。`
+- `la ji dai man l` → `垃圾袋满了` / `垃圾袋满了，换一个新的吧。`
+- `把衣服收起来  fang jin chou t` → `把衣服收起来  放进抽屉，椅子上就空出来了。`
+
+覆盖洗碗、擦桌、倒垃圾、湿地面、物品归位、晾晒与收衣服。补入垃圾桶、簸箕、
+海绵、百洁布、晾衣架、衣夹、吸尘器等常用读音；`yi'jia` 仍先给旧“衣架”，
+新“衣夹”作为可选同音词。有限原创 fallback 与模型、词包加载器和输入实现解耦。
+没有提高英文 6,144 项预算、候选容量，或改动旧词优先级、模型接口。
+
+[英文固定回归](../../tests/daily_household_english.rs)及
+[中文固定回归](../../tests/daily_household_chinese.rs)先确认缺口，再追加数据；
+锁定此前 30 层英文及全部 6,143 项索引位置、2,922 条中文读音/687 组语境的完整内容和顺序。
+检查完整/半截拼写、大小写/空白、字面输入、选词后续写、精确提交/撤回及模型不可用时的候选。
+[组合词包回归](../../tests/offline_pack_quality.rs)另确认新表达可与全部十四个推荐包共存。
+本轮未替换日常安装，嵌入词库仍须重建/重装；准确测试范围见[开发记录](../../DEVELOPMENT.md)。
 
 ## 未发布：基础连接字与连续选词
 
@@ -644,6 +698,8 @@ cargo test --locked --all-features --test daily_choices_english --test daily_cho
 cargo test --locked --all-features --test daily_japanese_vocabulary -- --test-threads=1
 cargo test --locked --all-features --test daily_choices_japanese -- --test-threads=1
 cargo test --locked --all-features --test daily_followup_english --test daily_followup_chinese --test daily_coordination_japanese -- --test-threads=1
+cargo test --locked --all-features --test daily_household_english --test daily_household_chinese --test offline_pack_quality -- --test-threads=1
+cargo test --locked --all-features --test daily_mealtime_english --test daily_mealtime_chinese --test offline_pack_quality -- --test-threads=1
 cargo test --locked --all-features --test daily_leisure_english --test daily_leisure_chinese --test daily_leisure_japanese -- --test-threads=1
 cargo test --locked --all-features --test daily_clarification_english --test daily_clarification_chinese --test daily_clarification_japanese -- --test-threads=1
 cargo test --locked --all-features --test offline_packs -- --test-threads=1

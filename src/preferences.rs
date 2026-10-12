@@ -1,14 +1,60 @@
-//! Bounded, process-local frequency cache. Independent of dictionaries, models
+//! Bounded frequency cache. Independent of dictionaries, models
 //! and input hosts. Stores salted fingerprints and counts, not text records.
-//! This is not encryption: preferences remain sensitive in-process state.
+//! This is not encryption: preferences and their snapshots remain sensitive.
+pub mod persistence;
+#[cfg(target_os = "linux")]
+pub mod store;
+#[cfg(target_os = "linux")]
+pub mod worker;
+
+use ring::{
+    hmac,
+    rand::{SecureRandom, SystemRandom},
+};
 use std::collections::{HashMap, hash_map::RandomState};
 use std::hash::{BuildHasher, Hash};
 use std::time::{Duration, Instant};
 
 pub const MAX_ENTRIES: usize = 2048;
 pub const MAX_KEY_BYTES: usize = 1024;
-const HALF_LIFE: Duration = Duration::from_secs(24 * 60 * 60);
-const MAX_FREQUENCY: f32 = 8.0;
+pub const HALF_LIFE: Duration = Duration::from_secs(24 * 60 * 60);
+pub const MAX_FREQUENCY: f32 = 8.0;
+
+struct FingerprintSecret {
+    bytes: [u8; 32],
+    key: hmac::Key,
+}
+
+impl FingerprintSecret {
+    fn from_bytes(bytes: [u8; 32]) -> Self {
+        Self {
+            key: hmac::Key::new(hmac::HMAC_SHA256, &bytes),
+            bytes,
+        }
+    }
+
+    fn generate() -> Option<Self> {
+        let mut bytes = [0; 32];
+        SystemRandom::new().fill(&mut bytes).ok()?;
+        Some(Self::from_bytes(bytes))
+    }
+
+    fn fingerprint(&self, parts: &[&str]) -> PreferenceKey {
+        let mut context = hmac::Context::with_key(&self.key);
+        context.update(b"suzaku-preference-key-v1\0");
+        for part in parts {
+            // The key() bounds make each byte length representable as u32.
+            context.update(&(part.len() as u32).to_be_bytes());
+            context.update(part.as_bytes());
+        }
+        let tag = context.sign();
+        let bytes = tag.as_ref();
+        PreferenceKey([
+            u64::from_be_bytes(bytes[..8].try_into().unwrap()),
+            u64::from_be_bytes(bytes[8..16].try_into().unwrap()),
+        ])
+    }
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct PreferenceKey([u64; 2]);
@@ -31,6 +77,7 @@ impl Entry {
 /// An undo receipt is valid only for the exact write it describes. A clear,
 /// eviction or later write must never be undone by an old receipt.
 pub struct Feedback {
+    owner: PreferenceKey,
     key: PreferenceKey,
     revision: u64,
     previous: Option<Entry>,
@@ -38,6 +85,7 @@ pub struct Feedback {
 
 pub struct PreferenceCache {
     salts: [RandomState; 2],
+    secret: Option<FingerprintSecret>,
     entries: HashMap<PreferenceKey, Entry>,
     revision: u64,
 }
@@ -46,6 +94,7 @@ impl Default for PreferenceCache {
     fn default() -> Self {
         Self {
             salts: [RandomState::new(), RandomState::new()],
+            secret: FingerprintSecret::generate(),
             entries: HashMap::new(),
             revision: 0,
         }
@@ -53,6 +102,9 @@ impl Default for PreferenceCache {
 }
 
 impl PreferenceCache {
+    pub(crate) fn revision(&self) -> u64 {
+        self.revision
+    }
     /// Language and exact normalized query are part of the namespace. The
     /// caller decides what constitutes a confirmed choice; no text is retained.
     pub fn key(&self, language: &str, query: &str, candidate: &str) -> Option<PreferenceKey> {
@@ -61,8 +113,14 @@ impl PreferenceCache {
                 && text.len() <= MAX_KEY_BYTES
                 && !text.chars().any(char::is_control)
         };
-        (valid(language) && language.len() <= 32 && valid(query) && valid(candidate))
-            .then(|| self.fingerprint(&(language, query, candidate)))
+        (valid(language) && language.len() <= 32 && valid(query) && valid(candidate)).then(|| {
+            self.secret.as_ref().map_or_else(
+                // Entropy failure keeps the old process-local behavior. Such
+                // a cache cannot be exported; never use a predictable file key.
+                || self.fingerprint(&(language, query, candidate)),
+                |secret| secret.fingerprint(&[language, query, candidate]),
+            )
+        })
     }
 
     pub(crate) fn fingerprint(&self, value: &impl Hash) -> PreferenceKey {
@@ -112,6 +170,7 @@ impl PreferenceCache {
             },
         );
         Feedback {
+            owner: self.snapshot_owner(),
             key,
             revision: self.revision,
             previous,
@@ -119,13 +178,18 @@ impl PreferenceCache {
     }
 
     pub fn undo(&mut self, feedback: Feedback) {
-        if self
-            .entries
-            .get(&feedback.key)
-            .is_none_or(|entry| entry.revision != feedback.revision)
+        if feedback.owner != self.snapshot_owner()
+            || self
+                .entries
+                .get(&feedback.key)
+                .is_none_or(|entry| entry.revision != feedback.revision)
         {
             return;
         }
+        self.revision = self
+            .revision
+            .checked_add(1)
+            .expect("preference revision exhausted");
         if let Some(previous) = feedback.previous {
             self.entries.insert(feedback.key, previous);
         } else {
@@ -134,6 +198,11 @@ impl PreferenceCache {
     }
 
     pub fn clear(&mut self) {
+        // A cleared/undone snapshot is newer than every queued older save.
+        self.revision = self
+            .revision
+            .checked_add(1)
+            .expect("preference revision exhausted");
         self.entries.clear();
     }
 
@@ -224,5 +293,22 @@ mod tests {
         let saturated = cache.record(key, now);
         cache.undo(saturated);
         assert_eq!(cache.bonus(key, now), 24.0);
+    }
+
+    #[test]
+    fn entropy_failure_retains_local_learning_but_never_exports_a_predictable_key() {
+        let mut cache = PreferenceCache {
+            secret: None,
+            ..Default::default()
+        };
+        let now = Instant::now();
+        let key = cache.key("en", "hel", "hello").unwrap();
+        cache.record(key, now);
+        assert_eq!(cache.key("en", "hel", "hello"), Some(key));
+        assert_eq!(cache.bonus(key, now), 3.0);
+        assert_eq!(
+            cache.snapshot_at(now, std::time::SystemTime::now()).err(),
+            Some(persistence::PreferenceError::EntropyUnavailable)
+        );
     }
 }

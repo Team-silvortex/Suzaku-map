@@ -3,7 +3,7 @@
 Historical implementation notes, including earlier behavior and experimental platforms.
 Start with the [README](README.md) and [known limitations](docs/known-limitations.md).
 
-Current source version: **0.8.7 — Custom shortcuts and continuous everyday input**.
+Current source version: **0.8.8 — Persistent candidate preferences and everyday fallback**.
 
 ## Current priority: Chinese and English input on Linux
 
@@ -41,6 +41,373 @@ checks and clean-container installation checks to pass before publication. Other
 are added only after their own acceptance, not implied by the shared version number.
 This is a release requirement, not a claim that automatic publication is implemented or
 that existing 0.7.x tags already have assets. See [Linux packaging](docs/linux-packaging-data.md).
+
+### 0.8.8 release preparation — 2026 10 12
+
+- Synchronize Cargo/package version to 0.8.8 and macOS/Android build number 38.
+  Include the preference persistence/clear feedback work and household/mealtime
+  fallback batches, with updated release, privacy and data-management guidance.
+  `ring` 0.17.14 becomes a direct dependency without changing its locked version.
+  No personal installation or input-method configuration changes.
+- Retain release receipts in `/tmp/suzaku-release-0.8.8.WCaoLg`. The first versioned
+  full all-feature Rust run stops in the library at two obsolete vocabulary-total
+  assertions: 560 passed, two failed and two explicitly ignored. The added data
+  already passed focused checks; update only the current Chinese reading and
+  English context/sentence counts, retaining all uniqueness/reachability/rank
+  assertions and historical fingerprints. The original failing log is preserved.
+- After that explicit count repair, the complete versioned all-feature suite
+  passes **1,794 tests**, zero failures and **30 explicitly ignored** opt-in checks
+  across 133 result groups, including the nine-group private native preference
+  gate. All 20 CI source/adapter suites pass 275 tests, with the tensor source
+  check, six pack-shipping tests and 250 repository audit links also passing.
+  Checksum-pinned Gitleaks 8.30.1 finds no leaks in the staged release or the
+  existing 131-commit history. Local ShellCheck is unavailable and remains a
+  required remote check. A mistaken `--help` invocation of the positional-only
+  audit-link checker reports a missing directory; its correctly scoped repository
+  check passes, without changing the checker or its assertions.
+- Final strict all-feature/all-target Clippy passes with warnings denied, along
+  with formatting and diff checks. Local compilation and tests remain serial
+  under one-job, 2 GiB high/4 GiB max, zero-scope-swap limits; no native deadline
+  or assertion is relaxed to obtain acceptance.
+- Complete clean-commit CI, native/application gates, package-content checks and
+  clean Ubuntu 24.04 installation/upgrade/removal remain publication prerequisites.
+  Do not tag or upload an incomplete candidate as an accepted binary release.
+
+### Post-0.8.7 everyday mealtime vocabulary — 2026 10 12
+
+- Append `daily_mealtime`: eight English contexts/16 sentences, plus 24 Chinese
+  readings/eight contexts/16 sentences for passing dishes, tableware, serving,
+  meal progress and taking food away. English reuses all existing forms: 6,143
+  index entries, now 709 contexts/1,382 sentences. Chinese totals are 2,970
+  readings, 703 contexts and 1,404 sentences. Serving 盛 uses `cheng`, while
+  remaining 剩 uses `sheng`. No food-storage advice or personal-history corpus.
+- Preserve fixed pre-data failures in `/tmp/suzaku-mealtime-vocabulary.3plEqE`:
+  Chinese has two passing/five failing tests; English one passing/six failing.
+  The fourteen-pack combination separately exposes the absent rice sentence.
+  After the data append, all seven new tests per language, 15 resource-contract
+  checks and the complete fourteen-pack quality test pass on the first run.
+  Cases cover complete/partial spellings, raw text, case/spacing, adopted long
+  drafts, line/protected-token boundaries, exact commit/undo and synthetic model
+  unavailability. Existing content/order and all English index positions are
+  fingerprinted independently; current resource totals are updated explicitly.
+- The twelve older household, daily-needs, completion, reading-boundary,
+  protected-context, long-draft and offline-pack targets pass all 117 tests on
+  their first run. Together with the 30 focused checks this is **147 passing
+  tests across 16 targets**, zero failures or ignored tests, not a full-suite
+  claim. Strict all-feature/all-target Clippy passes with warnings denied;
+  formatting/diff checks, 21 tensor-validator tests and the refreshed tensor
+  source digest also pass. Test and Clippy receipts stay beside the pre-data
+  failures. Cargo checks run serially with one build job and a 4 GiB memory cap.
+- Japanese, all recommended pack bytes, language/model/host implementation,
+  capacity limits and previous acceptance thresholds are unchanged. New built-in
+  entries still require a rebuild/reinstall. This round does not install, change
+  personal input state, commit or push; engine reseeding and typed provider errors
+  do not establish physical-key, GTK/Wayland, HTTP or actual model acceptance.
+
+### Post-0.8.7 everyday household vocabulary — 2026 10 12
+
+- Return to Chinese/English fallback vocabulary: append `daily_household` with
+  eight English contexts and 16 sentences, plus 24 Chinese readings, eight
+  contexts and 16 sentences. Cover dishes, wiping surfaces, rubbish, wet floors,
+  putting things away and laundry. English reuses existing forms: 6,143 indexed
+  forms, now 701 contexts/1,366 sentences; Chinese is now 2,946 readings,
+  695 contexts/1,388 sentences. Japanese and all fourteen optional pack files
+  remain unchanged. No model/host coupling, algorithm change or capacity increase.
+- Author independent fixed tests before appending data. English RED is one pass
+  and six failures, Chinese two passes and five failures; the all-pack quality
+  test also reproduces missing `i can wash the dishes` on page one. Preserve
+  these logs under `/tmp/suzaku-household-vocabulary.VIvWzo`. After the append,
+  all seven new English and seven Chinese tests and the complete existing
+  fourteen-pack combination quality test pass on the first run. New checks
+  protect all previous index positions/content, explicit and unfinished spellings,
+  literal text, case/spacing, adoption/continued drafts, one-time commit/undo,
+  line/protected-token boundaries and synthetic missing/failed/empty predictions.
+  The existing `yi'jia` first choice remains 衣架; appended 衣夹 is selectable.
+- The first older regression run stops on two obsolete full-resource counts in
+  the historical function-word tests. Scope their unchanged fingerprints to
+  their original 2,922-reading/687-context window, and keep exact current totals
+  in the resource-contract test. No old ranking/behavior assertion, fingerprint,
+  model deadline or native fixture is relaxed. Re-run those tests together with
+  the remaining vocabulary, family-pack and long-draft suites: all **191 tests
+  pass across 19 targets**, with one existing process-child helper ignored by
+  default. Together with the 15 new/combined checks this is **206 passing tests**,
+  not a full-suite claim. Final receipts remain beside the original failures.
+- Strict all-feature/all-target Clippy initially flags the new English fixture's
+  nested tuple type; split its branch into a named type without changing data or
+  assertions, then pass with warnings denied. Formatting/diff, 21 functional
+  tensor tests, the refreshed source digest and six pack-shipping checks pass.
+- Engine adoption uses explicit reseeding and synthetic provider failures, not
+  physical key dispatch or actual HTTP/model quality. No personal history,
+  installation, service, keymap or cache changed; no commit/push or release.
+  Embedded data takes effect only after rebuilding/reinstalling. Tensor scores
+  stay unchanged; this is not a new full-suite or native desktop acceptance.
+
+### Post-0.8.7 preference tray feedback — 2026 10 12
+
+- Fix two source-level UX gaps: a clear that completed after the client's timeout
+  could leave a permanent generic operation error, and persistence labels/file
+  diagnostics were missing translations. Keep an accepted host epoch/task receipt
+  on failure, expose strictly validated clear status, and reconcile only that
+  exact receipt on subsequent read-only refresh. Keep the original one-F/700ms
+  operation budget and the legacy RAM-only API. Restart, supersession, missing
+  acknowledgement and malformed completion never imply successful deletion.
+- Separate clear feedback from unrelated activation/settings errors. Show clearing
+  separately from saving, retain actionable failure detail, add remembered count
+  and an explicit refresh action, and disable repeated clears while the host
+  reports pending. New learning dismisses the old cleared-cache notice. Coalesce
+  menu-open/explicit refreshes without blocking activation preparation or adding
+  background polling. Add 31 resource keys across all eight UI languages,
+  including all 18 preference-file diagnostics; translate owned error payloads
+  before menu truncation, preserving access-key escaping.
+- Focused verification passes 14 protocol, 19 tray and three localization tests;
+  the final tray run also asserts diagnostic retention and removal. The unchanged
+  nine-group private native persistence gate and strict all-target/all-feature
+  Clippy pass. Formatting/diff and all 21 functional-tensor checks pass. Receipts:
+  `/tmp/suzaku-preference-feedback.fa3Ewv`. This is a scoped follow-up, not a rerun
+  of the preceding 1,758-test full suite. No personal cache/settings, installed
+  binaries, services or desktop input state changed; no commit/push, packaging,
+  remote CI, rendered-menu or physical-keyboard acceptance is implied. Retain
+  the existing tensor scores and historical failures/results.
+
+### Post-0.8.7 preference exit/recovery privacy — 2026 10 12
+
+- Extend the new isolated native gate without changing its original eight
+  workflows, input assertions, 120s private-session cap or the host's 700ms
+  shutdown bound. First prove that SIGTERM while a real staging `fsync` is held
+  flushes the latest coalesced choice if released during shutdown, including
+  restored ranking. Then hold a second save past shutdown: the host truthfully
+  warns that saving is unconfirmed and preserves the last published cache,
+  but the first run reproduces **one abandoned sensitive temporary file after
+  restart**. Keep `/tmp/suzaku-preference-lifecycle.Q41Srp/native-orphan-red.log`
+  as a failed receipt; this is a real recovery/privacy defect, not a report-count
+  failure, and it does not damage the published cache.
+- Give preference staging its own `.suzaku-preferences-<pid>-<sequence>.tmp`
+  namespace. Generic settings/backup staging names and publication behavior stay
+  unchanged. On startup and explicit clear/reset, hold the exclusive preference
+  lease, validate the whole bounded inventory, then remove only owned/private,
+  single-link regular files with exact canonical names and sync the parent.
+  Never parse/replay partial staging or sweep generic temporary files, recurse,
+  follow links or remove unrelated files. Limit inventory to 128 entries and
+  64 staged files; exceeding a limit or encountering unsafe staging reports an
+  error before any deletion. Canceled clear/reset also leaves files intact.
+- A timed-out bootstrap must keep its one worker's lease until that worker
+  actually exits; the returned error now specifically describes restore timeout,
+  rather than falsely reporting another writer. A test-only bootstrap barrier
+  checks bounded return, continued exclusive ownership, no late cache handoff,
+  eventual lease release and preservation of the published bytes. No production
+  barrier, replacement-worker retry, longer deadline or input-side disk I/O is added.
+- First focused verification passes **558 library tests**, two explicitly
+  ignored, all **19 persistence** and **13 unchanged learning** tests, plus the
+  now **nine-group** real native gate. Its timed-out shutdown restarts with zero
+  abandoned preference staging, restores only the last published cache, and
+  still clears through the existing acknowledged protocol. Four added storage
+  tests cover namespace preservation/lease contention, canceled clear/corrupt
+  reset, five unsafe staging types and both resource limits; another library
+  test rejects invalid staging namespaces before file operations. No personal
+  cache/settings, input source, keymap, daily installation or service is modified.
+  Native menus, physical typing, actual model quality and non-Linux persistence
+  are not implied.
+- The first full all-feature run passes **1,758 tests**, zero failures and
+  **30 explicitly ignored** checks across 129 result groups. Strict all-feature,
+  all-target Clippy passes without warnings. Add an exact near-eight frequency
+  assertion to the new pending-shutdown case, then independently pass all nine
+  native groups again; this verifies the final coalesced snapshot, not just a
+  nonempty file. Both original complete default and inline IBus gates pass their
+  whole core and all 106 HTTP failure/timeout fallback cases per mode, keeping
+  their original 120s private-session bounds. Nine original source guards,
+  the unchanged prediction-test prefix, formatting/diff checks, all 21 tensor
+  checks and 18 CI-graph checks pass. Receipts remain in the lifecycle directory
+  above; verification is serial and memory-capped. No commit/push, package,
+  installation, remote CI or release is part of this follow-up.
+
+### Post-0.8.7 native preference persistence — 2026 10 12
+
+- Follow the user's default-on/anytime-clear policy in the Linux source host,
+  leaving other hosts memory-only. Bootstrap the validated cache on a worker
+  before entering IBus, capped at 500ms, and refuse late replacement. Use the
+  normal XDG state home or an explicit configuration's isolated sibling directory;
+  never let a config override fall back to personal state. No installed program,
+  personal cache, configuration, input source, keymap or service is changed.
+- One lifetime worker owns the private file lease. Input callbacks only capture
+  changed confirmed RAM state; coalesce to one latest save plus one priority
+  clear, with at most one active operation. No input-session/queue mutex is held
+  during parsing, writes or sync. Revalidate a staged save before publication;
+  superseding mutations, clear or privacy discard its temporary file. Clear
+  fences still reject all pre-clear revisions, including after newer input.
+- Explicit global clear works even in a private context: capture only the
+  emptied cache, never the private draft. A corrupt/oversized startup file remains
+  unchanged on ordinary input; an explicit owned/private reset may delete that
+  exact file under the exclusive lease and rebind the empty cache. Another
+  writer, symlink or insecure file cannot be erased through that reset. Preserve
+  existing external-conflict rejection and communicate failures truthfully.
+- Reuse the unchanged C `F` branch without blocking it. Disk clear returns an
+  accepted operation, not `ok:true`. Tray/client follows read-only `S` receipts
+  bound to both a process-local epoch and operation number, on the original
+  single 700ms budget, never repeating `F`. Only completed deletion + parent
+  sync qualifies success; empty, mismatched, restarted, failed or incomplete
+  replies and timeouts remain unconfirmed. A deletion begun in time may finish
+  sync after a disconnected client. Preserve direct legacy RAM-only clear.
+- Add truthful tray status/clear labels and a small `preferences status|clear`
+  CLI using that same running-host protocol, never direct cache-file access.
+  `SUZAKU_PREFERENCE_MODE=memory` is an explicit startup opt-out, not disk deletion.
+  The original QA marker keeps its frozen RAM-learning fixture in RAM mode;
+  `disk` can override it. A separate new default-policy fixture sets neither
+  marker/mode and uses only owned temporary config/data/state/Compose paths.
+- GLib main-context SIGTERM/SIGINT callbacks return through the native host's
+  off-input-loop, bounded 700ms shutdown. Source-built real SIGTERM/restarts are
+  exercised, but forced kills/OOM/hung filesystems cannot guarantee the latest
+  unconfirmed save. No changes to C dispatch, shortcut, Compose, privacy or the
+  original native fixtures, runners, slow-settings barrier or deadlines.
+- Nine first-run worker regressions pass: held/coalesced saves, clear priority
+  and no-resurrection, post-clear typing, privacy, expired/newer clear, bounded
+  shutdown, corrupt/oversized explicit reset and foreign lease/link protection.
+  Four client regressions cover receipt success, seven negative receipt shapes,
+  RAM compatibility and one-budget timeout. A policy unit check protects the
+  default and explicit overrides. All **556 library tests pass**, zero failures
+  and two explicitly ignored checks, followed by the eight-group native test.
+- The first native run passes its six actual workflow groups but fails the new
+  Rust report-count assertion (expected seven). Preserve that failed receipt;
+  fix only the new incorrect count and verify all six again. Add two independent
+  ordinary-state/config separation and memory opt-out groups, then require all
+  eight. Real stage/parent `fsync` barriers verify responsive input, discarded
+  staged saves, unconfirmed 700ms CLI exit, eventual exact clear receipt and
+  injected EIO fallback. The new gate runs in normal Linux all-feature Rust CI,
+  not an ignored test; missing tools/dependencies or resource exits fail it.
+  The old C/fixture assertions are unchanged and their nine source guards pass.
+- Receipts are in `/tmp/suzaku-preference-host.iYvSJC`. Full Rust/native and
+  strict Clippy validation run serially under task-owned memory caps. The first
+  full all-feature run passes **1,752 tests**, zero failures and **30 explicitly
+  ignored** checks across 129 result groups, including the new eight-group native
+  gate. Strict Clippy first finds only `items_after_test_module` in the new worker;
+  move the unchanged worker implementation before its tests, without an allow
+  attribute or weaker warnings. Preserve the first failure; strict all-feature,
+  all-target Clippy then passes with warnings denied. Full original native
+  default/inline gates each then pass their entire original core plus all 106
+  HTTP failure/timeout fallback cases, with the unchanged 120-second private
+  session limits. After the module-only reorder the nine worker cases and all
+  eight new real-file/native workflow groups also pass again. Formatting/diff,
+  all 21 tensor checks, its updated source digest and all 18 CI-graph checks pass.
+  The inventory now has 69 functions/79 cells, distinguishing the portable
+  storage slice from Linux host integration; its original 77 cell scores stay
+  unchanged. No remote CI, packages, installation or GUI visual result is inferred.
+  These private-bus results do not qualify visual tray labels, installed-app
+  upgrade, actual keyboard comfort, Wayland or model quality; no new version,
+  commit, push, package or installation is part of this follow-up.
+
+### Post-0.8.7 preference persistence foundation — 2026 10 12
+
+- User policy is **default enabled, clear at any time**. This first stage adds
+  a real storage/restore API, not automatic native-host persistence. The current
+  host status and tray remain truthfully memory-only; no personal cache file,
+  setting, installed program, input source or service is changed. Next wire a
+  bounded background writer, startup/shutdown ownership and a durable clear
+  acknowledgement into the host and settings/tray before enabling that default.
+- Separate the portable versioned codec from the Linux file backend and the
+  candidate lifecycle. The existing language/query/candidate namespace now uses
+  a 32-byte OS-random HMAC-SHA256 key and a domain-separated, length-framed
+  128-bit fingerprint. Keep independent process-local salts for pending-prefix
+  and ownership guards. Use the already locked/cached `ring` 0.17.14 directly;
+  no dependency version upgrade or download. If entropy is unavailable, local
+  learning still works but export refuses to publish a predictable key.
+- Format v1 contains the fingerprint key, fingerprints, effective frequency and
+  saved wall time, **not typed text, drafts, pending adoptions or undo history**.
+  This is not encryption or anonymization: someone who can read the key/file
+  can guess common inputs. Treat it as sensitive local data and do not silently
+  add it to backup/export. Bound parsing to 512 KiB and 2,048 entries; reject
+  unknown versions/algorithms/fields, duplicate keys and invalid frequencies as
+  a whole document. Preserve the 24-hour half-life, frequency cap 8 and bonus cap
+  24. Account for stopped wall time, resume monotonic decay after restore and
+  never increase counts when the wall clock moves backward.
+- The Linux synchronous backend requires an explicit private absolute path,
+  owned 0700 directory and owned, single-link private regular files; new files
+  are 0600. Reject visible symlink ancestors/final symlinks, hardlinks, public
+  permissions and FIFOs without blocking on them. Keep a nonblocking exclusive
+  cooperating-writer lease. Stage/write/fsync/rename and sync the parent for a
+  durable result, rejecting detected external edits rather than overwriting
+  them. Corrupt/unknown files remain untouched so a host can fall back to RAM.
+  This is not compare-and-swap against hostile same-user directory/file races.
+  These blocking APIs must run off the input thread and shared-session mutex.
+- RAM-only snapshots exclude unconfirmed choices; private-context export and
+  restore are refused. Installing a restored cache requires an unused empty
+  input context, so a late load cannot replace live learning, selection or
+  adoption undo. Undo/clear advance a monotonic mutation revision; successful
+  disk clear requires an empty snapshot, deletes and syncs the file, and rejects
+  every pre-clear or same-revision queued save. A later genuine choice may save
+  again. Clear success does not imply secure erasure of filesystem snapshots.
+- First focused checks pass **27 tests** (14 new integration plus 13 existing
+  learning regressions). The first full run passes **1,736**, zero failures and
+  30 explicitly ignored checks. Subsequent review adds a RED regression proving
+  an old cache's undo receipt could remove a restored entry with a matching key
+  and revision. Add independent cache ownership to feedback receipts, preserving
+  legitimate new undo chains. Keep the actual failing log rather than claiming
+  the earlier full run validated this later guard. The first full post-guard run
+  passes **1,737**, zero failures and 30 explicitly ignored checks across 128
+  result groups, including all 15 new integration cases and the entropy test.
+  Strict all-feature/all-target Clippy passes with warnings denied.
+  Formatting/diff checks, all 21 tensor checks, all 18 CI-graph checks and the
+  refreshed source fingerprint pass; the tensor adds F69 without raising its
+  77 previous cells. The old provider fixture remains a byte-identical prefix.
+  Receipts are in `/tmp/suzaku-preference-persistence.WZdNPS`; validation uses
+  serial task-owned 2G/4G memory scopes, one build job and no scope swap.
+- New cases cover real private files and two separate processes, stopped-time
+  decay, malformed/oversized/conflicting files, foreign receipts/snapshots,
+  clear/no-resurrection, cold engine ranking, live selection and private-field
+  guards. They do not qualify native automatic save/clear UI, shutdown flush,
+  slow-I/O cancellation, installation/upgrade, physical input, Wayland or model
+  quality. Keep those host integration gates separate; no release, commit or
+  push is included in this first stage. Existing native fixtures/assertions,
+  deadlines and maturity scores are not weakened.
+
+### Post-0.8.7 repeated engine controls — 2026 10 12
+
+- The released baseline is clean commit
+  `98ee5764e8ae494d5d4cc0c2af694e307645d011`. Its exact
+  [CI 38161577941](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/38161577941)
+  passes all eight jobs, including all original 41 Linux regression/package
+  steps and the mandatory final aggregate. Ubuntu 24.04 packages are downloaded,
+  independently checked and uploaded as a draft; all four uploaded assets are
+  downloaded again and byte/digest compared before publishing
+  [v0.8.7](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.8.7).
+  The earlier failed/cancelled runs remain failures. Clean-container upgrade
+  acceptance uses a synthetic predecessor, not a real historical migration.
+- This subsequent, uncommitted source fix is **not part of those release assets**.
+  No new version/tag, remote write, package build, installation, personal input
+  source, desktop keymap or service change is included in this follow-up.
+- First offline regressions reproduce four failures: equal language/alias
+  controls reset a deliberate `hello` choice to `hel`, while equal signals
+  retire the explicit-choice lock used by continuing Space. A second controlled
+  provider run fails all three new tests: equal controls cancel a live request,
+  discard Ready model rows/selection and remove accepted error feedback.
+  Retain both first RED logs in `/tmp/suzaku-noop-controls.ZO2Fjg`.
+- Equal canonical language and already-applied signal values now return the
+  existing snapshot without rebuilding, resetting selection, clearing a
+  diagnostic or restarting model work. The first signal application still
+  calculates its startup confidence. Real language/signal changes retain their
+  existing refresh behavior. A small dirty flag preserves lazy registration:
+  replacing the active language implementation still refreshes on the next
+  control/reseed, while registering an inactive plugin leaves the live choice
+  intact. No settings-persistence rule, native dispatch, vocabulary, prediction
+  protocol or deadline changes.
+- Five offline tests cover 17 fixed short/long EN/ZH/JA word/sentence variants
+  for each equal control (no over-budget Japanese conversion claim), plus
+  first/changed signals and active/inactive plugin controls. Three appended
+  provider tests cover EN/ZH × ordinary/IBus-mixed engine policy × Pending,
+  Ready and current-error states (12 fixed cases), with the original request's
+  uncancelled token, exact usable reply, full snapshots/pools/selection,
+  one exact commit/undo and positive retry after a real edit. The entire old
+  eleven-test provider fixture remains a byte-identical prefix. Its existing
+  two/three-second limits are unchanged.
+- The first repaired focused run passes all **19 tests**, including all eleven
+  old prediction/edit regressions. The first full all-feature Rust run then
+  passes **1,721 tests**, zero failures, with **30 explicitly ignored** opt-in
+  checks across 127 result groups. Strict all-feature/all-target Clippy passes
+  with warnings denied. Formatting/diff checks, all 21 tensor checks, its updated
+  source fingerprint and all 18 CI-graph checks pass. Compilation/testing stay
+  serial under task-owned 2G/4G high/max memory scopes with one build job and
+  swap disabled for those scopes. The native runner, fixture, C adapter and
+  five original AST guards remain unchanged. These results are not native
+  keyboard/display, installed-app, HTTP transport, human comfort, Wayland or
+  real-model-quality acceptance; maturity scores are not raised.
 
 ### 0.8.7 release preparation — 2026 10 12
 

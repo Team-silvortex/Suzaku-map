@@ -228,6 +228,9 @@ struct CompositionState {
 pub struct XRTabletImeEngine {
     config: EngineConfig,
     registry: LanguageRegistry,
+    // Registration is lazy, but replacing the active implementation still
+    // requires the next rebuild even when a control repeats the current value.
+    active_plugin_dirty: bool,
     state: CompositionState,
     prediction: Option<PredictionWorker>,
     prediction_status: PredictionStatus,
@@ -250,6 +253,7 @@ impl XRTabletImeEngine {
         Self {
             config,
             registry,
+            active_plugin_dirty: false,
             prediction: None,
             prediction_status: PredictionStatus::Disabled,
             prediction_error: None,
@@ -301,6 +305,7 @@ impl XRTabletImeEngine {
     where
         P: LanguagePlugin + 'static,
     {
+        self.active_plugin_dirty |= plugin.id() == self.state.active_language;
         self.registry.register(plugin);
     }
 
@@ -311,6 +316,9 @@ impl XRTabletImeEngine {
     pub fn set_language(&mut self, language_id: impl AsRef<str>) -> Snapshot {
         let language_id = language_id.as_ref();
         if let Some(plugin) = self.registry.get(language_id) {
+            if self.state.active_language == plugin.id() && !self.active_plugin_dirty {
+                return self.snapshot();
+            }
             if self.state.active_language != plugin.id() {
                 self.preferences.clear_pending();
             }
@@ -327,6 +335,14 @@ impl XRTabletImeEngine {
     }
 
     pub fn update_signal(&mut self, signal: SignalState) -> Snapshot {
+        // The startup confidence is initialized on the first application;
+        // later equal signals are not edits or a reason to retry prediction.
+        if !self.active_plugin_dirty
+            && self.state.signal == signal
+            && self.state.confidence == self.compute_confidence()
+        {
+            return self.snapshot();
+        }
         self.state.signal = signal;
         self.state.confidence = self.compute_confidence();
         self.state.degraded = self.state.confidence < 0.45;
@@ -474,6 +490,46 @@ impl XRTabletImeEngine {
         self.preferences.len()
     }
 
+    pub(crate) fn preference_revision(&self) -> u64 {
+        self.preferences.revision()
+    }
+
+    pub(crate) fn clear_preference_snapshot(
+        &mut self,
+    ) -> Result<
+        crate::preferences::persistence::PreferenceSnapshot,
+        crate::preferences::persistence::PreferenceError,
+    > {
+        self.preferences.clear_snapshot()
+    }
+
+    /// Bounded in-memory capture only. Hosts serialize/write on their storage
+    /// worker; unconfirmed adoptions and private input are never exported.
+    pub fn preference_snapshot(
+        &self,
+    ) -> Result<
+        crate::preferences::persistence::PreferenceSnapshot,
+        crate::preferences::persistence::PreferenceError,
+    > {
+        self.preferences.snapshot()
+    }
+
+    /// Install a validated cache before typing. A late load must not overwrite
+    /// new learning or change a live draft/candidate choice/undo history.
+    pub fn install_preference_cache(
+        &mut self,
+        cache: crate::preferences::PreferenceCache,
+    ) -> Result<(), crate::preferences::persistence::PreferenceError> {
+        if !self.state.seed_text.is_empty()
+            || !self.state.candidates.is_empty()
+            || !self.state.history.is_empty()
+            || !self.state.committed_text.is_empty()
+        {
+            return Err(crate::preferences::persistence::PreferenceError::InputBusy);
+        }
+        self.preferences.install(cache)
+    }
+
     pub fn commit(&mut self, options: CommitOptions) -> CommitResult {
         self.commit_with_join(options, false)
     }
@@ -556,6 +612,7 @@ impl XRTabletImeEngine {
     }
 
     fn rebuild(&mut self) {
+        self.active_plugin_dirty = false;
         self.selection_locked = false;
         let plugin = self.active_plugin();
         self.state.seed_text = plugin.normalize_seed(&self.state.seed_text);

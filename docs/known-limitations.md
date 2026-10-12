@@ -1,6 +1,6 @@
 # Alpha limitations and support
 
-0.8.1 targets Ubuntu 24.04 amd64, IBus and X11 / GNOME XWayland. Cross-platform architecture
+0.8.8 targets Ubuntu 24.04 amd64, IBus and X11 / GNOME XWayland. Cross-platform architecture
 does not imply cross-platform stability. Keep another input method available.
 
 - **Ubuntu 26.04 development checks:** the initial home-life vocabulary run timed out after
@@ -17,15 +17,39 @@ does not imply cross-platform stability. Keep another input method available.
   the signal-lifetime defect. None of these checks expands the Ubuntu 24.04 package baseline or
   updates the personal installation; see [validation scope and retained failures](ibus-candidates.md#居家生活兜底词库未发布2026-10-02).
 
-- **In-memory candidate preferences (0.7.3):** Linux/IBus now ranks existing
+- **Candidate preference scope (introduced in 0.7.3):** Linux/IBus ranks existing
   candidates using bounded, decaying feedback from confirmed choices. Preferences are scoped to
-  the exact language/query/candidate, not a persistent user dictionary; restarting the host
-  forgets them. Private fields bypass learning/ranking, and the tray can clear the cache.
+  the exact language/query/candidate, not a persistent user dictionary. Versions before
+  0.8.8 forget them on restart; 0.8.8 saves them locally by default as described below.
+  Private fields bypass learning/ranking, and the tray can clear the cache.
   Other hosts retain their existing candidate policy. No installation is changed by this source
   addition. See [frequency cache](ibus-candidates.md#偏好频率缓存).
   0.7.4 fixes early removal of learned local sentences when a full model response arrives;
   the bounded merge pool is ranked before its final cutoff. This does not broaden cache scope,
   persist preferences or qualify actual model quality. See the [N57 audit](bug-audit-preference-model-2026-09-27.md).
+
+- **Native persistence (0.8.8):** the Linux source host now
+  defaults to background save/startup restore and acknowledged RAM+file clear.
+  Eight private IBus workflows exercise real restarts, blocked/failed file sync,
+  privacy and isolated state/config paths. The installed/released 0.8.7 is not
+  replaced by this work. Other hosts retain memory-only behavior. Files contain
+  their fingerprint key and are sensitive, not encrypted or anonymous; backup
+  excludes them. Slow/insecure/corrupt startup falls back to RAM with a reported
+  error. A forced kill or failed bounded shutdown may lose the latest unconfirmed
+  save and leave unpublished sensitive staging until the next disk-mode startup
+  or explicit clear. New dedicated staging is recovered under the exclusive
+  lease, only after a bounded private-file preflight; unsafe/over-limit inventory
+  reports an error rather than sweeping unrelated files. A ninth native workflow
+  covers pending-save shutdown and this recovery; the earlier eight-group result
+  remains historical. Clear timeout/disconnect is unconfirmed, not proof of deletion or an
+  obsolete host. The source tray now reconciles an accepted clear on later
+  read-only refresh using the exact host/task receipt; a restart or different
+  clear never confirms the old operation. It distinguishes clearing from saving,
+  exposes entry count and failure details, and localizes preference status and
+  storage errors in eight languages. These menu-state tests do not qualify
+  rendered desktop menus. Visual tray, personal installation/upgrade, physical keys and
+  native Wayland remain unqualified. See the
+  [storage policy and acceptance scope](ibus-candidates.md#偏好文件持久化088).
 
 - **App compatibility:** focus/preedit behavior needs broader desktop testing. Do not rely on an
   Alpha input method as the only way to enter essential credentials.

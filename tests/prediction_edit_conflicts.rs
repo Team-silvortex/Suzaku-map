@@ -938,3 +938,159 @@ fn provider_none_undo_stays_disabled_and_preserves_local_choice_commit_and_reset
     }
     assert_eq!(checked, 4);
 }
+
+fn repeat_current_controls(engine: &mut XRTabletImeEngine) {
+    let before = engine.snapshot();
+    let pool = engine.candidates().to_vec();
+    let selected = engine.selected_completion_text(true).map(str::to_owned);
+    let status = engine.prediction_status();
+    let error = engine.prediction_error().cloned();
+    let alias = match before.active_language.as_str() {
+        "en" => "en_GB",
+        "zh-Hans" => "ZH_cn",
+        _ => unreachable!(),
+    };
+    for language in [before.active_language.as_str(), alias] {
+        assert_eq!(engine.set_language(language), before);
+        assert_eq!(engine.candidates(), pool);
+        assert_eq!(engine.selected_completion_text(true), selected.as_deref());
+        assert_eq!(engine.prediction_status(), status);
+        assert_eq!(engine.prediction_error(), error.as_ref());
+        assert_eq!(
+            engine.update_signal(suzaku_map::ime::SignalState::default()),
+            before
+        );
+        assert_eq!(engine.candidates(), pool);
+        assert_eq!(engine.selected_completion_text(true), selected.as_deref());
+        assert_eq!(engine.prediction_status(), status);
+        assert_eq!(engine.prediction_error(), error.as_ref());
+    }
+}
+
+fn finish_unchanged_request(control: &mut Controlled, request: &PredictionRequest) -> String {
+    let before = control.engine.snapshot();
+    let (reply, expected) = response(request, "usable unchanged request");
+    control.replies.send(Ok(reply)).unwrap();
+    let deadline = Instant::now() + Duration::from_secs(2);
+    while control.engine.prediction_pending() && Instant::now() < deadline {
+        control.engine.poll_prediction();
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    assert_eq!(control.engine.prediction_status(), PredictionStatus::Ready);
+    assert_eq!(control.engine.prediction_error(), None);
+    assert!(control.engine.candidates().iter().any(|row| {
+        row.text == expected
+            && row.kind == CandidateKind::Sentence
+            && row.source == CandidateSource::Model
+    }));
+    assert_eq!(control.engine.snapshot().seed_text, before.seed_text);
+    assert_eq!(
+        control.engine.snapshot().committed_text,
+        before.committed_text
+    );
+    assert!(control.requests.try_recv().is_err());
+    expected
+}
+
+#[test]
+fn repeated_controls_preserve_the_exact_pending_request_and_its_usable_reply() {
+    let mut checked = 0;
+    for language in ["en", "zh-Hans"] {
+        for mixed in [false, true] {
+            let committed = context(language);
+            let mut control = controlled(language, mixed, Some(committed));
+            control
+                .engine
+                .update_signal(suzaku_map::ime::SignalState::default());
+            let raw = long_seed(language);
+            control.engine.seed(&raw);
+            let (request, token) = receive(&control, &raw, committed);
+            repeat_current_controls(&mut control.engine);
+            assert!(
+                !token.is_cancelled(),
+                "an equal control canceled the active request"
+            );
+            finish_unchanged_request(&mut control, &request);
+            assert!(!token.is_cancelled());
+            checked += 1;
+        }
+    }
+    assert_eq!(checked, 4);
+}
+
+#[test]
+fn repeated_controls_preserve_ready_model_choices_and_one_exact_commit() {
+    let mut checked = 0;
+    for language in ["en", "zh-Hans"] {
+        for mixed in [false, true] {
+            let mut control = controlled(language, mixed, None);
+            control
+                .engine
+                .update_signal(suzaku_map::ime::SignalState::default());
+            let raw = long_seed(language);
+            control.engine.seed(&raw);
+            let (request, _) = receive(&control, &raw, "");
+            let expected = finish_unchanged_request(&mut control, &request);
+            let index = control
+                .engine
+                .candidates()
+                .iter()
+                .position(|row| row.text == expected && row.source == CandidateSource::Model)
+                .unwrap();
+            control.engine.select_candidate(index);
+            repeat_current_controls(&mut control.engine);
+            assert_eq!(
+                control.engine.selected_completion_text(true),
+                Some(expected.as_str())
+            );
+            let result = control.engine.commit(CommitOptions { force: true });
+            assert!(result.ok);
+            assert_eq!(result.text.as_deref(), Some(expected.as_str()));
+            assert_eq!(control.engine.prediction_status(), PredictionStatus::Idle);
+            assert!(!control.engine.commit(CommitOptions { force: true }).ok);
+            assert_eq!(control.engine.snapshot().committed_text, expected);
+            assert!(control.engine.undo().unwrap().committed_text.is_empty());
+            assert!(control.engine.undo().is_none());
+            checked += 1;
+        }
+    }
+    assert_eq!(checked, 4);
+}
+
+#[test]
+fn repeated_controls_keep_current_errors_until_an_actual_edit_retries() {
+    let mut checked = 0;
+    for language in ["en", "zh-Hans"] {
+        for mixed in [false, true] {
+            let mut control = controlled(language, mixed, None);
+            control
+                .engine
+                .update_signal(suzaku_map::ime::SignalState::default());
+            let raw = long_seed(language);
+            control.engine.seed(&raw);
+            let (failed, token) = receive(&control, &raw, "");
+            finish_active_error(&mut control, &failed);
+            select_exact_local_draft(&mut control, &raw);
+            repeat_current_controls(&mut control.engine);
+            assert_eq!(
+                control.engine.prediction_error(),
+                Some(&PredictionError::HttpStatus(404))
+            );
+            assert!(!token.is_cancelled());
+            assert!(control.requests.try_recv().is_err());
+
+            control.engine.seed(&raw);
+            assert_eq!(control.engine.selected_completion_text(true), None);
+            assert_eq!(control.engine.prediction_error(), None);
+            assert_eq!(
+                control.engine.prediction_status(),
+                PredictionStatus::Pending
+            );
+            let (fresh, _) = receive(&control, &raw, "");
+            assert_ne!(fresh.request_id, failed.request_id);
+            finish_unchanged_request(&mut control, &fresh);
+            checked += 1;
+        }
+    }
+    assert_eq!(checked, 4);
+}

@@ -67,6 +67,50 @@ impl Default for SelectionPreferences {
 }
 
 impl SelectionPreferences {
+    pub fn revision(&self) -> u64 {
+        self.cache.revision()
+    }
+
+    /// An explicit global clear is allowed even in a private field. Only the
+    /// already-empty cache is captured; no private draft/choice is exported.
+    pub fn clear_snapshot(
+        &mut self,
+    ) -> Result<
+        crate::preferences::persistence::PreferenceSnapshot,
+        crate::preferences::persistence::PreferenceError,
+    > {
+        self.clear();
+        self.cache
+            .snapshot_at(Instant::now(), std::time::SystemTime::now())
+    }
+    pub fn snapshot(
+        &self,
+    ) -> Result<
+        crate::preferences::persistence::PreferenceSnapshot,
+        crate::preferences::persistence::PreferenceError,
+    > {
+        if !self.enabled {
+            return Err(crate::preferences::persistence::PreferenceError::PrivateContext);
+        }
+        self.cache
+            .snapshot_at(Instant::now(), std::time::SystemTime::now())
+    }
+
+    pub fn install(
+        &mut self,
+        cache: PreferenceCache,
+    ) -> Result<(), crate::preferences::persistence::PreferenceError> {
+        use crate::preferences::persistence::PreferenceError;
+        if !self.enabled {
+            return Err(PreferenceError::PrivateContext);
+        }
+        if !self.pending.is_empty() || !self.undo.is_empty() || !self.cache.is_empty() {
+            return Err(PreferenceError::InputBusy);
+        }
+        self.cache = cache;
+        Ok(())
+    }
+
     pub fn set_enabled(&mut self, enabled: bool) {
         self.enabled = enabled;
         self.clear_pending();

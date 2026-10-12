@@ -11913,6 +11913,70 @@
         "let me fold this shirt before going out.",
         "let me fold this towel and put it away."
       ]
+    },
+    {
+      "id": "daily_household",
+      "words": [],
+      "next_words": [
+        ["i can wash the",["dishes","cups"]],
+        ["please wipe the",["table","counter"]],
+        ["i'll take the trash",["out","downstairs"]],
+        ["the floor is still",["wet","dirty"]],
+        ["please put these",["away","back"]],
+        ["let's hang the laundry",["outside","here"]],
+        ["we need to clean the",["kitchen","bathroom"]],
+        ["please empty the",["bin","basket"]]
+      ],
+      "sentences": [
+        "i can wash the dishes after dinner.",
+        "i can wash the cups while you clear the table.",
+        "please wipe the table before we eat.",
+        "please wipe the counter with a clean towel.",
+        "i'll take the trash out after dinner.",
+        "i'll take the trash downstairs when i leave.",
+        "the floor is still wet, so please walk carefully.",
+        "the floor is still dirty near the door.",
+        "please put these away after you use them.",
+        "please put these back on the shelf.",
+        "let's hang the laundry outside while it's sunny.",
+        "let's hang the laundry here until it's dry.",
+        "we need to clean the kitchen before we cook dinner.",
+        "we need to clean the bathroom this weekend.",
+        "please empty the bin before it gets full.",
+        "please empty the basket so we can use it for laundry."
+      ]
+    },
+    {
+      "id": "daily_mealtime",
+      "words": [],
+      "next_words": [
+        ["could you pass the",["rice","soup"]],
+        ["i'll set the",["table","plates"]],
+        ["please put a",["spoon","fork"]],
+        ["would you like more",["rice","soup"]],
+        ["there's some food",["left","here"]],
+        ["let's put the rest in a",["box","bowl"]],
+        ["please cover the",["food","bowl"]],
+        ["i'll clear the",["table","dishes"]]
+      ],
+      "sentences": [
+        "could you pass the rice, please?",
+        "could you pass the soup, please?",
+        "i'll set the table while you finish cooking.",
+        "i'll set the plates out before dinner.",
+        "please put a spoon next to each bowl.",
+        "please put a fork next to each plate.",
+        "would you like more rice with your dinner?",
+        "would you like more soup before i clear the table?",
+        "there's some food left if you're still hungry.",
+        "there's some food here for you.",
+        "let's put the rest in a box after dinner.",
+        "let's put the rest in a bowl for now.",
+        "please cover the food while i clear the table.",
+        "please cover the bowl with a plate.",
+        "i'll clear the table when everyone is done.",
+        "i'll clear the dishes after we eat."
+      ]
     }
   ],
   "phrase_endings": [

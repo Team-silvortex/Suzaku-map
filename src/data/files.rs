@@ -54,6 +54,28 @@ pub struct StagedFile {
 
 impl StagedFile {
     pub fn new(destination: &Path, bytes: &[u8]) -> io::Result<Self> {
+        Self::with_prefix(destination, bytes, ".suzaku-")
+    }
+
+    /// A dedicated namespace lets its sole writer recover abandoned staging
+    /// without sweeping temporary files belonging to settings or other data.
+    #[cfg(target_os = "linux")]
+    pub(crate) fn new_named(destination: &Path, bytes: &[u8], tag: &str) -> io::Result<Self> {
+        if tag.is_empty()
+            || tag.len() > 32
+            || !tag
+                .bytes()
+                .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-')
+        {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "invalid staging namespace",
+            ));
+        }
+        Self::with_prefix(destination, bytes, &format!(".suzaku-{tag}-"))
+    }
+
+    fn with_prefix(destination: &Path, bytes: &[u8], prefix: &str) -> io::Result<Self> {
         let parent = destination
             .parent()
             .filter(|p| !p.as_os_str().is_empty())
@@ -68,7 +90,7 @@ impl StagedFile {
         }
         for _ in 0..32 {
             let temporary = parent.join(format!(
-                ".suzaku-{}-{}.tmp",
+                "{prefix}{}-{}.tmp",
                 std::process::id(),
                 NEXT_FILE.fetch_add(1, Ordering::Relaxed)
             ));
@@ -251,4 +273,31 @@ fn settings_lock_paths(settings: &Path) -> Result<BTreeSet<PathBuf>, String> {
         }
     }
     Err("输入法配置链接层数过多；请使用真实配置路径".into())
+}
+
+#[cfg(all(test, target_os = "linux"))]
+mod staging_tests {
+    use super::*;
+
+    #[test]
+    fn invalid_staging_namespaces_fail_before_any_file_operation() {
+        let absent = Path::new("/invalid-staging-namespace-test/must-not-create/file");
+        for tag in [
+            "",
+            "../escape",
+            "/absolute",
+            "has space",
+            ".hidden",
+            "Upper",
+            "abcdefghijklmnopqrstuvwxyzabcdefg",
+        ] {
+            assert_eq!(
+                StagedFile::new_named(absent, b"synthetic", tag)
+                    .err()
+                    .unwrap()
+                    .kind(),
+                io::ErrorKind::InvalidInput
+            );
+        }
+    }
 }

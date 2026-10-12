@@ -344,6 +344,49 @@ fn recommended_collections_keep_word_sentence_and_fallback_workflows() {
     for (language, seed, word, sentence) in [
         (
             "en",
+            "could you pass the ri",
+            "could you pass the rice",
+            "could you pass the rice, please?",
+        ),
+        (
+            "en",
+            "i'll set the ta",
+            "i'll set the table",
+            "i'll set the table while you finish cooking.",
+        ),
+        ("zh-Hans", "fan hao le", "饭好了", "饭好了，过来一起吃吧。"),
+        (
+            "zh-Hans",
+            "sheng xia de da ba",
+            "剩下的打包",
+            "剩下的打包带走，麻烦给我一个袋子。",
+        ),
+        (
+            "en",
+            "i can wash the di",
+            "i can wash the dishes",
+            "i can wash the dishes after dinner.",
+        ),
+        (
+            "en",
+            "please wipe the ta",
+            "please wipe the table",
+            "please wipe the table before we eat.",
+        ),
+        (
+            "zh-Hans",
+            "wo lai xi wan",
+            "我来洗碗",
+            "我来洗碗，你把桌子擦一下。",
+        ),
+        (
+            "zh-Hans",
+            "la ji dai man l",
+            "垃圾袋满了",
+            "垃圾袋满了，换一个新的吧。",
+        ),
+        (
+            "en",
             "can you hear me cl",
             "can you hear me clearly",
             "can you hear me clearly?",

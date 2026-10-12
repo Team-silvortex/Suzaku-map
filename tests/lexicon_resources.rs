@@ -343,17 +343,17 @@ fn migrated_readings_preserve_every_original_position_and_flag() {
             "{language} first {count} readings changed existing data/rank"
         );
     }
-    assert_eq!(builtin("en").unwrap().next_words().count(), 693);
-    assert_eq!(builtin("en").unwrap().sentences().count(), 1350);
-    assert_eq!(builtin("zh-Hans").unwrap().readings().len(), 2922);
-    assert_eq!(builtin("zh-Hans").unwrap().continuations().count(), 687);
+    assert_eq!(builtin("en").unwrap().next_words().count(), 709);
+    assert_eq!(builtin("en").unwrap().sentences().count(), 1382);
+    assert_eq!(builtin("zh-Hans").unwrap().readings().len(), 2970);
+    assert_eq!(builtin("zh-Hans").unwrap().continuations().count(), 703);
     assert_eq!(
         builtin("zh-Hans")
             .unwrap()
             .continuations()
             .map(|(_, values)| values.len())
             .sum::<usize>(),
-        1372
+        1404
     );
     assert_eq!(builtin("ja").unwrap().readings().len(), 366);
     assert_eq!(builtin("ja").unwrap().continuations().count(), 184);

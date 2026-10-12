@@ -53,10 +53,15 @@ pub(super) fn apply_settings(session: &mut HostImeSession, settings: ImeSettings
 }
 
 pub(super) fn response(session: &HostImeSession, result: Result<(), String>) -> serde_json::Value {
+    #[cfg(target_os = "linux")]
+    let preferences = session.preferences.json(session.engine.preference_count());
+    #[cfg(not(target_os = "linux"))]
+    let preferences =
+        serde_json::json!({"memory_only": true, "entries": session.engine.preference_count()});
     serde_json::json!({"ok": result.is_ok(), "error": result.err(),
         "settings": session.settings.to_json(), "prediction": format!("{:?}", session.engine.prediction_status()),
         "prediction_error": session.engine.prediction_error().map(ToString::to_string),
-        "preferences": {"memory_only": true, "entries": session.engine.preference_count()}})
+        "preferences": preferences})
 }
 
 static CONTROL_BUSY: AtomicBool = AtomicBool::new(false);

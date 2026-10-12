@@ -8,7 +8,10 @@ fn main() {
         }
     };
     suzaku_map::lexicon::packs::initialize_current();
-    if let Err(error) = suzaku_map::platform::linux_ibus_host::run() {
+    suzaku_map::ime_host::persistence::initialize();
+    let result = suzaku_map::platform::linux_ibus_host::run();
+    suzaku_map::ime_host::persistence::shutdown();
+    if let Err(error) = result {
         eprintln!("{error}");
         std::process::exit(1);
     }
