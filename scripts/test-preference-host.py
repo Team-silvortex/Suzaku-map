@@ -46,6 +46,67 @@ def require_owned(environment):
     return root
 
 
+def attach_restarted_peer(fixture, qa, previous_host):
+    """A bound socket is not evidence that the new host is dispatching input."""
+    watch = None
+
+    def ready():
+        nonlocal watch
+        if watch is None:
+            if not fixture.socket.exists():
+                return False
+            watch = qa.Watch(fixture)
+        frame = watch.latest
+        if frame is None:
+            return False
+        assert isinstance(frame, dict), "invalid restarted host acknowledgement"
+        assert isinstance(frame["host"], str) and frame["host"] and frame["host"] != previous_host, \
+            "restarted host acknowledgement has an old or invalid identity"
+        assert frame["focused"] is False and frame["private"] is False, \
+            "restarted host already has a focused or private input context"
+        assert frame["seed"] == "" and frame["candidates"] == [], \
+            "restarted host unexpectedly restored an input draft"
+        return True
+
+    try:
+        # Socket binding and the actual W response share the original 5s wait.
+        # Do not retry CreateEngine or spend a second readiness timeout.
+        fixture.wait(ready, "owned restarted preference host dispatch acknowledgement")
+        assert all(process.poll() is None for process in fixture.processes), \
+            "owned native process exited before engine creation"
+        fixture.phase = "preference restart: CreateEngine"
+        return watch, qa.EnginePeer(fixture)
+    except BaseException:
+        if watch is not None:
+            with qa.preserve_primary_failure("restarted host subscription teardown"):
+                watch.close()
+        raise
+
+
+def report_failure(fixture, host_logs):
+    """Emit bounded owned diagnostics before TemporaryDirectory removes logs."""
+    print(f"Preference QA failure phase: {fixture.phase}", file=sys.stderr, flush=True)
+    for process in fixture.processes:
+        print(f"Owned process pid={process.pid} exit={process.poll()}", file=sys.stderr)
+    for watch in fixture.watchers:
+        frame = watch.latest
+        # Record identities/state, never the draft, candidate text or disk cache.
+        state = None if frame is None else {key: frame.get(key) for key in
+                 ("host", "context", "revision", "focused", "private")}
+        print(f"Companion state: {state}", file=sys.stderr)
+    for path in list(host_logs.values())[-3:]:
+        try:
+            with path.open("rb") as stream:
+                stream.seek(0, os.SEEK_END)
+                size = stream.tell()
+                stream.seek(max(0, size - 4096))
+                tail = stream.read(4096).decode("utf-8", errors="replace")
+            print(f"Owned {path.name} tail ({min(size, 4096)} of {size} bytes):\n{tail}",
+                  file=sys.stderr, flush=True)
+        except OSError as error:
+            print(f"Owned {path.name} log unavailable: {error}", file=sys.stderr)
+
+
 def inner(host, tool):
     root = require_owned(os.environ)
     spec = importlib.util.spec_from_file_location("preference_owned_fixture", HERE / "test-custom-shortcuts-ibus.py")
@@ -74,19 +135,23 @@ def inner(host, tool):
         fixture.wait(lambda: not status()["pending"], "preference writer completion", timeout=2)
         assert status()["error"] is None, status()
 
-    def start_peer():
+    def start_peer(previous_host):
         nonlocal watch, peer
-        watch, peer = qa.Watch(fixture), qa.EnginePeer(fixture)
+        watch, peer = attach_restarted_peer(fixture, qa, previous_host)
+        fixture.phase = "preference restart: FocusIn acknowledgement"
         peer.event("FocusIn")
         fixture.wait(lambda: watch.latest is not None and watch.latest["focused"], "owned preference input focus")
 
     def restart(corrupt=False, normal_path=False, mode=None, release_save=False, shutdown_warning=None):
         nonlocal watch, peer
+        fixture.phase = "preference restart: capture previous host"
+        previous_host = fixture.fresh()["host"]
         if peer is not None:
             peer.close()
             watch.close()
             peer = watch = None
         old = next(process for process in fixture.processes if process.args[0] == str(host))
+        fixture.phase = "preference restart: graceful shutdown"
         old.terminate()
         if release_save:
             fixture.wait(lambda: not fixture.socket.exists(), "input loop stopped before held-save shutdown", timeout=0.5)
@@ -108,11 +173,12 @@ def inner(host, tool):
             environment["SUZAKU_PREFERENCE_MODE"] = mode
         log = root / f"host-{len(host_logs)}.log"
         with log.open("x") as stderr:
-            process = subprocess.Popen([str(host)], stdout=subprocess.DEVNULL, stderr=stderr, env=environment)
+            process = subprocess.Popen([str(host)], stdout=stderr, stderr=stderr, env=environment)
         host_logs[process] = log
         fixture.processes.append(process)
-        fixture.wait(fixture.socket.exists, "owned restarted preference host")
-        start_peer()
+        fixture.phase = "preference restart: dispatch acknowledgement"
+        start_peer(previous_host)
+        fixture.phase = "preference workflow"
 
     def choose(language, reading, text):
         fixture.control("L" + language)
@@ -315,6 +381,10 @@ def inner(host, tool):
         assert acknowledged["memory_only"] and not acknowledged["enabled"] and acknowledged["entries"] == 0
         assert file.read_bytes() == disk_bytes
         print("PASS: explicit memory-only opt-out does not load, overwrite or erase existing disk preferences and preserves legacy clear semantics", flush=True)
+    except BaseException:
+        with qa.preserve_primary_failure("preference host failure diagnostics"):
+            report_failure(fixture, host_logs)
+        raise
     finally:
         # Always release only these owned barriers before graceful teardown.
         for kind in ["save", "clear"]:

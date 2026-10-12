@@ -4,7 +4,7 @@
     "date": "2026-10-12",
     "head": "98ee5764e8ae494d5d4cc0c2af694e307645d011",
     "dirty": true,
-    "source_sha256": "d1c41940acaa0c218732ecbf8f2a8b22a438b5505194403f1f01fa123f9553f1",
+    "source_sha256": "e79fa443f9def9d1b4ed67c56030c52e1027a50ac699a00b10e0530239c88c7e",
     "note": "0.8.7发布后的未提交工作区盘点，head记录已发布基线98ee576而非本次修复提交；评分是有边界的人工序数评估，不是质量概率。重复引擎控件见E-shared-noop-controls；旧77单元评分不提高。F69/preference-file记录文件底层，native-preference及E-native-preference记录Linux源码宿主默认后台保存/启动恢复/有界退出/异步清除确认，第一轮八组私有IBus及1752全量通过，退出恢复见E-preference-lifecycle：敏感temp红测保留，专属空间安全回收，九组native及1758全量零失败30显式ignored通过；不代表日常安装已升级、托盘视觉或实体键盘验收，其他宿主仍内存。第一阶段及计数失败保留，非改记通过。后续历史修复范围见E-pointer-preference、E-window-boundary、E-recovery-fixture、E-prose-paging、E-chinese-partial-spacing；词库扩充见E-daily-objects、E-daily-choices、E-japanese-choices。10-04崩溃及10-07有界sender诊断见E-daemon-abort，探测清理顺序见E-daemon-probe，非已确认修复上游根因。10-11安装范围见E-installed-input-tasks和E-installed-custom-shortcuts。0.8.6原远端超时、0.8.7首轮Python格式失败及40min取消均不改记通过；后续干净98ee576的CI38161577941八项、Ubuntu24打包安装及最终汇合成功，四资产复核后公开发布，但这些结果不代表本次未提交工作区的远端CI、打包安装、真实模型或个人桌面验收。源指纹仅覆盖implementations.paths/tests。"
   },
   "architectures": [
@@ -304,6 +304,7 @@
       "tests": [
         "tests/preference_host.rs",
         "scripts/test-preference-host.py",
+        "scripts/test-preference-restart.py",
         "scripts/fixtures/preference-fsync.c",
         "src/platform/linux_ime_control.rs"
       ]
@@ -1402,6 +1403,13 @@
       "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "tests/daily_household_english.rs", "tests/daily_household_chinese.rs", "tests/offline_pack_quality.rs"],
       "scope": "2026-10-12中英家务、清洁和日常整理；有限原创离线fallback",
       "note": "英文追加8搭配16句复用现有词形，6143索引及旧30层/693搭配/1350句和首次索引位置不变；中文追加24读音8语境16句，旧2922读音/687语境/1372句及标记顺序指纹不变。衣夹追加为yi'jia同音，原衣架仍首选。独立英文1pass6fail、中文2pass5fail及全包quality缺dishes的RED保留；补数据后7+7新项和全14包组合quality首次通过。旧回归首轮两个失败是function-word历史总量断言，不改历史指纹/候选行为，将历史检查限定原窗口，并精确更新全资源当前数量。未改语言算法、候选/模型预算、日语或推荐包字节，旧评分不提高；typed模型失败与引擎reseed不代表原生键盘/HTTP或实模验收。准确回归与严格检查结果见开发记录；未安装、提交、推送或发布。"
+    },
+    {
+      "id": "E-preference-restart-fixture",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "scripts/test-preference-host.py", "scripts/test-preference-restart.py", "tests/preference_host.rs"],
+      "scope": "2026-10-12偏好测试重启就绪确认与失败诊断；未证实远端超时根因",
+      "note": "6609502的CI38229734734首轮restart CreateEngine 2000ms超时，尚未进入学习/保存/清除；原本地九组通过，远端失败不改记通过。生产socket在注册完成后才绑定，不误判为注册先后错误。测试缺少新宿主响应ACK，用原单一5s预算等待socket加新host空白公开未聚焦帧，再单次创建引擎；旧身份/private/draft/进程退出/真实超时仍失败，原120s总时限不改。补齐临时目录删除前的阶段/进程/无正文元数据和最后三份各4096B日志，保留原异常；确定性红测及完整局部结果见开发记录。原shared fixture/生产/fsync/CI不改，不提高成熟度，不代表新远端验收或个人安装。"
     },
     {
       "id": "E-settings-focus-fixture",
@@ -3284,6 +3292,7 @@
         2
       ],
       "evidence": [
+        "E-preference-restart-fixture",
         "E-preference-feedback",
         "E-preference-lifecycle",
         "E-native-preference",

@@ -42,6 +42,59 @@ are added only after their own acceptance, not implied by the shared version num
 This is a release requirement, not a claim that automatic publication is implemented or
 that existing 0.7.x tags already have assets. See [Linux packaging](docs/linux-packaging-data.md).
 
+### 0.8.8 preference restart readiness repair — 2026 10 12
+
+- Repair commit `660950242a47ee1ad5019a34a81345ddc848f40a` passes the new
+  settings-focus guard, but [CI 38229734734](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/38229734734/job/114745985217)
+  fails `preference_host` at the first restart: `Factory.CreateEngine` reaches
+  its unchanged 2,000-ms D-Bus deadline before any learning, save or clear case.
+  This is not the 120-second fixture timeout or evidence of lost preferences.
+  Exact job/step and logs remain in `/tmp/suzaku-ci-6609502.OcLSJV`; no CI rerun
+  or publication is performed and the automatic follow-up stays paused.
+  The completed remote run passes Linux applications, packages/clean install,
+  formatting, secrets and both desktop checks; the aggregate fails because the
+  core regression failed. Those successful lanes do not authorize publication.
+- The unchanged local nine-workflow baseline passes. Source inspection also
+  rules out the proposed registration-before-socket ordering: production binds
+  the companion socket only after factory/name/component registration succeeds.
+  The remote trace does not identify why that particular creation call stalled.
+  Do not label this follow-up as a proven fix to the remote root cause.
+- A definite fixture gap remains: restart waits only for a socket pathname,
+  unlike initial startup's responding-host checks. The new helper spends the
+  **same single five-second startup budget** on binding plus an actual `W`
+  response with a new, nonempty host identity and an empty, unfocused, public
+  state. It then issues exactly one unchanged `CreateEngine` call. Missing/stale
+  replies, private/draft state, child exits and real engine timeouts still fail;
+  no retry, extra startup wait, relaxed assertion or global deadline increase.
+- A separate diagnostic gap discarded per-host logs with the temporary test
+  directory. Failed runs now report the phase, owned process state, text-free
+  snapshot metadata and bounded tails of the three newest host logs before
+  cleanup; startup stdout and stderr share each owned log. Cleanup/diagnostic
+  errors cannot replace the primary exception. Logs never read the cache file
+  or print draft/candidate text from companion frames.
+- Deterministic tests execute the real readiness helper and the original shared
+  wait loop without GI or a desktop. The old ordering produces 22 failing
+  assertions across 14 tests (including subcases), retained alongside the
+  baseline and fixed checks in `/tmp/suzaku-preference-restart.waF57d`.
+  All 21 final readiness/diagnostic cases pass, including child death coincident
+  with an acknowledgement, log bounds/privacy and preservation of primary
+  exceptions. The fixed native target passes both Rust tests and all nine
+  original preference workflows. AST comparison confirms their exact original
+  case bodies and isolation/outer-runner functions remain unchanged.
+  The guard is part of the existing Linux Rust test target; the shared IBus
+  fixture, production code, injected fsync library and CI workflow are unchanged.
+  Personal installation, services, settings and model/network behavior are not
+  modified. Local results cannot replace new exact-commit remote acceptance.
+- The final all-feature Rust run passes **1,796 tests**, zero failures and
+  **30 explicitly ignored** opt-in tests across 134 result groups. Strict
+  all-feature/all-target Clippy passes with warnings denied. The four targeted
+  source guards (restart, settings focus, CI graph and tensor) pass 75 checks;
+  refreshed tensor fingerprint, 250 audit links, formatting and diff checks
+  pass. The native/full/Clippy runs are serial, one-build-job, memory-capped
+  (2 GiB high, 4 GiB max, zero scope swap); logs remain beside the baseline.
+  This does not establish a new package build, personal-desktop acceptance or
+  the cause of the remote timeout. No commit, push or release is performed.
+
 ### 0.8.8 settings-focus fixture repair — 2026 10 12
 
 - Remote run [38224763030](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/38224763030)

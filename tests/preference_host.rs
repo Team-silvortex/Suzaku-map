@@ -3,6 +3,22 @@
 //! never silently skip or touch the user's input service/files.
 #[cfg(all(target_os = "linux", feature = "linux-ibus"))]
 #[test]
+fn native_preference_restart_readiness_preserves_timeouts_and_failure_diagnostics() {
+    let output = std::process::Command::new("/usr/bin/python3")
+        .args(["-B", "scripts/test-preference-restart.py"])
+        .current_dir(env!("CARGO_MANIFEST_DIR"))
+        .output()
+        .expect("run the preference restart readiness guard");
+    assert!(
+        output.status.success(),
+        "preference restart guard failed:\n{}\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
+#[cfg(all(target_os = "linux", feature = "linux-ibus"))]
+#[test]
 fn native_preferences_restore_clear_and_slow_io_use_the_real_default_policy() {
     let output = std::process::Command::new("/usr/bin/python3")
         .args([
