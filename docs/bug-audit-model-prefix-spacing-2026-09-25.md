@@ -11,7 +11,7 @@
 
 此前本地中文转换已经保留字面缩进，但模型链路仍有两处独立裁剪：
 
-1. [提供器](../src/languages/model.rs) 对 CJK 的本地转换前缀先做 `trim`，英文却
+1. [提供器](../src/model.rs) 对 CJK 的本地转换前缀先做 `trim`，英文却
    保留完整前缀。请求要求精确保留 `local_conversion`，响应检查却允许删除其空白。
 2. [IBus 混排](../src/ime/candidate_mix.rs) 和 [独立引擎](../src/ime/core_engine.rs)
    合并模型结果时，仅为英文保留前缀，其余语言再次裁剪返回正文。
@@ -42,7 +42,7 @@
 
 ## 回归入口
 
-- [提供器测试](../src/languages/model.rs)：新增 CJK 精确前缀正反例；实际回环 HTTP
+- [提供器测试](../src/model.rs)：新增 CJK 精确前缀正反例；实际回环 HTTP
   测试扩展到 5 个英文/中文/日文请求 × 两种协议，检查请求、返回正文及类型。
 - [异步引擎](../tests/ime_prediction.rs)：5 组中文缩进、重复空格、全角空格/NBSP、
   列表前缀及 162 字符长稿 × 独立/IBus 混排，检查本地首选、原文、候选采用及精确提交。

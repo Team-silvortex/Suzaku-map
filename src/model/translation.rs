@@ -1,12 +1,10 @@
 //! Reuse provider discovery, local-only routing, credentials and consent, not autocomplete prompts.
 use super::{HttpModelProvider, ModelScope, complete_chat_choice, runtime, transport};
-use crate::languages::{
-    llm::LlmProviderError,
-    translation::{
-        MAX_TRANSLATION_OUTPUT_CHARS, TranslationError, TranslationProvider, TranslationRequest,
-        invalid_text_character,
-    },
+use crate::languages::translation::{
+    MAX_TRANSLATION_OUTPUT_CHARS, TranslationError, TranslationProvider, TranslationRequest,
+    invalid_text_character,
 };
+use crate::prediction::PredictionError;
 use serde_json::{Value, json};
 use std::time::{Duration, Instant};
 
@@ -53,7 +51,7 @@ impl TranslationProvider for HttpModelProvider {
         request.validate()?;
         self.config.validate()?;
         if self.config.scope == ModelScope::Cloud && !self.config.cloud_consent {
-            return Err(LlmProviderError::CloudConsentRequired.into());
+            return Err(PredictionError::CloudConsentRequired.into());
         }
         if request.source == Some(request.target) {
             return Ok(request.text.clone());
@@ -63,7 +61,7 @@ impl TranslationProvider for HttpModelProvider {
         let resolved = Self::new(config);
         let timeout = deadline
             .checked_duration_since(Instant::now())
-            .ok_or(LlmProviderError::Timeout)?;
+            .ok_or(PredictionError::Timeout)?;
         let body = transport::request(
             &resolved.config,
             "POST",
@@ -80,41 +78,40 @@ impl TranslationProvider for HttpModelProvider {
     }
 }
 
-fn parse_translation(body: &str, ollama: bool) -> Result<String, LlmProviderError> {
+fn parse_translation(body: &str, ollama: bool) -> Result<String, PredictionError> {
     let envelope: Value =
-        serde_json::from_str(body).map_err(|_| LlmProviderError::InvalidResponse)?;
+        serde_json::from_str(body).map_err(|_| PredictionError::InvalidResponse)?;
     let content = if ollama {
         if envelope["done"] != true || envelope["done_reason"] == "length" {
-            return Err(LlmProviderError::InvalidResponse);
+            return Err(PredictionError::InvalidResponse);
         }
         &envelope["message"]["content"]
     } else {
         let choice = &envelope["choices"][0];
         if !complete_chat_choice(choice) {
-            return Err(LlmProviderError::InvalidResponse);
+            return Err(PredictionError::InvalidResponse);
         }
         &choice["message"]["content"]
     };
     let text = content
         .as_str()
-        .ok_or(LlmProviderError::InvalidResponse)?
+        .ok_or(PredictionError::InvalidResponse)?
         .trim();
     if text.trim().is_empty() || text.chars().any(invalid_text_character) {
-        return Err(LlmProviderError::InvalidResponse);
+        return Err(PredictionError::InvalidResponse);
     }
     if text.chars().count() > MAX_TRANSLATION_OUTPUT_CHARS {
-        return Err(LlmProviderError::ResponseTooLarge);
+        return Err(PredictionError::ResponseTooLarge);
     }
     Ok(text.to_string())
 }
 
 #[cfg(test)]
 mod tests {
+    use super::super::{ModelProtocol, ModelProviderConfig, test_server};
     use super::*;
-    use crate::languages::{
-        model::{ModelProtocol, ModelProviderConfig, test_server},
-        translation::TranslationLanguage,
-    };
+    use crate::languages::llm::LlmProviderError;
+    use crate::languages::translation::TranslationLanguage;
     #[test]
     fn short_translation_reuses_candidate_context_but_long_input_keeps_its_budget() {
         for ollama in [false, true] {

@@ -12105,6 +12105,38 @@
         "i'll put the folded laundry away after dinner.",
         "i'll put the folded laundry here on your bed."
       ]
+    },
+    {
+      "id": "daily_devices",
+      "words": [],
+      "next_words": [
+        ["my phone battery is",["low","full"]],
+        ["can i borrow a",["charger","cable"]],
+        ["the charging cable is",["loose","broken"]],
+        ["these headphones are",["comfortable","wireless"]],
+        ["the speaker sounds",["quiet","clear"]],
+        ["could you adjust the",["brightness","volume"]],
+        ["i left my tablet",["charging","upstairs"]],
+        ["my phone is on",["silent","charge"]]
+      ],
+      "sentences": [
+        "my phone battery is low, so i need to charge it.",
+        "my phone battery is full and i'm ready to go.",
+        "can i borrow a charger for my phone?",
+        "can i borrow a cable until tonight?",
+        "the charging cable is loose near the phone.",
+        "the charging cable is broken, so i need another one.",
+        "these headphones are comfortable enough for a long trip.",
+        "these headphones are wireless, so i don't need a cable.",
+        "the speaker sounds quiet from here.",
+        "the speaker sounds clear at this volume.",
+        "could you adjust the brightness so i can read the screen?",
+        "could you adjust the volume so i can hear you?",
+        "i left my tablet charging on the desk.",
+        "i left my tablet upstairs in the bedroom.",
+        "my phone is on silent during the meeting.",
+        "my phone is on charge, so i'll reply later."
+      ]
     }
   ],
   "phrase_endings": [

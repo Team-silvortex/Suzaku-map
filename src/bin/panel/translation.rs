@@ -8,11 +8,11 @@ use suzaku_map::{
     },
     languages::{
         llm::LlmProviderError,
-        model::{HttpModelProvider, ModelScope},
         translation::{
             TranslationError, TranslationProvider, TranslationRequest, TranslationWorker,
         },
     },
+    model::{HttpModelProvider, ModelScope},
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]

@@ -52,7 +52,7 @@ right: "POST /original/v1/chat/completions HTTP/1.1"
 
 ### N16：完成状态校验不一致
 
-[compatible 候选解析](../src/languages/model.rs) 原先只排除 `length` 和 `content_filter`。
+[compatible 候选解析](../src/model.rs) 原先只排除 `length` 和 `content_filter`。
 `tool_calls`、旧式 `function_call`、未知字符串与错误类型仍可能通过正文解析；
 候选类型提取重复使用同样的宽松规则。翻译虽已拒绝工具转交，但错误类型经 `as_str()`
 变成“缺少字段”，也会被接受。
@@ -68,9 +68,9 @@ right: "POST /original/v1/chat/completions HTTP/1.1"
 - [真实面板回归](../src/bin/panel/functional_network_audit_test.rs)：抓取临时服务实际收到的
   目标、模型与合成上下文；检查未重载文件、旧宿主状态、坏 JSON、缓存 On、确认重载、
   旧翻译取消、译文预览不清草稿、磁盘撤销授权与已确认未授权两种拒绝路径。
-- [协议回归](../src/languages/model.rs)：文本/结构化候选、异常状态/类型、正常及缺省状态、
+- [协议回归](../src/model.rs)：文本/结构化候选、异常状态/类型、正常及缺省状态、
   多 choice，真实回环请求失败后下一次正常响应恢复。
-- [翻译回归](../src/languages/model/translation.rs)：两种协议与八个目标语言，完整性和错误类型校验。
+- [翻译回归](../src/model/translation.rs)：两种协议与八个目标语言，完整性和错误类型校验。
 - 新增面板回归保留隔离环境约束，由现有 [Linux UI 验收入口](../scripts/test-linux-ci.sh)
   强制运行；协议测试进入普通测试。本报告同步加入打包清单，避免重现 N14。
 

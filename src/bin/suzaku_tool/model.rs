@@ -6,7 +6,9 @@ use suzaku_map::ime::{
 use suzaku_map::languages::{
     BuiltinLanguage,
     llm::{LlmCompletionProvider, LlmCompletionRequest},
-    model::{DEFAULT_LOCAL_ENDPOINT, DEFAULT_MODEL, HttpModelProvider, ModelScope, runtime},
+};
+use suzaku_map::model::{
+    DEFAULT_LOCAL_ENDPOINT, DEFAULT_MODEL, HttpModelProvider, ModelScope, runtime,
 };
 
 pub(super) fn run(args: &[String]) -> i32 {

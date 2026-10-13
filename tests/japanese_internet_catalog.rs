@@ -247,6 +247,266 @@ fn source_sha256(source: &str) -> String {
     actual
 }
 
+fn remove_unique_append(source: &mut String, first: &str, after: &str) {
+    assert_eq!(source.matches(first).count(), 1, "ambiguous append start");
+    assert_eq!(source.matches(after).count(), 1, "ambiguous append end");
+    let start = source.find(first).unwrap();
+    let end = source.find(after).unwrap();
+    assert!(start < end, "append range is empty or reversed");
+    source.replace_range(start..end, "");
+}
+
+fn builtin_before_japanese_cleaning(language: &str, source: &str) -> String {
+    if language != "ja" {
+        return source.to_owned();
+    }
+    // Remove only the fixed cleaning/waste-sorting append. Keep the exact prior
+    // bytes for the independent weather, errands and devices projections below;
+    // neither their historical windows nor their SHA fingerprints are refreshed.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], "ja");
+    let readings = current["readings"].as_array().unwrap();
+    let contexts = current["continuations"].as_array().unwrap();
+    assert_eq!(readings.len(), 486);
+    assert_eq!(contexts.len(), 244);
+    assert_eq!(readings[461]["text"], "保管");
+    assert_eq!(readings[462]["reading"], "そうじき");
+    assert_eq!(readings[462]["text"], "掃除機");
+    assert_eq!(readings[485]["reading"], "あきかん");
+    assert_eq!(readings[485]["text"], "空き缶");
+    assert_eq!(contexts[231][0], "置き場所");
+    assert_eq!(contexts[232][0], "掃除機");
+    assert_eq!(contexts[243][0], "床");
+    for context in &contexts[232..] {
+        assert_eq!(context[1].as_array().unwrap().len(), 2);
+    }
+    assert_eq!(
+        contexts
+            .iter()
+            .map(|context| context[1].as_array().unwrap().len())
+            .sum::<usize>(),
+        487
+    );
+    for last in [
+        "{\"reading\": \"あきかん\", \"text\": \"空き缶\", \"kind\": \"word\"}",
+        "[\n      \"床\",",
+    ] {
+        assert_eq!(source.matches(last).count(), 1, "ambiguous append tail");
+    }
+    let mut previous = source.to_owned();
+    remove_unique_append(
+        &mut previous,
+        ",\n    {\"reading\": \"そうじき\", \"text\": \"掃除機\", \"kind\": \"word\"}",
+        "\n  ],\n  \"continuations\": [",
+    );
+    remove_unique_append(&mut previous, ",\n    [\n      \"掃除機\",", "\n  ]\n}\n");
+    let parsed: Value = serde_json::from_str(&previous).unwrap();
+    assert_eq!(parsed["readings"].as_array().unwrap().len(), 462);
+    let contexts = parsed["continuations"].as_array().unwrap();
+    assert_eq!(contexts.len(), 232);
+    assert_eq!(
+        contexts
+            .iter()
+            .map(|context| context[1].as_array().unwrap().len())
+            .sum::<usize>(),
+        463
+    );
+    previous
+}
+
+fn builtin_before_japanese_weather(language: &str, source: &str) -> String {
+    if language != "ja" {
+        return source.to_owned();
+    }
+    // Remove only this fixed weather/storage append before applying the unchanged
+    // errands and devices projections. The new suite freezes its exact contents;
+    // all previous byte fingerprints and append-window checks remain independent.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], "ja");
+    let readings = current["readings"].as_array().unwrap();
+    let contexts = current["continuations"].as_array().unwrap();
+    assert_eq!(readings.len(), 462);
+    assert_eq!(contexts.len(), 232);
+    assert_eq!(readings[437]["text"], "宅配ボックス");
+    assert_eq!(readings[438]["reading"], "てんきよほう");
+    assert_eq!(readings[438]["text"], "天気予報");
+    assert_eq!(readings[461]["reading"], "ほかん");
+    assert_eq!(readings[461]["text"], "保管");
+    assert_eq!(contexts[219][0], "宅配ボックス");
+    assert_eq!(contexts[220][0], "天気予報");
+    assert_eq!(contexts[231][0], "置き場所");
+    for context in &contexts[220..] {
+        assert_eq!(context[1].as_array().unwrap().len(), 2);
+    }
+    assert_eq!(
+        contexts
+            .iter()
+            .map(|context| context[1].as_array().unwrap().len())
+            .sum::<usize>(),
+        463
+    );
+    for last in [
+        "{\"reading\": \"ほかん\", \"text\": \"保管\", \"kind\": \"word\"}",
+        "[\n      \"置き場所\",",
+    ] {
+        assert_eq!(source.matches(last).count(), 1, "ambiguous append tail");
+    }
+    let mut previous = source.to_owned();
+    remove_unique_append(
+        &mut previous,
+        ",\n    {\"reading\": \"てんきよほう\", \"text\": \"天気予報\", \"kind\": \"word\"}",
+        "\n  ],\n  \"continuations\": [",
+    );
+    remove_unique_append(&mut previous, ",\n    [\n      \"天気予報\",", "\n  ]\n}\n");
+    let parsed: Value = serde_json::from_str(&previous).unwrap();
+    assert_eq!(parsed["readings"].as_array().unwrap().len(), 438);
+    let contexts = parsed["continuations"].as_array().unwrap();
+    assert_eq!(contexts.len(), 220);
+    assert_eq!(
+        contexts
+            .iter()
+            .map(|context| context[1].as_array().unwrap().len())
+            .sum::<usize>(),
+        439
+    );
+    previous
+}
+
+fn builtin_before_japanese_errands(language: &str, source: &str) -> String {
+    if language != "ja" {
+        return source.to_owned();
+    }
+    // Strip only this fixed visits/deliveries append, whose content and window
+    // are frozen independently. Feed the exact prior bytes into the unchanged
+    // daily_devices projection, retaining all older SHA and order assertions.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], "ja");
+    let readings = current["readings"].as_array().unwrap();
+    let contexts = current["continuations"].as_array().unwrap();
+    assert_eq!(readings.len(), 438);
+    assert_eq!(contexts.len(), 220);
+    assert_eq!(readings[413]["text"], "音声");
+    assert_eq!(readings[414]["reading"], "らいきゃく");
+    assert_eq!(readings[414]["text"], "来客");
+    assert_eq!(readings[437]["reading"], "たくはいぼっくす");
+    assert_eq!(readings[437]["text"], "宅配ボックス");
+    assert_eq!(contexts[207][0], "明るさ");
+    assert_eq!(contexts[208][0], "来客");
+    assert_eq!(contexts[219][0], "宅配ボックス");
+    for context in &contexts[208..] {
+        assert_eq!(context[1].as_array().unwrap().len(), 2);
+    }
+    assert_eq!(
+        contexts
+            .iter()
+            .map(|context| context[1].as_array().unwrap().len())
+            .sum::<usize>(),
+        439
+    );
+    for last in [
+        "{\"reading\": \"たくはいぼっくす\", \"text\": \"宅配ボックス\", \"kind\": \"word\"}",
+        "[\n      \"宅配ボックス\",",
+    ] {
+        assert_eq!(source.matches(last).count(), 1, "ambiguous append tail");
+    }
+    let mut previous = source.to_owned();
+    remove_unique_append(
+        &mut previous,
+        ",\n    {\"reading\": \"らいきゃく\", \"text\": \"来客\", \"kind\": \"word\"}",
+        "\n  ],\n  \"continuations\": [",
+    );
+    remove_unique_append(&mut previous, ",\n    [\n      \"来客\",", "\n  ]\n}\n");
+    let parsed: Value = serde_json::from_str(&previous).unwrap();
+    assert_eq!(parsed["readings"].as_array().unwrap().len(), 414);
+    assert_eq!(parsed["continuations"].as_array().unwrap().len(), 208);
+    previous
+}
+
+fn builtin_before_daily_devices(language: &str, source: &str) -> String {
+    // The current builtins legitimately append the daily_devices batch. Its exact
+    // contents/windows are independently frozen in tests/daily_devices_{english,
+    // chinese,japanese}.rs. Project out ONLY those explicit append ranges here:
+    // the historical SHA below still checks every original byte and its order,
+    // including formatting, rather than silently refreshing an old fingerprint.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    if language == "en" {
+        let layers = current["word_layers"].as_array().unwrap();
+        assert_eq!(layers.len(), 37);
+        assert_eq!(layers[35]["id"], "daily_laundry");
+        assert_eq!(layers[36]["id"], "daily_devices");
+        assert!(layers[36]["words"].as_array().unwrap().is_empty());
+        assert_eq!(layers[36]["next_words"].as_array().unwrap().len(), 8);
+        assert_eq!(layers[36]["sentences"].as_array().unwrap().len(), 16);
+        remove_unique_append(
+            &mut previous,
+            ",\n    {\n      \"id\": \"daily_devices\",",
+            "\n  ],\n  \"phrase_endings\": [",
+        );
+        let parsed: Value = serde_json::from_str(&previous).unwrap();
+        assert_eq!(parsed["word_layers"].as_array().unwrap().len(), 36);
+    } else {
+        let (
+            readings_before,
+            contexts_before,
+            added_readings,
+            added_contexts,
+            first_reading,
+            first_context,
+            last_word,
+            last_context,
+        ) = match language {
+            "zh-Hans" => (
+                3066,
+                735,
+                24,
+                8,
+                ",\n    {\"reading\": \"shou'ji'kuai'mei'dian'le\", \"text\": \"手机快没电了\", \"kind\": \"word\"}",
+                ",\n    [\n      \"手机快没电了\",",
+                "铃声音量",
+                "耳机放盒里了",
+            ),
+            "ja" => (
+                402,
+                202,
+                12,
+                6,
+                ",\n    {\"reading\": \"じゅうでんき\", \"text\": \"充電器\", \"kind\": \"word\"}",
+                ",\n    [\n      \"充電器\",",
+                "音声",
+                "明るさ",
+            ),
+            _ => panic!("no historical projection for {language}"),
+        };
+        let readings = current["readings"].as_array().unwrap();
+        let contexts = current["continuations"].as_array().unwrap();
+        assert_eq!(readings.len(), readings_before + added_readings);
+        assert_eq!(contexts.len(), contexts_before + added_contexts);
+        assert_eq!(readings.last().unwrap()["text"], last_word);
+        assert_eq!(contexts.last().unwrap()[0], last_context);
+        for context in &contexts[contexts_before..] {
+            assert_eq!(context[1].as_array().unwrap().len(), 2);
+        }
+        remove_unique_append(
+            &mut previous,
+            first_reading,
+            "\n  ],\n  \"continuations\": [",
+        );
+        remove_unique_append(&mut previous, first_context, "\n  ]\n}\n");
+        let parsed: Value = serde_json::from_str(&previous).unwrap();
+        assert_eq!(
+            parsed["readings"].as_array().unwrap().len(),
+            readings_before
+        );
+        assert_eq!(
+            parsed["continuations"].as_array().unwrap().len(),
+            contexts_before
+        );
+    }
+    previous
+}
+
 fn find<'a>(catalog: &'a [OfflinePack], id: &str) -> &'a OfflinePack {
     let mut matching = catalog.iter().filter(|pack| pack.manifest.id == id);
     let pack = matching.next().unwrap_or_else(|| panic!("missing {id}"));
@@ -278,10 +538,13 @@ fn japanese_internet_preserves_all_eighteen_source_bytes_and_catalog_positions()
         );
     }
     for (language, source, expected) in BUILTIN {
+        let before_cleaning = builtin_before_japanese_cleaning(language, source);
+        let before_weather = builtin_before_japanese_weather(language, &before_cleaning);
+        let before_errands = builtin_before_japanese_errands(language, &before_weather);
         assert_eq!(
-            source_sha256(source),
+            source_sha256(&builtin_before_daily_devices(language, &before_errands)),
             expected,
-            "changed builtin {language}"
+            "changed historical builtin bytes before daily_devices: {language}"
         );
     }
 }

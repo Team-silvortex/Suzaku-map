@@ -4,7 +4,7 @@ use super::{
     MAX_RESPONSE_BYTES, ModelProviderConfig, ModelScope, check_cancellation,
     http_request_with_cancel,
 };
-use crate::languages::llm::{LlmCancellation, LlmProviderError};
+use crate::prediction::{PredictionCancellation, PredictionError};
 use reqwest::{
     blocking::{Client, ClientBuilder},
     header::{AUTHORIZATION, HeaderValue},
@@ -64,7 +64,7 @@ pub(super) fn request(
     method: &str,
     body: Option<&str>,
     timeout: Duration,
-) -> Result<String, LlmProviderError> {
+) -> Result<String, PredictionError> {
     request_with_cancel(config, method, body, timeout, None)
 }
 
@@ -73,15 +73,15 @@ pub(super) fn request_with_cancel(
     method: &str,
     body: Option<&str>,
     timeout: Duration,
-    cancellation: Option<&LlmCancellation>,
-) -> Result<String, LlmProviderError> {
+    cancellation: Option<&PredictionCancellation>,
+) -> Result<String, PredictionError> {
     config.validate()?;
     check_cancellation(cancellation)?;
     if config.scope == ModelScope::Local {
         return http_request_with_cancel(&config.endpoint, method, body, timeout, cancellation);
     }
     if !config.cloud_consent {
-        return Err(LlmProviderError::CloudConsentRequired);
+        return Err(PredictionError::CloudConsentRequired);
     }
     let authorization = authorization(config.api_key_env.as_deref(), |name| {
         std::env::var(name).ok()
@@ -109,28 +109,28 @@ pub(super) fn request_with_cancel(
 fn authorization(
     name: Option<&str>,
     read: impl FnOnce(&str) -> Option<String>,
-) -> Result<Option<HeaderValue>, LlmProviderError> {
+) -> Result<Option<HeaderValue>, PredictionError> {
     let Some(name) = name else {
         return Ok(None);
     };
     if !valid_env_name(name) {
-        return Err(LlmProviderError::MissingCredentials);
+        return Err(PredictionError::MissingCredentials);
     }
-    let key = read(name).ok_or(LlmProviderError::MissingCredentials)?;
+    let key = read(name).ok_or(PredictionError::MissingCredentials)?;
     if key.is_empty() || key.len() > 8192 || key.bytes().any(|ch| !ch.is_ascii_graphic()) {
-        return Err(LlmProviderError::MissingCredentials);
+        return Err(PredictionError::MissingCredentials);
     }
     let mut header = HeaderValue::from_str(&format!("Bearer {key}"))
-        .map_err(|_| LlmProviderError::MissingCredentials)?;
+        .map_err(|_| PredictionError::MissingCredentials)?;
     header.set_sensitive(true);
     Ok(Some(header))
 }
 
-fn map_error(error: reqwest::Error) -> LlmProviderError {
+fn map_error(error: reqwest::Error) -> PredictionError {
     if error.is_timeout() {
-        LlmProviderError::Timeout
+        PredictionError::Timeout
     } else {
-        LlmProviderError::Unavailable
+        PredictionError::Unavailable
     }
 }
 
@@ -141,9 +141,9 @@ fn https_request(
     body: Option<&str>,
     authorization: Option<HeaderValue>,
     timeout: Duration,
-) -> Result<String, LlmProviderError> {
+) -> Result<String, PredictionError> {
     let method = reqwest::Method::from_bytes(method.as_bytes())
-        .map_err(|_| LlmProviderError::InvalidEndpoint)?;
+        .map_err(|_| PredictionError::InvalidEndpoint)?;
     let mut request = client
         .request(method, endpoint)
         .timeout(timeout)
@@ -158,13 +158,13 @@ fn https_request(
     }
     let response = request.send().map_err(map_error)?;
     if response.status().as_u16() != 200 {
-        return Err(LlmProviderError::HttpStatus(response.status().as_u16()));
+        return Err(PredictionError::HttpStatus(response.status().as_u16()));
     }
     if response
         .content_length()
         .is_some_and(|size| size > MAX_RESPONSE_BYTES as u64)
     {
-        return Err(LlmProviderError::ResponseTooLarge);
+        return Err(PredictionError::ResponseTooLarge);
     }
     let mut bytes = Vec::new();
     response
@@ -177,21 +177,22 @@ fn https_request(
                     .and_then(|source| source.downcast_ref::<reqwest::Error>())
                     .is_some_and(reqwest::Error::is_timeout)
             {
-                LlmProviderError::Timeout
+                PredictionError::Timeout
             } else {
-                LlmProviderError::InvalidResponse
+                PredictionError::InvalidResponse
             }
         })?;
     if bytes.len() > MAX_RESPONSE_BYTES {
-        return Err(LlmProviderError::ResponseTooLarge);
+        return Err(PredictionError::ResponseTooLarge);
     }
-    String::from_utf8(bytes).map_err(|_| LlmProviderError::InvalidResponse)
+    String::from_utf8(bytes).map_err(|_| PredictionError::InvalidResponse)
 }
 
 #[cfg(test)]
 mod tests {
     use super::super::test_server;
     use super::*;
+    use crate::languages::llm::LlmProviderError;
     use std::{net::TcpListener, sync::Arc, thread, time::Instant};
 
     fn tls_server(

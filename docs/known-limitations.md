@@ -1,6 +1,6 @@
 # Alpha limitations and support
 
-0.8.9 targets Ubuntu 24.04 amd64, IBus and X11 / GNOME XWayland. Cross-platform architecture
+0.9.0 targets Ubuntu 24.04 amd64, IBus and X11 / GNOME XWayland. Cross-platform architecture
 does not imply cross-platform stability. Keep another input method available.
 
 - **Ubuntu 26.04 development checks:** the initial home-life vocabulary run timed out after

@@ -3,7 +3,7 @@
 A local-first, continuous-writing input method with word and sentence candidates,
 optional language models, and a compact floating companion panel.
 
-**0.8.9 · Linux / IBus Alpha preview.** Current validation targets **Ubuntu 24.04,
+**0.9.0 · Linux / IBus Alpha preview.** Current validation targets **Ubuntu 24.04,
 amd64, IBus, X11 or GNOME with XWayland**. Keep your usual input method available
 as a fallback. Other platforms remain experimental.
 
@@ -41,12 +41,15 @@ Alt+Space combinations), with conflict checks,
 recording cancellation and per-action/all-binding reset. They are input-context shortcuts,
 not global hotkeys; desktop/application interception remains possible. See [shortcut rules](docs/shortcuts.md).
 
-0.8.9 adds everyday visiting, deliveries, repairs and laundry expressions, with further Japanese
-mealtime support. Compared with the 0.8.8 source baseline, built-ins add **164 sentences/continuations**,
-**96 Chinese readings** and **36 Japanese readings**. Totals are now **6,143 English indexed forms /
-1,446 sentences**, **3,066 Chinese readings / 1,468 sentences**, and **402 Japanese readings /
-403 continuation records**. Earlier authored order and candidate budgets remain protected.
-The optional data-only catalog grows from 14 to **25 packs: 8 English, 8 Chinese and 9 Japanese**,
+0.9.0 organizes the model adapter and offline-pack responsibilities while keeping existing
+public API paths compatible. Compared with the 0.8.9 source baseline, built-ins add
+**116 sentences/continuations**, **24 Chinese readings** and **84 Japanese readings** for
+devices, visits, errands, weather and household cleaning. Totals are now
+**6,143 English indexed forms / 1,462 sentences**, **3,090 Chinese readings / 1,484 sentences**,
+and **486 Japanese readings / 487 continuation records**. Japanese unfinished Romaji keeps
+existing short-word sentences reachable alongside longer completions; primary word order and
+candidate budgets remain protected.
+The optional data-only catalog contains **25 packs: 8 English, 8 Chinese and 9 Japanese**,
 including shopping, internet and additional Japanese topics. The unchanged installation limit is
 **16 packs, including disabled packs**; catalog availability does not automatically install or enable them.
 These finite presets do not read personal routines, contacts or typing history, and are not
@@ -67,7 +70,7 @@ Optional pack changes still require host/panel restart. Space continues writing;
 adoption and exact submission remain separate. Linux candidate preferences now persist by default,
 learning only confirmed choices; the tray exposes save/clear status and can clear them at any time.
 The local cache stores keyed fingerprints and counts, not raw drafts, but is still sensitive data.
-See [0.8.9 release notes](docs/releases/0.8.9.md),
+See [0.9.0 release notes](docs/releases/0.9.0.md),
 [lexicon scope](data/lexicons/README.md) and [known limitations](docs/known-limitations.md).
 Source publication does not update an existing installation. Native Wayland, real-model quality,
 broader Japanese morphology and non-Linux native behavior remain outside current acceptance.
@@ -78,11 +81,11 @@ Get the matching `.deb` and `.sha256` from [Releases](https://github.com/chiharu
 For 0.7.x, source tags can precede downloadable packages; use a release with attached packages or
 build from source. Starting with **0.8.0**, downloadable Linux packages and checksums are a
 [release requirement](docs/linux-packaging-data.md#从-080-开始的发布要求).
-Once published, use the matching 0.8.9 Release assets in the download directory on Ubuntu 24.04 amd64:
+Once published, use the matching 0.9.0 Release assets in the download directory on Ubuntu 24.04 amd64:
 
 ```bash
-sha256sum -c suzaku_0.8.9_amd64.deb.sha256
-sudo apt install ./suzaku_0.8.9_amd64.deb
+sha256sum -c suzaku_0.9.0_amd64.deb.sha256
+sudo apt install ./suzaku_0.9.0_amd64.deb
 ```
 
 Installation alone does not activate an input method or start a user service. Register once
@@ -200,12 +203,13 @@ keys, never real typing logs or credentials. For security concerns, read [SECURI
 
 ## Documentation
 
+- [Code responsibilities and dependency boundaries / 代码职责与依赖边界](docs/functional-network.md#当前-rust-模块与职责) — start here for architecture work; runtime routes and maturity evidence are separate
 - [Current functional network / 当前功能链路网络](docs/functional-network.md) — architecture/function maturity inventory and audited input paths
 - [Input and candidates](docs/ibus-candidates.md) · [Model providers](docs/model-providers.md)
 - [Keyboard shortcuts / 快捷键](docs/shortcuts.md) — EN/ZH toggle, opt-in IBus home-row layout and in-panel reference
 - [Translation](docs/translation.md) · [Interface languages](docs/interface-languages.md)
 - [Linux installation/data](docs/linux-packaging-data.md) · [Known limitations](docs/known-limitations.md)
-- [0.8.9 release notes](docs/releases/0.8.9.md) · [Development history and architecture](DEVELOPMENT.md)
+- [0.9.0 release notes](docs/releases/0.9.0.md) · [Development history and architecture](DEVELOPMENT.md)
 
 MIT licensed; see [LICENSE](LICENSE). Packages include dependency license metadata and available
 license/notice files. External model weights have their own licenses.

@@ -212,7 +212,7 @@ fn composition_kana(seed: &str) -> String {
 /// Complete the final reading after known dictionary words and particles. Never
 /// scan through an arbitrary unknown prefix looking for an unrelated dictionary suffix.
 fn word_completions(seed: &str) -> Vec<(String, crate::ime::candidate_mix::CandidateKind)> {
-    word_completions_with_limit(seed, 4)
+    word_completions_with_limit(seed, 4, false)
 }
 
 /// Additional words may fill unused mixed-list slots, without replacing the
@@ -220,18 +220,23 @@ fn word_completions(seed: &str) -> Vec<(String, crate::ime::candidate_mix::Candi
 pub(crate) fn word_completion_backfill(
     seed: &str,
 ) -> Vec<(String, crate::ime::candidate_mix::CandidateKind)> {
-    word_completions_with_limit(seed, crate::ime::candidate_mix::PAGE_SIZE * 2)
+    word_completions_with_limit(seed, crate::ime::candidate_mix::PAGE_SIZE * 2, true)
 }
 
 fn word_completions_with_limit(
     seed: &str,
     limit: usize,
+    prefer_authored_probes: bool,
 ) -> Vec<(String, crate::ime::candidate_mix::CandidateKind)> {
     use crate::ime::candidate_mix::CandidateKind;
     if seed.len() < 2 || seed.chars().count() > 256 {
         return Vec::new();
     }
     let kana = composition_kana(seed);
+    // A completed Kana reading (including terminal n) keeps dictionary order.
+    // Only the spare-slot path may prioritize an unfinished syllable's probes.
+    let prefer_authored_probes =
+        prefer_authored_probes && kana.ends_with(|ch: char| ch.is_ascii_alphabetic());
     let mut queries = vec![kana.clone()];
     // Trailing reading separators do not end a draft or its unfinished
     // syllable's completions. Probe before them, never across a line boundary.
@@ -252,7 +257,29 @@ fn word_completions_with_limit(
         let rest = &kana[offset..];
         let authored_tail = is_authored_tail(&prefix, rest);
         let earlier_completions = output.len();
-        for (reading, word) in kanji() {
+        // Resolve at most five probes once per depth, not once per dictionary
+        // entry. Prefer the branch compatible with this whole authored prefix;
+        // unrelated new words must not crowd out that branch's longer words.
+        // Never promote deeper splits or change primary completions/weights.
+        let preferred_tails: Vec<_> = if prefer_authored_probes && queries.len() > 1 {
+            queries[1..]
+                .iter()
+                .filter_map(|query| query.strip_prefix(&kana[..offset]))
+                .filter(|tail| !tail.is_empty() && is_authored_tail(&prefix, tail))
+                .collect()
+        } else {
+            Vec::new()
+        };
+        let passes: &[bool] = if preferred_tails.is_empty() {
+            &[false]
+        } else {
+            &[true, false]
+        };
+        for (reading, word) in passes.iter().flat_map(|preferred| {
+            kanji().filter(|(reading, _)| {
+                preferred_tails.iter().any(|tail| reading.starts_with(tail)) == *preferred
+            })
+        }) {
             if (reading != rest || offset > 0)
                 && queries.iter().any(|query| {
                     query.strip_prefix(&kana[..offset]).is_some_and(|tail| {
@@ -612,15 +639,61 @@ pub(crate) fn mixed_candidates(
     } else {
         Vec::new()
     };
-    let words: Vec<_> = std::iter::once(converted)
-        .chain(
-            output
+    let mut sentence_words: Vec<_> = output
+        .iter()
+        .filter(|(_, kind)| *kind == CandidateKind::Word)
+        .map(|(text, _)| text.clone())
+        .collect();
+    if seed.chars().count() <= 256 && kana.ends_with(|ch: char| ch.is_ascii_alphabetic()) {
+        // A final vowel can finish a whole dictionary word before it finishes a
+        // longer completion (souj -> 掃除, rather than 掃除機). Prioritize only
+        // its sentence query, never the existing Word rows or conversion.
+        // Compare complete readings rather than converting probes to Kanji.
+        // Lift only past adjacent longer words in the same reading branch;
+        // bas -> バス must not overtake the unrelated 場所 query. Equal-reading
+        // homophones keep their order. Unknown prefixes, line boundaries and
+        // separated unfinished syllables cannot disappear.
+        let complete_readings = authored_tail_probes(seed, &kana);
+        if !complete_readings.is_empty() {
+            let mut word_readings = vec![Vec::new(); sentence_words.len()];
+            for entry in vocabulary()
+                .readings()
                 .iter()
-                .filter(|(_, kind)| *kind == CandidateKind::Word)
-                .map(|(text, _)| text.clone()),
-        )
-        // Old full-conversion/word choices keep their ordering and weights.
-        // Append pending-syllable queries within the same authored-sentence cap.
+                .filter(|entry| entry.kind == EntryKind::Word)
+            {
+                if let Some(index) = sentence_words.iter().position(|word| word == &entry.text) {
+                    word_readings[index].push(entry.reading.as_str());
+                }
+            }
+            for index in 1..sentence_words.len() {
+                let mut position = index;
+                while position > 0
+                    // Packs can give one written word multiple readings. An
+                    // already complete query stays ahead even if another one
+                    // of its aliases is a longer extension of this reading.
+                    && !word_readings[position - 1].iter().any(|previous| {
+                        complete_readings.iter().any(|probe| probe.as_str() == *previous)
+                    })
+                    && word_readings[position].iter().any(|reading| {
+                        complete_readings
+                            .iter()
+                            .any(|probe| probe.as_str() == *reading)
+                            && word_readings[position - 1].iter().any(|previous| {
+                                previous.len() > reading.len() && previous.starts_with(*reading)
+                            })
+                    })
+                {
+                    sentence_words.swap(position - 1, position);
+                    word_readings.swap(position - 1, position);
+                    position -= 1;
+                }
+            }
+        }
+    }
+    let words: Vec<_> = std::iter::once(converted)
+        .chain(sentence_words)
+        // Primary candidates above remain unchanged; only sentence queries can
+        // move. Append pending-syllable queries within the same sentence cap.
         .chain(probes)
         .collect();
     for word in words {

@@ -3,7 +3,7 @@ use super::{
     DEFAULT_LOCAL_ENDPOINT, DEFAULT_MODEL, LlamaProviderConfig, ModelProtocol, ModelProviderConfig,
     ModelScope, check_cancellation, http_request, http_request_with_cancel, parse_http_endpoint,
 };
-use crate::languages::llm::{LlmCancellation, LlmProviderError};
+use crate::prediction::{PredictionCancellation, PredictionError};
 use serde_json::{Value, json};
 use std::{
     sync::Mutex,
@@ -20,14 +20,14 @@ pub const LOCAL_ENDPOINTS: &[&str] = &[
 #[derive(Clone, Debug)]
 pub(super) struct CachedResolution {
     expires: Instant,
-    result: Result<ModelProviderConfig, LlmProviderError>,
+    result: Result<ModelProviderConfig, PredictionError>,
 }
 
 pub(super) fn resolve_cached(
     config: &ModelProviderConfig,
     cache: &Mutex<Option<CachedResolution>>,
     deadline: Instant,
-) -> Result<ModelProviderConfig, LlmProviderError> {
+) -> Result<ModelProviderConfig, PredictionError> {
     resolve_cached_with_cancel(config, cache, deadline, None)
 }
 
@@ -35,8 +35,8 @@ pub(super) fn resolve_cached_with_cancel(
     config: &ModelProviderConfig,
     cache: &Mutex<Option<CachedResolution>>,
     deadline: Instant,
-    cancellation: Option<&LlmCancellation>,
-) -> Result<ModelProviderConfig, LlmProviderError> {
+    cancellation: Option<&PredictionCancellation>,
+) -> Result<ModelProviderConfig, PredictionError> {
     check_cancellation(cancellation)?;
     if config.scope == ModelScope::Cloud
         || (config.model != DEFAULT_MODEL && !config.uses_ollama_api())
@@ -74,12 +74,12 @@ pub(super) fn resolve_cached_with_cancel(
 pub(super) fn invalidate_failed_resolution(
     cache: &Mutex<Option<CachedResolution>>,
     resolved: &ModelProviderConfig,
-    error: &LlmProviderError,
+    error: &PredictionError,
 ) {
     if resolved.scope != ModelScope::Local
         || !matches!(
             error,
-            LlmProviderError::HttpStatus(404) | LlmProviderError::Unavailable
+            PredictionError::HttpStatus(404) | PredictionError::Unavailable
         )
     {
         return;
@@ -111,7 +111,7 @@ fn endpoints(config: &ModelProviderConfig) -> Vec<&str> {
 }
 
 /// Only GET metadata. Never downloads weights, warms a model or calls a cloud API.
-pub fn discover(config: &ModelProviderConfig) -> Result<ModelProviderConfig, LlmProviderError> {
+pub fn discover(config: &ModelProviderConfig) -> Result<ModelProviderConfig, PredictionError> {
     config.validate()?;
     resolve_local(config, Instant::now() + Duration::from_millis(800))
 }
@@ -119,20 +119,20 @@ pub fn discover(config: &ModelProviderConfig) -> Result<ModelProviderConfig, Llm
 fn resolve_local(
     config: &ModelProviderConfig,
     deadline: Instant,
-) -> Result<ModelProviderConfig, LlmProviderError> {
+) -> Result<ModelProviderConfig, PredictionError> {
     resolve_local_with_cancel(config, deadline, None)
 }
 
 fn resolve_local_with_cancel(
     config: &ModelProviderConfig,
     deadline: Instant,
-    cancellation: Option<&LlmCancellation>,
-) -> Result<ModelProviderConfig, LlmProviderError> {
+    cancellation: Option<&PredictionCancellation>,
+) -> Result<ModelProviderConfig, PredictionError> {
     if config.scope != ModelScope::Local {
-        return Err(LlmProviderError::InvalidEndpoint);
+        return Err(PredictionError::InvalidEndpoint);
     }
     let mut fallback = None;
-    let mut last_error = LlmProviderError::NoLocalModel;
+    let mut last_error = PredictionError::NoLocalModel;
     for endpoint in endpoints(config) {
         check_cancellation(cancellation)?;
         let candidate = ModelProviderConfig {
@@ -153,7 +153,7 @@ fn resolve_local_with_cancel(
                 continue;
             }
         };
-        last_error = LlmProviderError::NoLocalModel;
+        last_error = PredictionError::NoLocalModel;
         let selected = models.iter().find(|model| {
             !model.remote
                 && (config.model == DEFAULT_MODEL || model_matches(&model.name, &config.model))
@@ -173,7 +173,7 @@ fn resolve_local_with_cancel(
     }
     check_cancellation(cancellation)?;
     fallback.ok_or(if config.model == DEFAULT_MODEL {
-        LlmProviderError::NoLocalModel
+        PredictionError::NoLocalModel
     } else {
         last_error
     })
@@ -209,9 +209,8 @@ impl RuntimeStatus {
     }
 }
 
-fn route(config: &LlamaProviderConfig, path: &str) -> Result<String, LlmProviderError> {
-    let endpoint =
-        parse_http_endpoint(&config.endpoint).ok_or(LlmProviderError::InvalidEndpoint)?;
+fn route(config: &LlamaProviderConfig, path: &str) -> Result<String, PredictionError> {
+    let endpoint = parse_http_endpoint(&config.endpoint).ok_or(PredictionError::InvalidEndpoint)?;
     Ok(format!("http://{}:{}{path}", endpoint.host, endpoint.port))
 }
 
@@ -220,10 +219,10 @@ fn model_matches(installed: &str, requested: &str) -> bool {
         || (!requested.contains(':') && installed == format!("{requested}:latest"))
 }
 
-fn parse_models(value: &Value, ollama: bool) -> Result<Vec<LocalModel>, LlmProviderError> {
+fn parse_models(value: &Value, ollama: bool) -> Result<Vec<LocalModel>, PredictionError> {
     let rows = value[if ollama { "models" } else { "data" }]
         .as_array()
-        .ok_or(LlmProviderError::InvalidResponse)?;
+        .ok_or(PredictionError::InvalidResponse)?;
     let mut models = Vec::new();
     for row in rows.iter().take(256) {
         let Some(name) = row[if ollama { "name" } else { "id" }].as_str() else {
@@ -262,22 +261,21 @@ fn parse_models(value: &Value, ollama: bool) -> Result<Vec<LocalModel>, LlmProvi
 fn inventory(
     config: &ModelProviderConfig,
     timeout: Duration,
-) -> Result<Vec<LocalModel>, LlmProviderError> {
+) -> Result<Vec<LocalModel>, PredictionError> {
     inventory_with_cancel(config, timeout, None)
 }
 
 fn inventory_with_cancel(
     config: &ModelProviderConfig,
     timeout: Duration,
-    cancellation: Option<&LlmCancellation>,
-) -> Result<Vec<LocalModel>, LlmProviderError> {
+    cancellation: Option<&PredictionCancellation>,
+) -> Result<Vec<LocalModel>, PredictionError> {
     config.validate()?;
     if config.scope != ModelScope::Local {
-        return Err(LlmProviderError::InvalidEndpoint);
+        return Err(PredictionError::InvalidEndpoint);
     }
     let ollama = config.uses_ollama_api();
-    let endpoint =
-        parse_http_endpoint(&config.endpoint).ok_or(LlmProviderError::InvalidEndpoint)?;
+    let endpoint = parse_http_endpoint(&config.endpoint).ok_or(PredictionError::InvalidEndpoint)?;
     let path = if ollama {
         "/api/tags".to_string()
     } else {
@@ -286,20 +284,20 @@ fn inventory_with_cancel(
             endpoint
                 .path
                 .strip_suffix("/chat/completions")
-                .ok_or(LlmProviderError::InvalidEndpoint)?
+                .ok_or(PredictionError::InvalidEndpoint)?
         )
     };
     let response =
         http_request_with_cancel(&route(config, &path)?, "GET", None, timeout, cancellation)?;
     let json: Value =
-        serde_json::from_str(&response).map_err(|_| LlmProviderError::InvalidResponse)?;
+        serde_json::from_str(&response).map_err(|_| PredictionError::InvalidResponse)?;
     parse_models(&json, ollama)
 }
 
-pub fn inspect(config: &LlamaProviderConfig) -> Result<RuntimeStatus, LlmProviderError> {
+pub fn inspect(config: &LlamaProviderConfig) -> Result<RuntimeStatus, PredictionError> {
     config.validate()?;
     if config.scope != ModelScope::Local {
-        return Err(LlmProviderError::InvalidEndpoint);
+        return Err(PredictionError::InvalidEndpoint);
     }
     let resolved;
     let config = if config.model == DEFAULT_MODEL {
@@ -336,10 +334,10 @@ pub fn inspect(config: &LlamaProviderConfig) -> Result<RuntimeStatus, LlmProvide
 }
 
 /// May occupy a GPU for up to five idle minutes. Must only run on an explicit user action.
-pub fn warm_up(config: &LlamaProviderConfig) -> Result<(), LlmProviderError> {
+pub fn warm_up(config: &LlamaProviderConfig) -> Result<(), PredictionError> {
     config.validate()?;
     if config.scope != ModelScope::Local {
-        return Err(LlmProviderError::InvalidEndpoint);
+        return Err(PredictionError::InvalidEndpoint);
     }
     let status = inspect(config)?;
     let config = ModelProviderConfig {
@@ -348,10 +346,10 @@ pub fn warm_up(config: &LlamaProviderConfig) -> Result<(), LlmProviderError> {
         ..config.clone()
     };
     if !config.uses_ollama_api() {
-        return Err(LlmProviderError::InvalidEndpoint);
+        return Err(PredictionError::InvalidEndpoint);
     }
     if !status.installed {
-        return Err(LlmProviderError::HttpStatus(404));
+        return Err(PredictionError::HttpStatus(404));
     }
     let body = json!({"model":config.model, "messages":[], "stream":false,
         "keep_alive":"5m", "options":{"num_ctx":2048}})
@@ -363,9 +361,9 @@ pub fn warm_up(config: &LlamaProviderConfig) -> Result<(), LlmProviderError> {
         Duration::from_secs(30),
     )?;
     let value: Value =
-        serde_json::from_str(&response).map_err(|_| LlmProviderError::InvalidResponse)?;
+        serde_json::from_str(&response).map_err(|_| PredictionError::InvalidResponse)?;
     if value["done"] != true {
-        return Err(LlmProviderError::InvalidResponse);
+        return Err(PredictionError::InvalidResponse);
     }
     Ok(())
 }
@@ -374,6 +372,7 @@ pub fn warm_up(config: &LlamaProviderConfig) -> Result<(), LlmProviderError> {
 mod tests {
     use super::super::test_server;
     use super::*;
+    use crate::languages::llm::LlmProviderError;
 
     #[test]
     fn defaults_discover_only_known_loopback_services_and_custom_settings_stay_pinned() {

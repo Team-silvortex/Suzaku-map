@@ -773,7 +773,7 @@ in-flight cancellation boundaries without using a real model. See the
 [N46 cancellation audit](docs/bug-audit-model-cancellation-2026-09-24.md).
 
 For model-side timing counters, the ignored
-`languages::model::live::profile_synthetic_candidate_request` library test requires
+`model::live::profile_synthetic_candidate_request` library test requires
 `SUZAKU_MODEL_LOCAL_QA=1` and an explicit `SUZAKU_IME_CONFIG` under the temporary directory.
 It checks local/non-remote Ollama routing, warms the installed model and prints only fixed synthetic
 samples. Its 30-second diagnostic completion deadline does **not** replace the production budget

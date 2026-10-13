@@ -3067,7 +3067,31 @@
     {"reading": "xiu'kou", "text": "袖口", "kind": "word"},
     {"reading": "ku'jiao", "text": "裤脚", "kind": "word"},
     {"reading": "mao'yi", "text": "毛衣", "kind": "word"},
-    {"reading": "qun'zi", "text": "裙子", "kind": "word"}
+    {"reading": "qun'zi", "text": "裙子", "kind": "word"},
+    {"reading": "shou'ji'kuai'mei'dian'le", "text": "手机快没电了", "kind": "word"},
+    {"reading": "wo'xian'chong'hui'er'dian", "text": "我先充会儿电", "kind": "word"},
+    {"reading": "er'ji'lian'shang'le", "text": "耳机连上了", "kind": "word"},
+    {"reading": "sheng'yin'you'dian'xiao", "text": "声音有点小", "kind": "word"},
+    {"reading": "ping'mu'tai'liang'le", "text": "屏幕太亮了", "kind": "word"},
+    {"reading": "chong'dian'qi'wang'dai'le", "text": "充电器忘带了", "kind": "word"},
+    {"reading": "dian'liang'hai'gou'yong", "text": "电量还够用", "kind": "word"},
+    {"reading": "er'ji'fang'he'li'le", "text": "耳机放盒里了", "kind": "word"},
+    {"reading": "wu'xian'er'ji", "text": "无线耳机", "kind": "word"},
+    {"reading": "you'xian'er'ji", "text": "有线耳机", "kind": "word"},
+    {"reading": "er'ji'he", "text": "耳机盒", "kind": "word"},
+    {"reading": "er'sai", "text": "耳塞", "kind": "word"},
+    {"reading": "yin'liang'jian", "text": "音量键", "kind": "word"},
+    {"reading": "dian'yuan'jian", "text": "电源键", "kind": "word"},
+    {"reading": "chong'dian'kou", "text": "充电口", "kind": "word"},
+    {"reading": "chong'dian'cha'tou", "text": "充电插头", "kind": "word"},
+    {"reading": "shou'ji'zhi'jia", "text": "手机支架", "kind": "word"},
+    {"reading": "shou'ji'ke", "text": "手机壳", "kind": "word"},
+    {"reading": "gang'hua'mo", "text": "钢化膜", "kind": "word"},
+    {"reading": "zhuan'jie'tou", "text": "转接头", "kind": "word"},
+    {"reading": "chong'dian'di'zuo", "text": "充电底座", "kind": "word"},
+    {"reading": "sheng'yu'dian'liang", "text": "剩余电量", "kind": "word"},
+    {"reading": "dian'liang'bai'fen'bi", "text": "电量百分比", "kind": "word"},
+    {"reading": "ling'sheng'yin'liang", "text": "铃声音量", "kind": "word"}
   ],
   "continuations": [
     [
@@ -8211,6 +8235,62 @@
       [
         "袖子有点长，换小一号试试吧。",
         "袖子有点长，穿着不太方便。"
+      ]
+    ],
+    [
+      "手机快没电了",
+      [
+        "手机快没电了，我晚点再回复你。",
+        "手机快没电了，充电线在包里吗？"
+      ]
+    ],
+    [
+      "我先充会儿电",
+      [
+        "我先充会儿电再出门，你不用等我。",
+        "我先充会儿电，等一下就回来。"
+      ]
+    ],
+    [
+      "耳机连上了",
+      [
+        "耳机连上了手机，现在听得很清楚。",
+        "耳机连上了，声音现在正常了。"
+      ]
+    ],
+    [
+      "声音有点小",
+      [
+        "声音有点小，我这边听不清。",
+        "声音有点小，你能听见吗？"
+      ]
+    ],
+    [
+      "屏幕太亮了",
+      [
+        "屏幕太亮了，我想调暗一点。",
+        "屏幕太亮了，晚上看着有点晃眼。"
+      ]
+    ],
+    [
+      "充电器忘带了",
+      [
+        "充电器忘带了，今天能借你的用一下吗？",
+        "充电器忘带了，我回去拿一下。"
+      ]
+    ],
+    [
+      "电量还够用",
+      [
+        "电量还够用，等回家再充吧。",
+        "电量还够用，出门前刚充过。"
+      ]
+    ],
+    [
+      "耳机放盒里了",
+      [
+        "耳机放盒里了，等会儿出门再拿。",
+        "耳机放盒里了，就在桌子旁边。"
       ]
     ]
   ]

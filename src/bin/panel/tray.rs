@@ -13,7 +13,7 @@ mod platform {
     use suzaku_map::ime::gpu::ThemePreset;
     use suzaku_map::ime::settings::PanelImeSettingsPatch;
     use suzaku_map::languages::BuiltinLanguage;
-    use suzaku_map::languages::model::{ModelProviderConfig, ModelScope, runtime as model_runtime};
+    use suzaku_map::model::{ModelProviderConfig, ModelScope, runtime as model_runtime};
     #[cfg(feature = "linux-ibus")]
     use suzaku_map::platform::linux_ibus_recovery::{Event as RecoveryEvent, Monitor};
     use suzaku_map::platform::linux_ime_control::{

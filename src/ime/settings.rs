@@ -1,10 +1,8 @@
 //! User settings contain configuration only, never typed text or prediction history.
 
 use super::shortcuts::{ShortcutBindings, ShortcutProfile};
-use crate::languages::{
-    BuiltinLanguage,
-    model::{ModelProtocol, ModelProviderConfig, ModelScope},
-};
+use crate::languages::BuiltinLanguage;
+use crate::model::{ModelProtocol, ModelProviderConfig, ModelScope};
 use serde_json::{Value, json};
 use std::{
     fs,

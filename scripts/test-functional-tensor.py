@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Deterministic stdlib-only tensor checks using disposable local fixtures."""
+"""Stdlib-only tensor fixtures and read-only architecture documentation checks."""
 import copy
 import hashlib
 import importlib.util
 import io
 import json
 from pathlib import Path
+import re
 import sys
 import tempfile
 import unittest
@@ -281,6 +282,117 @@ class TensorTests(unittest.TestCase):
         with redirect_stderr(io.StringIO()) as error:
             self.assertEqual(TENSOR.main(["--root", str(self.root), "--data", str(path)]), 1)
         self.assertIn("duplicate object field", error.getvalue())
+
+
+class RepositoryArchitectureTests(unittest.TestCase):
+    """Keep current summaries in sync; never rewrite historical evidence."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.root = Path(__file__).resolve().parent.parent
+        cls.data = json.loads((cls.root / "docs/functional-tensor.json").read_text(encoding="utf-8"))
+        cls.document = (cls.root / "docs/functional-network.md").read_text(encoding="utf-8")
+
+    def test_current_architecture_counts_match_the_inventory(self):
+        match = re.search(
+            r"\*\*(\d+) 个架构域、(\d+) 个功能、(\d+) 个实现切片、(\d+) 条有效关联\*\*",
+            self.document)
+        self.assertIsNotNone(match, "missing current architecture summary")
+        self.assertEqual(tuple(map(int, match.groups())), tuple(
+            len(self.data[key]) for key in ("architectures", "functions", "implementations", "cells")))
+        coo = re.search(r"展开为 \*\*(\d+) 条 COO 记录\*\*", self.document)
+        self.assertIsNotNone(coo, "missing current coordinate summary")
+        self.assertEqual(int(coo.group(1)), len(list(TENSOR.coo(self.data))))
+
+    def test_embedded_runtime_route_matches_the_standalone_diagram(self):
+        # The separate LR diagram describes an ACK timeline, not this route map.
+        diagrams = re.findall(r"```mermaid\n(flowchart TB\n.*?)\n```", self.document, re.S)
+        self.assertEqual(len(diagrams), 1)
+        standalone = (self.root / "docs/functional-network.mmd").read_text(encoding="utf-8")
+        current_route = standalone[standalone.index("flowchart TB"):].strip()
+        self.assertEqual(diagrams[0].strip(), current_route)
+
+    def test_pack_private_implementations_remain_in_the_source_snapshot(self):
+        packs = next(row for row in self.data["implementations"] if row["id"] == "packs")
+        facade = (self.root / "src/lexicon/packs.rs").read_text(encoding="utf-8")
+        modules = re.findall(r"^mod ([a-z_]+);$", facade, re.M)
+        self.assertTrue(modules, "missing private pack implementation modules")
+        self.assertEqual(len(modules), len(set(modules)))
+        for module in modules:
+            path = f"src/lexicon/packs/{module}.rs"
+            with self.subTest(path=path):
+                self.assertTrue((self.root / path).is_file())
+                self.assertIn(path, packs["paths"])
+        self.assertIn("tests/offline_pack_boundaries.rs", packs["tests"])
+
+    def test_current_optional_pack_count_matches_data_not_installed_slots(self):
+        match = re.search(r"当前可选目录为 \*\*(\d+) 包（EN (\d+) / ZH (\d+) / JA (\d+)）\*\*",
+                          self.document)
+        self.assertIsNotNone(match, "missing current optional pack summary")
+        manifests = [json.loads(path.read_text(encoding="utf-8"))["manifest"]
+                     for path in (self.root / "data/offline-packs").glob("*.json")]
+        self.assertEqual(tuple(map(int, match.groups())), (
+            len(manifests), *(sum(row["language"] == language for row in manifests)
+                              for language in ("en", "zh-Hans", "ja"))))
+
+    def test_model_compatibility_facade_does_not_compile_a_second_implementation(self):
+        facade = (self.root / "src/languages/model.rs").read_text(encoding="utf-8")
+        code = [line.strip() for line in facade.splitlines()
+                if line.strip() and not line.lstrip().startswith("//")]
+        self.assertEqual(code, ["pub use crate::model::*;"])
+        library = (self.root / "src/lib.rs").read_text(encoding="utf-8")
+        self.assertEqual(library.count("pub mod model;"), 1)
+        self.assertFalse(any((self.root / "src/languages/model").glob("*.rs")))
+
+    def test_canonical_model_sources_and_compatibility_test_remain_in_the_snapshot(self):
+        registered = {path for row in self.data["implementations"]
+                      for key in ("paths", "tests") for path in row[key]}
+        model = next(row for row in self.data["implementations"] if row["id"] == "model")
+        self.assertIn("src/model.rs", model["paths"])
+        self.assertIn("src/languages/model.rs", model["paths"])
+        self.assertIn("src/languages/llama.rs", model["paths"])
+        self.assertIn("tests/model_module_compat.rs", model["tests"])
+        source = (self.root / "src/model.rs").read_text(encoding="utf-8")
+        modules = re.findall(r"^(?:pub )?mod ([a-z_]+);$", source, re.M)
+        self.assertTrue(modules, "missing canonical model implementation modules")
+        for module in modules:
+            path = f"src/model/{module}.rs"
+            with self.subTest(path=path):
+                self.assertTrue((self.root / path).is_file())
+                self.assertIn(path, registered)
+        self.assertFalse(any(path.startswith("src/languages/model/") for path in registered))
+
+    def test_model_production_transport_uses_protocol_types_not_legacy_aliases(self):
+        # These four existing files keep their inline tests after this exact
+        # marker. Test-only legacy imports remain deliberate compatibility checks.
+        marker = "#[cfg(test)]\nmod tests {"
+        for path in ("src/model.rs", "src/model/runtime.rs", "src/model/transport.rs",
+                     "src/model/translation.rs"):
+            with self.subTest(path=path):
+                source = (self.root / path).read_text(encoding="utf-8")
+                self.assertEqual(source.count(marker), 1, "review the production/test boundary")
+                production = source.split(marker, 1)[0]
+                self.assertIn("use crate::prediction", production)
+                self.assertIn("PredictionError", production)
+                self.assertNotRegex(production, r"\bLlm(?:Cancellation|ProviderError|Completion(?:Provider|Request)?|LanguagePlugin)\b")
+                if path != "src/model/translation.rs":
+                    self.assertIn("PredictionCancellation", production)
+                    self.assertNotIn("crate::languages", production)
+                else:
+                    self.assertNotIn("llm::", production)
+
+    def test_legacy_model_adapter_has_one_private_owner(self):
+        facade = (self.root / "src/model.rs").read_text(encoding="utf-8")
+        bridge = (self.root / "src/model/legacy.rs").read_text(encoding="utf-8")
+        implementation = "impl LlmCompletionProvider for HttpModelProvider"
+        self.assertNotIn(implementation, facade)
+        self.assertEqual(bridge.count(implementation), 1)
+        self.assertRegex(facade, r"(?m)^mod legacy;$")
+        self.assertNotRegex(facade, r"(?m)^pub(?:\([^)]*\))? mod legacy;$")
+        self.assertIn("pub use legacy::", facade)
+        for factory in ("default_llama_english_plugin", "llama_english_plugin_with_config"):
+            self.assertEqual(bridge.count(f"pub fn {factory}("), 1)
+            self.assertNotIn(f"pub fn {factory}(", facade)
 
 
 if __name__ == "__main__":

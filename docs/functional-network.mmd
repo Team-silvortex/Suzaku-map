@@ -1,4 +1,5 @@
-%% Suzaku functional network: 2026-10-03 source snapshot for 0.8.1 including leased native candidates, daily-chat/daily-needs vocabulary and F57-F59 offline data packs/SDK (eleven optional collections). Startup-only frozen catalogs, no executable plugins or hot reload; personal installation unchanged. Historical unreleased labels below record development stages; binary publication requires same-commit CI and installation acceptance.
+%% Current routing projection: 2026-10-13, 0.9.0 candidate workspace after c7e1b3f. The private format/catalog/store/runtime pack split retains the public facade/API and recommended() order. There are 25 optional packs, not 25 installed slots; the unchanged limit is 16 including disabled entries. Linux F69 persistence, input PredictionProvider and explicit TranslationProvider are distinct paths. No behavior, platform acceptance or maturity uplift is implied by this documentation/refactor.
+%% Historical source snapshot: 2026-10-03 for 0.8.1 included leased native candidates, daily-chat/daily-needs vocabulary and F57-F59 offline data packs/SDK (eleven optional collections). Startup-only frozen catalogs, no executable plugins or hot reload; personal installation unchanged. Historical unreleased labels below record development stages; binary publication requires same-commit CI and installation acceptance.
 %% Unreleased input/pack boundary fixes reuse F16-F18/F20/F29/F57-F59: paired punctuation/em-dash Pinyin tone termination; cached case/apostrophe context keys and whole-word contractions with first-authored priority; raw registry records reject duplicate fields without erasing bad data; short-draft alternatives share existing native byte budgets and actual commit indices, with model byte pruning after preference ranking. No data, protocol-limit, installation or release change.
 %% Native numbered cards commit full text on one click even when the label is truncated; only standalone cards retain first-click scrolling preview. Real private GUI fixtures exercise oversized Unicode/aggregate/escaped candidates in all three layouts and both IBus transports, with geometry readiness but no input retries or relaxed deadlines.
 %% Post-0.8.1 unreleased daily_coordination reuses F16-F18/F20/F26-F28: 6,113 English indexed forms, 2,239 Chinese readings, 862 English / 884 Chinese authored sentences. Same routes/budgets; thirteen released English layers and first 2,175 Chinese readings stay intact. At that stage the full private GTK vocabulary gate contained 72 workflows; no personal installation or publication implied.
@@ -50,26 +51,28 @@
 %% Solid edges: implemented logical routes. Dotted edges: optional model requests.
 %% Reused engine/provider code does not mean shared state across processes.
 %% This is a logical routing projection, not a maturity score or complete call graph.
-%% docs/functional-tensor.json: A01-A10 x F01-F68 x scoped implementations x I/T/V/O.
+%% docs/functional-tensor.json: A01-A10 x F01-F69 x scoped implementations x I/T/V/O (49 implementations, 79 cells, 316 COO records).
 %% Missing coordinates and null scores are not zero. Source/isolated X11 validation does not certify deployment.
 flowchart TB
     APP["目标应用 / 实体键盘"]
     INPUT["IBus 宿主：事件、隐私门控、连续草稿"]
     CORE["宿主引擎：中英日插件、词句候选、排序"]
-    PREF["内存偏好：有界指纹频率与衰减"]
+    PREF["F66 内存偏好：有界指纹频率与衰减"]
+    PREFIO["F69 Linux 宿主：后台偏好存储与清除确认"]
+    PREFFILE["本机偏好文件：指纹、计数与 key；仍属敏感数据"]
     CAND["IBus 候选区草稿与候选条"]
     IPC["本用户 Unix 通道：快照、动作、确认"]
     PANEL["浮动面板 / 屏幕键盘 / 悬浮球"]
     LOCAL["面板独立编辑：另一引擎实例与候选"]
     TOOLS["翻译 / 有限手写 / 模拟语音"]
-    MODEL["可选模型适配：本地或已授权云端"]
+    MODEL["可选 HTTP 模型适配：本地或已授权云端"]
     TRAY["托盘 / 生命周期控制器"]
     SERVICE["已注册的用户服务"]
     IMESET["输入语言与模型设置"]
     UISET["外观、交互与界面语言设置"]
     DATA["配置备份 / 预览恢复"]
     PACKAGE["Linux 分发包：只提供程序文件"]
-    PACKSDK["语言/主题集合 + 纯数据制包 SDK"]
+    PACKSDK["25 个可选语言/主题包 + 纯数据制包 SDK"]
     PACKSTORE["离线包 CLI：校验、启停、原子注册表"]
     PACKSNAP["启动冻结词表：内置 + 有界扩展；坏包隔离"]
     LONG["F64 中英局部长稿：精确保留字面前缀"]
@@ -83,14 +86,20 @@ flowchart TB
     INPUT -->|当前草稿| CORE
     CORE -->|已确认且保留的选择| PREF
     PREF -->|只给现有候选加权；隐私字段禁用| CORE
-    TRAY -->|清除确认与待确认偏好| PREF
+    PREF -->|有界快照；后台保存| PREFIO
+    PREFIO -->|启动恢复 / 内存清除| PREF
+    PREFIO -->|异步原子保存 / 文件清除| PREFFILE
+    PREFFILE -->|有界读取；错误回退内存| PREFIO
+    INPUT -->|启动、退出与状态确认| PREFIO
+    TRAY -->|请求清除；完成 ACK 后确认| PREFIO
     CORE -->|候选与选中状态| CAND
     CORE -->|超过短稿窗口| LONG
     LONG -->|安全尾部生成后拼回前缀| CORE
     CORE -->|本地与模型偏好排序后| BUDGET
     BUDGET -->|真实列表与完整载荷一致| IPC
     CAND -->|采用后继续写| INPUT
-    CAND -->|回车或主按钮点击提交| APP
+    CAND -->|回车或主按钮点击请求提交| INPUT
+    INPUT -->|明确提交完整载荷| APP
     INPUT -->|当前公开快照| IPC
     IPC -->|镜像| PANEL
     PANEL -->|实际绘制的版本| LEASE
@@ -107,9 +116,9 @@ flowchart TB
     LOCAL -->|确认目标后发送候选| IPC
     PANEL -->|显式使用工具| TOOLS
     TOOLS -->|回填草稿而非自动提交| PANEL
-    CORE -.->|启用联想：请求与结果| MODEL
-    LOCAL -.->|启用联想：请求与结果| MODEL
-    TOOLS -.->|显式翻译：请求与结果| MODEL
+    CORE -.->|PredictionProvider：启用预测| MODEL
+    LOCAL -.->|PredictionProvider：启用预测| MODEL
+    TOOLS -.->|TranslationProvider：显式翻译| MODEL
     PANEL -->|启动与退出事件| TRAY
     TRAY -->|启动就绪 / 安全停止| SERVICE
     SERVICE -->|运行宿主| INPUT

@@ -1,5 +1,26 @@
 # Map
 
+## Reading this repository today
+
+This file indexes the original conceptual design notes, not the current Rust
+module tree or a claim that each concept is a separately implemented subsystem.
+The Linux-first input method has since grown shared engine, vocabulary,
+prediction, native-host and companion-panel implementations.
+
+Start with the [product and Linux entry points](../README.md), then the
+[current implementation responsibilities and ownership](../docs/functional-network.md#当前-rust-模块与职责).
+The [runtime route diagram](../docs/functional-network.mmd) is a logical projection;
+the [functional tensor](../docs/functional-tensor.json) records scoped capability
+evidence, not a complete call graph or proof of current release acceptance.
+Public Rust entry points are listed in [lib.rs](lib.rs).
+
+The historical [XR/tablet application of the map](06-IME-XR-Tablet.md) explains
+the early design intent. Keep it distinct from current platform support and
+verified Linux behavior. The five notes below remain useful design principles;
+they do not authorize input actions or replace the implemented host/IPC contracts.
+
+## Original conceptual layers
+
 This set is organized by system question, not by topic.
 
 ---

@@ -5,7 +5,7 @@ use suzaku_map::ime::InputSource;
 use suzaku_map::ime::SignalState;
 use suzaku_map::ime::gpu::InteractionKind;
 use suzaku_map::languages::llm::LlmProviderError;
-use suzaku_map::languages::model::{HttpModelProvider, ModelProviderConfig};
+use suzaku_map::model::{HttpModelProvider, ModelProviderConfig};
 use suzaku_map::panel_support::composition_candidate_previews;
 use suzaku_map::platform::ime_host_adapter::ImeHostSessionBridge;
 use suzaku_map::platform::ime_host_adapter::shared_session_bridge;

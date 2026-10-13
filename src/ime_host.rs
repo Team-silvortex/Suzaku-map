@@ -3,7 +3,8 @@ use crate::ime::{
     CommitOptions, CommitResult, EngineConfig, InputSource, SignalState, Snapshot,
     XRTabletImeEngine,
 };
-use crate::languages::{BuiltinLanguage, model::HttpModelProvider};
+use crate::languages::BuiltinLanguage;
+use crate::model::HttpModelProvider;
 use std::ffi::{CStr, CString};
 use std::sync::{Arc, Mutex, OnceLock};
 
@@ -735,7 +736,7 @@ mod tests {
 
     #[test]
     fn authorized_cloud_provider_stays_disabled_in_private_fields() {
-        use crate::languages::model::{ModelProviderConfig, ModelScope};
+        use crate::model::{ModelProviderConfig, ModelScope};
         let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
         let mut session = HostImeSession::new(EngineConfig::default());
         session.set_private(true);

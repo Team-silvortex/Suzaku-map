@@ -1,6 +1,7 @@
 //! Explicit local-only profiling with synthetic input; never a normal CI gate.
 use super::*;
 use crate::ime::settings::ImeSettings;
+use crate::languages::llm::LlmCompletionRequest;
 
 fn local_provider() -> HttpModelProvider {
     assert_eq!(std::env::var("SUZAKU_MODEL_LOCAL_QA").as_deref(), Ok("1"));

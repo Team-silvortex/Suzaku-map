@@ -402,6 +402,61 @@ fn recommended_collections_keep_word_sentence_and_fallback_workflows() {
     // including its longer context. Do not change a shipped pack to make a new
     // built-in key collision disappear; these expectations are independent.
     for (language, seed, word, sentence) in [
+        ("ja", "soujiki", "掃除機", "掃除機をかけてから出かけます。"),
+        ("ja", "bunbetsu", "分別", "分別の方法を確認します。"),
+        ("ja", "kanki", "換気", "換気のために窓を開けます。"),
+        (
+            "ja",
+            "tenkiyohou",
+            "天気予報",
+            "天気予報を見てから出かけます。",
+        ),
+        ("ja", "kion", "気温", "気温を確認して上着を選びます。"),
+        (
+            "ja",
+            "oritatamigasa",
+            "折り畳み傘",
+            "折り畳み傘を鞄に入れました。",
+        ),
+        (
+            "ja",
+            "raikyaku",
+            "来客",
+            "来客の予定があるので、少し早く帰ります。",
+        ),
+        ("ja", "madoguchi", "窓口", "窓口はどこにありますか。"),
+        ("ja", "saihaitatsu", "再配達", "再配達をお願いしたいです。"),
+        (
+            "en",
+            "my phone battery is lo",
+            "my phone battery is low",
+            "my phone battery is low, so i need to charge it.",
+        ),
+        (
+            "en",
+            "can i borrow a charg",
+            "can i borrow a charger",
+            "can i borrow a charger for my phone?",
+        ),
+        (
+            "zh-Hans",
+            "shou ji kuai mei dian l",
+            "手机快没电了",
+            "手机快没电了，我晚点再回复你。",
+        ),
+        (
+            "zh-Hans",
+            "er ji lian shang l",
+            "耳机连上了",
+            "耳机连上了手机，现在听得很清楚。",
+        ),
+        (
+            "ja",
+            "juudenki",
+            "充電器",
+            "充電器を少し借りてもいいですか。",
+        ),
+        ("ja", "zanryou", "残量", "残量を確認してから出かけます。"),
         (
             "ja",
             "sentakumono",

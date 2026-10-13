@@ -259,7 +259,7 @@ fn japanese_daily_expansion_keeps_the_original_continuations_unchanged() {
         ja.continuations()
             .map(|(_, values)| values.len())
             .sum::<usize>(),
-        403
+        487
     );
 }
 
@@ -343,26 +343,29 @@ fn migrated_readings_preserve_every_original_position_and_flag() {
             "{language} first {count} readings changed existing data/rank"
         );
     }
-    assert_eq!(builtin("en").unwrap().next_words().count(), 741);
-    assert_eq!(builtin("en").unwrap().sentences().count(), 1446);
-    assert_eq!(builtin("zh-Hans").unwrap().readings().len(), 3066);
-    assert_eq!(builtin("zh-Hans").unwrap().continuations().count(), 735);
+    // Current totals include everyday devices, Japanese errands, weather/storage
+    // and cleaning/waste sorting.
+    // Separate suites freeze pre-append data; historical hashes remain intact.
+    assert_eq!(builtin("en").unwrap().next_words().count(), 749);
+    assert_eq!(builtin("en").unwrap().sentences().count(), 1462);
+    assert_eq!(builtin("zh-Hans").unwrap().readings().len(), 3090);
+    assert_eq!(builtin("zh-Hans").unwrap().continuations().count(), 743);
     assert_eq!(
         builtin("zh-Hans")
             .unwrap()
             .continuations()
             .map(|(_, values)| values.len())
             .sum::<usize>(),
-        1468
+        1484
     );
-    assert_eq!(builtin("ja").unwrap().readings().len(), 402);
-    assert_eq!(builtin("ja").unwrap().continuations().count(), 202);
+    assert_eq!(builtin("ja").unwrap().readings().len(), 486);
+    assert_eq!(builtin("ja").unwrap().continuations().count(), 244);
     assert_eq!(
         builtin("ja")
             .unwrap()
             .continuations()
             .map(|(_, values)| values.len())
             .sum::<usize>(),
-        403
+        487
     );
 }

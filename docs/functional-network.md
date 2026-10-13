@@ -2,16 +2,25 @@
 
 ## 0. 当前能力索引：架构 × 功能 × 实现 × 成熟度
 
-2026-10-03 建立、2026-10-12 更新证据与源指纹：原来的网络图继续表示运行路由，
+2026-10-03 建立、2026-10-13 整理当前模块边界与能力索引：原来的网络图继续表示运行路由，
 但不再承担“全仓库能力清单”的职责。
 保留 **F01–F59**，把原来藏在段落中的分页、定位、布局、长稿、偏好等能力拆成
-**F60–F68**。当前数据包含 **10 个架构域、68 个功能、47 个实现切片、77 条有效关联**；
-每条关联有四个评分槽位，展开为 **308 条 COO 记录**。这不是 308 个独立功能。
+**F60–F68**，再以 **F69** 索引偏好文件与宿主接线。当前数据包含
+**10 个架构域、69 个功能、49 个实现切片、79 条有效关联**；
+每条关联有四个评分槽位，展开为 **316 条 COO 记录**。这不是 316 个独立功能。
 
 可查询的数据源是 [functional-tensor.json](functional-tensor.json)，
 [校验/切片工具](../scripts/functional-tensor.py)只读运行，不需要构建、模型或桌面权限。
-当前盘点基线为 `05515551c5b97b4af9c67400399f719c5634f963` 之后跟进 0.8.7 发布的
-**dirty 工作区**；版本号和源指纹不代表已经通过精确提交的 CI 或交付了安装包。
+本轮盘点是 `c7e1b3f42ca5177d0e4da2edc91f410a053bbef4` 之后的 **0.9.0 候选工作区**：
+架构整理只调整离线包内部职责、模型适配器目录归属与说明；其后的日常数码及日语来访、
+办事、天气、出门准备及清洁扩充另见 `E-daily-devices`、`E-japanese-errands`、
+`E-japanese-weather`、`E-japanese-cleaning` 与
+[词库记录](../data/lexicons/README.md)。天气扩充同时修正未完成日语音节的后页空位排序，
+保留原主候选与句子/原文；模型协议、候选容量和功能评分不变。
+清洁扩充另修正同一读音分支内末尾音节补完短词时的句子优先级，不跨越无关分支或同音词，
+保留词候选顺序与长词续句可达性。
+版本号和源指纹不代表已经通过精确提交的 CI 或交付了安装包；
+原 `d4196c7` 的词库会话超时、最终汇合拒绝及后续六分区本地验证仍是各自独立的历史证据。
 数据中的源文件摘要覆盖列出的实现和测试文件，不声称覆盖仓库全部文件。
 下文的旧基线、测试总数、安装和发布说明均保留其原来的历史范围。
 
@@ -34,12 +43,78 @@ JSON 使用按 `(a,f,i)` 分组的坐标格式，`m=[I,T,V,O]`；`--coo` 展开�
 也不能当作失败 0 分。`parents` 只表示功能拆分关系，不是调用顺序或完整运行依赖图。
 评级的证据类型、适用范围和日期都在 JSON 中；没有证据时应降级或保留未知。
 
+### 当前 Rust 模块与职责
+
+这是单个 Rust crate 的模块边界，不是已经拆成独立库或插件进程的承诺。
+入口见 [lib.rs](../src/lib.rs)；早期 Signal/Control 等设计笔记见
+[概念地图](../src/00-Map.md)，它们不与源码目录一一对应。
+
+| 模块 | 当前拥有的责任 | 依赖与边界 |
+| --- | --- | --- |
+| [ime](../src/ime.rs) | 组合状态、候选混排、选择、采用/提交上下文、预测 worker 与偏好接线 | 组合语言插件、预测协议和频率缓存；不以一次候选生成代替系统提交 |
+| [languages](../src/languages/mod.rs) | EN/ZH/JA 解码、词句补全、局部长稿策略 | 使用共享引擎类型和冻结词库；保留旧模型路径、旧联想接口与翻译任务接口，不再拥有 HTTP 模型适配器实现 |
+| [lexicon](../src/lexicon.rs) / [packs](../src/lexicon/packs.rs) | 有序词库数据契约、可选包管理与启动快照 | 解码规则仍在 languages；不加载执行代码，不在按键热路径读取词包文件 |
+| [prediction](../src/prediction/mod.rs) | 版本化输入预测请求/响应、取消与预算契约 | `PredictionProvider` 返回完整草稿替换，不是提交命令；内部 prompt/policy 仍有语言策略依赖 |
+| [model](../src/model.rs) | 本地/云部署配置、发现、HTTP 封装及具体提供器 | 核心直接使用预测协议类型，旧接口/英文工厂隔离在私有 legacy；仍经 prompt/policy 依赖语言策略，翻译接口仍属 languages |
+| [languages/translation](../src/languages/translation.rs) | 显式翻译请求、独立 worker 与结果校验 | 使用 `TranslationProvider`，不是输入预测协议；HTTP 提供器可实现两种接口 |
+| [ime_host](../src/ime_host.rs) | 宿主会话、共享 FFI 状态、设置/provider 装配、Linux 偏好生命周期 | Linux 启动入口先读包快照与偏好，再运行 IBus；其他宿主不因此获得相同持久化验收 |
+| [platform](../src/platform/mod.rs) / [Linux 桥](../src/linux/ibus_engine_bridge.c) | 系统输入、用途/隐私分流、IPC、窗口、语音与生命周期适配 | 目标平台决定桥接实现；不是全部可独立替换的纯接口层 |
+| [panel](../src/bin/panel.rs) / [GPU 场景](../src/ime/gpu/mod.rs) / [panel_support](../src/panel_support.rs) | 原生镜像、独立编辑、交互、工具、呈现与设置协调 | 面板独立引擎和原生宿主引擎是不同状态所有者；界面文字由 [ui](../src/ui.rs) 本地化 |
+| [preferences](../src/preferences.rs) / [data](../src/data.rs) | 频率缓存、持久化格式/worker，以及配置备份恢复和安全文件原语 | 偏好文件、个人包和配置备份是不同数据集合；不能将 data 视为无业务依赖的通用底层库 |
+
+模型适配器的规范入口是 `suzaku_map::model`，实现位于 `src/model.rs` 与 `src/model/`。
+原 `languages::model` 通过公开转导出保留兼容，`languages::llm` 与 `languages::llama`
+也仍保留；不是并行运行第二套适配器。输入预测协议仍由 `prediction` 拥有，翻译任务接口
+仍由 `languages::translation` 拥有，`model/translation.rs` 只是其 HTTP 实现。
+旧 `LlmCompletionProvider` 实现和两个英文插件工厂集中于私有
+[model/legacy.rs](../src/model/legacy.rs)，工厂继续公开转导出；兼容测试仍使用旧接口。
+模型核心、发现与传输直接使用 `PredictionError` / `PredictionCancellation`；翻译适配
+将共享传输的 `PredictionError` 映射为翻译错误。原 `LlmProviderError` / `LlmCancellation`
+是这两个协议类型的别名，
+这次分层不新增模型能力，也不改变请求格式、错误检查顺序、发现/取消预算或候选策略。
+旧桥仍有旧联想接口/英文依赖，prompt/policy 仍有实际语言策略，不能据此宣称完全解耦。
+
+离线包公开入口继续是 `suzaku_map::lexicon::packs`。本轮仅把原有实现分到四个私有模块，
+公开类型、常量、方法和调用路径保持兼容；`recommended()` 与有序推荐清单仍留在入口，
+不是新建一套包 API 或新的注册表格式。
+
+| 私有模块 | 所有权 | 不承担 |
+| --- | --- | --- |
+| [format](../src/lexicon/packs/format.rs) | Manifest、OfflinePack、声明统计、格式/语言字段校验与单包预算 | 文件/环境读取、候选生成、个人注册表修改 |
+| [catalog](../src/lexicon/packs/catalog.rs) | 内置与启用扩展的合并、冲突/预算检查、逐包错误报告 | 安装事务、进程全局冻结时机 |
+| [store](../src/lexicon/packs/store.rs) | 有界文件读取（含 `OfflinePack::read`）、注册表读写、锁、显式安装/启停/替换/移除、原子持久化 | 自动下载、自动淘汰或更改运行中的快照 |
+| [runtime](../src/lexicon/packs/runtime.rs) | 进程内 OnceLock 快照及启动初始化入口 | 热更新、跨进程共享可变词表 |
+
+当前可选目录为 **25 包（EN 8 / ZH 8 / JA 9）**；最多安装 **16 包**，禁用仍占名额。
+浏览目录不安装或启用；明确安装一个新包时按原规则启用。宿主和面板在各自启动时读取，
+需要分别正常重启才加载变更。现有 GTK/native 包专项仍是历史十四包，不因目录增长而扩展验收。
+
+### 草稿、候选与提交的所有权
+
+- **原文（Literal）**是可选的完整输入载荷，不是错误或模型输出；语言转换、候选混排与预算共同决定列表，不能由 UI 标签重建提交文本。
+- **本地候选**先同步生成；“fallback”指模型不可用时仍可使用，不是等网络失败后才读取词库。模型结果只能经请求关联、取消、文本保护和排序校验后补充候选。
+- **原生草稿**由 IBus 宿主维护，面板只镜像并发送带上下文/版本的动作；**独立草稿**由面板自己的引擎和采用历史维护。显示租约仅协调候选呈现，不转移草稿所有权。
+- **采用不等于提交**：数字选词和 Space 继续编辑，明确 Enter/候选点击才请求提交。宿主或目标平台输出桥发送完整载荷，不能把按钮点击、排队发送或模型返回视为目标应用已经保存正文。
+- **预测与翻译分开**：输入预测走 `PredictionProvider`；显式翻译走 `TranslationProvider`，先回填工具/草稿。共享 HTTP 部署配置不意味着共享任务协议或自动提交权限。
+- **偏好持久化**由 Linux 宿主协调内存缓存与后台文件 worker；托盘/CLI 请求清除，确认完成才报告成功。含 key 的指纹文件仍敏感，不是个人词库、匿名数据或配置备份内容。
+
+### 构建边界与后续整理
+
+[Cargo features](../Cargo.toml) 当前为 `default = []`、`linux-ibus → gpu`；
+[build.rs](../build.rs) 还按平台编译原生桥。空默认 feature 不代表已经支持独立 headless 构建：
+多个 platform/voice/呈现模块仍直接或间接依赖 GPU 类型、winit 与平台库。
+当前验证入口继续按 [贡献说明](../CONTRIBUTING.md) 使用 `--all-features`。
+模型适配器目录归属与私有旧桥已整理，历史路径继续兼容；旧桥、翻译接口及
+prompt/policy 的语言依赖未消除，仍不是独立 crate 或无语言依赖的纯协议层。
+引擎中的呈现帮助代码、feature 拆分及独立 crate 仍是后续候选工作，
+不属于本轮模块整理；本轮不改平台 ABI、设置格式、候选顺序或持久化所有权。
+
 ### 架构切片
 
 | 架构 | 主要责任 | 重点功能 |
 | --- | --- | --- |
-| A01 Linux 原生输入与宿主 | 事件、用途分流、草稿生命周期、精确提交、控制确认 | F08–F15、F42 |
-| A02 引擎、状态与候选策略 | 组合状态、词句混排、预算、偏好、快捷键 | F20–F21、F27、F65–F66、F68 |
+| A01 Linux 原生输入与宿主 | 事件、用途分流、草稿生命周期、精确提交、控制确认、偏好持久化接线 | F08–F15、F42、F69 |
+| A02 引擎、状态与候选策略 | 组合状态、词句混排、预算、偏好及文件契约、快捷键 | F20–F21、F27、F65–F66、F68–F69 |
 | A03 语言与离线词库 | EN/ZH/JA、长稿窗口、资源契约、扩展包和 SDK | F15–F19、F57–F59、F64、F67 |
 | A04 模型与异步任务 | 配置/授权、发现、取消、生成校验、翻译与回退 | F22–F28、F34 |
 | A05 IPC 与伴随一致性 | 快照/动作/ACK、目标与版本、显示租约 | F14、F29–F30、F65 |
@@ -78,7 +153,8 @@ python3 scripts/test-functional-tensor.py
 源码变化后先复核受影响的关联、限制和证据，再用 `--digest` 获取摘要并更新
 `snapshot.source_sha256`，不要为了让校验变绿盲刷摘要。
 摘要按去重排序的路径，串联 `UTF8(path) + NUL + SHA256(file).hexdigest()` 后再做 SHA256；
-固定长度的文件摘要避免裸文件内容拼接歧义。推荐的 14 个离线包也列在实现清单内。
+固定长度的文件摘要避免裸文件内容拼接歧义。当前推荐的 25 个离线包也列在实现清单内；
+目录数量不替代组合、原生或安装验收。
 新增功能先复用已有 F 编号或在尾部追加，不重排旧编号；修改跨平台实现时单独评估其切片。
 历史测试失败不因后续通过而删除。网络图是路由投影，JSON 是评分与证据索引，两者不是相互替代品。
 
@@ -965,20 +1041,22 @@ flowchart TB
     APP["目标应用 / 实体键盘"]
     INPUT["IBus 宿主：事件、隐私门控、连续草稿"]
     CORE["宿主引擎：中英日插件、词句候选、排序"]
-    PREF["内存偏好：有界指纹频率与衰减"]
+    PREF["F66 内存偏好：有界指纹频率与衰减"]
+    PREFIO["F69 Linux 宿主：后台偏好存储与清除确认"]
+    PREFFILE["本机偏好文件：指纹、计数与 key；仍属敏感数据"]
     CAND["IBus 候选区草稿与候选条"]
     IPC["本用户 Unix 通道：快照、动作、确认"]
     PANEL["浮动面板 / 屏幕键盘 / 悬浮球"]
     LOCAL["面板独立编辑：另一引擎实例与候选"]
     TOOLS["翻译 / 有限手写 / 模拟语音"]
-    MODEL["可选模型适配：本地或已授权云端"]
+    MODEL["可选 HTTP 模型适配：本地或已授权云端"]
     TRAY["托盘 / 生命周期控制器"]
     SERVICE["已注册的用户服务"]
     IMESET["输入语言与模型设置"]
     UISET["外观、交互与界面语言设置"]
     DATA["配置备份 / 预览恢复"]
     PACKAGE["Linux 分发包：只提供程序文件"]
-    PACKSDK["语言/主题集合 + 纯数据制包 SDK"]
+    PACKSDK["25 个可选语言/主题包 + 纯数据制包 SDK"]
     PACKSTORE["离线包 CLI：校验、启停、原子注册表"]
     PACKSNAP["启动冻结词表：内置 + 有界扩展；坏包隔离"]
     LONG["F64 中英局部长稿：精确保留字面前缀"]
@@ -992,14 +1070,20 @@ flowchart TB
     INPUT -->|当前草稿| CORE
     CORE -->|已确认且保留的选择| PREF
     PREF -->|只给现有候选加权；隐私字段禁用| CORE
-    TRAY -->|清除确认与待确认偏好| PREF
+    PREF -->|有界快照；后台保存| PREFIO
+    PREFIO -->|启动恢复 / 内存清除| PREF
+    PREFIO -->|异步原子保存 / 文件清除| PREFFILE
+    PREFFILE -->|有界读取；错误回退内存| PREFIO
+    INPUT -->|启动、退出与状态确认| PREFIO
+    TRAY -->|请求清除；完成 ACK 后确认| PREFIO
     CORE -->|候选与选中状态| CAND
     CORE -->|超过短稿窗口| LONG
     LONG -->|安全尾部生成后拼回前缀| CORE
     CORE -->|本地与模型偏好排序后| BUDGET
     BUDGET -->|真实列表与完整载荷一致| IPC
     CAND -->|采用后继续写| INPUT
-    CAND -->|回车或主按钮点击提交| APP
+    CAND -->|回车或主按钮点击请求提交| INPUT
+    INPUT -->|明确提交完整载荷| APP
     INPUT -->|当前公开快照| IPC
     IPC -->|镜像| PANEL
     PANEL -->|实际绘制的版本| LEASE
@@ -1016,9 +1100,9 @@ flowchart TB
     LOCAL -->|确认目标后发送候选| IPC
     PANEL -->|显式使用工具| TOOLS
     TOOLS -->|回填草稿而非自动提交| PANEL
-    CORE -.->|启用联想：请求与结果| MODEL
-    LOCAL -.->|启用联想：请求与结果| MODEL
-    TOOLS -.->|显式翻译：请求与结果| MODEL
+    CORE -.->|PredictionProvider：启用预测| MODEL
+    LOCAL -.->|PredictionProvider：启用预测| MODEL
+    TOOLS -.->|TranslationProvider：显式翻译| MODEL
     PANEL -->|启动与退出事件| TRAY
     TRAY -->|启动就绪 / 安全停止| SERVICE
     SERVICE -->|运行宿主| INPUT
@@ -1176,7 +1260,7 @@ F42/F44 的 0.7.2 N56 修复把 Linux 原生配置读取、写入和刷盘放到
 | F58 | pack install/enable/disable/remove → 独立写锁、组合校验、单文件原子替换 → 用户注册表 | 大小/数量/索引预算；冲突失败保留旧数据；损坏注册表拒绝写；不进入配置备份 | 开发：[CLI](../src/bin/suzaku_tool/pack.rs)、[回归](../tests/offline_packs.rs) |
 | F59 | Linux 宿主/面板启动 → 内置词库后追加启用包 → 冻结独立进程快照 → F16–F19 候选 | 不读磁盘于按键路径；坏记录逐包跳过、整表损坏用内置；原进程须重启；无 GUI 管理/热更新 | 开发：[加载器](../src/lexicon/packs.rs)、[原生测试](../scripts/test-native-sync.py) 的 SUZAKU_NATIVE_PACKS_ONLY |
 
-### J. 从交叉路径独立出的能力（F60–F68）
+### J. 从交叉路径独立出的能力与偏好文件（F60–F69）
 
 这些编号是能力索引的细分，不表示本轮新增了产品功能；评分以 JSON 切片为准。
 
@@ -1188,9 +1272,10 @@ F42/F44 的 0.7.2 N56 修复把 Linux 原生配置读取、写入和刷盘放到
 | F63 | 平台探测、Auto 默认与手动覆盖；F36/F40 | [探测策略](../src/platform/panel_layout.rs)、[设置状态](../src/bin/panel/app_state.rs) | 桌面主面板启动一次，检测值不持久化；不按触摸屏/尺寸猜平台，不监听姿态/热插拔；不代表 Android 服务调用此路径 |
 | F64 | 中英长草稿局部续写；F17/F18 | [有界草稿](../src/languages/draft.rs)、[引擎](../src/ime/core_engine.rs) | 完整字面前缀保留；前置分隔符不占 256 码点尾部预算，257 码点仍不得强行截词或恢复冻结语境；不扩大模型/字节预算，不包含日文长稿 |
 | F65 | 候选字节预算、真实索引与镜像一致；F13/F20/F27/F29 | [混排](../src/ime/candidate_mix.rs)、[协议](../src/ime/companion.rs) | 8,192 字节单项 / 65,536 字节帧；裁真实列表，不能只裁显示文字 |
-| F66 | 确认选择后的偏好频率、衰减与清除；F11/F20/F27 | [频率缓存](../src/preferences.rs)、[引擎偏好](../src/ime/preferences.rs) | 内存有界指纹；英文采用后附着 `.com` / `:world` 取消暂存，正常句界保留；非持久个人词库，不存正文，不随配置备份 |
+| F66 | 确认选择后的偏好频率、衰减与清除；F11/F20/F27 | [频率缓存](../src/preferences.rs)、[引擎偏好](../src/ime/preferences.rs) | 内存有界指纹；英文采用后附着 `.com` / `:world` 取消暂存，正常句界保留；Linux 文件接线另见 F69，不存正文、不随配置备份 |
 | F67 | 内置词库资源与实现解耦；F16/F18/F19/F59 | [数据接口](../src/lexicon.rs)、[资源说明](../data/lexicons/README.md) | 启动冻结；词库是模型不可用时的 fallback；资源量不等于语言质量 |
 | F68 | 标准/主键区快捷键方案；F11/F12/F15/F42 | [动作策略](../src/ime/shortcuts.rs)、[用户说明](shortcuts.md) | 公开且聚焦的输入上下文；候选操作需非空草稿，切语言可空草稿；非全局热键，不改 CapsLock/系统布局 |
+| F69 | 偏好文件存储与恢复；F66；A02 文件契约 / A01 Linux 宿主接线 | [格式](../src/preferences/persistence.rs)、[存储](../src/preferences/store.rs)、[worker](../src/preferences/worker.rs)、[宿主生命周期](../src/ime_host/persistence.rs) | Linux 默认持久化、可请求清除；其他宿主仍内存。含 key 指纹文件仍敏感，强杀不保证零丢失；历史私有测试不替代本轮精确提交、个人安装或实体设备验收 |
 
 ## 3. 容易出问题的交汇点
 
@@ -1426,11 +1511,11 @@ Android 的路径需要单独看，不能套用 Linux 的结论：
 [candidate-doc]: ibus-candidates.md
 [demo]: ../src/main.rs
 [model-cli]: ../src/bin/suzaku_tool/model.rs
-[model]: ../src/languages/model.rs
+[model]: ../src/model.rs
 [llm]: ../src/languages/llm.rs
-[model-runtime]: ../src/languages/model/runtime.rs
+[model-runtime]: ../src/model/runtime.rs
 [prediction]: ../src/ime/prediction.rs
-[transport]: ../src/languages/model/transport.rs
+[transport]: ../src/model/transport.rs
 [privacy-doc]: privacy.md
 [sync-client]: ../src/platform/linux_ime_sync.rs
 [companion-c]: ../src/linux/ibus_companion.inc.c
@@ -1446,7 +1531,7 @@ Android 的路径需要单独看，不能套用 Linux 的结论：
 [speech-c]: ../src/linux/speech_bridge.c
 [translation-panel]: ../src/bin/panel/translation.rs
 [translation]: ../src/languages/translation.rs
-[model-translation]: ../src/languages/model/translation.rs
+[model-translation]: ../src/model/translation.rs
 [gpu]: ../src/ime/gpu/mod.rs
 [panel-focus]: ../src/platform/panel_text_focus.rs
 [brand]: ../src/ime/gpu/brand.rs

@@ -1,6 +1,9 @@
 //! Synthetic sockets only: observe peer closure, not merely discarded results.
 use super::*;
 use crate::ime::{CommitOptions, EngineConfig, PredictionStatus, XRTabletImeEngine};
+use crate::languages::llm::{
+    LlmCancellation, LlmCompletion, LlmCompletionProvider, LlmCompletionRequest, LlmProviderError,
+};
 use std::{net::TcpListener, sync::mpsc, thread};
 
 fn peer_closed(stream: &mut TcpStream) -> bool {

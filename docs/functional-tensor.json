@@ -2,10 +2,10 @@
   "schema_version": 1,
   "snapshot": {
     "date": "2026-10-13",
-    "head": "d4196c753176b710cfbedde4bb520a1725410c43",
+    "head": "c7e1b3f42ca5177d0e4da2edc91f410a053bbef4",
     "dirty": true,
-    "source_sha256": "201b76315c7e9c95b8def014b44808d4d90c169ca62cec8fdf813ae4ed6c7628",
-    "note": "2026-10-13在0.8.9候选d4196c7之后的未提交分组修复盘点；head不是已发布版本，E-ci-vocabulary-sessions保留CI38348392943的240秒失败与新六分区验证边界。评分是有边界的人工序数评估，不是质量概率，本轮不提高评分。以下为历史证据：重复引擎控件见E-shared-noop-controls。F69/preference-file记录文件底层，native-preference及E-native-preference记录Linux源码宿主默认后台保存/启动恢复/有界退出/异步清除确认，第一轮八组私有IBus及1752全量通过，退出恢复见E-preference-lifecycle：敏感temp红测保留，专属空间安全回收，九组native及1758全量零失败30显式ignored通过；不代表日常安装已升级、托盘视觉或实体键盘验收，其他宿主仍内存。第一阶段及计数失败保留，非改记通过。后续历史修复范围见E-pointer-preference、E-window-boundary、E-recovery-fixture、E-prose-paging、E-chinese-partial-spacing；词库扩充见E-daily-objects、E-daily-choices、E-japanese-choices。10-04崩溃及10-07有界sender诊断见E-daemon-abort，探测清理顺序见E-daemon-probe，非已确认修复上游根因。10-11安装范围见E-installed-input-tasks和E-installed-custom-shortcuts。0.8.6原远端超时、0.8.7首轮Python格式失败及40min取消均不改记通过；后续干净98ee576的CI38161577941八项、Ubuntu24打包安装及最终汇合成功，四资产复核后公开发布，但这些结果不代表本次未提交工作区的远端CI、打包安装、真实模型或个人桌面验收。源指纹仅覆盖implementations.paths/tests。"
+    "source_sha256": "29c6e15a754b7463e591a2bfcc2107e985f2298bdacc767de97bf58fdc80d556",
+    "note": "2026-10-13的0.9.0候选：在0.8.9源码修复c7e1b3f之后积累架构整理、三语数码及日语办事/天气/清洁词库；head记录父提交而非当前未提交内容。版本与Android/macOS构建号同步为0.9.0/40。E-pack-boundaries记录离线包format/catalog/store/runtime职责分层，E-model-boundaries记录模型适配器上移和旧路径兼容，E-model-legacy记录旧trait/英文工厂隔离及核心直接使用预测错误/取消类型，E-daily-devices、E-japanese-errands、E-japanese-weather和E-japanese-cleaning分别记录四批日用词句与独立回归；当前功能/实现/关联仍为69/49/79，不因搬移或词量提高人工序数评分。原CI38348392943的240秒失败与六分区修复见E-ci-vocabulary-sessions；父提交CI不作为本轮代码的验收。0.9.0最终执行和包发布边界见DEVELOPMENT及docs/releases/0.9.0.md。其他历史证据及原失败均保留：偏好见E-native-preference/E-preference-lifecycle，崩溃/清理见E-daemon-abort/E-daemon-probe，安装见E-installed-input-tasks/E-installed-custom-shortcuts，既有源码修复和词库扩充见各关联证据。已发布0.8.7、旧私有测试、本轮源码/回归均不等于当前个人安装、实体键盘、真实模型、跨平台原生或精确提交发布验收。源指纹只覆盖implementations.paths/tests，不是整个仓库；源码列表含四个词包子模块、模型规范/兼容入口及全部模型子模块、兼容测试、架构守卫、三语设备及日语办事/天气/清洁测试。"
   },
   "architectures": [
     {
@@ -392,7 +392,8 @@
         "tests/daily_visits_english.rs",
         "tests/daily_delivery_english.rs",
         "tests/daily_repairs_english.rs",
-        "tests/daily_laundry_english.rs"
+        "tests/daily_laundry_english.rs",
+        "tests/daily_devices_english.rs"
       ]
     },
     {
@@ -430,6 +431,7 @@
         "tests/daily_delivery_chinese.rs",
         "tests/daily_repairs_chinese.rs",
         "tests/daily_laundry_chinese.rs",
+        "tests/daily_devices_chinese.rs",
         "tests/chinese_partial_sentence_probe.rs",
         "tests/chinese_partial_continuation.rs",
         "tests/chinese_function_words.rs",
@@ -466,6 +468,12 @@
         "tests/daily_mealtime_japanese.rs",
         "tests/daily_repairs_japanese.rs",
         "tests/daily_laundry_japanese.rs",
+        "tests/daily_devices_japanese.rs",
+        "tests/daily_errands_japanese.rs",
+        "tests/daily_weather_japanese.rs",
+        "tests/daily_cleaning_japanese.rs",
+        "tests/japanese_cleaning_coexistence.rs",
+        "tests/japanese_authored_backfill.rs",
         "tests/japanese_completion_backfill.rs",
         "tests/japanese_completion_boundaries.rs",
         "tests/release_japanese_tail.rs",
@@ -506,9 +514,14 @@
       "scope": "Linux宿主/面板启动加载",
       "paths": [
         "src/lexicon/packs.rs",
+        "src/lexicon/packs/format.rs",
+        "src/lexicon/packs/catalog.rs",
+        "src/lexicon/packs/store.rs",
+        "src/lexicon/packs/runtime.rs",
         "src/bin/suzaku_tool/pack.rs"
       ],
       "tests": [
+        "tests/offline_pack_boundaries.rs",
         "tests/offline_packs.rs",
         "tests/offline_pack_inventory.rs",
         "tests/offline_pack_quality.rs",
@@ -584,14 +597,22 @@
       "title": "协议/授权/结果校验",
       "scope": "本地Ollama + 显式授权compatible HTTPS",
       "paths": [
+        "src/lib.rs",
         "src/languages/model.rs",
+        "src/languages/llama.rs",
+        "src/model.rs",
+        "src/model/legacy.rs",
         "src/prediction/mod.rs",
         "src/prediction/prompt.rs",
         "src/prediction/policy.rs",
-        "src/languages/model/transport.rs",
+        "src/model/transport.rs",
         "src/bin/suzaku_tool/model.rs"
       ],
       "tests": [
+        "tests/model_module_compat.rs",
+        "src/model/test_server.rs",
+        "src/model/live.rs",
+        "src/model/legacy_tests.rs",
         "tests/model_provider_cli.rs",
         "tests/prediction_protocol.rs",
         "tests/prediction_preservation.rs",
@@ -605,10 +626,10 @@
       "title": "本机发现/探针/预热",
       "scope": "固定loopback端点；预热限Ollama",
       "paths": [
-        "src/languages/model/runtime.rs"
+        "src/model/runtime.rs"
       ],
       "tests": [
-        "src/languages/model/runtime.rs",
+        "src/model/runtime.rs",
         "tests/model_provider_cli.rs",
         "scripts/test-linux-model-live.py"
       ]
@@ -623,14 +644,14 @@
         "src/prediction/mod.rs",
         "src/prediction/policy.rs",
         "src/languages/llm.rs",
-        "src/languages/model/transport.rs"
+        "src/model/transport.rs"
       ],
       "tests": [
         "tests/ime_prediction.rs",
         "tests/prediction_protocol.rs",
         "tests/prediction_preservation.rs",
         "tests/prediction_edit_conflicts.rs",
-        "src/languages/model/cancellation_tests.rs",
+        "src/model/cancellation_tests.rs",
         "tests/fallback_vocabulary.rs"
       ]
     },
@@ -642,7 +663,7 @@
       "paths": [
         "src/languages/translation.rs",
         "src/languages/translation/worker.rs",
-        "src/languages/model/translation.rs"
+        "src/model/translation.rs"
       ],
       "tests": [
         "tests/model_translation_live.rs",
@@ -995,9 +1016,11 @@
       "paths": [
         "scripts/test-linux-ci.sh",
         "scripts/test-linux-apps.sh",
+        "scripts/functional-tensor.py",
         ".github/workflows/ci.yml"
       ],
       "tests": [
+        "scripts/test-functional-tensor.py",
         "scripts/test-linux-ci.sh",
         "scripts/test-linux-apps.sh",
         "scripts/test-linux-apps.py",
@@ -1520,11 +1543,60 @@
       "note": "英文48显式词形/12语境24句，中文32读音/12语境24句；旧十四包SHA和catalog前缀固定，内置数据不动，扩展预算和安装上限16不放宽。目录/SDK/模型解耦，新增词包不自动启用。固定预期先红测；全包共存、部分拼写/分隔、原文、长稿续写、精确提交撤回及typed模型失败走隔离Rust快照。新测试误假定jiu→就已收录的实际失败保留；修正测试边界而非给旧排序插特例，细节见开发记录。不提高成熟度，未安装提交推送发布；原生/GTK仍为历史十四包子集，不将Rust结果外推新十六包原生验收。"
     },
     {
+      "id": "E-model-legacy",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/model-providers.md", "src/model.rs", "src/model/legacy.rs", "src/model/legacy_tests.rs", "src/model/runtime.rs", "src/model/transport.rs", "src/model/translation.rs", "tests/model_module_compat.rs", "scripts/test-functional-tensor.py"],
+      "scope": "2026-10-13私有旧模型桥与规范协议类型；保留旧/新入口的真实语义差异",
+      "note": "以本次整理前八文件工作区为基线的19项投影通过：旧trait/两英文工厂原文搬移，生产仅canonical类型名与模块接线，六处旧测试仅显式imports，test_server/兼容集成原字节；不扩大可见性。三项有界私有loopback测试覆盖Ollama/OpenAI相同payload/完整候选/权重/typed错误和旧空回退、predict独有动态预算和预检、旧配置先于取消与新取消先于配置、双向取消真实socket关闭后跨入口复用库存。专项77通过/零失败/2实模ignored；库/所有bin/九集成919通过/零失败/25显式ignored含新三项及旧兼容五项；严格Clippy、29架构测试和源摘要通过，详细范围/调用失误保留见开发记录。新守卫仅检查四文件当前生产前缀，不冒称Rust AST；旧2035/916不算此次全量词库。旧路径/类型身份/排序/时限/请求不变，prompt/policy仍间接依赖语言，翻译契约仍属languages，不宣称独立crate/完全解耦或模型质量提升。未改个人安装/服务/配置，不代表native/实体键盘/真实模型/远端CI或发布验收，评分不变。"
+    },
+    {
+      "id": "E-model-boundaries",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/model-providers.md", "src/lib.rs", "src/model.rs", "src/model/runtime.rs", "src/model/transport.rs", "src/model/translation.rs", "src/model/cancellation_tests.rs", "src/model/test_server.rs", "src/model/live.rs", "src/languages/model.rs", "src/languages/llama.rs", "tests/model_module_compat.rs", "scripts/test-functional-tensor.py"],
+      "scope": "2026-10-13模型适配器目录上移；旧路径共享同一实现，不改任务协议或传输行为",
+      "note": "七文件逐字投影一致，仅translation测试修正私有test_server导入；不扩大可见性，76原测试和2显式ignored诊断保留。lib规范入口model，languages::model公开重导出；宿主/面板/设置/CLI导入新入口，llama别名保留。五个纯内存兼容测试覆盖真实类型身份、配置引用、三trait、runtime签名/常量与旧协议别名；不调用发现/预测/翻译/预热，不读个人配置。测试枚举确有76个model::条目，当前诊断指南更新避免旧筛选零匹配；历史证据链接修正而不改旧结果。库/全部bin/九项集成共916通过、零失败、25显式ignored，包含74模型通过/2诊断ignored及5新兼容通过；严格Clippy和27架构校验通过。首次汇总误计同名CLI测试已限定库范围，详见开发记录；不把上轮2035全量算作此次完整词库重验。仍依赖languages::llm、translation接口及英文策略，不宣称独立crate/彻底去语言依赖或模型效果提升。无个人安装/原生设备/实模/远端CI验收，评分不变。"
+    },
+    {
+      "id": "E-pack-boundaries",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/functional-network.md", "src/lexicon/packs.rs", "src/lexicon/packs/format.rs", "src/lexicon/packs/catalog.rs", "src/lexicon/packs/store.rs", "src/lexicon/packs/runtime.rs", "tests/offline_pack_boundaries.rs", "scripts/test-functional-tensor.py"],
+      "scope": "2026-10-13离线包私有职责分层；公开API和进程启动冻结契约保持",
+      "note": "format纯解析/校验/统计、catalog纯内存合并、store文件事务、runtime单次启动；原recommended目录顺序/25包/16配额/错误/预算/锁/原子写/已发布资源不改，非新包格式或热加载。Catalog内部两处仅pub(super)，旧外部路径重导出；九项源码投影一致。新鲜进程测试先做纯操作/显式store读取，再initialize仍成功，临时目录/注册表字节保持；不宣称系统级无read调用。七项目标Rust回归46项、全量2035通过/零失败/32显式ignored；全量编译后新增的测试环境隔离和唯一完成标记再单独编译1/1通过，生产实现不变；严格Clippy通过。架构数量/两份路由/模块入摘要/包数量四新守卫与旧21项共25通过，Python3.12/C locale亦通过；守卫首轮缺失注册及TB/LR误计、投影脚本缩进误差见开发记录，未靠修改产品逻辑通过。更新当前图并保留历史证据和评分。非个人安装、实模/物理键盘/native Wayland、跨平台原生或远端发布验收。"
+    },
+    {
       "id": "E-pack-organization",
       "kind": "historical_run",
       "paths": ["DEVELOPMENT.md", "data/offline-packs/README.md", "sdk/offline-packs/README.md", "docs/linux-packaging-data.md", "tests/offline_pack_inventory.rs", "tests/offline_pack_sdk.rs", "scripts/test-offline-pack-shipping.py"],
       "scope": "2026-10-12十四词包导航、只读统计/检查与SDK集合防误用",
       "note": "保持十四JSON字节、ID/版本/顺序和默认catalog结构，显式details/inspect只读统计原始声明记录，不读注册表/初始化运行词库；索引单元复用旧预算，不冒充唯一词数或兼容/许可证明。SDK拒绝文本充集合，保留生成器和顺序，权威校验/原子无覆盖发布不变。新增中英日手工统计、坏注册表隔离与参数/文件边界回归；目录逐项核对manifest与分发清单，两个README加入包和smoke断言。实跑范围和原始失败见开发记录，不提高成熟度；未实际打包安装/原生键盘/远端CI验收。"
+    },
+    {
+      "id": "E-japanese-cleaning",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/ja.json", "src/languages/japanese.rs", "tests/daily_cleaning_japanese.rs", "tests/japanese_cleaning_coexistence.rs", "tests/lexicon_resources.rs", "tests/offline_pack_quality.rs", "tests/family_pack_japanese.rs", "tests/japanese_internet_catalog.rs"],
+      "scope": "2026-10-13日语居家清洁fallback及末尾音节恰好完成词的句子优先级修正",
+      "note": "新增24读音12语境24句；此前462读音232语境463句的内容和字节、中英文、25个可选包不变。十项新测试冻结后先红测4通过6缺口失败。ほこり/ほうき保留自然假名，Romaji为Word、同文假名为唯一Literal。覆盖新词句、固定半截、空白/鼻音、采用续写、准确提交撤回、旧词竞争与typed/empty故障；掃除機/分別/換気进入原九组16包共存。原family回归发现souj时掃除機句子挤走掃除旧首页句；新增三项九包独立回归，保留四主行和原测试。首修53组989通过2失败2忽略：旧transit拒绝bas将バス越过場所，新共存fixture误把裸そうj的原文Literal期待为Unspecified。仅按既有同文分类校正此新期望，保留两版hash和失败证据；不改任何旧断言。最终修正限制为完整读音probe命中的词仅越过紧邻、读音严格以其开头的长词查询，遇到无关分支/已完成查询即停；同词面多读音也保序，转换查询仍第一、句尾探测仍最后。不生成新汉字，不改Word序/分值、完整假名/鼻音、backfill和预算，句子相对优先级有意调整。历史投影SHA不改。修后53组991通过0失败2忽略，覆盖全部45日语targets、lib及七共享targets；terminal-n七项213.13秒通过，原断言/时限不放宽。准确红测和最终运行见开发记录，不借用前轮978、不提高评分；不改模型协议/个人安装，不宣称地区规则、任意形态分析、实体键盘、实模、全仓或提交CI/发布验收。"
+    },
+    {
+      "id": "E-japanese-weather",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/ja.json", "src/languages/japanese.rs", "tests/daily_weather_japanese.rs", "tests/japanese_authored_backfill.rs", "tests/japanese_romaji_progress.rs", "tests/lexicon_resources.rs", "tests/offline_pack_quality.rs", "tests/family_pack_japanese.rs", "tests/japanese_internet_catalog.rs"],
+      "scope": "2026-10-13日语天气/出门fallback及未完成音节的作者句分支补位修正",
+      "note": "新增24读音12语境24句，旧438读音220语境439句全部字节保留，中英文、25包及设备/办事测试不动。十项新测试冻结后红测4通过6缺口失败；覆盖全读音、明确半截、词句/原文、六种水平分隔、采用后助词续写、准确提交撤回及12语境五类typed故障和empty回退。kion/kionn、hokan/hokann、促音和reinko-to沿用原规则。首轮50组972通过1失败2忽略：新湿度在九包下挤掉引用shit的旧长词。独立补位测试先红测3通过2失败，再限定为未转换ASCII尾音的空位排序，按整段作者句匹配的读音probe在同深度稳定优先；首批4、旧8项完整行、句子/原文权重、完整假名/鼻音顺序、深度防线和12容量不变，不按词/包硬排。三例追加到九组16包共存；旧资源投影SHA及断言不改。修后51组978通过0失败2忽略，包含全部43日语targets、lib及七共享targets；旧romaji进度4项与新补位5项全过，末尾n九包202.87秒通过。严格Clippy及资源/文档守卫通过，准确范围见开发记录，不借用前轮全仓2075结果，不提高评分。不改模型协议/个人安装，不声称任意形态变化、实体键盘、真实模型、精确提交CI或发布验收。"
+    },
+    {
+      "id": "E-japanese-errands",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/ja.json", "tests/daily_errands_japanese.rs", "tests/lexicon_resources.rs", "tests/offline_pack_quality.rs", "tests/family_pack_japanese.rs", "tests/japanese_internet_catalog.rs"],
+      "scope": "2026-10-13日语来访、窗口办事、收寄件日用fallback；仅数据追加",
+      "note": "追加24读音12语境24句；此前414读音208语境415句所有字节保留，中英文、25包及daily_devices三测试字节不变。十项独立测试冻结后先红测4通过6缺口失败，再追加资源；覆盖完整罗马音/假名、明确半截、六种水平分隔、采用后助词续写、精确提交撤回、原文边界和12语境五种typed/empty故障。小包使用既有kodutsumi→こづつみ规则，不新增kozutsumi别名。三例追加到九组16包共存；只更新当前总数，历史日语builtin以本批独立字节投影剥离再走旧投影，旧SHA/旧断言保留。专项40通过；本轮完整175组2075通过/0失败/32忽略，末尾n九包旧回归193.64秒通过，原断言和时限不变。准确运行范围见开发记录，不借用前轮结果。无生产算法、模型协议、容量、个人安装修改；不提高评分，不声称全日语形态分析、实体键盘、真实模型或精确提交CI/发布验收。"
+    },
+    {
+      "id": "E-daily-devices",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/en.json", "data/lexicons/zh-Hans.json", "data/lexicons/ja.json", "src/languages/english.rs", "src/languages/chinese.rs", "tests/daily_devices_english.rs", "tests/daily_devices_chinese.rs", "tests/daily_devices_japanese.rs", "tests/lexicon_resources.rs", "tests/offline_pack_quality.rs", "tests/family_pack_japanese.rs", "tests/japanese_internet_catalog.rs"],
+      "scope": "2026-10-13中英日设备电量、充电、音量与屏幕日用fallback；纯数据追加",
+      "note": "英文8搭配16句且6143索引/首位置不增，中文24读音8语境16句，日语12读音6语境12句；旧三语所有内容/顺序/标记及25词包字节保留。22新测试先冻结红测再追加资源，测试字节不变；完整/明确半截、词句原文、空白大小写、采用后续写、精确提交撤回及typed/empty故障回退，另加六例进入九组16包共存回归。专项38通过；首轮完整174组2061通过/4失败/32忽略，失败为中英unit旧总数、日语家庭包旧总数和互联网历史builtin文件指纹。保留原失败，仅同步当前计数；互联网守卫使用本批唯一追加窗口的原始字节投影，保留全部旧hash/词包顺序与预算。修后受影响八组618通过/0失败/2忽略，不冒充第二轮完整回归。详细执行范围见开发记录，不借用前轮结果。没有修改生产算法、模型协议、宿主/个人配置，不提高评分，不宣称真实模型/原生键盘/安装/精确提交CI或发布验收。"
     },
     {
       "id": "E-daily-laundry",
@@ -2518,6 +2590,7 @@
         2
       ],
       "evidence": [
+        "E-daily-devices",
         "E-daily-laundry",
         "E-daily-repairs",
         "E-daily-delivery",
@@ -2557,6 +2630,7 @@
         2
       ],
       "evidence": [
+        "E-daily-devices",
         "E-daily-laundry",
         "E-daily-repairs",
         "E-daily-delivery",
@@ -2598,6 +2672,7 @@
         2
       ],
       "evidence": [
+        "E-daily-devices",
         "E-daily-laundry",
         "E-daily-repairs",
         "E-daily-delivery",
@@ -2647,6 +2722,10 @@
         "E-japanese-learning-packs",
         "E-japanese-theme-packs",
         "E-japanese-internet-pack",
+        "E-japanese-cleaning",
+        "E-japanese-weather",
+        "E-japanese-errands",
+        "E-daily-devices",
         "E-daily-laundry",
         "E-japanese-backfill",
         "E-daily-repairs",
@@ -2720,6 +2799,8 @@
         2
       ],
       "evidence": [
+        "E-model-legacy",
+        "E-model-boundaries",
         "E-prediction-protocol",
         "E-model",
         "E-linux-delivery"
@@ -2737,6 +2818,8 @@
         2
       ],
       "evidence": [
+        "E-model-legacy",
+        "E-model-boundaries",
         "E-linux-delivery"
       ],
       "limit": "固定loopback端点优先LLaMA；不扫局域网、不下载权重或启动模型服务。"
@@ -2783,6 +2866,8 @@
         2
       ],
       "evidence": [
+        "E-model-legacy",
+        "E-model-boundaries",
         "E-shared-noop-controls",
         "E-prediction-error-boundaries",
         "E-prediction-edit-conflicts",
@@ -2804,6 +2889,7 @@
         2
       ],
       "evidence": [
+        "E-model-legacy",
         "E-prediction-edit-conflicts",
         "E-prediction-preservation",
         "E-prediction-protocol",
@@ -2928,6 +3014,8 @@
         2
       ],
       "evidence": [
+        "E-model-legacy",
+        "E-model-boundaries",
         "E-model",
         "E-tools",
         "E-linux-delivery"
@@ -3233,6 +3321,7 @@
         2
       ],
       "evidence": [
+        "E-pack-boundaries",
         "E-ci-vocabulary-sessions",
         "E-ci-lanes",
         "E-python-ast-format",
@@ -3324,6 +3413,7 @@
         2
       ],
       "evidence": [
+        "E-pack-boundaries",
         "E-family-packs",
         "E-current",
         "E-linux-delivery"
@@ -3341,6 +3431,7 @@
         2
       ],
       "evidence": [
+        "E-pack-boundaries",
         "E-family-packs",
         "E-linux-delivery"
       ],
@@ -3698,6 +3789,7 @@
         2
       ],
       "evidence": [
+        "E-pack-boundaries",
         "E-japanese-learning-packs",
         "E-japanese-theme-packs",
         "E-japanese-internet-pack",

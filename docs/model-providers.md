@@ -5,6 +5,28 @@
 旧 `LlmCompletionProvider`、`languages::llama` 与 `suzaku_tool llama` 保留兼容入口；
 新增适配器实现统一预测协议，不必改动键盘事件、离线词库或语言转换。
 
+## 源码入口与兼容边界
+
+模型适配器的规范入口是 `suzaku_map::model`：部署配置及提供器位于
+[`src/model.rs`](../src/model.rs)，发现、传输、翻译适配与测试位于 `src/model/`。
+旧 [`languages::model`](../src/languages/model.rs) 公开转导出同一实现，
+`languages::llm`、`languages::llama` 等兼容入口继续保留，不是第二套模型服务。
+
+旧 `LlmCompletionProvider` 实现与两个英文插件工厂集中在私有
+[`model/legacy.rs`](../src/model/legacy.rs)；工厂继续由 `model` 公开转导出，
+既有模型路径和旧 trait 调用方式不变。模型核心、发现和传输直接使用
+`prediction::PredictionError` / `PredictionCancellation`，不再经旧错误/取消别名取用。
+旧别名本来就指向相同协议类型，因此这不是另一套错误/取消语义；兼容测试仍显式使用旧接口。
+
+输入预测协议仍由 `prediction::PredictionProvider` 拥有；显式翻译仍使用
+`languages::translation::TranslationProvider`，由
+[`model/translation.rs`](../src/model/translation.rs) 实现 HTTP 适配，并将共享传输的
+`PredictionError` 映射为翻译错误。旧桥隔离不等于完全解耦：兼容层仍依赖旧联想接口和
+英文插件策略，模型核心仍经 `prediction/prompt` 间接依赖语言策略，预测链的
+`prediction/policy` 也仍包含语言策略，
+翻译接口也仍属于 `languages`。此次整理不代表独立 crate 或无语言依赖的纯协议层，
+也不改变配置、请求格式、错误检查顺序、发现/取消预算、候选排序或模型能力。
+
 ## 输入预测协议 v1（开发版）
 
 实际调用链为：引擎 → 有界异步 worker → `PredictionProvider` → 后端适配器。

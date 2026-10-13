@@ -2,11 +2,9 @@
 use super::*;
 use std::sync::mpsc;
 use suzaku_map::ime::{CommitOptions, settings::ImeSettings};
+use suzaku_map::languages::BuiltinLanguage;
 use suzaku_map::languages::llm::{LlmCompletion, LlmCompletionProvider, LlmCompletionRequest};
-use suzaku_map::languages::{
-    BuiltinLanguage,
-    model::{ModelProtocol, ModelScope},
-};
+use suzaku_map::model::{ModelProtocol, ModelScope};
 use winit::platform::x11::EventLoopBuilderExtX11;
 
 struct Record(mpsc::Sender<LlmCompletionRequest>);

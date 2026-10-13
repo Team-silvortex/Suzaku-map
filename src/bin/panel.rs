@@ -464,7 +464,7 @@ impl PanelApp {
                 panel.cancel_translation();
             }
             panel.chrome.translation.cloud =
-                ime_settings.provider.scope == suzaku_map::languages::model::ModelScope::Cloud;
+                ime_settings.provider.scope == suzaku_map::model::ModelScope::Cloud;
             if write_finished {
                 self.ime_settings_sync
                     .finish(Some(&ime_settings), &mut panel.chrome);
@@ -999,7 +999,7 @@ struct PanelState {
     renderer: WgpuCandidateRenderer,
     engine: XRTabletImeEngine,
     /// Startup configuration, then snapshots acknowledged by the host/reload channel.
-    confirmed_model_config: Option<suzaku_map::languages::model::ModelProviderConfig>,
+    confirmed_model_config: Option<suzaku_map::model::ModelProviderConfig>,
     chrome: PanelChromeState,
     voice: VoiceInputController,
     translation: translation::PanelTranslation,
@@ -1326,7 +1326,7 @@ impl PanelState {
                 chrome.llm_temperature =
                     LlmTemperaturePreset::from_tenths(settings.provider.temperature_tenths);
                 chrome.translation.cloud =
-                    settings.provider.scope == suzaku_map::languages::model::ModelScope::Cloud;
+                    settings.provider.scope == suzaku_map::model::ModelScope::Cloud;
             }
         }
         apply_pointer_stability_env_overrides(&mut chrome);
