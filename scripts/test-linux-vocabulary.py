@@ -318,16 +318,16 @@ PACK_SCOPES = {"packs", "packs-part-1", "packs-part-2"}
 # A focused diagnostic never replaces the default complete CI gate. Reject
 # misspellings rather than silently running no cases or claiming a full pass.
 scope = apps.os.environ.get("SUZAKU_VOCABULARY_QA_SCOPE", "all")
-if scope not in {"all", "home", "daily", "japanese", "followup", "leisure", "clarification", "courtesy", "location", "time", "shopping", "transit", "contact", "routine", "requests", "carry", "care", "transition", "adopted-transition", "packs", "part-1", "part-2", "part-3", "packs-part-1", "packs-part-2"}:
-    raise ValueError("SUZAKU_VOCABULARY_QA_SCOPE must be all, home, daily, japanese, followup, leisure, clarification, courtesy, location, time, shopping, transit, contact, routine, requests, carry, care, transition, adopted-transition, packs, part-1, part-2, part-3, packs-part-1 or packs-part-2")
+if scope not in {"all", "home", "daily", "japanese", "followup", "leisure", "clarification", "courtesy", "location", "time", "shopping", "transit", "contact", "routine", "requests", "carry", "care", "transition", "adopted-transition", "packs", "part-1", "part-2", "part-3", "part-4", "part-5", "part-6", "packs-part-1", "packs-part-2"}:
+    raise ValueError("SUZAKU_VOCABULARY_QA_SCOPE must be all, home, daily, japanese, followup, leisure, clarification, courtesy, location, time, shopping, transit, contact, routine, requests, carry, care, transition, adopted-transition, packs, part-1, part-2, part-3, part-4, part-5, part-6, packs-part-1 or packs-part-2")
 ALL_CASES = (CASES + HOME_CASES + ERRANDS_CASES + DAILY_CASES + DAILY_NEEDS_CASES
              + DAILY_COORDINATION_CASES + DAILY_SOCIAL_CASES + DAILY_OBJECTS_CASES + JAPANESE_CASES
              + FOLLOWUP_CASES + LEISURE_CASES + CLARIFICATION_CASES + COURTESY_CASES + LOCATION_CASES + TIME_CASES + SHOPPING_CASES + TRANSIT_CASES + CONTACT_CASES + ROUTINE_CASES + REQUEST_CASES + CARRY_CASES + CARE_CASES)
-PART_CASES = {"part-1": ALL_CASES[::3], "part-2": ALL_CASES[1::3], "part-3": ALL_CASES[2::3]}
+PART_CASES = {f"part-{index + 1}": ALL_CASES[index::6] for index in range(6)}
 PACK_PART_CASES = {"packs-part-1": PACK_CASES[::2], "packs-part-2": PACK_CASES[1::2]}
 # Compare whole case tuples, including repeated entries if ever intentional:
-# all three partitions preserve the exact full gate, without omissions.
-assert Counter(PART_CASES["part-1"] + PART_CASES["part-2"] + PART_CASES["part-3"]) == Counter(ALL_CASES)
+# all six partitions preserve the exact full gate, without omissions.
+assert Counter(case for part in PART_CASES.values() for case in part) == Counter(ALL_CASES)
 assert all(cases and {case[0] for case in cases} == {"en", "zh-Hans", "ja"}
            for cases in PART_CASES.values()), "each vocabulary part must cover all three languages"
 # The complete pack gate preserves every old/new fixed tuple, while keeping
@@ -729,7 +729,7 @@ def check_vocabulary(bus, x):
         ("fa yin", "发音", "ke yi", "可以", "zai", "再示范一下吗？"),
         ("shu ru fa", "输入法", "zhi chi", "支持", "", "多种语言。"),
         ("bang wo kan kan", "帮我看看", "you mei you", "有没有", "", "漏掉什么。"),
-    ] if scope not in {"part-2", "part-3", "packs-part-2", "japanese", "transition", "adopted-transition"} else []
+    ] if scope not in {"part-2", "part-3", "part-4", "part-5", "part-6", "packs-part-2", "japanese", "transition", "adopted-transition"} else []
     for reading, word, next_reading, next_word, last_reading, remainder in progress_cases:
         apps.clear_document(x, document)
         revision = apps.watch.latest["revision"]

@@ -5,9 +5,10 @@ Start with the [README](README.md) and [known limitations](docs/known-limitation
 
 Current source version: **0.8.9 — Broader offline packs and safer continuous editing**.
 
-The unreleased headings below retain their development-time status. Their accumulated
-changes are included in the 0.8.9 source candidate; a source commit is not package-release
-acceptance. See [0.8.9 release notes](docs/releases/0.8.9.md).
+The historical unreleased headings below the 0.8.9 source validation entry retain their
+development-time status; those accumulated changes are included in the source candidate.
+New follow-up entries above it are not part of that commit. A source commit is not
+package-release acceptance. See [0.8.9 release notes](docs/releases/0.8.9.md).
 
 ## Current priority: Chinese and English input on Linux
 
@@ -45,6 +46,58 @@ checks and clean-container installation checks to pass before publication. Other
 are added only after their own acceptance, not implied by the shared version number.
 This is a release requirement, not a claim that automatic publication is implemented or
 that existing 0.7.x tags already have assets. See [Linux packaging](docs/linux-packaging-data.md).
+
+### Unreleased complete vocabulary gate session sizing — 2026 10 13
+
+- The exact 0.8.9 source candidate `d4196c753176b710cfbedde4bb520a1725410c43`
+  fails the [Linux application workflows job](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/38348392943/job/115134985334)
+  in “Test expanded bilingual vocabulary in real GTK input”. At
+  `2026-10-13T04:56:37Z` the complete gate starts; its first private session
+  passes 46 authored cases, last `en 'can you hear me cl'` at `05:00:34Z`,
+  then exits **124** at `05:00:37Z`, the unchanged 240-second session limit.
+  This step reports no candidate assertion or traceback. The original first
+  partition contains 56 cases and six additional progress/paging workflows;
+  observed case duration, approximately five seconds, exceeds that budget.
+  Preserve the failed result; successful package/other jobs cannot replace it.
+  The automatic release follow-up is paused; no tag or Release is published.
+  The run subsequently completes: all other independent jobs succeed, while
+  [the final collector](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/38348392943/job/115141641489)
+  correctly rejects the failed application gate. Later steps within that failed
+  application job remain unaccepted, not implied to pass by the other jobs.
+- Split the complete builtin gate into six sequential private display/bus/config
+  sessions, with 28/28/28/28/28/27 original tuples, each still covering EN/ZH/JA.
+  The first part alone retains three Chinese progress, two Japanese progress
+  and one later-page selection workflow: **34+28+28+28+28+27 = 173** total.
+  Preserve the exact 167 builtin and 74 pack tuple fingerprints, the three
+  physical case/progress loops, paging assertions, pack preparation and
+  **240-second** deadline. The separate all-14-pack gate remains two parts,
+  37/37 tuples plus five progress workflows; no CI job limit is changed.
+- Add checks for exact six-way slices, all extras running exactly once, valid
+  focused scopes and invalid-scope rejection before build. For both explicit
+  `all` and the unset default, inject failure 42 and timeout 124 at each of the
+  six parts: dispatch must stop immediately, preserve the exit code and never
+  report complete success. Against the old scripts, the 25-test guard reports
+  20 failures; with the partition-only fix, all 25 pass. This is source-only
+  red/green evidence, not physical-input or remote acceptance.
+- Evidence is retained under `/tmp/suzaku-ci-089-vocabulary.vm2Pro/`:
+  `linux-apps-remote.log`, `partition-guard-red.log`, `partition-guard-green.log`
+  and `final-gate-remote.log`. The complete isolated rerun
+  `vocabulary-all-six-parts.log` passes all **173 workflows** across all six
+  parts and exits zero, in approximately **11 minutes 29 seconds** including
+  the cached build and session setup. Every part retains its 240-second limit;
+  no retries, skipped cases or changed physical assertions. Runs are serial,
+  offline and single-build-job with a 2 GiB high / 4 GiB maximum / zero-swap
+  task scope. Synthetic diagnostics and editor files are preserved.
+- All five AST guards pass **88 checks**; the wrapper, CI graph and tensor-tool
+  tests pass another **13 / 18 / 21**, respectively. Both Python 3.12 and 3.14
+  execute those same checks successfully, including the 25 partition tests.
+  Bash syntax, Rust formatting, diff checks, all 250 source-tree audit links
+  and the updated 69-function/79-cell source digest also pass; scores do not
+  increase. Local ShellCheck remains unavailable. No local result replaces
+  new exact-commit remote CI acceptance or confirms the entire 40-minute
+  application-job budget. No production input code, vocabulary, daily
+  installation, input service or personal configuration is changed. These
+  validation runs did not commit or push; the failed candidate remains unpublished.
 
 ### 0.8.9 source release validation — 2026 10 13
 

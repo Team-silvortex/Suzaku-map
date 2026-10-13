@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "date": "2026-10-12",
-    "head": "98ee5764e8ae494d5d4cc0c2af694e307645d011",
+    "date": "2026-10-13",
+    "head": "d4196c753176b710cfbedde4bb520a1725410c43",
     "dirty": true,
-    "source_sha256": "ae478858706978513845676da630d76465e5f3739b2f867d74b0222dd6801d7f",
-    "note": "0.8.7发布后的未提交工作区盘点，head记录已发布基线98ee576而非本次修复提交；评分是有边界的人工序数评估，不是质量概率。重复引擎控件见E-shared-noop-controls；旧77单元评分不提高。F69/preference-file记录文件底层，native-preference及E-native-preference记录Linux源码宿主默认后台保存/启动恢复/有界退出/异步清除确认，第一轮八组私有IBus及1752全量通过，退出恢复见E-preference-lifecycle：敏感temp红测保留，专属空间安全回收，九组native及1758全量零失败30显式ignored通过；不代表日常安装已升级、托盘视觉或实体键盘验收，其他宿主仍内存。第一阶段及计数失败保留，非改记通过。后续历史修复范围见E-pointer-preference、E-window-boundary、E-recovery-fixture、E-prose-paging、E-chinese-partial-spacing；词库扩充见E-daily-objects、E-daily-choices、E-japanese-choices。10-04崩溃及10-07有界sender诊断见E-daemon-abort，探测清理顺序见E-daemon-probe，非已确认修复上游根因。10-11安装范围见E-installed-input-tasks和E-installed-custom-shortcuts。0.8.6原远端超时、0.8.7首轮Python格式失败及40min取消均不改记通过；后续干净98ee576的CI38161577941八项、Ubuntu24打包安装及最终汇合成功，四资产复核后公开发布，但这些结果不代表本次未提交工作区的远端CI、打包安装、真实模型或个人桌面验收。源指纹仅覆盖implementations.paths/tests。"
+    "source_sha256": "201b76315c7e9c95b8def014b44808d4d90c169ca62cec8fdf813ae4ed6c7628",
+    "note": "2026-10-13在0.8.9候选d4196c7之后的未提交分组修复盘点；head不是已发布版本，E-ci-vocabulary-sessions保留CI38348392943的240秒失败与新六分区验证边界。评分是有边界的人工序数评估，不是质量概率，本轮不提高评分。以下为历史证据：重复引擎控件见E-shared-noop-controls。F69/preference-file记录文件底层，native-preference及E-native-preference记录Linux源码宿主默认后台保存/启动恢复/有界退出/异步清除确认，第一轮八组私有IBus及1752全量通过，退出恢复见E-preference-lifecycle：敏感temp红测保留，专属空间安全回收，九组native及1758全量零失败30显式ignored通过；不代表日常安装已升级、托盘视觉或实体键盘验收，其他宿主仍内存。第一阶段及计数失败保留，非改记通过。后续历史修复范围见E-pointer-preference、E-window-boundary、E-recovery-fixture、E-prose-paging、E-chinese-partial-spacing；词库扩充见E-daily-objects、E-daily-choices、E-japanese-choices。10-04崩溃及10-07有界sender诊断见E-daemon-abort，探测清理顺序见E-daemon-probe，非已确认修复上游根因。10-11安装范围见E-installed-input-tasks和E-installed-custom-shortcuts。0.8.6原远端超时、0.8.7首轮Python格式失败及40min取消均不改记通过；后续干净98ee576的CI38161577941八项、Ubuntu24打包安装及最终汇合成功，四资产复核后公开发布，但这些结果不代表本次未提交工作区的远端CI、打包安装、真实模型或个人桌面验收。源指纹仅覆盖implementations.paths/tests。"
   },
   "architectures": [
     {
@@ -1618,6 +1618,13 @@
       "note": "目标默认开启可随时清除，但未接宿主后台保存/启动恢复/退出冲刷/托盘磁盘清除确认，当前native仅内存且个人安装不动。v1 HMAC-SHA256-128按域/字节长度区分语言querycandidate，32byte随机key同文件不等于匿名化/加密；512KiB/2048有界严格解析，24h半衰期覆盖停机/单调时钟，倒退不增加。私有owned目录/0600 regular singlelink/no-follow/nonblock，协作独占锁、临时fsync+rename+父目录sync，坏文件/检测外部编辑保留，非同UID恶意race CAS。清除后mutation revision及同revision tombstone拒绝旧保存；独立owner拒绝foreign snapshot/旧receipt。首27专项/1736全量通过后追加foreign receipt红测，owner修复后首全量1737零失败30显式ignored共128组；15新集成含两个实际进程/文件、late/private restore与live selection，熵故障单测保留RAM但拒export。不把这些当native/UI/慢I/O/安装/真实模型验收，不改旧断言/期限或旧成熟度。"
     },
     {
+      "id": "E-ci-vocabulary-sessions",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "scripts/test-linux-apps.sh", "scripts/test-linux-vocabulary.py", "scripts/test-vocabulary-partitions.py"],
+      "scope": "2026-10-13精确0.8.9候选CI的240秒失败；完整167+6词库门禁六分区修复",
+      "note": "d4196c7的CI38348392943/job115134985334第一分区56+6条，连续46条PASS后exit124，无该step断言错误；其余独立job成功，最终汇合115141641489正确拒绝失败，旧结果保留且自动发布暂停。改为6个顺序私有混语言会话，每区原240秒，28/28/28/28/28/27完整tuple及指纹不变，额外3中+2日+1分页仅首区；实际输入循环、分页断言、74tuple双分区pack gate、CI总时限不改。新25项source guard先红20失败再全通过，all/unset逐区42/124失败停止且不报全过；完整私有GTK实测六区173全过exit0约11分29秒，Python3.12/3.14五AST共88及13/18/21辅助checks全过，见开发记录及原始日志。不改生产代码/词库/安装/配置，未提交推送，不代表实体键盘、日常桌面、新提交远端验收或整个40min应用job预算确认，不提升评分。"
+    },
+    {
       "id": "E-ci-lanes",
       "kind": "historical_run",
       "paths": ["DEVELOPMENT.md", ".github/workflows/ci.yml", "scripts/test-ci-release-graph.py"],
@@ -3226,6 +3233,7 @@
         2
       ],
       "evidence": [
+        "E-ci-vocabulary-sessions",
         "E-ci-lanes",
         "E-python-ast-format",
         "E-daemon-abort",

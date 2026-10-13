@@ -517,12 +517,14 @@ page one after Space where a continuation exists. It uses no companion-seeded te
 For a focused home-life diagnostic, set `SUZAKU_VOCABULARY_QA_SCOPE=home` with the `vocabulary`
 runner. This explicitly reports four vocabulary cases plus three sentence-progress cases, not a
 complete-gate pass. CI keeps the default `all` scope. As the corpus grows, the shell runner
-executes all cases in three sequential private sessions (`part-1` / `part-2` / `part-3`), with the original
-240-second deadline **per session**. Every third case index keeps all three languages in each part;
+executes all cases in six sequential private sessions (`part-1` through `part-6`), with the original
+240-second deadline **per session**. Every sixth case index keeps all three languages in each part;
 a Counter guard preserves all complete tuples, including any intentional duplicates.
 The first part includes all five sentence-progress controls and the clarification paging check
-(62 + 56 + 55 = 173 workflows total).
-Only all three successful parts count as the complete gate. No case or assertion is skipped;
+(34 + 28 + 28 + 28 + 28 + 27 = 173 workflows total).
+Only all six successful parts count as the complete gate. A failed or timed-out part stops
+the remaining dispatch and propagates its nonzero status without a complete-success marker.
+No case or assertion is skipped;
 explicit `home`, `daily`, `japanese`, `followup`, `leisure`, `clarification`, `courtesy`,
 `location`, `time`, `shopping`, `transit`, `contact`, `routine`, `requests`, `carry`, `care` and `packs` scopes still report only their own coverage.
 For time, waiting and rescheduling, `SUZAKU_VOCABULARY_QA_SCOPE=time` runs six fixed

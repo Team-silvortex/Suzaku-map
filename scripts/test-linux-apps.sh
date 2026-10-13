@@ -15,9 +15,9 @@ suzaku_apps_select_vocabulary_partitions() {
   suzaku_apps_vocabulary_parts=()
   [[ $suzaku_apps_suite == vocabulary ]] || return 0
   case "${SUZAKU_VOCABULARY_QA_SCOPE-all}" in
-    all) suzaku_apps_vocabulary_parts=(part-1 part-2 part-3) ;;
+    all) suzaku_apps_vocabulary_parts=(part-1 part-2 part-3 part-4 part-5 part-6) ;;
     packs) suzaku_apps_vocabulary_parts=(packs-part-1 packs-part-2) ;;
-    home|daily|japanese|followup|leisure|clarification|courtesy|location|time|shopping|transit|contact|routine|requests|carry|care|transition|adopted-transition|part-1|part-2|part-3|packs-part-1|packs-part-2) ;;
+    home|daily|japanese|followup|leisure|clarification|courtesy|location|time|shopping|transit|contact|routine|requests|carry|care|transition|adopted-transition|part-1|part-2|part-3|part-4|part-5|part-6|packs-part-1|packs-part-2) ;;
     *) printf 'Invalid SUZAKU_VOCABULARY_QA_SCOPE: %s\n' "${SUZAKU_VOCABULARY_QA_SCOPE-all}" >&2; return 2 ;;
   esac
 }
@@ -29,7 +29,7 @@ suzaku_apps_run_vocabulary_partitions() {
       bash "$suzaku_apps_root/scripts/test-linux-apps.sh" vocabulary
   done
   case "${SUZAKU_VOCABULARY_QA_SCOPE-all}" in
-    all) printf 'PASS: complete vocabulary scope=all; all three mixed-language parts passed.\n' ;;
+    all) printf 'PASS: complete vocabulary scope=all; all six mixed-language parts passed.\n' ;;
     packs) printf 'PASS: complete all-14-pack vocabulary scope=packs; both mixed-language parts passed.\n' ;;
   esac
 }
@@ -135,7 +135,7 @@ for suzaku_apps_binary in "${suzaku_apps_binaries[@]}"; do
   test -x "$suzaku_apps_bins/$suzaku_apps_binary"
 done
 # Keep the growing full vocabulary gate within the unchanged per-session
-# deadline. Build once above, then run three builtin or two all-pack parts
+# deadline. Build once above, then run six builtin or two all-pack parts
 # with independent displays/buses/configuration. Each includes EN/ZH/JA;
 # all-pack parts each export/install all 14 packs and render the companion.
 if [[ $suzaku_apps_suite == vocabulary && ${#suzaku_apps_vocabulary_parts[@]} -gt 0 ]]; then

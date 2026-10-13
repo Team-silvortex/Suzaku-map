@@ -323,7 +323,7 @@ class VocabularyPartitionTests(unittest.TestCase):
 
     def test_all_and_pack_partitions_preserve_counts_including_duplicates(self):
         cases = case_selection("all")
-        for key, complete, size in [("PART_CASES", "ALL_CASES", 3),
+        for key, complete, size in [("PART_CASES", "ALL_CASES", 6),
                                     ("PACK_PART_CASES", "PACK_CASES", 2)]:
             with self.subTest(parts=key):
                 parts = cases[key]
@@ -335,8 +335,17 @@ class VocabularyPartitionTests(unittest.TestCase):
                     self.assertEqual(case_selection(name)["CASES"], part)
         self.assertEqual([len(part) for part in cases["PACK_PART_CASES"].values()], [37, 37])
 
+    def test_builtin_partitions_are_bounded_ordered_slices_of_the_unchanged_gate(self):
+        cases = case_selection("all")
+        self.assertEqual(list(cases["PART_CASES"]), [f"part-{i}" for i in range(1, 7)])
+        self.assertEqual([len(part) for part in cases["PART_CASES"].values()],
+                         [28, 28, 28, 28, 28, 27])
+        for index, part in enumerate(cases["PART_CASES"].values()):
+            self.assertEqual(part, cases["ALL_CASES"][index::6])
+
     def test_python_unknown_scopes_fail_closed(self):
-        for scope in ["", "unknown", "pack", "packs-part-3", "requests ", "carry ", "care "]:
+        for scope in ["", "unknown", "pack", "packs-part-3", "requests ", "carry ", "care ",
+                      "part-0", "part-7", "part-01", "part-1 "]:
             with self.subTest(scope=scope), self.assertRaises(ValueError):
                 case_selection(scope)
 
@@ -348,6 +357,22 @@ class VocabularyPartitionTests(unittest.TestCase):
                  and assigned_names(node) & {"progress_cases", "japanese_progress_cases"}]
         exec(compile(ast.Module(body=nodes, type_ignores=[]), "progress-selection", "exec"), namespace)
         return (len(namespace["progress_cases"]), len(namespace["japanese_progress_cases"]))
+
+    def test_builtin_progress_and_paging_run_exactly_once_across_all_six_parts(self):
+        function = next(node for node in TREE.body
+                        if isinstance(node, ast.FunctionDef) and node.name == "check_vocabulary")
+        paging = next(node for node in function.body if isinstance(node, ast.If)
+                      and "clarification" in ast.unparse(node.test))
+        counts = []
+        for index in range(1, 7):
+            scope = f"part-{index}"
+            paging_count = int(eval(compile(ast.Expression(paging.test), "paging-scope", "eval"),
+                                    {"scope": scope}))
+            extras = (*self.progress_counts(scope), paging_count)
+            self.assertEqual(extras, (3, 2, 1) if index == 1 else (0, 0, 0))
+            counts.append(len(case_selection(scope)["CASES"]) + sum(extras))
+        self.assertEqual(counts, [34, 28, 28, 28, 28, 27])
+        self.assertEqual(sum(counts), 173)
 
     def test_all_five_pack_progress_controls_run_once_with_historical_and_current_totals(self):
         self.assertEqual(self.progress_counts("packs"), (3, 2))
@@ -406,7 +431,7 @@ class VocabularyPartitionTests(unittest.TestCase):
         end = RUNNER.index("\n}\n", start) + len("\n}\n")
         return RUNNER[start:end]
 
-    def shell_selection(self, scope, fail=None, execute=False):
+    def shell_selection(self, scope, fail=None, execute=False, failure_code=42):
         script = "set -euo pipefail\n" + self.shell_function("suzaku_apps_select_vocabulary_partitions")
         script += "\nsuzaku_apps_suite=vocabulary\nsuzaku_apps_bins=/synthetic/bin\n"
         script += "suzaku_apps_root=/synthetic/project\n"
@@ -415,7 +440,7 @@ class VocabularyPartitionTests(unittest.TestCase):
             script += r'''
 env() {
   printf 'RUN:%s\n' "$*"
-  if [[ -n ${FAIL_VOCABULARY_PARTITION:-} && $* == *"SUZAKU_VOCABULARY_QA_SCOPE=$FAIL_VOCABULARY_PARTITION "* ]]; then return 42; fi
+  if [[ -n ${FAIL_VOCABULARY_PARTITION:-} && $* == *"SUZAKU_VOCABULARY_QA_SCOPE=$FAIL_VOCABULARY_PARTITION "* ]]; then return "$FAIL_VOCABULARY_EXIT"; fi
 }
 suzaku_apps_select_vocabulary_partitions
 suzaku_apps_run_vocabulary_partitions
@@ -427,27 +452,30 @@ suzaku_apps_run_vocabulary_partitions
         if scope is not None:
             environment["SUZAKU_VOCABULARY_QA_SCOPE"] = scope
         environment.pop("FAIL_VOCABULARY_PARTITION", None)
+        environment["FAIL_VOCABULARY_EXIT"] = str(failure_code)
         if fail is not None:
             environment["FAIL_VOCABULARY_PARTITION"] = fail
         return subprocess.run(["bash", "-c", script], env=environment,
                               capture_output=True, text=True, timeout=5)
 
     def test_shell_and_python_agree_on_complete_and_focused_scopes(self):
-        for scope, expected in [("all", ["part-1", "part-2", "part-3"]),
+        for scope, expected in [("all", [f"part-{i}" for i in range(1, 7)]),
                                 ("packs", ["packs-part-1", "packs-part-2"])]:
             result = self.shell_selection(scope)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(result.stdout.splitlines(), expected)
         for scope in ["home", "daily", "japanese", "followup", "leisure", "clarification",
                       "courtesy", "location", "time", "shopping", "transit", "contact", "routine",
-                      "requests", "carry", "care", "part-1", "part-2", "part-3", "packs-part-1", "packs-part-2"]:
+                      "requests", "carry", "care", "part-1", "part-2", "part-3", "part-4", "part-5",
+                      "part-6", "packs-part-1", "packs-part-2"]:
             self.assertTrue(case_selection(scope)["CASES"])
             result = self.shell_selection(scope)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(result.stdout.strip(), "")
 
     def test_shell_invalid_scope_is_rejected_before_build(self):
-        for scope in ["", "unknown", "pack", "packs-part-3", "requests ", "carry ", "care "]:
+        for scope in ["", "unknown", "pack", "packs-part-3", "requests ", "carry ", "care ",
+                      "part-0", "part-7", "part-01", "part-1 "]:
             result = self.shell_selection(scope)
             self.assertEqual(result.returncode, 2, result.stderr)
             self.assertIn("SUZAKU_VOCABULARY_QA_SCOPE", result.stderr)
@@ -459,10 +487,11 @@ suzaku_apps_run_vocabulary_partitions
     def test_unset_scope_keeps_complete_default_not_empty_scope(self):
         result = self.shell_selection(None)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout.splitlines(), ["part-1", "part-2", "part-3"])
+        self.assertEqual(result.stdout.splitlines(), [f"part-{i}" for i in range(1, 7)])
 
     def test_focused_scope_does_not_dispatch_or_claim_complete_success(self):
-        for scope in ["requests", "carry", "care", "packs-part-1", "packs-part-2", "part-1"]:
+        for scope in ["requests", "carry", "care", "packs-part-1", "packs-part-2",
+                      *[f"part-{i}" for i in range(1, 7)]]:
             result = self.shell_selection(scope, execute=True)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(result.stdout, "")
@@ -484,12 +513,35 @@ suzaku_apps_run_vocabulary_partitions
             if part == "packs-part-1":
                 self.assertNotIn("SUZAKU_VOCABULARY_QA_SCOPE=packs-part-2", result.stdout)
 
+    def test_complete_builtin_dispatch_requires_all_six_parts_and_propagates_failures(self):
+        expected_runs = [
+            "RUN:SUZAKU_APP_QA_BIN_DIR=/synthetic/bin "
+            f"SUZAKU_VOCABULARY_QA_SCOPE=part-{i} "
+            "bash /synthetic/project/scripts/test-linux-apps.sh vocabulary"
+            for i in range(1, 7)
+        ]
+        for scope in ["all", None]:
+            with self.subTest(scope=scope):
+                result = self.shell_selection(scope, execute=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout.splitlines(), expected_runs + [
+                    "PASS: complete vocabulary scope=all; all six mixed-language parts passed."])
+            for index in range(1, 7):
+                for code in [42, 124]:
+                    with self.subTest(scope=scope, failed_part=index, exit_code=code):
+                        result = self.shell_selection(scope, fail=f"part-{index}",
+                                                      execute=True, failure_code=code)
+                        self.assertEqual(result.returncode, code, result.stderr)
+                        self.assertEqual(result.stdout.splitlines(), expected_runs[:index])
+                        self.assertNotIn("PASS: complete", result.stdout)
+
     def test_existing_240_second_deadline_and_pack_binary_guard_remain(self):
         self.assertEqual(RUNNER.count("timeout --kill-after=3s 240s env"), 1)
         marker = "if [[ $suzaku_apps_suite == vocabulary ]]; then\n"
         start = RUNNER.index(marker)
         end = RUNNER.index("\nfi\n", start) + len("\nfi\n")
-        for scope in ["packs", "packs-part-1", "packs-part-2", "all", "requests", "carry", "care", "part-1"]:
+        for scope in ["packs", "packs-part-1", "packs-part-2", "all", "requests", "carry", "care",
+                      *[f"part-{i}" for i in range(1, 7)]]:
             script = "set -euo pipefail\nsuzaku_apps_suite=vocabulary\n"
             script += "suzaku_apps_binaries=(panel linux_ime_host)\n" + RUNNER[start:end]
             script += 'printf "%s\\n" "${suzaku_apps_binaries[@]}"\n'
