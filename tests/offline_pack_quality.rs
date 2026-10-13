@@ -2,9 +2,13 @@
 use std::{
     fs,
     path::PathBuf,
+    process::Command,
     sync::Arc,
     time::{Duration, Instant},
 };
+
+#[path = "support/offline_pack_sets.rs"]
+mod offline_pack_sets;
 use suzaku_map::{
     ime::candidate_mix::{CandidateKind, CandidateSource, PAGE_SIZE},
     ime::{CommitOptions, EngineConfig, PredictionStatus, XRTabletImeEngine},
@@ -323,6 +327,47 @@ impl LlmCompletionProvider for UnavailableProvider {
 
 #[test]
 fn recommended_collections_keep_word_sentence_and_fallback_workflows() {
+    const CHILD: &str = "SUZAKU_PACK_QUALITY_COHORT";
+    let mode = match std::env::var(CHILD) {
+        Ok(mode) => mode,
+        Err(_) => {
+            // Each batch executes the entire original assertion body in a fresh
+            // process: immutable catalog initialization cannot leak across batches.
+            for cohort in [
+                "historical-sixteen",
+                "with-internet",
+                "with-japanese-internet",
+                "with-japanese-shopping",
+                "with-japanese-travel",
+                "with-japanese-work",
+                "with-japanese-study",
+                "with-japanese-cooking",
+                "with-japanese-outdoors",
+            ] {
+                let output = Command::new(std::env::current_exe().unwrap())
+                    .args([
+                        "--exact",
+                        "recommended_collections_keep_word_sentence_and_fallback_workflows",
+                        "--nocapture",
+                        "--test-threads=1",
+                    ])
+                    .env(CHILD, cohort)
+                    .env_remove("SUZAKU_LEXICON_DIR")
+                    .env_remove("DISPLAY")
+                    .env_remove("WAYLAND_DISPLAY")
+                    .env_remove("DBUS_SESSION_BUS_ADDRESS")
+                    .output()
+                    .unwrap();
+                assert!(
+                    output.status.success(),
+                    "{cohort}:\n{}\n{}",
+                    String::from_utf8_lossy(&output.stdout),
+                    String::from_utf8_lossy(&output.stderr)
+                );
+            }
+            return;
+        }
+    };
     // One test/process owns the immutable catalog. Never initialize it from the
     // user's registry or set process-wide environment variables in a test.
     let path = std::env::temp_dir().join(format!("suzaku-pack-quality-{}", std::process::id()));
@@ -330,18 +375,140 @@ fn recommended_collections_keep_word_sentence_and_fallback_workflows() {
     // Only claim cleanup ownership after exclusive directory creation succeeds.
     let fixture = Fixture(path);
     let store = PackStore::new(fixture.0.join("packs")).unwrap();
-    let collections = packs::recommended();
+    let collections = match mode.as_str() {
+        "historical-sixteen" => offline_pack_sets::historical_sixteen(),
+        "with-internet" => offline_pack_sets::with_internet(),
+        "with-japanese-internet" => offline_pack_sets::with_japanese_internet(),
+        "with-japanese-shopping" => {
+            offline_pack_sets::with_japanese_theme("org.suzaku.ja.shopping")
+        }
+        "with-japanese-travel" => offline_pack_sets::with_japanese_theme("org.suzaku.ja.travel"),
+        "with-japanese-work" => offline_pack_sets::with_japanese_theme("org.suzaku.ja.work"),
+        "with-japanese-study" => offline_pack_sets::with_japanese_theme("org.suzaku.ja.study"),
+        "with-japanese-cooking" => offline_pack_sets::with_japanese_theme("org.suzaku.ja.cooking"),
+        "with-japanese-outdoors" => {
+            offline_pack_sets::with_japanese_theme("org.suzaku.ja.outdoors")
+        }
+        _ => panic!("unknown compatibility cohort {mode}"),
+    };
     for collection in &collections {
         store.install(collection.clone(), false).unwrap();
     }
     let report = packs::initialize(&store).unwrap();
-    assert_eq!(report.loaded.len(), 14);
+    assert_eq!(report.loaded.len(), 16);
     assert!(report.errors.is_empty(), "{report:?}");
 
     // New built-in daily expressions must coexist with the old cooking pack,
     // including its longer context. Do not change a shipped pack to make a new
     // built-in key collision disappear; these expectations are independent.
     for (language, seed, word, sentence) in [
+        (
+            "ja",
+            "sentakumono",
+            "洗濯物",
+            "洗濯物を取り込んでおきます。",
+        ),
+        ("ja", "heyaboshi", "部屋干し", "部屋干しにしておきます。"),
+        (
+            "zh-Hans",
+            "yi fu hai mei ga",
+            "衣服还没干",
+            "衣服还没干，今天先穿别的吧。",
+        ),
+        (
+            "zh-Hans",
+            "bang wo liang yi xi",
+            "帮我晾一下",
+            "帮我晾一下衬衫，我去收袜子。",
+        ),
+        (
+            "en",
+            "are these towels cle",
+            "are these towels clean",
+            "are these towels clean enough to use?",
+        ),
+        (
+            "en",
+            "i'll bring the laundry ins",
+            "i'll bring the laundry inside",
+            "i'll bring the laundry inside before the rain starts.",
+        ),
+        ("ja", "mizumore", "水漏れ", "水漏れを見てもらえますか。"),
+        ("ja", "tenken", "点検", "点検に来てもらえますか。"),
+        (
+            "en",
+            "the window won't op",
+            "the window won't open",
+            "the window won't open properly.",
+        ),
+        (
+            "en",
+            "can we arrange a vis",
+            "can we arrange a visit",
+            "can we arrange a visit for tomorrow morning?",
+        ),
+        (
+            "zh-Hans",
+            "chuang hu guan bu shan",
+            "窗户关不上",
+            "窗户关不上，想约师傅过来看看。",
+        ),
+        (
+            "zh-Hans",
+            "ma fan jian cha yi xi",
+            "麻烦检查一下",
+            "麻烦检查一下门锁，最近不太好开。",
+        ),
+        (
+            "zh-Hans",
+            "kuai di dao l",
+            "快递到了",
+            "快递到了，方便帮我拿一下吗？",
+        ),
+        (
+            "zh-Hans",
+            "wo xia lou q",
+            "我下楼取",
+            "我下楼取快递，马上就回来。",
+        ),
+        (
+            "en",
+            "please leave the package ins",
+            "please leave the package inside",
+            "please leave the package inside by the door.",
+        ),
+        (
+            "en",
+            "i'll collect the parcel tod",
+            "i'll collect the parcel today",
+            "i'll collect the parcel today after work.",
+        ),
+        (
+            "en",
+            "could you open the doo",
+            "could you open the door",
+            "could you open the door, please?",
+        ),
+        (
+            "en",
+            "i'll bring you a dri",
+            "i'll bring you a drink",
+            "i'll bring you a drink in a moment.",
+        ),
+        (
+            "zh-Hans",
+            "jin lai zuo b",
+            "进来坐吧",
+            "进来坐吧，外面有点冷。",
+        ),
+        (
+            "zh-Hans",
+            "wo gei ni dao shui",
+            "我给你倒水",
+            "我给你倒水，你先坐一会儿。",
+        ),
+        ("ja", "torizara", "取り皿", "取り皿をもう一枚お願いします。"),
+        ("ja", "misoshiru", "味噌汁", "味噌汁を先にいただきます。"),
         (
             "en",
             "could you pass the ri",
@@ -615,7 +782,7 @@ fn recommended_collections_keep_word_sentence_and_fallback_workflows() {
     }
 
     // Sentence progress uses the active data catalog, not a built-in-only
-    // trigger table. These rail/daily expectations stay fixed while all 14 packs
+    // trigger table. These rail/daily expectations stay fixed while all 16 packs
     // are enabled; a word followed by a particle is not mislabeled as a word here.
     for (seed, sentence) in [
         ("好みni", "好みに合わせて選んでください。"),
@@ -687,7 +854,8 @@ fn recommended_collections_keep_word_sentence_and_fallback_workflows() {
             }
         }
         for entry in collection.lexicon.readings() {
-            let mut ime = engine("zh-Hans");
+            // Themes span languages: kana must not be tested as Chinese Pinyin.
+            let mut ime = engine(&collection.manifest.language);
             ime.seed(entry.reading.replace('\'', " "));
             assert!(
                 ime.candidates()

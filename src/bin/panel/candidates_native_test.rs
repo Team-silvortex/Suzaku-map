@@ -40,6 +40,8 @@ impl ApplicationHandler for CandidateProbe {
         state.chrome.llm_enabled = false;
         state.chrome.input_modes_expanded = false;
         check_editable_keyboard_choices(&mut state);
+        check_number_choice_history(&mut state);
+        check_held_rewind_history_boundaries(&mut state);
         check_rapid_completion_gestures(&mut state);
         for touch in [false, true] {
             reset_composition(&mut state);
@@ -288,6 +290,230 @@ fn check_editable_keyboard_choices(state: &mut PanelState) {
     );
 }
 
+fn reset_number_choice_fixture(state: &mut PanelState, language: &str, seed: &str, expanded: bool) {
+    state.engine.configure_prediction(None);
+    state.sync_manual_seed_base();
+    state.engine.set_language(language);
+    state.chrome.set_seed_text(seed.into());
+    state.chrome.move_caret_to_end();
+    state.chrome.blur_input();
+    state.chrome.input_modes_expanded = expanded;
+    state.chrome.active_input_mode = InputMode::VirtualKeyboard;
+    state.engine.seed(seed);
+    state.refresh_composition_candidates();
+    state.last_interaction_action = None;
+    state.last_scene = None;
+}
+
+fn assert_number_choice_draft(state: &PanelState, seed: &str, committed: &str) {
+    assert_eq!(state.chrome.seed_text, seed);
+    assert_eq!(state.engine.snapshot().seed_text, seed);
+    assert_eq!(state.engine.snapshot().committed_text, committed);
+    assert_eq!(state.chrome.caret_index, seed.chars().count());
+}
+
+fn adopt_number_choice(
+    state: &mut PanelState,
+    text: &str,
+    kind: Option<suzaku_map::ime::candidate_mix::CandidateKind>,
+) {
+    let index = state
+        .engine
+        .candidates()
+        .iter()
+        .position(|candidate| {
+            candidate.text == text && kind.is_none_or(|kind| candidate.kind == kind)
+        })
+        .unwrap_or_else(|| panic!("missing {text:?}/{kind:?}: {:?}", state.engine.candidates()));
+    state.continue_sentence_candidate(index);
+}
+
+fn rewind_number_choice(state: &mut PanelState, touch: bool, expected: &str, committed: &str) {
+    press(state, InteractionKind::RewindNextToken, touch);
+    let rect = state
+        .last_scene
+        .as_ref()
+        .unwrap()
+        .interactive_targets
+        .iter()
+        .find(|target| target.kind == InteractionKind::RewindNextToken)
+        .unwrap()
+        .rect;
+    let viewport = state.window.inner_size();
+    assert!(rect[0] >= 0.0 && rect[0] + rect[2] <= viewport.width as f32);
+    assert!(rect[1] >= 0.0 && rect[1] + rect[3] <= viewport.height as f32);
+    state.complete_primary_release(touch);
+    assert_number_choice_draft(state, expected, committed);
+    let snapshot = state.engine.snapshot();
+    let history = state.completion_history.labels();
+    // A duplicated release cannot consume another adoption.
+    state.complete_primary_release(touch);
+    assert_eq!(state.engine.snapshot(), snapshot);
+    assert_eq!(state.completion_history.labels(), history);
+}
+
+fn check_number_choice_history(state: &mut PanelState) {
+    use suzaku_map::ime::candidate_mix::CandidateKind;
+
+    assert!(!state.native.showing);
+    let original_chrome = state.chrome.clone();
+    let original_language = state.engine.snapshot().active_language;
+    let committed = state.engine.snapshot().committed_text;
+    let cases = [
+        ("en", "hel", "hello", "hello, how are you?"),
+        ("zh-Hans", "nihao", "你好", "你好，很高兴认识你。"),
+        ("ja", "nihongo", "日本語", "日本語を勉強しています。"),
+    ];
+
+    // First exercise the real default standalone policy. It has no mixed
+    // authored-sentence promise and need not attach Word/Sentence kind hints.
+    for (language, reading, word, _) in cases {
+        reset_number_choice_fixture(state, language, reading, false);
+        adopt_number_choice(state, word, None);
+        assert_number_choice_draft(state, word, &committed);
+        assert_eq!(state.completion_history.labels().len(), 1);
+        assert_eq!(state.chrome.composed_tokens.len(), 1);
+        if language != "en" {
+            assert!(state.chrome.next_token_candidates.is_empty());
+        }
+        rewind_number_choice(state, false, reading, &committed);
+        assert!(state.completion_history.labels().is_empty());
+        assert!(state.chrome.composed_tokens.is_empty());
+    }
+
+    // A temporary real mixed engine supplies typed builtin Word/Sentence
+    // payloads to the same panel adoption path. This is a fixture, not a change
+    // to the production standalone candidate policy or the user's host.
+    let mut mixed = XRTabletImeEngine::new(EngineConfig::default());
+    mixed.enable_ibus_candidate_mix();
+    let original_engine = std::mem::replace(&mut state.engine, mixed);
+    let committed = state.engine.snapshot().committed_text;
+    for (language, reading, word, sentence) in cases {
+        // Two representative layouts/input routes, not a costly cross product.
+        for (touch, expanded) in [(false, false), (true, true)] {
+            reset_number_choice_fixture(state, language, reading, expanded);
+            adopt_number_choice(state, word, Some(CandidateKind::Word));
+            assert_number_choice_draft(state, word, &committed);
+            let history = state.completion_history.labels();
+            assert_eq!(history.len(), 1);
+            let snapshot = state.engine.snapshot();
+            // An unchanged payload is not an edit, irrespective of its kind:
+            // English keeps a known word typed as Word after deduplication.
+            adopt_number_choice(state, word, None);
+            state.continue_sentence_candidate(usize::MAX);
+            assert_eq!(state.engine.snapshot(), snapshot);
+            assert_eq!(state.completion_history.labels(), history);
+            assert_eq!(state.chrome.composed_tokens.len(), 1);
+            adopt_number_choice(state, sentence, Some(CandidateKind::Sentence));
+            assert_number_choice_draft(state, sentence, &committed);
+            assert_eq!(state.completion_history.labels().len(), 2);
+            assert_eq!(state.chrome.composed_tokens.len(), 2);
+            if language != "en" {
+                assert!(state.chrome.next_token_candidates.is_empty());
+            }
+            rewind_number_choice(state, touch, word, &committed);
+            assert_eq!(state.completion_history.labels().len(), 1);
+            rewind_number_choice(state, touch, reading, &committed);
+            assert!(state.chrome.composed_tokens.is_empty());
+            assert!(
+                state
+                    .current_scene()
+                    .interactive_targets
+                    .iter()
+                    .all(|target| { target.kind != InteractionKind::RewindNextToken })
+            );
+            // The sentence may also be adopted directly from the original reading.
+            adopt_number_choice(state, sentence, Some(CandidateKind::Sentence));
+            assert_eq!(state.completion_history.labels().len(), 1);
+            rewind_number_choice(state, touch, reading, &committed);
+        }
+
+        for boundary in ["typing", "backspace", "space", "new seed", "language"] {
+            reset_number_choice_fixture(state, language, reading, false);
+            adopt_number_choice(state, word, Some(CandidateKind::Word));
+            match boundary {
+                "typing" => {
+                    state.chrome.focus_input();
+                    state.handle_text_input("x");
+                    assert_eq!(state.chrome.seed_text, format!("{word}x"));
+                }
+                "backspace" => {
+                    state.backspace_seed();
+                    assert_eq!(
+                        state.chrome.seed_text,
+                        word.chars()
+                            .take(word.chars().count() - 1)
+                            .collect::<String>()
+                    );
+                }
+                "space" => {
+                    // Existing Space semantics remain a manual writing separator.
+                    state.continue_composition_with_space();
+                    assert_eq!(state.chrome.seed_text, format!("{word} "));
+                }
+                "new seed" => {
+                    state.chrome.set_seed_text("unrelated draft".into());
+                    state.chrome.move_caret_to_end();
+                    state.sync_manual_seed_base();
+                    state.refresh_seed();
+                }
+                "language" => {
+                    // Match the production settings-update cleanup in panel.rs;
+                    // directly mutating a naked engine is not a panel gesture.
+                    state.sync_manual_seed_base();
+                    state
+                        .engine
+                        .set_language(if language == "ja" { "en" } else { "ja" });
+                    state.refresh_composition_candidates();
+                }
+                _ => unreachable!(),
+            }
+            assert!(
+                state.completion_history.labels().is_empty(),
+                "{language}/{boundary}"
+            );
+            assert!(
+                state.chrome.composed_tokens.is_empty(),
+                "{language}/{boundary}"
+            );
+            let seed = state.chrome.seed_text.clone();
+            let snapshot = state.engine.snapshot();
+            state.rewind_next_token();
+            assert_eq!(state.chrome.seed_text, seed, "{language}/{boundary}");
+            assert_eq!(state.engine.snapshot(), snapshot, "{language}/{boundary}");
+            assert_eq!(snapshot.committed_text, committed);
+        }
+
+        reset_number_choice_fixture(state, language, reading, false);
+        adopt_number_choice(state, word, Some(CandidateKind::Word));
+        let stale_index = state
+            .engine
+            .candidates()
+            .iter()
+            .position(|candidate| candidate.text == sentence)
+            .unwrap();
+        let snapshot = state.engine.snapshot();
+        let history = state.completion_history.labels();
+        state
+            .chrome
+            .set_seed_text("a newer draft not yet rebuilt".into());
+        state.chrome.move_caret_to_end();
+        let caret = state.chrome.caret_index;
+        state.continue_sentence_candidate(stale_index);
+        assert_eq!(state.chrome.seed_text, "a newer draft not yet rebuilt");
+        assert_eq!(state.chrome.caret_index, caret);
+        assert_eq!(state.engine.snapshot(), snapshot);
+        assert_eq!(state.completion_history.labels(), history);
+    }
+    state.engine = original_engine;
+    state.engine.set_language(original_language);
+    state.chrome = original_chrome;
+    reset_composition(state);
+    println!(
+        "PASS: default standalone EN/ZH/JA number adoption undo; typed word/sentence fixture chains, mouse/touch Back, no-op and manual-edit boundaries"
+    );
+}
+
 fn press(state: &mut PanelState, target: InteractionKind, touch: bool) {
     crate::native_sync::present_test_frame(state);
     let scene = state
@@ -313,6 +539,176 @@ fn press(state: &mut PanelState, target: InteractionKind, touch: bool) {
     state.interaction.last_input_was_touch = touch;
     state.begin_primary_press(touch);
     assert_eq!(state.interaction.pressed_interaction, Some(target));
+}
+
+fn check_held_rewind_history_boundaries(state: &mut PanelState) {
+    use suzaku_map::ime::companion::{NativeCandidate, NativeComposition};
+
+    assert!(!state.native.showing);
+    let original_chrome = state.chrome.clone();
+    let original_language = state.engine.snapshot().active_language;
+    let original_focus = state.is_focused;
+    let original_native = std::mem::take(&mut state.native);
+    let committed = state.engine.snapshot().committed_text;
+    for touch in [false, true] {
+        // Append comes first so the unfixed failure explicitly demonstrates a
+        // held Back undoing a NEW keyboard adoption, not merely a lost gesture.
+        for boundary in [
+            "append next token",
+            "append number choice",
+            "undo then redo",
+            "manual clear then adopt",
+            "native round trip",
+            "same history refresh",
+            "no-op and invalid choices",
+        ] {
+            reset_number_choice_fixture(state, "en", "hel", false);
+            state.is_focused = false;
+            adopt_number_choice(state, "hello", None);
+            assert_number_choice_draft(state, "hello", &committed);
+            let initial_labels = state.completion_history.labels();
+            assert_eq!(initial_labels.len(), 1);
+            press(state, InteractionKind::RewindNextToken, touch);
+            let started_at = state.interaction.press_start_instant.unwrap();
+            let original_cursor = state.cursor_position.unwrap();
+            let mut fresh_rewind_seed = "hel";
+            match boundary {
+                "append next token" => {
+                    let edit = state.next_token_completions[0].clone();
+                    assert_eq!(edit.seed_before, "hello");
+                    assert_ne!(edit.seed_after, "hello");
+                    // A keyboard route changes history while the Back pointer
+                    // stays held. It must not acquire a second pointer press.
+                    state.select_next_token(0);
+                    assert_number_choice_draft(state, &edit.seed_after, &committed);
+                    assert_eq!(state.completion_history.labels().len(), 2);
+                    fresh_rewind_seed = "hello";
+                }
+                "append number choice" => {
+                    let index = state
+                        .engine
+                        .candidates()
+                        .iter()
+                        .position(|candidate| candidate.text != "hello")
+                        .expect("default hello candidates include a different adoption");
+                    let text = state.engine.candidates()[index].text.clone();
+                    state.continue_sentence_candidate(index);
+                    assert_number_choice_draft(state, &text, &committed);
+                    assert_eq!(state.completion_history.labels().len(), 2);
+                    fresh_rewind_seed = "hello";
+                }
+                "undo then redo" => {
+                    state.rewind_next_token();
+                    assert_number_choice_draft(state, "hel", &committed);
+                    assert!(state.completion_history.labels().is_empty());
+                    adopt_number_choice(state, "hello", None);
+                    assert_number_choice_draft(state, "hello", &committed);
+                    assert_eq!(state.completion_history.labels(), initial_labels);
+                }
+                "manual clear then adopt" => {
+                    // Real manual deletion clears history; returning to the
+                    // exact same reading/output cannot revive the old press.
+                    state.backspace_seed();
+                    state.backspace_seed();
+                    assert_number_choice_draft(state, "hel", &committed);
+                    assert!(state.completion_history.labels().is_empty());
+                    adopt_number_choice(state, "hello", None);
+                    assert_number_choice_draft(state, "hello", &committed);
+                    assert_eq!(state.completion_history.labels(), initial_labels);
+                }
+                "native round trip" => {
+                    state.receive_native_frame(Some(NativeComposition {
+                        host: "00000000-0000-0000-0000-000000000019".into(),
+                        context: 19,
+                        revision: 1,
+                        focused: true,
+                        private: false,
+                        language: "en".into(),
+                        seed: "external draft".into(),
+                        selected: 0,
+                        cursor: None,
+                        candidates: vec![NativeCandidate {
+                            text: "external draft".into(),
+                            label: "external draft".into(),
+                            ..Default::default()
+                        }],
+                    }));
+                    assert!(state.native.showing);
+                    assert_eq!(state.completion_history.labels(), initial_labels);
+                    state.receive_native_frame(None);
+                    state.leave_native_view();
+                    assert!(!state.native.showing);
+                    assert_number_choice_draft(state, "hello", &committed);
+                    assert_eq!(state.completion_history.labels(), initial_labels);
+                }
+                "same history refresh" => state.refresh_composition_candidates(),
+                "no-op and invalid choices" => {
+                    adopt_number_choice(state, "hello", None);
+                    state.continue_sentence_candidate(usize::MAX);
+                    state.select_next_token(usize::MAX);
+                    assert_eq!(state.completion_history.labels(), initial_labels);
+                    state.refresh_composition_candidates();
+                }
+                _ => unreachable!(),
+            }
+            let changed_history = !matches!(
+                boundary,
+                "same history refresh" | "no-op and invalid choices"
+            );
+            let snapshot = state.engine.snapshot();
+            let seed = state.chrome.seed_text.clone();
+            let labels = state.completion_history.labels();
+            // Repaint without a new press: geometry and visible Back identity
+            // may be identical even when the underlying history is different.
+            crate::native_sync::present_test_frame(state);
+            assert_eq!(state.cursor_position, Some(original_cursor));
+            assert_eq!(
+                state
+                    .last_scene
+                    .as_ref()
+                    .unwrap()
+                    .hit_interaction(original_cursor.0, original_cursor.1,),
+                Some(InteractionKind::RewindNextToken),
+                "Back geometry must remain an eligible target: {boundary}, touch={touch}"
+            );
+            assert!(
+                started_at.elapsed()
+                    <= Duration::from_millis(u64::from(state.chrome.pointer_tap_max_ms)),
+                "fixture exceeded the unchanged production tap deadline: {boundary}, touch={touch}"
+            );
+            state.complete_primary_release(touch);
+            if changed_history {
+                assert_eq!(
+                    state.chrome.seed_text, seed,
+                    "old held Back undid newer adoption history: {boundary}, touch={touch}"
+                );
+                assert_eq!(state.engine.snapshot(), snapshot);
+                assert_eq!(state.completion_history.labels(), labels);
+                assert_eq!(state.chrome.composed_tokens, labels);
+                // A canceled old gesture is not a permanent disable: a NEW
+                // press acts on the currently displayed undo entry normally.
+                rewind_number_choice(state, touch, fresh_rewind_seed, &committed);
+            } else {
+                assert_number_choice_draft(state, "hel", &committed);
+                assert!(state.completion_history.labels().is_empty());
+                assert!(state.chrome.composed_tokens.is_empty());
+            }
+            let after = state.engine.snapshot();
+            let labels = state.completion_history.labels();
+            state.complete_primary_release(touch);
+            assert_eq!(state.engine.snapshot(), after);
+            assert_eq!(state.completion_history.labels(), labels);
+            assert_eq!(state.engine.snapshot().committed_text, committed);
+        }
+    }
+    state.native = original_native;
+    state.is_focused = original_focus;
+    state.chrome = original_chrome;
+    state.engine.set_language(original_language);
+    reset_composition(state);
+    println!(
+        "PASS: held mouse/touch Back rejects appended, ABA-replaced and native-roundtrip history; identical refresh/no-op stays actionable without extending gesture deadlines"
+    );
 }
 
 struct GatedProvider {

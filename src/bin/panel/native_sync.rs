@@ -721,6 +721,7 @@ impl PanelState {
                 Some(
                     InteractionKind::Candidate(_)
                         | InteractionKind::SelectNextToken(_)
+                        | InteractionKind::RewindNextToken
                         | InteractionKind::NativeCandidatePage(_)
                 )
             ) || (!input_target_unchanged

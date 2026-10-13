@@ -19,18 +19,30 @@ fn dispatch(args: &[String]) -> Result<(), String> {
     let args: Vec<_> = args.iter().map(String::as_str).collect();
     match args.as_slice() {
         ["help" | "--help" | "-h"] => println!(
-            "suzaku_tool pack list\nsuzaku_tool pack catalog [--language en|zh-Hans|ja] [--topic TOPIC]\nsuzaku_tool pack export ID FILE\nsuzaku_tool pack validate FILE\nsuzaku_tool pack install FILE [--replace]\nsuzaku_tool pack enable ID\nsuzaku_tool pack disable ID\nsuzaku_tool pack remove ID\nsuzaku_tool pack preview LANGUAGE TEXT\n\nPure data, no executable plugins/downloads. Install enables a new pack; --replace preserves its position and enabled state. Changes take effect after restarting BOTH host and panel. list/preview describe a fresh process, not the running desktop. Pack files are not included in settings backups."
+            "suzaku_tool pack list\nsuzaku_tool pack catalog [--language en|zh-Hans|ja] [--topic TOPIC] [--details]\nsuzaku_tool pack inspect FILE\nsuzaku_tool pack export ID FILE\nsuzaku_tool pack validate FILE\nsuzaku_tool pack install FILE [--replace]\nsuzaku_tool pack enable ID\nsuzaku_tool pack disable ID\nsuzaku_tool pack remove ID\nsuzaku_tool pack preview LANGUAGE TEXT\n\nPure data, no executable plugins/downloads. catalog/inspect do not read or change the installed registry. Stats count declared records, not unique words or displayed candidates; indexing_units is a conservative work budget. inspect performs schema/decoder validation only, not signature, license or installed-pack compatibility checks. Install enables a new pack; --replace preserves its position and enabled state. Changes take effect after restarting BOTH host and panel. list/preview describe a fresh process, not the running desktop. Pack files are not included in settings backups."
         ),
         ["catalog", filters @ ..] => {
-            let (mut language, mut topic) = (None, None);
-            if filters.len() % 2 != 0 {
-                return Err("catalog expects --language LANG and/or --topic TOPIC".into());
-            }
-            for pair in filters.chunks_exact(2) {
-                match pair[0] {
-                    "--language" if language.is_none() => language = Some(pair[1]),
-                    "--topic" if topic.is_none() => topic = Some(pair[1]),
-                    _ => return Err("unknown or repeated catalog filter".into()),
+            let (mut language, mut topic, mut details) = (None, None, false);
+            let mut remaining = filters;
+            while !remaining.is_empty() {
+                match remaining {
+                    ["--details", rest @ ..] if !details => {
+                        details = true;
+                        remaining = rest;
+                    }
+                    ["--language", value, rest @ ..]
+                        if language.is_none() && !value.starts_with("--") =>
+                    {
+                        language = Some(*value);
+                        remaining = rest;
+                    }
+                    ["--topic", value, rest @ ..]
+                        if topic.is_none() && !value.starts_with("--") =>
+                    {
+                        topic = Some(*value);
+                        remaining = rest;
+                    }
+                    _ => return Err("catalog expects non-repeated --language LANG, --topic TOPIC and/or --details".into()),
                 }
             }
             if language.is_some_and(|id| suzaku_map::lexicon::builtin(id).is_none()) {
@@ -42,9 +54,36 @@ fn dispatch(args: &[String]) -> Result<(), String> {
                     language.is_none_or(|id| id == pack.manifest.language)
                         && topic.is_none_or(|tag| pack.manifest.topics.iter().any(|t| t == tag))
                 })
-                .map(|pack| pack.manifest)
                 .collect();
-            print_json(&packages)?;
+            if details {
+                print_json(
+                    &packages
+                        .iter()
+                        .map(|pack| {
+                            serde_json::json!({
+                                "manifest": pack.manifest,
+                                "stats": pack.stats(),
+                            })
+                        })
+                        .collect::<Vec<_>>(),
+                )?;
+            } else {
+                print_json(
+                    &packages
+                        .iter()
+                        .map(|pack| &pack.manifest)
+                        .collect::<Vec<_>>(),
+                )?;
+            }
+        }
+        ["inspect", file] => {
+            let pack = OfflinePack::read(Path::new(file))?;
+            print_json(&serde_json::json!({
+                "format_version": pack.format_version,
+                "manifest": pack.manifest,
+                "stats": pack.stats(),
+                "validation": "Schema/decoder only; signature, license and installed-pack compatibility not checked.",
+            }))?;
         }
         ["export", id, file] => {
             let pack = packs::recommended()

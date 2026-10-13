@@ -1,6 +1,6 @@
 # Alpha limitations and support
 
-0.8.8 targets Ubuntu 24.04 amd64, IBus and X11 / GNOME XWayland. Cross-platform architecture
+0.8.9 targets Ubuntu 24.04 amd64, IBus and X11 / GNOME XWayland. Cross-platform architecture
 does not imply cross-platform stability. Keep another input method available.
 
 - **Ubuntu 26.04 development checks:** the initial home-life vocabulary run timed out after
@@ -104,6 +104,21 @@ does not imply cross-platform stability. Keep another input method available.
   These fixes were installed and checked locally before this source release; the 0.6.8 tag lacks them.
   This custom-drawn UI still lacks full native accessibility/screen-reader semantics and
   human comfort/touchscreen validation. See the [installed ergonomics check](ergonomics-audit-2026-09-25.md).
+- **Standalone adoption history (0.8.9 source):** panel number choices now share the
+  reversible draft history used by word chips. Back remains available for Chinese/Japanese
+  choices without English suggestions; unchanged choices and stale source drafts do not
+  destroy history. Manual edits, ordinary Space and normal local language updates retain
+  their existing history-clearing behavior. Confirmed configuration changes now also
+  clear suspended standalone history during native view; unchanged settings, shortcut-only
+  changes and plain view roundtrips preserve it. Private-display transition regressions
+  cover both settings entry branches, not the full asynchronous settings-write workflow
+  or nonempty native queues. Held Back gestures now bind to the history revision,
+  draft and language, so new adoption or undo/reapply cannot repurpose an old press;
+  native view entry cancels that press without discarding the saved local history.
+  Fourteen English mouse/touch scenarios cover these boundaries and unchanged-refresh
+  controls. These and the other rendered mouse/touch checks do not qualify
+  physical keys, native Wayland or the daily installation.
+  The standalone panel's candidate-generation policy is unchanged.
 - **Shortcut presets (0.6.7):** opt-in Alt home-row aliases apply only to public, nonempty
   Linux IBus drafts; direct panel editing keeps editor semantics. Defaults preserve application
   Alt keys. Desktop-reserved chords, arbitrary remapping, non-QWERTY ergonomics and native Wayland
@@ -116,7 +131,7 @@ does not imply cross-platform stability. Keep another input method available.
 - **Small dictionaries:** English collocations and Chinese/Japanese conversion are bounded. There
   is no complete Japanese morphological analyzer, personal learning dictionary or arbitrary
   long-sentence offline conversion. Unknown text remains available literally.
-  The unreleased gradual Japanese expansion adds everyday readings/continuations and fixes
+  The 0.8.9 Japanese expansion adds everyday readings/continuations and fixes
   Romaji boundary and adopted-prefix completion gaps; it does not remove these limits.
   Authored Japanese sentences now remain available as the whole converted draft
   advances through matching particles/text. This is prefix matching against the active
@@ -124,6 +139,21 @@ does not imply cross-platform stability. Keep another input method available.
   cannot infer `決ま` without a corresponding reading. Unknown prefixes/conflicting tails
   are not discarded. Horizontal reading separators still disappear only in converted
   choices (the exact literal stays selectable); line boundaries remain intact.
+  The latest source also probes the final unfinished Romaji syllable for an
+  already-authored sentence, so matching choices can survive stages such as
+  `引用sh` and `引用shit`. This does not infer missing Kanji, rewrite a complete
+  terminal `ん`, or guarantee all sentences on page one. `thi` now supplies
+  `てぃ` (e.g. lodging-pack `amenithi`); legacy `ti -> ち` is unchanged.
+  Pending syllables do not merge across reading separators (`引用s h` is not
+  `引用sh`). A raw single `n` may also offer authored `na`/`ni`/`no` continuations
+  without replacing its primary `ん`; explicit `nn`/`xn`/`n'`, written Kana and
+  complete known word endings remain intact. These are local prefix queries,
+  not automatic submission or a general whole-sentence reading index.
+  Explicit closing punctuation now preserves a matching grammatical fragment
+  (`完了shita! -> 完了した!`) instead of reinterpreting `した` as the noun
+  `下`. Marks remain verbatim and still prevent recovery of an incompatible
+  longer authored sentence. This is a small punctuation whitelist, not general
+  parsing of arbitrary clauses, quotations or code.
   Katakana-to-Kanji lookup and Japanese local continuation beyond 256 scalars remain outside
   this phase. See [the Japanese data scope](../data/lexicons/README.md#日语日常基础扩充未发布).
   The 0.6.9 source expands the deduplicated English index to 3,906 forms and

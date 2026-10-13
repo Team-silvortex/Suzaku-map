@@ -481,7 +481,10 @@ impl PanelApp {
                     // host clearing its context does not clear this instance.
                     panel.engine.clear_prediction_context();
                 }
-                panel.sync_manual_seed_base();
+                // Configuration changes also invalidate a suspended standalone
+                // draft's adoption history. The manual-edit helper deliberately
+                // skips native views so ordinary host typing cannot erase it.
+                panel.completion_history.clear();
                 panel.engine.set_language(language.id());
                 panel.reconfigure_model_provider();
                 panel.persist_display_settings();
@@ -591,6 +594,7 @@ struct PanelInteractionState {
     tooltip: controller_hints::HoverTooltipState,
     pressed_interaction: Option<suzaku_map::ime::gpu::InteractionKind>,
     held_completion: Option<controller::HeldCompletion>,
+    held_rewind: Option<controller::HeldRewind>,
     press_target_rect: Option<[f32; 4]>,
     press_start_cursor: Option<(f32, f32)>,
     press_start_instant: Option<Instant>,

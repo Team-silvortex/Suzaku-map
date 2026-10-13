@@ -5,6 +5,7 @@ Keep the authoritative schema/decoder checks in `suzaku_tool pack validate`.
 No model, internet, input history or executable code is stored in a pack.
 """
 import argparse
+from collections.abc import Iterable
 import json
 import os
 from pathlib import Path
@@ -13,26 +14,47 @@ import subprocess
 import tempfile
 
 
+def _collection(values, field):
+    """Materialize author iterables without silently splitting scalar text."""
+    if isinstance(values, (str, bytes, bytearray)):
+        raise ValueError(f"{field} must be a collection, not a string or bytes")
+    return list(values)
+
+
+def _next_word_collections(values):
+    rows = []
+    for index, pair in enumerate(_collection(values, "next_words")):
+        row = _collection(pair, f"next_words[{index}]")
+        # Leave row shape and vocabulary validity to the authoritative validator.
+        if len(row) == 2:
+            row[1] = _collection(row[1], f"next_words[{index}].values")
+        rows.append(row)
+    return rows
+
+
 class PackBuilder:
     """A small fluent authoring API; array order is vocabulary priority."""
 
     def __init__(self, *, identifier: str, language: str, name: str,
-                 description: str, topics: list[str], authors: list[str],
+                 description: str, topics: Iterable[str], authors: Iterable[str],
                  license: str, version: str = "1.0.0"):
         self.document = {
             "format_version": 1,
             "manifest": {"id": identifier, "version": version, "name": name,
                          "description": description, "language": language,
-                         "topics": list(topics), "authors": list(authors), "license": license},
+                         "topics": _collection(topics, "topics"),
+                         "authors": _collection(authors, "authors"), "license": license},
             "lexicon": {"format_version": 1, "language": language},
         }
 
-    def words(self, layer: str, words: list[str], *, next_words=None, sentences=None):
+    def words(self, layer: str, words: Iterable[str], *, next_words=None, sentences=None):
         """English: explicit forms, (context, [next words]), complete sentences."""
-        self.document["lexicon"].setdefault("word_layers", []).append({
-            "id": layer, "words": list(words),
-            "next_words": list(next_words or []), "sentences": list(sentences or []),
-        })
+        word_layer = {
+            "id": layer, "words": _collection(words, "words"),
+            "next_words": [] if next_words is None else _next_word_collections(next_words),
+            "sentences": [] if sentences is None else _collection(sentences, "sentences"),
+        }
+        self.document["lexicon"].setdefault("word_layers", []).append(word_layer)
         return self
 
     def reading(self, reading: str, text: str, *, kind="word", require_separators=False):

@@ -11977,6 +11977,134 @@
         "i'll clear the table when everyone is done.",
         "i'll clear the dishes after we eat."
       ]
+    },
+    {
+      "id": "daily_visits",
+      "words": [],
+      "next_words": [
+        ["could you open the",["door","window"]],
+        ["please come",["in","back"]],
+        ["you can sit",["here","outside"]],
+        ["would you like some",["water","tea"]],
+        ["i'll bring you a",["drink","chair"]],
+        ["you can leave your",["bag","coat"]],
+        ["thanks for coming",["over","today"]],
+        ["i'll walk you",["out","home"]]
+      ],
+      "sentences": [
+        "could you open the door, please?",
+        "could you open the window while we talk?",
+        "please come in and make yourself comfortable.",
+        "please come back whenever you have time.",
+        "you can sit here next to me.",
+        "you can sit outside if you like.",
+        "would you like some water before we start?",
+        "would you like some tea while we talk?",
+        "i'll bring you a drink in a moment.",
+        "i'll bring you a chair from the other room.",
+        "you can leave your bag by the door.",
+        "you can leave your coat on that chair.",
+        "thanks for coming over today.",
+        "thanks for coming today, it was good to see you.",
+        "i'll walk you out to the door.",
+        "i'll walk you home after dinner."
+      ]
+    },
+    {
+      "id": "daily_delivery",
+      "words": [],
+      "next_words": [
+        ["please leave the package",["inside","outside"]],
+        ["i'll collect the parcel",["today","tomorrow"]],
+        ["the delivery should arrive",["today","tomorrow"]],
+        ["could you deliver it",["later","tomorrow"]],
+        ["the box looks",["damaged","wet"]],
+        ["please keep the package",["dry","safe"]],
+        ["i need to pack this",["carefully","first"]],
+        ["i'll send the package",["today","tomorrow"]]
+      ],
+      "sentences": [
+        "please leave the package inside by the door.",
+        "please leave the package outside if no one is home.",
+        "i'll collect the parcel today after work.",
+        "i'll collect the parcel tomorrow morning.",
+        "the delivery should arrive today before dinner.",
+        "the delivery should arrive tomorrow afternoon.",
+        "could you deliver it later this evening?",
+        "could you deliver it tomorrow instead?",
+        "the box looks damaged on one side.",
+        "the box looks wet near the bottom.",
+        "please keep the package dry until i get home.",
+        "please keep the package safe until i collect it.",
+        "i need to pack this carefully before sending it.",
+        "i need to pack this first, then take it to the post office.",
+        "i'll send the package today after lunch.",
+        "i'll send the package tomorrow morning."
+      ]
+    },
+    {
+      "id": "daily_repairs",
+      "words": [],
+      "next_words": [
+        ["the window won't",["open","close"]],
+        ["the door handle feels",["loose","stuck"]],
+        ["there's a leak",["here","upstairs"]],
+        ["could someone check the",["heating","window"]],
+        ["can we arrange a",["visit","repair"]],
+        ["i'll be home on",["monday","friday"]],
+        ["the repair is still",["pending","incomplete"]],
+        ["please call me when it's",["fixed","ready"]]
+      ],
+      "sentences": [
+        "the window won't open properly.",
+        "the window won't close all the way.",
+        "the door handle feels loose when i use it.",
+        "the door handle feels stuck when i turn it.",
+        "there's a leak here under the sink.",
+        "there's a leak upstairs near the window.",
+        "could someone check the heating when they visit?",
+        "could someone check the window while they are here?",
+        "can we arrange a visit for tomorrow morning?",
+        "can we arrange a repair for next week?",
+        "i'll be home on monday if someone can come.",
+        "i'll be home on friday after lunch.",
+        "the repair is still pending, could you give me an update?",
+        "the repair is still incomplete, so someone needs to come back.",
+        "please call me when it's fixed so i can check it.",
+        "please call me when it's ready to use again."
+      ]
+    },
+    {
+      "id": "daily_laundry",
+      "words": [],
+      "next_words": [
+        ["are these towels",["clean","dry"]],
+        ["this shirt is still",["wet","dirty"]],
+        ["i'll bring the laundry",["inside","downstairs"]],
+        ["please check your pockets",["first","again"]],
+        ["i can't find my",["socks","gloves"]],
+        ["these socks don't",["match","fit"]],
+        ["i need a clean",["shirt","towel"]],
+        ["i'll put the folded laundry",["away","here"]]
+      ],
+      "sentences": [
+        "are these towels clean enough to use?",
+        "are these towels dry enough to put away?",
+        "this shirt is still wet, so i'll wear another one.",
+        "this shirt is still dirty after washing.",
+        "i'll bring the laundry inside before the rain starts.",
+        "i'll bring the laundry downstairs after breakfast.",
+        "please check your pockets first, then put your jacket in the basket.",
+        "please check your pockets again in case your keys are there.",
+        "i can't find my socks after doing the laundry.",
+        "i can't find my gloves in the drawer.",
+        "these socks don't match, so i'll look for another pair.",
+        "these socks don't fit me anymore.",
+        "i need a clean shirt for tomorrow.",
+        "i need a clean towel for the bathroom.",
+        "i'll put the folded laundry away after dinner.",
+        "i'll put the folded laundry here on your bed."
+      ]
     }
   ],
   "phrase_endings": [

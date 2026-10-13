@@ -1,0 +1,189 @@
+{
+  "format_version": 1,
+  "manifest": {
+    "id": "org.suzaku.en.shopping",
+    "version": "1.0.0",
+    "name": "Shopping · In-store choices and exchanges",
+    "description": "Authored vocabulary for finding items, trying sizes, receipts and asking about exchanges; no store policies, transactions or live information.",
+    "language": "en",
+    "topics": [
+      "shopping",
+      "errands"
+    ],
+    "license": "MIT",
+    "authors": [
+      "Suzaku contributors"
+    ]
+  },
+  "lexicon": {
+    "format_version": 1,
+    "language": "en",
+    "word_layers": [
+      {
+        "id": "in-store-shopping",
+        "words": [
+          "refund",
+          "refunds",
+          "refundable",
+          "nonrefundable",
+          "exchange",
+          "exchanges",
+          "exchanged",
+          "exchanging",
+          "return",
+          "returns",
+          "returned",
+          "returning",
+          "purchase",
+          "purchases",
+          "purchased",
+          "purchasing",
+          "cashier",
+          "cashiers",
+          "checkout",
+          "checkouts",
+          "receipt",
+          "receipts",
+          "barcode",
+          "barcodes",
+          "aisle",
+          "aisles",
+          "basket",
+          "baskets",
+          "trolley",
+          "trolleys",
+          "stockroom",
+          "stockrooms",
+          "display",
+          "displays",
+          "hem",
+          "hems",
+          "seam",
+          "seams",
+          "zipper",
+          "zippers",
+          "waistband",
+          "waistbands",
+          "insole",
+          "insoles",
+          "shoelace",
+          "shoelaces",
+          "fitting",
+          "sizing"
+        ],
+        "next_words": [
+          [
+            "where can i find the",
+            [
+              "checkout",
+              "cashier"
+            ]
+          ],
+          [
+            "could you show me the fitting",
+            [
+              "room",
+              "area"
+            ]
+          ],
+          [
+            "this waistband feels",
+            [
+              "tight",
+              "loose"
+            ]
+          ],
+          [
+            "could i try the next size",
+            [
+              "up",
+              "down"
+            ]
+          ],
+          [
+            "could i see a different",
+            [
+              "color",
+              "style"
+            ]
+          ],
+          [
+            "is this item available in a",
+            [
+              "smaller",
+              "larger"
+            ]
+          ],
+          [
+            "the shelf label shows a different",
+            [
+              "price",
+              "size"
+            ]
+          ],
+          [
+            "could you check the barcode",
+            [
+              "again",
+              "here"
+            ]
+          ],
+          [
+            "could i get a printed",
+            [
+              "receipt",
+              "copy"
+            ]
+          ],
+          [
+            "do i need the original",
+            [
+              "receipt",
+              "packaging"
+            ]
+          ],
+          [
+            "could you explain the exchange",
+            [
+              "policy",
+              "process"
+            ]
+          ],
+          [
+            "i'd like to compare these two",
+            [
+              "sizes",
+              "colors"
+            ]
+          ]
+        ],
+        "sentences": [
+          "where can i find the checkout for these items?",
+          "where can i find the cashier to ask about this receipt?",
+          "could you show me the fitting room before i choose a size?",
+          "could you show me the fitting area for these jackets?",
+          "this waistband feels tight when i sit down.",
+          "this waistband feels loose even with a belt.",
+          "could i try the next size up before deciding?",
+          "could i try the next size down for comparison?",
+          "could i see a different color in the same size?",
+          "could i see a different style with a wider fit?",
+          "is this item available in a smaller size to try on?",
+          "is this item available in a larger size in this store?",
+          "the shelf label shows a different price from the tag.",
+          "the shelf label shows a different size from this box.",
+          "could you check the barcode again before i pay?",
+          "could you check the barcode here on the box?",
+          "could i get a printed receipt for this purchase?",
+          "could i get a printed copy of the receipt?",
+          "do i need the original receipt to ask for an exchange?",
+          "do i need the original packaging to bring this back?",
+          "could you explain the exchange policy before i buy this?",
+          "could you explain the exchange process for a different size?",
+          "i'd like to compare these two sizes before deciding.",
+          "i'd like to compare these two colors in the light."
+        ]
+      }
+    ]
+  }
+}

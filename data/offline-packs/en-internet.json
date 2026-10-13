@@ -1,0 +1,277 @@
+{
+  "format_version": 1,
+  "manifest": {
+    "id": "org.suzaku.en.internet",
+    "version": "1.0.0",
+    "name": "Internet · Everyday browsing and sharing",
+    "description": "Authored everyday expressions for browsing, search, file transfers, sign-in status and sharing; no network access, account actions or live information.",
+    "language": "en",
+    "topics": [
+      "internet",
+      "digital"
+    ],
+    "license": "MIT",
+    "authors": [
+      "Suzaku contributors"
+    ]
+  },
+  "lexicon": {
+    "format_version": 1,
+    "language": "en",
+    "word_layers": [
+      {
+        "id": "everyday-internet",
+        "words": [
+          "browser",
+          "browsers",
+          "browsing",
+          "browsed",
+          "bookmark",
+          "bookmarks",
+          "bookmarked",
+          "bookmarking",
+          "webpage",
+          "webpages",
+          "website",
+          "websites",
+          "download",
+          "downloads",
+          "downloaded",
+          "downloading",
+          "upload",
+          "uploads",
+          "uploaded",
+          "uploading",
+          "reload",
+          "reloads",
+          "reloaded",
+          "reloading",
+          "scroll",
+          "scrolls",
+          "scrolled",
+          "scrolling",
+          "keyword",
+          "keywords",
+          "query",
+          "queries",
+          "thumbnail",
+          "thumbnails",
+          "hyperlink",
+          "hyperlinks",
+          "comment",
+          "comments",
+          "commented",
+          "commenting",
+          "repost",
+          "reposts",
+          "reposted",
+          "reposting",
+          "subscribe",
+          "subscribes",
+          "subscribed",
+          "subscribing",
+          "unsubscribe",
+          "unsubscribes",
+          "unsubscribed",
+          "unsubscribing",
+          "username",
+          "usernames",
+          "login",
+          "logout",
+          "autofill",
+          "autocomplete",
+          "autosave",
+          "autoplay",
+          "tab",
+          "tabs",
+          "toolbar",
+          "toolbars"
+        ],
+        "next_words": [
+          [
+            "could you open this page in a",
+            [
+              "new",
+              "separate"
+            ]
+          ],
+          [
+            "i'd like to bookmark this",
+            [
+              "page",
+              "article"
+            ]
+          ],
+          [
+            "the page is taking a long time to",
+            [
+              "load",
+              "respond"
+            ]
+          ],
+          [
+            "could you scroll to the",
+            [
+              "top",
+              "bottom"
+            ]
+          ],
+          [
+            "let's search for a more",
+            [
+              "specific",
+              "recent"
+            ]
+          ],
+          [
+            "try adding another keyword to the",
+            [
+              "search",
+              "query"
+            ]
+          ],
+          [
+            "the search results look",
+            [
+              "relevant",
+              "different"
+            ]
+          ],
+          [
+            "could you send me the original",
+            [
+              "link",
+              "source"
+            ]
+          ],
+          [
+            "i saved the download in my",
+            [
+              "downloads",
+              "documents"
+            ]
+          ],
+          [
+            "this download is still",
+            [
+              "running",
+              "paused"
+            ]
+          ],
+          [
+            "i'll upload the file after",
+            [
+              "checking",
+              "renaming"
+            ]
+          ],
+          [
+            "the upload finished without any",
+            [
+              "errors",
+              "warnings"
+            ]
+          ],
+          [
+            "am i still signed in on this",
+            [
+              "browser",
+              "device"
+            ]
+          ],
+          [
+            "the website keeps asking me to sign",
+            [
+              "in",
+              "out"
+            ]
+          ],
+          [
+            "i'd like to update my profile",
+            [
+              "picture",
+              "description"
+            ]
+          ],
+          [
+            "could you check the comment before",
+            [
+              "posting",
+              "replying"
+            ]
+          ],
+          [
+            "i'll add a link in the",
+            [
+              "comments",
+              "description"
+            ]
+          ],
+          [
+            "please share the post with the",
+            [
+              "link",
+              "title"
+            ]
+          ],
+          [
+            "i'd like to turn off",
+            [
+              "autoplay",
+              "notifications"
+            ]
+          ],
+          [
+            "can i read this page",
+            [
+              "offline",
+              "later"
+            ]
+          ]
+        ],
+        "sentences": [
+          "could you open this page in a new tab?",
+          "could you open this page in a separate window?",
+          "i'd like to bookmark this page for later.",
+          "i'd like to bookmark this article before closing the tab.",
+          "the page is taking a long time to load on my phone.",
+          "the page is taking a long time to respond after i click.",
+          "could you scroll to the top of the page?",
+          "could you scroll to the bottom to read the comments?",
+          "let's search for a more specific phrase this time.",
+          "let's search for a more recent article on this topic.",
+          "try adding another keyword to the search to narrow the results.",
+          "try adding another keyword to the query before trying again.",
+          "the search results look relevant to our question.",
+          "the search results look different after changing the keywords.",
+          "could you send me the original link instead of a screenshot?",
+          "could you send me the original source of that quote?",
+          "i saved the download in my downloads folder.",
+          "i saved the download in my documents folder for later.",
+          "this download is still running in the background.",
+          "this download is still paused while i check the connection.",
+          "i'll upload the file after checking its name and contents.",
+          "i'll upload the file after renaming it for clarity.",
+          "the upload finished without any errors this time.",
+          "the upload finished without any warnings on the screen.",
+          "am i still signed in on this browser after reopening it?",
+          "am i still signed in on this device after restarting?",
+          "the website keeps asking me to sign in again.",
+          "the website keeps asking me to sign out before switching accounts.",
+          "i'd like to update my profile picture before sharing the page.",
+          "i'd like to update my profile description to make it clearer.",
+          "could you check the comment before posting it?",
+          "could you check the comment before replying to it?",
+          "i'll add a link in the comments for anyone interested.",
+          "i'll add a link in the description below the video.",
+          "please share the post with the link to the original page.",
+          "please share the post with the title included for context.",
+          "i'd like to turn off autoplay while reading this page.",
+          "i'd like to turn off notifications for this website.",
+          "can i read this page offline after saving it?",
+          "can i read this page later without signing in again?"
+        ]
+      }
+    ]
+  }
+}

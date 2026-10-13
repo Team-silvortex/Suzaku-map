@@ -9,6 +9,10 @@ suzaku_package_test_pack_names=(
   en-outdoors zh-Hans-outdoors ja-rail en-study zh-Hans-study en-cooking zh-Hans-cooking
   en-travel zh-Hans-travel en-work zh-Hans-work
   en-family zh-Hans-family ja-family
+  en-shopping zh-Hans-shopping
+  en-internet zh-Hans-internet ja-internet
+  ja-shopping ja-travel ja-work
+  ja-study ja-cooking ja-outdoors
 )
 PYTHONDONTWRITEBYTECODE=1 python3 "$suzaku_package_test_scripts/test-offline-pack-shipping.py"
 suzaku_package_test_checksums=("$suzaku_package_test_output/"*.sha256)
@@ -73,6 +77,8 @@ for suzaku_package_test_tar in "$suzaku_package_test_output/"*.tar.gz; do
   "$suzaku_package_test_tree/bin/suzaku_tool" pack catalog |
     jq -e --argjson expected "${#suzaku_package_test_pack_names[@]}" 'length == $expected' >/dev/null
   test -s "$suzaku_package_test_tree/share/suzaku/offline-pack-sdk/suzaku_pack.py"
+  test -s "$suzaku_package_test_tree/share/suzaku/offline-pack-sdk/README.md"
+  test -s "$suzaku_package_test_tree/share/suzaku/offline-packs/README.md"
   for suzaku_package_test_pack in "${suzaku_package_test_pack_names[@]}"; do
     "$suzaku_package_test_tree/bin/suzaku_tool" pack validate \
       "$suzaku_package_test_tree/share/suzaku/offline-packs/$suzaku_package_test_pack.json"
@@ -115,6 +121,8 @@ for suzaku_package_test_deb in "$suzaku_package_test_output/"*.deb; do
   "$suzaku_package_test_extract/root/usr/bin/suzaku-tool" pack catalog |
     jq -e --argjson expected "${#suzaku_package_test_pack_names[@]}" 'length == $expected' >/dev/null
   test -s "$suzaku_package_test_extract/root/usr/share/suzaku/offline-pack-sdk/suzaku_pack.py"
+  test -s "$suzaku_package_test_extract/root/usr/share/suzaku/offline-pack-sdk/README.md"
+  test -s "$suzaku_package_test_extract/root/usr/share/suzaku/offline-packs/README.md"
   for suzaku_package_test_pack in "${suzaku_package_test_pack_names[@]}"; do
     "$suzaku_package_test_extract/root/usr/bin/suzaku-tool" pack validate \
       "$suzaku_package_test_extract/root/usr/share/suzaku/offline-packs/$suzaku_package_test_pack.json"

@@ -4,7 +4,7 @@
     "date": "2026-10-12",
     "head": "98ee5764e8ae494d5d4cc0c2af694e307645d011",
     "dirty": true,
-    "source_sha256": "e79fa443f9def9d1b4ed67c56030c52e1027a50ac699a00b10e0530239c88c7e",
+    "source_sha256": "ae478858706978513845676da630d76465e5f3739b2f867d74b0222dd6801d7f",
     "note": "0.8.7发布后的未提交工作区盘点，head记录已发布基线98ee576而非本次修复提交；评分是有边界的人工序数评估，不是质量概率。重复引擎控件见E-shared-noop-controls；旧77单元评分不提高。F69/preference-file记录文件底层，native-preference及E-native-preference记录Linux源码宿主默认后台保存/启动恢复/有界退出/异步清除确认，第一轮八组私有IBus及1752全量通过，退出恢复见E-preference-lifecycle：敏感temp红测保留，专属空间安全回收，九组native及1758全量零失败30显式ignored通过；不代表日常安装已升级、托盘视觉或实体键盘验收，其他宿主仍内存。第一阶段及计数失败保留，非改记通过。后续历史修复范围见E-pointer-preference、E-window-boundary、E-recovery-fixture、E-prose-paging、E-chinese-partial-spacing；词库扩充见E-daily-objects、E-daily-choices、E-japanese-choices。10-04崩溃及10-07有界sender诊断见E-daemon-abort，探测清理顺序见E-daemon-probe，非已确认修复上游根因。10-11安装范围见E-installed-input-tasks和E-installed-custom-shortcuts。0.8.6原远端超时、0.8.7首轮Python格式失败及40min取消均不改记通过；后续干净98ee576的CI38161577941八项、Ubuntu24打包安装及最终汇合成功，四资产复核后公开发布，但这些结果不代表本次未提交工作区的远端CI、打包安装、真实模型或个人桌面验收。源指纹仅覆盖implementations.paths/tests。"
   },
   "architectures": [
@@ -242,6 +242,7 @@
       ],
       "tests": [
         "tests/input_edge_audit_budget.rs",
+        "tests/japanese_completion_backfill.rs",
         "tests/long_draft_budget.rs",
         "tests/english_prediction_spacing.rs",
         "tests/ime_prediction.rs"
@@ -387,7 +388,11 @@
         "tests/daily_carry_english.rs",
         "tests/daily_care_english.rs",
         "tests/daily_household_english.rs",
-        "tests/daily_mealtime_english.rs"
+        "tests/daily_mealtime_english.rs",
+        "tests/daily_visits_english.rs",
+        "tests/daily_delivery_english.rs",
+        "tests/daily_repairs_english.rs",
+        "tests/daily_laundry_english.rs"
       ]
     },
     {
@@ -421,6 +426,10 @@
         "tests/daily_care_chinese.rs",
         "tests/daily_household_chinese.rs",
         "tests/daily_mealtime_chinese.rs",
+        "tests/daily_visits_chinese.rs",
+        "tests/daily_delivery_chinese.rs",
+        "tests/daily_repairs_chinese.rs",
+        "tests/daily_laundry_chinese.rs",
         "tests/chinese_partial_sentence_probe.rs",
         "tests/chinese_partial_continuation.rs",
         "tests/chinese_function_words.rs",
@@ -454,10 +463,19 @@
         "tests/daily_requests_japanese.rs",
         "tests/daily_carry_japanese.rs",
         "tests/daily_care_japanese.rs",
+        "tests/daily_mealtime_japanese.rs",
+        "tests/daily_repairs_japanese.rs",
+        "tests/daily_laundry_japanese.rs",
+        "tests/japanese_completion_backfill.rs",
         "tests/japanese_completion_boundaries.rs",
         "tests/release_japanese_tail.rs",
         "tests/japanese_sentence_progress.rs",
         "tests/japanese_reading_boundaries.rs",
+        "tests/japanese_romaji_aliases.rs",
+        "tests/japanese_romaji_progress.rs",
+        "tests/japanese_romaji_token_boundaries.rs",
+        "tests/japanese_terminal_n_progress.rs",
+        "tests/japanese_punctuation_progress.rs",
         "tests/fallback_vocabulary.rs",
         "scripts/test-native-sync.py",
         "scripts/test-linux-vocabulary.py"
@@ -492,10 +510,28 @@
       ],
       "tests": [
         "tests/offline_packs.rs",
+        "tests/offline_pack_inventory.rs",
         "tests/offline_pack_quality.rs",
         "tests/family_pack_english.rs",
         "tests/family_pack_chinese.rs",
         "tests/family_pack_japanese.rs",
+        "tests/shopping_pack_catalog.rs",
+        "tests/shopping_pack_english.rs",
+        "tests/shopping_pack_chinese.rs",
+        "tests/internet_pack_catalog.rs",
+        "tests/internet_pack_english.rs",
+        "tests/internet_pack_chinese.rs",
+        "tests/internet_pack_japanese.rs",
+        "tests/japanese_internet_catalog.rs",
+        "tests/shopping_pack_japanese.rs",
+        "tests/travel_pack_japanese.rs",
+        "tests/work_pack_japanese.rs",
+        "tests/japanese_theme_catalog.rs",
+        "tests/study_pack_japanese.rs",
+        "tests/cooking_pack_japanese.rs",
+        "tests/outdoors_pack_japanese.rs",
+        "tests/japanese_learning_catalog.rs",
+        "tests/support/offline_pack_sets.rs",
         "tests/input_edge_audit_packs.rs"
       ]
     },
@@ -507,6 +543,8 @@
       "paths": [
         "sdk/offline-packs/suzaku_pack.py",
         "sdk/offline-packs/example.py",
+        "sdk/offline-packs/README.md",
+        "data/offline-packs/README.md",
         "data/offline-packs/en-cooking.json",
         "data/offline-packs/en-outdoors.json",
         "data/offline-packs/en-study.json",
@@ -520,11 +558,23 @@
         "data/offline-packs/zh-Hans-work.json",
         "data/offline-packs/en-family.json",
         "data/offline-packs/zh-Hans-family.json",
-        "data/offline-packs/ja-family.json"
+        "data/offline-packs/ja-family.json",
+        "data/offline-packs/en-shopping.json",
+        "data/offline-packs/zh-Hans-shopping.json",
+        "data/offline-packs/en-internet.json",
+        "data/offline-packs/zh-Hans-internet.json",
+        "data/offline-packs/ja-internet.json",
+        "data/offline-packs/ja-shopping.json",
+        "data/offline-packs/ja-travel.json",
+        "data/offline-packs/ja-work.json",
+        "data/offline-packs/ja-study.json",
+        "data/offline-packs/ja-cooking.json",
+        "data/offline-packs/ja-outdoors.json"
       ],
       "tests": [
         "scripts/test-linux-package.sh",
         "scripts/test-offline-pack-shipping.py",
+        "tests/offline_pack_sdk.rs",
         "tests/offline_packs.rs"
       ]
     },
@@ -639,6 +689,7 @@
       "title": "独立编辑器与确认发送",
       "scope": "Linux面板；共享引擎独立实例",
       "paths": [
+        "src/bin/panel.rs",
         "src/bin/panel/keyboard.rs",
         "src/bin/panel/composition.rs",
         "src/bin/panel/controller.rs",
@@ -646,6 +697,7 @@
       ],
       "tests": [
         "src/bin/panel/keyboard_native_test.rs",
+        "src/bin/panel/candidates_native_test.rs",
         "src/bin/panel/functional_network_audit_test.rs"
       ]
     },
@@ -1390,6 +1442,125 @@
     }
   ],
   "evidence": [
+    {
+      "id": "E-panel-held-rewind",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/known-limitations.md", "src/panel_support.rs", "src/bin/panel.rs", "src/bin/panel/controller.rs", "src/bin/panel/native_sync.rs", "src/bin/panel/candidates_native_test.rs"],
+      "scope": "2026-10-13独立Back按压绑定历史版本、草稿与语言，拒绝重绘后新采用与ABA误撤回",
+      "note": "红测hello world被旧Back退成hello；增加实例内历史revision（有效apply/undo/非空clear）及HeldRewind，原生视图进入取消旧按压但不丢本地history。保留普通刷新/noop、32容量、键盘撤回；14英文鼠标/触摸子情景真实呈现后同点release并保留原时限，两项unit覆盖ABA/noop/满容量。旧断言不删改，具体执行范围见开发记录；非实体设备/安装/真实IBus/native Wayland/远端CI验收，评分不变。"
+    },
+    {
+      "id": "E-panel-suspended-adoption-history",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/known-limitations.md", "src/bin/panel.rs", "src/bin/panel/functional_network_audit_test.rs"],
+      "scope": "2026-10-13原生视图期间确认配置变化清理暂停的独立采用历史",
+      "note": "先红测复现EN切JA恢复旧历史，再最小修改现有配置分支；保留native手动编辑guard、普通进出与相同/仅快捷键设置历史。60子情景覆盖三语默认词采用、两个apply入口与十种转换，断言保稿/光标/抽屉/host frame/精确撤回及无host请求；原provider-context断言不变。具体执行见开发记录；直接入口非完整异步写ACK、空队列非在途输入验证，不代表实体键盘/日常安装/native Wayland/远端CI，成熟度不提高。"
+    },
+    {
+      "id": "E-panel-number-adoption-history",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/known-limitations.md", "src/bin/panel/composition.rs", "src/bin/panel/candidates_native_test.rs"],
+      "scope": "2026-10-13独立面板数字采用复用准确草稿撤回历史，默认中英日与typed混合fixture",
+      "note": "引擎源稿绑定，invalid/stale/no-op不清历史，手动编辑/普通Space/本地语言配置清理保持；默认三语词采用和独立mixed词句链有呈现Back命中、鼠标/触摸、重复release与精确撤回。既有异步手势和合成socket交付断言保留。红测及新fixture错误Literal标签失败保留，具体执行范围见开发记录。不改native Adopt、鼠标显式提交、词库或模型；不代表实体键盘、日常安装、native/local语言恢复或远端CI验收，成熟度不提高。"
+    },
+    {
+      "id": "E-japanese-punctuation-progress",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/known-limitations.md", "src/languages/japanese.rs", "tests/japanese_punctuation_progress.rs"],
+      "scope": "2026-10-13已有作者语法尾在明确句尾标点前不退化为短名词",
+      "note": "红测复现完了shita!与引用shita?变为下；仅比较时剪裁末尾标点白名单，输出和完整句查询保留全部标点，不跨未知/代码/行边界恢复句子。两项unit和七项私有builtin/九JA引擎测试；旧断言、词库、权重和预算不变。具体验证见开发记录，不代表实体键盘、native安装或远端CI验收；成熟度不提高。独立面板采用历史缺口仅源码定位，待另轮实测修复。"
+    },
+    {
+      "id": "E-japanese-reading-token-progress",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/known-limitations.md", "src/languages/japanese.rs", "tests/japanese_romaji_token_boundaries.rs", "tests/japanese_terminal_n_progress.rs"],
+      "scope": "2026-10-13未完成日语音节不跨水平分隔，单raw n的作者句查询和编辑往返",
+      "note": "原始ASCII末尾长度限制查询，修正引用s h跨分隔误恢复句子。单n/N可查询na/ni/no但不改主ん，nn/xn/n'/假名及完整词末尾不反拆；新增4＋7项私有builtin/九JA流程和两项unit，完整鼻音词的helper红测也保留。词库数据/模型接口、4句/12候选/256字/安装容量及旧断言不变，成熟度不提高。具体证据见开发记录；不代表物理退格、native桌面安装、任意句子、真实模型或远端CI验收。"
+    },
+    {
+      "id": "E-japanese-romaji-progress",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "docs/known-limitations.md", "src/languages/japanese.rs", "tests/japanese_romaji_aliases.rs", "tests/japanese_romaji_progress.rs"],
+      "scope": "2026-10-13日语thi入口与已有作者句末尾未完成音节的连续候选",
+      "note": "保留ti等旧映射；只在既有转换后追加最多五个末音节假名查询，不重新整句分词或推断汉字，不改词库、模型、256字/4句/12候选预算。私有单包/九JA组合与逐字seed测试不等于实体键盘、日常安装、任意长句或远端CI验收。原文/书写形式/主候选/旧分值保留，新增句会参与已有分页平衡。初次红测与新断言误伤合法复合词的失败记录保留，旧断言不变；成熟度不提高，执行范围见开发记录。"
+    },
+    {
+      "id": "E-japanese-learning-packs",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/offline-packs/README.md", "data/offline-packs/ja-study.json", "data/offline-packs/ja-cooking.json", "data/offline-packs/ja-outdoors.json", "tests/study_pack_japanese.rs", "tests/cooking_pack_japanese.rs", "tests/outdoors_pack_japanese.rs", "tests/japanese_learning_catalog.rs", "tests/support/offline_pack_sets.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-13日语学习写作、烹饪与观星可选包；每包32读音12语境24句，目录22→25",
+      "note": "模型无关的有限作者词句，沿用原有罗马音/假名与输入窗口。新增三专项各用固定九JA组合；原六批兼容检查保留，再加旧14＋JA互联网＋一个新主题三批16包，九批联合25包，不突破16安装上限。独立预期先红测，旧22包字节及顺序、三语内置数据和所有容量不变；候选、续写、原文保护、精确提交撤回及typed/empty故障覆盖范围和执行证据见开发记录。主题齐全不代表词量/形态分析/任意长句能力相同；不含实时天象、专业指导或外部操作，不代表GTK/native实体键盘、安装、真实模型或远端CI验收，评分不变。"
+    },
+    {
+      "id": "E-japanese-theme-packs",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/offline-packs/README.md", "data/offline-packs/ja-shopping.json", "data/offline-packs/ja-travel.json", "data/offline-packs/ja-work.json", "tests/shopping_pack_japanese.rs", "tests/travel_pack_japanese.rs", "tests/work_pack_japanese.rs", "tests/japanese_theme_catalog.rs", "tests/support/offline_pack_sets.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-12日语购物、旅行住宿、工作协作可选包；每包32读音12语境24句，目录19→22",
+      "note": "模型无关的有限作者词句；三包专项各用固定六JA组合，旧共享质量断言全文再加原14＋JA互联网＋一个新主题三组16包，共六组联合22包但不突破16安装上限。固定独立预期先红测，旧19包字节和顺序、三语内置数据、全部容量与候选上限不变；读音/假名/词句候选、选定前缀、采纳续写、原文和精确提交撤回及typed/empty失败覆盖范围与日志见开发记录。不包含完整形态分析、任意长句、真实模型或GTK/native实体键盘验收，不代表安装/发布/远端CI通过，成熟度评分不变。"
+    },
+    {
+      "id": "E-japanese-internet-pack",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/offline-packs/README.md", "data/offline-packs/ja-internet.json", "tests/internet_pack_japanese.rs", "tests/japanese_internet_catalog.rs", "tests/support/offline_pack_sets.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-12日语互联网可选包；48读音20语境40句、目录18→19且安装上限16不变",
+      "note": "浏览搜索、收藏传输、登录状态和投稿媒体的有限作者词句，独立预期先红测；罗马音大小写/长音/小假名、假名、选定半截输入、已采用表记续句及精确提交撤回，typed/empty模型故障与URL等原文边界。新增JA专项只装JA三包与EN/ZH互联网共五包，旧中英11包不改；原质量断言全文再加旧14＋EN/JA互联网第三组16包，三组联合19而非同时装19。旧18包与内置文件字节、既有同音词顺序和容量保留；具体执行及失败证据见开发记录。未扩大日语256字窗口或形态分析能力，未执行真实联网/账号操作，未安装提交推送发布，不冒称GTK/native/实体键盘/真实模型或远端CI验收，评分不变。"
+    },
+    {
+      "id": "E-internet-packs",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/offline-packs/README.md", "data/offline-packs/en-internet.json", "data/offline-packs/zh-Hans-internet.json", "tests/internet_pack_catalog.rs", "tests/internet_pack_english.rs", "tests/internet_pack_chinese.rs", "tests/support/offline_pack_sets.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-12可选中英互联网浏览搜索、传输状态与分享；目录16→18，安装上限仍16",
+      "note": "英文64显式词形/20语境40句，中文48读音/20语境40句；保持旧十六包字节与顺序、三语内置数据、模型协议和全部限额。推荐目录不是安装集合，旧质量断言全文分别在历史16与旧14＋internet2两批独立进程运行，新语种工作流各用同语8＋异语internet1＋JA2共11包，并断言第17安装失败且注册表不变。固定预期先红测，实际候选/续写/原文保护/精确提交撤回/typed错误和最终验证范围见开发记录。新包只提供文字，不执行联网或账户操作；不是通用语言理解或真实模型基准。原GTK/native保持历史14覆盖，不外推新包原生/实体键盘/个人安装/发布/CI验收，成熟度评分不变。"
+    },
+    {
+      "id": "E-shopping-packs",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/offline-packs/README.md", "data/offline-packs/en-shopping.json", "data/offline-packs/zh-Hans-shopping.json", "tests/shopping_pack_catalog.rs", "tests/shopping_pack_english.rs", "tests/shopping_pack_chinese.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-12可选中英购物试穿、收据与换货询问；目录14→16",
+      "note": "英文48显式词形/12语境24句，中文32读音/12语境24句；旧十四包SHA和catalog前缀固定，内置数据不动，扩展预算和安装上限16不放宽。目录/SDK/模型解耦，新增词包不自动启用。固定预期先红测；全包共存、部分拼写/分隔、原文、长稿续写、精确提交撤回及typed模型失败走隔离Rust快照。新测试误假定jiu→就已收录的实际失败保留；修正测试边界而非给旧排序插特例，细节见开发记录。不提高成熟度，未安装提交推送发布；原生/GTK仍为历史十四包子集，不将Rust结果外推新十六包原生验收。"
+    },
+    {
+      "id": "E-pack-organization",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/offline-packs/README.md", "sdk/offline-packs/README.md", "docs/linux-packaging-data.md", "tests/offline_pack_inventory.rs", "tests/offline_pack_sdk.rs", "scripts/test-offline-pack-shipping.py"],
+      "scope": "2026-10-12十四词包导航、只读统计/检查与SDK集合防误用",
+      "note": "保持十四JSON字节、ID/版本/顺序和默认catalog结构，显式details/inspect只读统计原始声明记录，不读注册表/初始化运行词库；索引单元复用旧预算，不冒充唯一词数或兼容/许可证明。SDK拒绝文本充集合，保留生成器和顺序，权威校验/原子无覆盖发布不变。新增中英日手工统计、坏注册表隔离与参数/文件边界回归；目录逐项核对manifest与分发清单，两个README加入包和smoke断言。实跑范围和原始失败见开发记录，不提高成熟度；未实际打包安装/原生键盘/远端CI验收。"
+    },
+    {
+      "id": "E-daily-laundry",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "tests/daily_laundry_english.rs", "tests/daily_laundry_chinese.rs", "tests/daily_laundry_japanese.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-12中英日洗衣晾晒和日常穿着；有限原创fallback",
+      "note": "英文8搭配16句且6143索引不增，中文24读音8语境16句，日语12读音6语境12句。先固定预期红测，全部旧三语记录及英文首索引位置不变，十四包字节不变。完整/半截/宽前缀、双句原文、空白长稿、commit重复防护和undo、typed模型失效有定向覆盖；新sentakumon首屏双句预期过强，改为独立两页精确提交检查，旧断言未放宽，失败记录及实跑范围见开发记录。词库与模型宿主解耦；日语早截断修复单列E-japanese-backfill。不提高成熟度，未安装提交推送发布，非原生键盘或真实模型验收。"
+    },
+    {
+      "id": "E-japanese-backfill",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "src/languages/japanese.rs", "src/ime/candidate_mix.rs", "tests/japanese_completion_backfill.rs", "tests/family_pack_japanese.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-12日语有界后续词填充空位，保留旧词句与权重",
+      "note": "旧家庭包ま→窓因新增窓枠耗尽4项补全而消失；旧测试和新し宽前缀先红测。首版扩大主池失败保留：旧<=4契约与旧准备续句/新句排名受损。最终保持4项主补全/原混合分数，原balance之后才以低于现有项的分数追加有界12项池中未出现的Word，只填空位，最终IBus12/字节预算不变。新测试保留し旧10项完整Candidate前缀、全部旧句分数、limit1..10无回填、后页精确提交撤回；家庭包原分页/同音断言不改，仅更新陈旧当前总量。多一次有界日语扫描不是零性能成本；实跑见开发记录，不代表实体键盘/端到端延迟或远端CI，不提高评分。"
+    },
+    {
+      "id": "E-daily-repairs",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "tests/daily_repairs_english.rs", "tests/daily_repairs_chinese.rs", "tests/daily_repairs_japanese.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-12中英日居家报修与预约；有限原创fallback",
+      "note": "新增英文8搭配16句且6143索引不增，中文24读音8语境16句，日语12读音6语境12句。全部旧内容和英文首索引位置保留，包含前两轮未提交数据；固定独立预期先红测，另纠正新测试对旧保修/报修首选的误认，不改生产排序。完整/明确半截、词句原文、选词续写、提交撤回、typed模型失效及14包共存覆盖，准确实跑和失败记录见开发记录。语料只含故障描述/请检查/预约/进度，不调用设备或报修服务；不改模型宿主接口、算法、容量或推荐包，不提高旧成熟度。模拟provider与核心reseed不代表原生键盘/真实HTTP/实模质量；未安装提交推送发布，旧e416e86 CI不涵盖本轮。"
+    },
+    {
+      "id": "E-daily-delivery",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "tests/daily_delivery_english.rs", "tests/daily_delivery_chinese.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-12中英收件取件寄送；有限作者fallback",
+      "note": "英文追加8搭配16句，不增加6143索引；中文追加24读音8语境16句。固定独立预期先红测：英文1pass6fail、中文3pass5fail，全14包组合缺新快递到了句子；旧33英文层/717搭配/1398句及所有首索引位置，中文2994读音/711语境/1420句完整指纹保留，包含上轮未提交数据。完整/明确半截、22明确中文partial及2宽歧义、原文保真、长稿续写、提交撤销、typed模型失效及14包共存均有用例，最终实跑范围见开发记录。不改候选/词库容量、语言模型宿主实现、日语或推荐包数据，不读取实际物流订单信息；e416e86已过CI不涵盖这轮未提交数据，旧成熟度评分不提高，未安装/提交/推送/发布。"
+    },
+    {
+      "id": "E-daily-visits-ja-mealtime",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "tests/daily_visits_english.rs", "tests/daily_visits_chinese.rs", "tests/daily_mealtime_japanese.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-12中英来访招待与日语餐桌；e416e86之后的未提交fallback数据",
+      "note": "追加英文8搭配16句且6143索引不增，中文24读音8语境16句，日语12读音6语境12句；三语旧数据/标记/排序及英文所有首次位置指纹不变。补数据前独立固定预期RED保留，首轮新测试将bango首位、英文win原文候选类型和qingji歧义误判的证据与修正明确记录。所有完整读音、明确半截、旧宽前缀、原文、选词续写、精确提交撤回、typed模型失效及14包共存纳入验证，准确结果见开发记录。不改语言算法、容量、推荐包字节或模型宿主接口，不提高成熟度评分，不外推实体键盘/GTK/HTTP/实模质量；未安装/提交/推送/发布，旧CI不验收这些新数据。"
+    },
     {
       "id": "E-daily-mealtime",
       "kind": "historical_run",
@@ -2340,6 +2511,10 @@
         2
       ],
       "evidence": [
+        "E-daily-laundry",
+        "E-daily-repairs",
+        "E-daily-delivery",
+        "E-daily-visits-ja-mealtime",
         "E-daily-mealtime",
         "E-daily-household",
         "E-daily-care",
@@ -2375,6 +2550,10 @@
         2
       ],
       "evidence": [
+        "E-daily-laundry",
+        "E-daily-repairs",
+        "E-daily-delivery",
+        "E-daily-visits-ja-mealtime",
         "E-daily-mealtime",
         "E-daily-household",
         "E-daily-care",
@@ -2412,6 +2591,10 @@
         2
       ],
       "evidence": [
+        "E-daily-laundry",
+        "E-daily-repairs",
+        "E-daily-delivery",
+        "E-daily-visits-ja-mealtime",
         "E-daily-mealtime",
         "E-daily-household",
         "E-chinese-mixed-boundary",
@@ -2451,6 +2634,16 @@
         2
       ],
       "evidence": [
+        "E-japanese-romaji-progress",
+        "E-japanese-reading-token-progress",
+        "E-japanese-punctuation-progress",
+        "E-japanese-learning-packs",
+        "E-japanese-theme-packs",
+        "E-japanese-internet-pack",
+        "E-daily-laundry",
+        "E-japanese-backfill",
+        "E-daily-repairs",
+        "E-daily-visits-ja-mealtime",
         "E-japanese-alias-tail",
         "E-daily-care",
         "E-daily-carry",
@@ -2484,6 +2677,7 @@
         2
       ],
       "evidence": [
+        "E-japanese-backfill",
         "E-prediction-error-boundaries",
         "E-prediction-edit-conflicts",
         "E-japanese-choices",
@@ -2676,6 +2870,9 @@
         2
       ],
       "evidence": [
+        "E-panel-held-rewind",
+        "E-panel-suspended-adoption-history",
+        "E-panel-number-adoption-history",
         "E-input-boundaries",
         "E-linux-delivery"
       ],
@@ -3097,6 +3294,12 @@
         2
       ],
       "evidence": [
+        "E-japanese-learning-packs",
+        "E-japanese-theme-packs",
+        "E-japanese-internet-pack",
+        "E-internet-packs",
+        "E-shopping-packs",
+        "E-pack-organization",
         "E-family-packs",
         "E-linux-delivery"
       ],
@@ -3487,6 +3690,12 @@
         2
       ],
       "evidence": [
+        "E-japanese-learning-packs",
+        "E-japanese-theme-packs",
+        "E-japanese-internet-pack",
+        "E-internet-packs",
+        "E-shopping-packs",
+        "E-pack-organization",
         "E-family-packs",
         "E-current",
         "E-linux-delivery"

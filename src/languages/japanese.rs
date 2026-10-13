@@ -96,6 +96,46 @@ fn is_authored_tail(prefix: &str, rest: &str) -> bool {
     if prefix.is_empty() {
         return false;
     }
+    if matches_authored_tail(prefix, rest) {
+        return true;
+    }
+    // Closing a matching grammatical fragment must not turn した back into 下.
+    // Ignore only explicit trailing prose marks for this protection comparison;
+    // keep them in conversion output and in the later whole-sentence query.
+    // Unknown text, opening delimiters, operators and line breaks stay significant.
+    let stem = rest.trim_end_matches(|ch| {
+        matches!(
+            ch,
+            '.' | ','
+                | '!'
+                | '?'
+                | '。'
+                | '、'
+                | '．'
+                | '，'
+                | '！'
+                | '？'
+                | '…'
+                | '‥'
+                | '\''
+                | '"'
+                | '’'
+                | '”'
+                | ')'
+                | ']'
+                | '）'
+                | '］'
+                | '」'
+                | '』'
+                | '】'
+                | '〉'
+                | '》'
+        )
+    });
+    stem.len() != rest.len() && !stem.is_empty() && matches_authored_tail(prefix, stem)
+}
+
+fn matches_authored_tail(prefix: &str, rest: &str) -> bool {
     if vocabulary().continuations().any(|(context, sentences)| {
         prefix.starts_with(context)
             && sentences.iter().any(|text| {
@@ -172,6 +212,21 @@ fn composition_kana(seed: &str) -> String {
 /// Complete the final reading after known dictionary words and particles. Never
 /// scan through an arbitrary unknown prefix looking for an unrelated dictionary suffix.
 fn word_completions(seed: &str) -> Vec<(String, crate::ime::candidate_mix::CandidateKind)> {
+    word_completions_with_limit(seed, 4)
+}
+
+/// Additional words may fill unused mixed-list slots, without replacing the
+/// primary four completions or changing authored sentence weights.
+pub(crate) fn word_completion_backfill(
+    seed: &str,
+) -> Vec<(String, crate::ime::candidate_mix::CandidateKind)> {
+    word_completions_with_limit(seed, crate::ime::candidate_mix::PAGE_SIZE * 2)
+}
+
+fn word_completions_with_limit(
+    seed: &str,
+    limit: usize,
+) -> Vec<(String, crate::ime::candidate_mix::CandidateKind)> {
     use crate::ime::candidate_mix::CandidateKind;
     if seed.len() < 2 || seed.chars().count() > 256 {
         return Vec::new();
@@ -234,7 +289,7 @@ fn word_completions(seed: &str) -> Vec<(String, crate::ime::candidate_mix::Candi
                             CandidateKind::Sentence
                         },
                     ));
-                    if output.len() == 4 {
+                    if output.len() == limit {
                         return output;
                     }
                 }
@@ -301,6 +356,77 @@ fn known_written_prefix_len(text: &str) -> Option<usize> {
 #[cfg(test)]
 mod completion_tests {
     use super::*;
+    #[test]
+    fn authored_tails_keep_their_spelling_before_closing_punctuation() {
+        for (prefix, tail) in [
+            ("完了", "した"),
+            ("日本語を勉強", "したい"),
+            ("カンリョウ", "したら"),
+        ] {
+            for punctuation in [
+                "!", "?", "。", "！？", "、", "，", "…", "。」", "”", ")", "]", "\"", "'",
+            ] {
+                let rest = format!("{tail}{punctuation}");
+                assert!(is_authored_tail(prefix, &rest), "{prefix}{rest}");
+                let draft = format!("{prefix}{rest}");
+                assert_eq!(convert_segments(&draft), draft);
+            }
+        }
+    }
+
+    #[test]
+    fn closing_punctuation_never_hides_unknown_or_control_text() {
+        for (prefix, rest) in [
+            ("", "した!"),
+            ("xyz完了", "した!"),
+            ("完了", "した!xyz"),
+            ("完了", "した/"),
+            ("完了", "した="),
+            ("完了", "した_"),
+            ("完了", "した()"),
+            ("完了", "した\n!"),
+            ("完了\n", "した!"),
+            ("完了", "!"),
+            ("完了", "しt!"),
+            ("完了", "したい!"),
+        ] {
+            assert!(!is_authored_tail(prefix, rest), "{prefix:?}{rest:?}");
+        }
+        assert_eq!(convert_segments("した!"), "下!");
+        assert_eq!(convert_segments("下書き。"), "下書き。");
+    }
+
+    #[test]
+    fn broad_readings_keep_a_bounded_later_page_in_dictionary_order() {
+        let choices = word_completion_backfill("し");
+        assert_eq!(
+            choices
+                .iter()
+                .map(|(text, _)| text.as_str())
+                .collect::<Vec<_>>(),
+            [
+                "仕事",
+                "失礼します",
+                "週末",
+                "締め切り",
+                "進捗",
+                "写真",
+                "趣味",
+                "植物",
+                "質問",
+                "詳細",
+                "失礼しました",
+                "承知しました",
+            ]
+        );
+        assert!(
+            choices
+                .iter()
+                .all(|(_, kind)| { *kind == crate::ime::candidate_mix::CandidateKind::Word })
+        );
+        assert_eq!(choices.len(), crate::ime::candidate_mix::PAGE_SIZE * 2);
+    }
+
     #[test]
     fn authored_sentences_follow_the_whole_draft_not_only_exact_triggers() {
         for (seed, expected) in [
@@ -406,6 +532,61 @@ mod completion_tests {
     }
 }
 
+// Probe only the final unconverted syllable of the existing conversion. These
+// are sentence-prefix queries, never replacement drafts or inferred Kanji.
+// Reusing the converted prefix also avoids segmenting the whole draft five times.
+fn authored_tail_probes(seed: &str, converted: &str) -> Vec<String> {
+    let reading = seed.trim_end_matches(|ch: char| ch.is_whitespace() && !is_line_boundary(ch));
+    let raw_prefix = reading.trim_end_matches(|ch: char| ch.is_ascii_alphabetic());
+    let converted_prefix = converted.trim_end_matches(|ch: char| ch.is_ascii_alphabetic());
+    // Removed reading separators must not join unfinished syllables: s + Space
+    // + h leaves an earlier s intact, even though converted ends with "sh".
+    // Both lengths describe ASCII suffixes, so this split stays on UTF-8 boundaries.
+    let pending_len =
+        (reading.len() - raw_prefix.len()).min(converted.len() - converted_prefix.len());
+    let (prefix, pending) = converted.split_at(converted.len() - pending_len);
+    let (prefix, pending) = if pending.is_empty()
+        && reading
+            .as_bytes()
+            .last()
+            .is_some_and(|ch| ch.eq_ignore_ascii_case(&b'n'))
+        && !matches!(
+            reading
+                .as_bytes()
+                .iter()
+                .rev()
+                .nth(1)
+                .map(u8::to_ascii_lowercase),
+            Some(b'n' | b'x')
+        ) {
+        // Only a raw single n can still become na/ni/etc. Keep the primary ん
+        // unchanged; explicit nn/xn/n'/Kana and dictionary-converted endings
+        // cannot be reversed to manufacture a different sentence prefix.
+        let Some(prefix) = converted.strip_suffix('ん') else {
+            return Vec::new();
+        };
+        // A complete written dictionary suffix (e.g. すみません) can itself
+        // end in ん, including after an adopted prefix. Do not split it again.
+        if kanji().any(|(_, word)| converted.ends_with(word)) {
+            return Vec::new();
+        }
+        (prefix, "n")
+    } else {
+        (prefix, pending)
+    };
+    // Supported syllables need at most three consonants before their last vowel
+    // (e.g. lts + u). Earlier unknown text remains part of every prefix query.
+    if prefix.is_empty() || pending.is_empty() || pending.len() > 3 {
+        return Vec::new();
+    }
+    ['a', 'i', 'u', 'e', 'o']
+        .into_iter()
+        .map(|vowel| romaji_to_hiragana(&format!("{pending}{vowel}")))
+        .filter(|tail| !tail.chars().any(|ch| ch.is_ascii_alphabetic()))
+        .map(|tail| format!("{prefix}{tail}"))
+        .collect()
+}
+
 pub(crate) fn mixed_candidates(
     seed: &str,
 ) -> Vec<(String, crate::ime::candidate_mix::CandidateKind)> {
@@ -426,6 +607,11 @@ pub(crate) fn mixed_candidates(
         ));
     }
     output.extend(word_completions(seed));
+    let probes = if seed.chars().count() <= 256 {
+        authored_tail_probes(seed, &converted)
+    } else {
+        Vec::new()
+    };
     let words: Vec<_> = std::iter::once(converted)
         .chain(
             output
@@ -433,6 +619,9 @@ pub(crate) fn mixed_candidates(
                 .filter(|(_, kind)| *kind == CandidateKind::Word)
                 .map(|(text, _)| text.clone()),
         )
+        // Old full-conversion/word choices keep their ordering and weights.
+        // Append pending-syllable queries within the same authored-sentence cap.
+        .chain(probes)
         .collect();
     for word in words {
         let mut contexts: Vec<_> = vocabulary()
@@ -518,6 +707,7 @@ const SPECIAL: &[(&str, &str)] = &[
     ("chu", "ちゅ"),
     ("cho", "ちょ"),
     ("che", "ちぇ"),
+    ("thi", "てぃ"),
     ("ja", "じゃ"),
     ("ju", "じゅ"),
     ("jo", "じょ"),
@@ -656,6 +846,101 @@ fn hiragana_to_katakana(input: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn sentence_probes_only_complete_the_final_pending_syllable() {
+        for (converted, expected) in [
+            (
+                "引用s",
+                vec!["引用さ", "引用し", "引用す", "引用せ", "引用そ"],
+            ),
+            (
+                "引用sh",
+                vec!["引用しゃ", "引用し", "引用しゅ", "引用しぇ", "引用しょ"],
+            ),
+            (
+                "引用しt",
+                vec!["引用した", "引用しち", "引用しつ", "引用して", "引用しと"],
+            ),
+            ("アメニth", vec!["アメニてぃ"]),
+            ("引用lts", vec!["引用っ"]),
+        ] {
+            assert_eq!(
+                authored_tail_probes(converted, converted),
+                expected,
+                "{converted}"
+            );
+        }
+    }
+    #[test]
+    fn sentence_probes_leave_complete_readings_and_unknown_tails_alone() {
+        for converted in ["", "sh", "引用", "引用ん", "引用shxyz", "引用sh\n"] {
+            assert!(
+                authored_tail_probes(converted, converted).is_empty(),
+                "{converted:?}"
+            );
+        }
+        // Prefix matching will reject these queries; probing must not erase a
+        // line break, an unknown written prefix, or a user's Katakana spelling.
+        for prefix in ["引用\n", "🙂引用", "カンリョウ"] {
+            let converted = format!("{prefix}sh");
+            let probes = authored_tail_probes(&converted, &converted);
+            assert_eq!(probes.len(), 5);
+            assert!(probes.iter().all(|query| query.starts_with(prefix)));
+        }
+    }
+    #[test]
+    fn sentence_probes_never_join_separately_typed_pending_syllables() {
+        for separator in [" ", "\t", "\u{a0}", "\u{2003}", "\u{202f}", "\u{3000}"] {
+            let seed = format!("引用s{separator}h{separator}");
+            assert_eq!(
+                authored_tail_probes(&seed, "引用sh"),
+                ["引用sは", "引用sひ", "引用sふ", "引用sへ", "引用sほ"],
+                "{seed:?}"
+            );
+            let seed = format!("引用shi{separator}t{separator}");
+            assert_eq!(
+                authored_tail_probes(&seed, "引用しt"),
+                ["引用した", "引用しち", "引用しつ", "引用して", "引用しと"],
+                "{seed:?}"
+            );
+        }
+    }
+    #[test]
+    fn sentence_probes_distinguish_pending_n_from_confirmed_nasal_text() {
+        for seed in ["引用n", "引用N", "引用 n\t", "in'youn", "IN’YOUN\u{3000}"] {
+            assert_eq!(
+                authored_tail_probes(seed, "引用ん"),
+                ["引用な", "引用に", "引用ぬ", "引用ね", "引用の"],
+                "{seed:?}"
+            );
+        }
+        for seed in [
+            "引用nn",
+            "引用NN",
+            "引用xn",
+            "引用XN",
+            "引用n'",
+            "引用n’",
+            "引用ん",
+            "引用ン",
+        ] {
+            assert!(authored_tail_probes(seed, "引用ん").is_empty(), "{seed:?}");
+        }
+        // A dictionary conversion or a preserved line boundary is not a pending n.
+        for (seed, converted) in [("hon", "本"), ("引用n\n", "引用ん\n"), ("n", "ん")] {
+            assert!(authored_tail_probes(seed, converted).is_empty(), "{seed:?}");
+        }
+        // These complete dictionary forms end in Hiragana ん, not Kanji.
+        // A written suffix can be recognized after another adopted word too.
+        for (seed, converted) in [
+            ("sumimasen", "すみません"),
+            ("wakarimasen", "分かりません"),
+            ("moushiwakearimasen", "申し訳ありません"),
+            ("引用sumimasen", "引用すみません"),
+        ] {
+            assert!(authored_tail_probes(seed, converted).is_empty(), "{seed:?}");
+        }
+    }
     #[test]
     fn terminal_n_boundaries_aliases_and_non_roman_text_are_preserved() {
         for (input, expected) in [

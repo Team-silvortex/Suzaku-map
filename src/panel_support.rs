@@ -228,10 +228,19 @@ pub struct NextTokenCompletion {
 #[derive(Debug, Default)]
 pub struct CompletionHistory {
     edits: Vec<NextTokenCompletion>,
+    revision: u64,
 }
 
 impl CompletionHistory {
+    /// Mutation identity within this history instance, including undo/reapply
+    /// roundtrips that restore the exact same text and labels.
+    pub fn revision(&self) -> u64 {
+        self.revision
+    }
     pub fn clear(&mut self) {
+        if !self.edits.is_empty() {
+            self.revision = self.revision.wrapping_add(1);
+        }
         self.edits.clear();
     }
     pub fn labels(&self) -> Vec<String> {
@@ -245,6 +254,7 @@ impl CompletionHistory {
             self.edits.remove(0);
         }
         self.edits.push(edit.clone());
+        self.revision = self.revision.wrapping_add(1);
         Some(edit.seed_after.clone())
     }
     pub fn undo(&mut self, current: &str) -> Option<String> {
@@ -252,7 +262,9 @@ impl CompletionHistory {
             self.clear();
             return None;
         }
-        self.edits.pop().map(|edit| edit.seed_before)
+        let edit = self.edits.pop()?;
+        self.revision = self.revision.wrapping_add(1);
+        Some(edit.seed_before)
     }
 }
 
@@ -1384,6 +1396,64 @@ mod tests {
         assert_eq!(history.labels(), ["hello"]);
         assert!(history.undo("a manually changed draft").is_none());
         assert!(history.labels().is_empty());
+    }
+
+    #[test]
+    fn completion_history_revision_tracks_mutations_not_noops() {
+        let mut history = super::CompletionHistory::default();
+        let edit = super::next_token_completion("hel", "hello").unwrap();
+        assert_eq!(history.revision(), 0);
+        history.clear();
+        assert!(history.undo("hel").is_none());
+        assert!(history.apply("stale source", &edit).is_none());
+        assert_eq!(history.revision(), 0);
+        assert_eq!(history.apply("hel", &edit).as_deref(), Some("hello"));
+        assert_eq!(history.revision(), 1);
+        let noop = super::NextTokenCompletion {
+            label: "hello".into(),
+            seed_before: "hello".into(),
+            seed_after: "hello".into(),
+        };
+        assert!(history.apply("hello", &noop).is_none());
+        assert_eq!(history.revision(), 1);
+        assert_eq!(history.undo("hello").as_deref(), Some("hel"));
+        assert_eq!(history.revision(), 2);
+        assert_eq!(history.apply("hel", &edit).as_deref(), Some("hello"));
+        assert_eq!(history.labels(), ["hello"]);
+        assert_eq!(history.revision(), 3);
+        // A mismatched undo clears real history despite returning no edit.
+        assert!(history.undo("a newer manual draft").is_none());
+        assert_eq!(history.revision(), 4);
+        assert!(history.labels().is_empty());
+        history.clear();
+        assert_eq!(history.revision(), 4);
+        assert_eq!(history.apply("hel", &edit).as_deref(), Some("hello"));
+        history.clear();
+        assert_eq!(history.revision(), 6);
+        assert_eq!(history.apply("hel", &edit).as_deref(), Some("hello"));
+        assert_eq!(history.labels(), ["hello"]);
+        assert_eq!(history.revision(), 7);
+    }
+
+    #[test]
+    fn completion_history_revision_changes_when_bounded_labels_are_identical() {
+        let mut history = super::CompletionHistory::default();
+        let mut seed = "0".to_owned();
+        for step in 1..=34 {
+            let edit = super::NextTokenCompletion {
+                label: "same label".into(),
+                seed_before: seed.clone(),
+                seed_after: step.to_string(),
+            };
+            seed = history.apply(&seed, &edit).unwrap();
+            assert_eq!(history.labels().len(), (step as usize).min(32));
+            assert_eq!(history.revision(), step);
+        }
+        assert_eq!(history.labels(), vec!["same label"; 32]);
+        assert_eq!(history.undo("34").as_deref(), Some("33"));
+        assert_eq!(history.revision(), 35);
+        history.clear();
+        assert_eq!(history.revision(), 36);
     }
 
     #[test]

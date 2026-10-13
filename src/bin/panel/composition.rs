@@ -263,14 +263,23 @@ impl PanelState {
             self.native_action(suzaku_map::ime::companion::NativeOperation::Adopt(index));
             return;
         }
-        let text = self
-            .engine
-            .candidates()
-            .get(index)
-            .map(|candidate| candidate.text.clone());
-        if let Some(text) = text {
-            self.replace_continuing_draft(text);
-        }
+        let Some(candidate) = self.engine.candidates().get(index) else {
+            return;
+        };
+        // Number choices are the same reversible draft edits as word chips.
+        // Bind the edit to the engine's source draft, never a newer UI draft
+        // that has not yet rebuilt its candidates. No-op choices keep history.
+        let edit = suzaku_map::panel_support::NextTokenCompletion {
+            label: candidate.text.clone(),
+            seed_before: self.engine.snapshot().seed_text,
+            seed_after: candidate.text.clone(),
+        };
+        let Some(text) = self.completion_history.apply(&self.chrome.seed_text, &edit) else {
+            return;
+        };
+        self.chrome.set_seed_text(text.clone());
+        self.chrome.move_caret_to_end();
+        self.refresh_seed_with_text(&text);
     }
 
     pub(super) fn continue_composition_with_space(&mut self) {

@@ -3,7 +3,11 @@
 Historical implementation notes, including earlier behavior and experimental platforms.
 Start with the [README](README.md) and [known limitations](docs/known-limitations.md).
 
-Current source version: **0.8.8 — Persistent candidate preferences and everyday fallback**.
+Current source version: **0.8.9 — Broader offline packs and safer continuous editing**.
+
+The unreleased headings below retain their development-time status. Their accumulated
+changes are included in the 0.8.9 source candidate; a source commit is not package-release
+acceptance. See [0.8.9 release notes](docs/releases/0.8.9.md).
 
 ## Current priority: Chinese and English input on Linux
 
@@ -41,6 +45,956 @@ checks and clean-container installation checks to pass before publication. Other
 are added only after their own acceptance, not implied by the shared version number.
 This is a release requirement, not a claim that automatic publication is implemented or
 that existing 0.7.x tags already have assets. See [Linux packaging](docs/linux-packaging-data.md).
+
+### 0.8.9 source release validation — 2026 10 13
+
+- Synchronize Cargo/root lockfile, Android and both macOS bundles to 0.8.9;
+  platform build numbers become 39. No dependency or optional-pack version changes.
+  Release notes separate the unpublished 0.8.8 source baseline from the last
+  downloadable 0.8.7 release and retain Linux Alpha limitations.
+- On the versioned source, the complete locked all-feature Rust regression passes
+  **2,034 tests**, with zero failures and **32 explicitly ignored** opt-in or
+  subprocess fixtures in that invocation. The separate complete private UI gate
+  passes **19 tests**, including candidate gestures (8.15 s), suspended adoption
+  history, settings, multilingual rendering and single-instance startup.
+  Strict all-feature/all-target Clippy passes without warnings (35.59 s).
+  Logs are under `/tmp/suzaku-release-0.8.9.NHgMqa/`: `full-regression.log`,
+  `ui-gate.log` and `clippy.log`. Builds/native checks remain serial, offline,
+  single-job, with a 2 GiB high / 4 GiB maximum / zero-swap task scope.
+- Formatting, diff checks, version consistency, 11 pack-shipping tests, 18 CI
+  graph tests, 21 tensor-tool tests and the 69-function/79-cell source digest pass.
+  Selected observation/fixture/source guards add 133 tests (`source-guards.log`)
+  and five historical AST guards add 85 (`ast-guards.log`). A link-check call
+  initially omitted its required root argument and exited with usage; the correct
+  source-tree invocation checks 250 links successfully, not extracted packages.
+  Local ShellCheck is unavailable and remains a required remote Linux step.
+  Checksum-pinned Gitleaks 8.30.1 finds no leaks in fetched history or staged changes.
+- These local results are not remote release acceptance. The exact pushed commit
+  still requires every CI gate and its own accepted artifact, with four verified
+  assets, before tagging/publishing. No daily installation, desktop input service
+  or user configuration is changed by release preparation.
+
+### Unreleased held Back gesture identity — 2026 10 13
+
+- Reproduce a stale pointer gesture in the standalone editor: adopt `hello`,
+  hold Back, adopt `hello world` through the completion helper, redraw,
+  then release the old Back press. Its unchanged button geometry previously
+  authorized undoing the newly appended edit. A held Back now captures the
+  in-memory history revision, draft and language; validate all three before
+  release, including after repaint. Entering a native view cancels that local
+  Back press without clearing the saved standalone history.
+- `CompletionHistory` increments its instance revision once for a successful
+  apply/undo or nonempty clear, including mismatched-source undo cleanup.
+  Empty clear/undo and rejected/no-op adoption do not increment it. This also
+  rejects undo/reapply and clear/reapply cycles with identical final text and
+  labels, and works when the 32-entry bound evicts an old edit. No persistence,
+  vocabulary, model, history-capacity or keyboard-undo policy changes; no new
+  dirty-scene Back hit fallback is added.
+- Preserve the existing candidate-gesture test and append fourteen English
+  mouse/touch subcases. They exercise word-chip/numeric append, undo/reapply,
+  real Backspace cleanup/reapply, native roundtrip, unchanged refresh and
+  no-op/invalid choices. The scene is actually presented again without a new
+  press; the original location must still hit Back and the saved press instant
+  must remain within the unextended baseline tap deadline before release.
+  Fresh presses still undo the current edit and duplicate releases stay inert.
+  The added cases call production edit helpers directly rather than injecting
+  physical keyboard events; numeric adoption shares the panel key handler's path.
+  Two unit tests cover revision mutation/no-op behavior and bounded eviction.
+- `/tmp/suzaku-held-rewind.IZihF9/native-red.log` preserves the reproduced
+  `hello world` to `hello` unintended undo (6.67 s test run). `native-fixed.log`
+  passes the complete candidate-gesture test with the added cases in 8.11 s.
+  The tests use the existing chrome baseline (also stricter than the touch
+  allowance), without resetting timestamps or raising any deadline.
+  All runs use a private display/bus/config/socket and keep existing DRI3
+  diagnostics visible. These are synthetic gestures, not physical mouse/touch
+  device, installed IBus or native Wayland acceptance.
+- Final validation retains the same source/test hashes: `regression.log`
+  passes 859 ordinary tests across eight targets (24 opt-in tests ignored in
+  that invocation), and `ui-gate.log` passes all 19 tests in the complete
+  existing UI gate, including the extended candidate test (8.24 s). Its fourteen
+  subcases and the separate focused execution are not extra suite test counts.
+  Strict all-feature/all-target Clippy passes in 38.12 s (`clippy.log`).
+  Formatting/diff checks, all 21 tensor-tool tests and 69-function/79-cell tensor
+  validation pass. Hashes preserve all 25 optional packs and three builtin
+  lexicon JSON resources. Compilation/native checks run serially with one
+  offline build job and a 2 GiB high / 4 GiB maximum / zero-swap task scope.
+  No installation, commit, push or remote CI/release acceptance is performed.
+
+### Unreleased suspended standalone adoption-history boundary — 2026 10 13
+
+- Reproduce and fix the native/local configuration-transition gap identified
+  below. While a native view owned the chrome, `apply_native_settings` changed
+  the standalone engine's language but the manual-edit helper skipped clearing
+  its adoption history. Restoring the exact saved text then resurrected an old
+  language's reversible edit. Clear this standalone history directly inside the
+  existing acknowledged-configuration-change block. Keep the manual-edit native
+  guard and native enter/leave behavior unchanged.
+- Preserve the existing local invalidation policy for language/model/provider
+  configuration changes, including temperature and timeout; do not confuse this
+  edit history with the separate committed prediction context. Identical settings,
+  shortcut-only changes, ordinary view roundtrips, native manual synchronization
+  and host-frame language changes alone retain the independent local history.
+  Saved text, caret and drawer state survive; no native operation is emitted.
+- Append a helper to the existing private-display provider-context regression,
+  preserving every previous assertion. Sixty subcases cover default EN/ZH/JA
+  word adoption, both `apply_native_settings` entry branches and ten transition
+  conditions. The language-away-and-back case cannot resurrect old edits.
+  These branches are called directly: this is not a complete asynchronous
+  settings-write/ACK workflow. Empty native queues remain empty; nonempty queue
+  lifecycles and physical keyboard behavior are not newly qualified.
+- `/tmp/suzaku-history-transition.6WfkmL/native-red.log` preserves the failure:
+  the first five preservation controls pass, then acknowledged EN-to-JA change
+  restores one history item instead of zero. `native-fixed.log` passes the
+  complete provider-context test and all sixty new subcases in 1.84 s.
+  Model generation stays disabled, the host sender is an in-memory channel,
+  and the private socket must not exist. Xvfb's DRI3 warnings remain visible;
+  no personal configuration, installed service or external application is used.
+- Final verification on frozen production/test hashes: `regression.log` passes
+  857 ordinary tests across eight targets (24 opt-in tests ignored there), and
+  the complete existing `test-linux-ci.sh ui` gate passes all 19 isolated tests
+  (`ui-gate.log`). Its provider-context test includes the sixty new subcases;
+  do not count either the subcases or the focused rerun as extra independent
+  suite tests. All-feature/all-target strict Clippy passes in 4.63 s
+  (`clippy.log`); formatting, diff checks, all 21 tensor-tool tests and the
+  69-function/79-cell tensor validation pass. Hash checks retain all 25 optional
+  pack and three builtin JSON resources unchanged. Compilation/native checks
+  run serially with one offline build job and 2 GiB high / 4 GiB maximum / zero
+  swap task limits. No install, commit, push or remote CI/release acceptance.
+
+### Unreleased standalone number-choice adoption history — 2026 10 13
+
+- Fix the standalone-panel gap identified in the preceding source review:
+  `continue_sentence_candidate` used the manual draft-replacement helper,
+  clearing completion history after a number choice. Reuse the existing bounded
+  `CompletionHistory` edit path instead, with exact before/after payloads and the
+  engine's candidate-source draft as `seed_before`. The current UI draft must
+  still match that source. Invalid indices, stale source drafts and unchanged
+  payloads are no-ops that do not clear history or refresh/cancel derived work.
+- Default standalone English, Chinese and Japanese conversions now expose the
+  existing Back control after adoption, even when a CJK view has no English word
+  chips. Consecutive adoptions can be undone separately. Existing word-chip
+  behavior, 32-edit history capacity, literal/manual Space behavior, normal
+  text/delete/settings cleanup, explicit mouse-click commits and the native
+  host-owned `Adopt` route are unchanged. No vocabulary or model policy changes.
+- Append one helper to the existing isolated candidate-gesture test, preserving
+  every old assertion. First check the real default standalone engine's three
+  language word conversions. Then temporarily supply a real mixed-candidate
+  engine for fixed typed word/sentence chains and direct-sentence adoption;
+  restore the original engine/language/chrome afterwards. This fixture does not
+  turn on authored sentence mixing in the production standalone panel.
+  Actual presented Back targets are hit through existing mouse/touch handlers
+  in collapsed/expanded representative layouts; duplicate release, exhausted
+  history, no-op choices, invalid slots, stale draft, manual edits, ordinary
+  Space and normal local-language cleanup all have explicit assertions.
+- `/tmp/suzaku-panel-adoption.yeDtxP/native-red.log` retains the expected
+  default English failure (history length zero instead of one).
+  `native-fixed.log` retains a later new-fixture failure: the English known
+  word `hello` is correctly typed as `Word`, not `Literal`, after deduplication.
+  Correct only the new no-op lookup to use the exact unchanged payload regardless
+  of kind; preserve its full snapshot/history assertions and all old checks.
+  `native-verified.log` then passes the complete candidate-gesture test in 7.42 s,
+  including old async replacement, held gestures and acknowledged/failed synthetic
+  Unix-socket commit delivery. Xvfb's existing DRI3 warnings remain visible.
+  This is a private display/bus/config/socket test, not physical keyboard,
+  daily-installation or native Wayland acceptance.
+- An initial broader-check invocation named the nonexistent
+  `ime_panel_controls` target and ran no tests; `regression.log` preserves that
+  command error. Its replacement uses only enumerated repository targets.
+  The temporary focused runner passes Bash syntax validation; ShellCheck is
+  unavailable locally, and was not installed or reported as passing.
+- Final verification against the same source/test hashes:
+  `regression-verified.log` passes 857 ordinary tests across eight targets
+  (24 opt-in tests ignored in that invocation); the complete existing
+  `scripts/test-linux-ci.sh ui` gate passes all 19 isolated tests in
+  `ui-gate.log`, including the candidate-gesture test above. Do not count that
+  focused test twice. Strict all-feature/all-target Clippy with `-D warnings`
+  passes in 5.43 s (`clippy.log`). Compilation and native checks run serially
+  with one build job, offline dependencies and a task-owned 2 GiB high / 4 GiB
+  maximum memory scope with no swap. Formatting/diff checks and all 21 tensor
+  tool tests pass; the tensor validates 69 functions and 79 cells. Hash checks
+  confirm all 25 optional-pack and three builtin-lexicon JSON files unchanged
+  during this fix. This is not remote CI, a full IBus gate or installation
+  acceptance; no daily service/configuration, commit, tag or push is changed.
+- At this stage a separate source-review follow-up remained: acknowledged language changes
+  while showing a native view can skip local-history clearing before restoring
+  a saved standalone draft. This native/local transition needs its own isolated
+  regression; this patch does not change that path or claim it validated.
+  The subsequent suspended-history entry above records its separate reproduction
+  and fix.
+
+### Unreleased Japanese grammatical tails before punctuation — 2026 10 13
+
+- Fix a reproduced conversion regression when closing an existing authored
+  grammatical fragment: `完了shita!` changed from `完了した` to `完了下!`,
+  and the study-pack `引用shita?` similarly became `引用下?`. Preserve the
+  matched grammatical spelling before explicit terminal prose marks and closing
+  quotes/brackets, including `日本語を勉強shitai。`. This protects existing
+  finite authored prefixes, not arbitrary Japanese conjugations.
+- Keep the original whole-tail match first. Only if it fails, compare again
+  without an explicit trailing punctuation whitelist. The converted output
+  retains every mark; sentence suggestions still use the full punctuated query,
+  so `完了した!` does not resurrect `完了したら連絡してください。` by
+  silently discarding `!`. Unknown text, opening delimiters, code operators,
+  line boundaries and unfinished syllables cannot be skipped by this comparison.
+  Existing Katakana aliases keep their written form. Independent `下`,
+  `入口の下`, `下書き` and `下ごしらえ` remain normal noun conversions.
+- Add two helper unit tests and seven independent engine tests in
+  `tests/japanese_punctuation_progress.rs`. Fresh builtin and nine-Japanese-pack
+  snapshots cover punctuation insertion/deletion, ASCII/fullwidth marks, closing
+  quotes, exact primary scores, literal drafts, exact commit/duplicate refusal/
+  undo, unknown prefixes, protected text and all seven line-boundary forms.
+  These are editable engine seed updates, not physical keys or installed UI.
+- Preserve `/tmp/suzaku-ja-punctuation.LIsGoS/unit-red.log` (one pass, one
+  expected failure) and `integration-red.log` (three pass, four expected
+  failures). The failures show the actual `完了下!` and `引用下?` regressions;
+  no old assertion, vocabulary data, ranking fixture, budget or deadline changes.
+  The frozen-source focused check (`focused.log`) passes 600 tests: 569 library
+  tests and 31 across the new punctuation, existing completion-boundary,
+  sentence-progress and adopted-alias targets. Two existing model diagnostics
+  remain ignored. Tensor (21), source-shipping (11) and vocabulary-partition
+  (22) guard tests pass; all 25 optional pack and three builtin JSON hashes
+  match the pre-change snapshot.
+  The remaining 40 explicit integration targets (`regression.log`) pass another
+  303 tests without overlapping the four focused targets: **903 passed, two
+  ignored** across the library and 44 integration targets in total. This includes
+  every Japanese-named Rust suite, English/Chinese completion quality, resource
+  contracts, pack input edges and all nine shared pack compatibility cohorts.
+  The implementation and new test hashes stay fixed across both runs. Builds and
+  tests are serial, offline and scoped to the existing 2 GiB high / 4 GiB maximum /
+  zero-swap limits. No install, native/physical input, remote CI, commit or push
+  is performed, and maturity scores are unchanged.
+  Strict all-feature/all-target Clippy with warnings denied passes in 41.82 s
+  (`clippy.log`); formatting, whitespace and final tensor-digest checks pass.
+- Source review also found a separate standalone-panel adoption-history gap:
+  `continue_sentence_candidate` calls `replace_continuing_draft`, which clears
+  history, so `rewind_next_token` has no adopted edit to restore. This is not
+  an IBus-host finding. Follow up with an isolated native-panel regression in
+  `candidates_native_test::check_editable_keyboard_choices`; no panel code or
+  personal input service is changed by this punctuation fix.
+
+### Unreleased Japanese reading-boundary and terminal-n continuity — 2026 10 13
+
+- Fix a boundary hole in the preceding pending-syllable change: separate
+  unfinished `s h` tokens were concatenated in the converted view and then
+  incorrectly probed as `sh`. `引用s h` could offer the authored `引用した…`
+  sentence, only to lose it at `引用s hi`. Bound the query's pending letters
+  by the raw final ASCII run as well as the converted run, retaining any earlier
+  unfinished letters. Complete tokens (`引用 shi t`), word separators and
+  trailing horizontal space still work. Main conversion and literal payloads
+  do not change; line boundaries never disappear from the full-prefix match.
+- A raw single `n`/`N` may now query an authored `na`/`ni`/`no` continuation
+  while keeping the existing primary `ん` unchanged. This covers `準備中n`,
+  lodging-pack `ホテルn` and study-pack `引用n`, including vowel entry and
+  deletion back to `n`. Explicit `nn`, `xn`, `n'`/`n’`, typed Kana, line breaks
+  and already converted dictionary endings are not reversed. A known written
+  suffix ending in Hiragana `ん` (`すみません`, `分かりません`,
+  `申し訳ありません`) stays whole too, including after an adopted prefix.
+- Add four `japanese_romaji_token_boundaries` and seven
+  `japanese_terminal_n_progress` integration tests plus two bounded-helper unit
+  tests. Fresh builtin and nine-Japanese-pack snapshots cover raw/written forms,
+  uppercase, horizontal separators, edit/backtrack sequences, exact primary
+  text and scores, literal preservation, explicit-nasal spelling, protected
+  prefixes, lines and long drafts, and exact commit/duplicate refusal/undo.
+  These are engine seed updates, not physical Backspace or desktop acceptance.
+  Preserve all older expected values; the helper's earlier unit tests receive
+  their original input as the additional raw-seed argument.
+- Preserve `/tmp/suzaku-ja-boundaries.pNXBD0/red.log`: 5 pass, 6 expected
+  failures before implementation (four separator/edit cases and two pending-n
+  cases). The first focused run (`first.log`) passes all 35 tests unchanged.
+  Independent review then identified unnecessary probes inside already-complete
+  nasal-ending words; the existing whole-prefix match rejected those queries,
+  so no incorrect visible sentence was established for that subcase.
+  `complete-word-red.log` records the failing helper contract at `sumimasen`;
+  the added dictionary-suffix guard avoids generating those queries at all.
+  No prior failure is erased, and no old assertion, budget or deadline is relaxed.
+- Final frozen-source regression (`regression.log` in the same temporary
+  directory) passes 894 tests across the all-features library and 43 explicit
+  integration targets; two existing model diagnostics remain ignored. This
+  covers the new tests, all Japanese daily/theme workflows, catalog compatibility,
+  offline-pack quality and resource contracts, protected input, and Chinese and
+  English completion quality. Compilation and tests run serially in the existing
+  2 GiB high / 4 GiB maximum / zero-swap task scope, with offline dependencies.
+  All-target, all-features Clippy with warnings denied also passes (35.65 s,
+  `clippy.log`). The tensor (21), pack-shipping (11) and vocabulary-partition
+  (22) guard tests pass, along with tensor/digest validation, formatting and
+  whitespace checks. All 25 pack JSON and three builtin JSON hashes remain
+  unchanged; the frozen implementation/test hashes also match after validation.
+  No install, physical-key/native test, commit, push or remote CI run is performed.
+- All vocabulary JSON remains unchanged, with the same 25 optional packs and
+  installation capacities. Queries remain model-independent, finite authored
+  fallback, capped at five final-vowel probes and the existing 256-character,
+  four-sentence and twelve-candidate bounds. Primary text and old weights are
+  unchanged; added sentence choices may move lower-priority words under the
+  existing page balance. No arbitrary Kanji inference or full Japanese
+  morphological/long-sentence coverage is claimed.
+
+### Unreleased Japanese spelling and pending-syllable continuity — 2026 10 13
+
+- Add the explicit Romaji alias `thi -> てぃ`. The existing lodging entry
+  `アメニティ` now accepts `amenithi` and the partial `amenith`, including
+  uppercase and horizontal reading separators. Keep `ti -> ち`, `di -> ぢ`,
+  `tu -> つ`, `du -> づ` and the existing `texi`/`teli` spellings unchanged;
+  `ameniti` is not silently corrected. No pack data or model protocol changed.
+- Keep matching authored sentences reachable while typing the last incomplete
+  syllable: for example `引用 s -> sh -> shi -> shit -> shita`. Use the existing
+  converted prefix and at most five final-vowel probes on a one-to-three-letter
+  pending syllable, without re-segmenting the draft or inferring new Kanji.
+  Append these queries after existing word/full-conversion queries, within the
+  same four-sentence, twelve-candidate and 256-character limits. Primary text,
+  kinds and weights stay intact; additional sentence choices can move lower
+  word choices under the existing page-balancing rules. Not every sentence is
+  promised on the first page. A terminal `n` already converted to `ん` remains
+  unchanged, and arbitrary sentence readings/morphology are still unsupported.
+- Add independent `japanese_romaji_aliases` and `japanese_romaji_progress`
+  regressions: pack absent/disabled, lodging alone and nine Japanese packs,
+  complete/partial/uppercase/separated spelling, adopted-word continuation,
+  literal protection, exact commit/duplicate refusal/undo, and preservation of
+  genuine `下書き`/`下ごしらえ` word choices. Two small unit tests pin the bounded
+  probe behavior and retain unknown prefixes, line boundaries and written aliases.
+  These use private engine snapshots and editable seed updates, not physical
+  keyboard events or a desktop installation.
+- Preserve `/tmp/suzaku-ja-romaji.6Qeeuk/red.log`: before implementation,
+  5 tests passed and 6 failed as expected (missing alias/author-sentence progress).
+  The first integrated check (`first.log`) passed 41 tests and failed one new
+  assertion: `contains("引用下")` incorrectly rejected the pre-existing complete
+  words `引用下書き` and `引用下ごしらえ`, although the target sentence had returned.
+  Correct only that new assertion to forbid the exact noun substitution `引用下`,
+  and explicitly require both longer words to remain selectable/committable.
+  No old assertion, rank fixture, deadline or limit was changed.
+- Final resource-capped, offline, single-build-job checks pass **881 tests**:
+  565 library tests plus 316 across 41 explicit integration targets, with two
+  pre-existing opt-in live-model diagnostics ignored. Coverage includes every
+  Japanese-named Rust integration target, English/Chinese core completion,
+  resource validation, pack input edges and all nine shared compatibility cohorts.
+  The initial shell-built target list was expanded by the scope runner, so
+  `regression.log` is credited only to the library; `integration.log` separately
+  records all 41 targets passed by explicit name. Source/test hashes stayed
+  fixed throughout; all 25 pack JSON files and three builtin lexicons match
+  the pre-change hashes. Tensor (21), source shipping (11) and vocabulary
+  partition (22) checks pass, with maturity scores unchanged. No native/physical
+  input test, installation, package build, remote CI, commit or push was performed.
+- Strict all-feature/all-target Clippy (`-D warnings`) also passes in 41.66 seconds
+  (`clippy.log`), followed by formatting, tensor-digest and whitespace checks.
+
+### Unreleased Japanese study, cooking and night-sky packs — 2026 10 13
+
+- Add independent optional MIT v1.0.0 data collections
+  `org.suzaku.ja.study`, `org.suzaku.ja.cooking` and `org.suzaku.ja.outdoors`.
+  Each has 32 readings, 12 continuation contexts and 24 original sentences:
+  96 readings and 72 sentences total. Study covers preparation/review,
+  textbooks, reading, writing and citations; cooking covers utensils,
+  ingredients and preparation; outdoors is specifically night-sky conversation
+  and observing equipment, not a general outdoor dictionary or live forecast.
+  No private notes, third-party corpus, professional advice or external
+  operations are included. Existing Romaji/Kana rules and model interfaces
+  are unchanged; these collections remain a finite offline fallback.
+- The available catalog now has twenty-five packs (EN 8/ZH 8/JA 9).
+  Japanese now covers the same eight broad themes plus its separate rail
+  collection; this does not claim equal vocabulary size, morphology or input
+  quality across languages. Each new pack uses 68 indexing units; all nine
+  Japanese packs total 592, with EN/ZH unchanged at 2,976/622. Preserve the
+  previous twenty-two JSON sources, their catalog positions and three builtin
+  lexicons byte-for-byte. All installation, language, layer, byte, draft and
+  candidate/page limits remain unchanged, including sixteen installed records
+  with disabled records still occupying slots.
+- Retain six existing compatibility cohorts and every shared quality
+  assertion. Add three more, each the original fourteen plus Japanese internet
+  and one new theme. Nine separate sixteen-pack cohorts jointly cover the
+  catalog; no fixture installs twenty-five at once. A new independent catalog
+  suite pins old source hashes, checks exact cohort membership and rejects a
+  seventeenth installation without altering registry bytes. Browsing remains
+  read-only; `home` distinguishes Japanese family from cooking, just as
+  `travel` distinguishes rail from lodging. The source shipping lists and
+  navigable README include all twenty-five, without automatic installation.
+- Three new suites each use a fixed nine-Japanese-pack registry, covering
+  complete supported Romaji (lower/upper case), Kana and written forms,
+  word and both authored sentence candidates, selected partials and reading
+  separators, all twelve adopted contexts followed by known tails, original
+  text protection and exact commit/duplicate-refusal/undo. Absence and
+  disabling use fresh snapshots; three representative contexts per pack cover
+  four typed provider errors and empty results. URL/code, line boundaries and
+  over-256-character drafts preserve literal text rather than inventing a
+  continuation. Nine-pack coexistence checks full forms and older controls,
+  not every incomplete spelling or failure-mode combination.
+- Independent expectations preceded data: the new catalog check records
+  1 pass (old hashes) and 3 expected missing-package failures in
+  `/tmp/suzaku-ja-learning.Juxaug/catalog-red.log`; the three new language
+  targets each record 9 expected missing-package failures in `words-red.log`.
+  Preserve these receipts separately from the subsequent integrated runs.
+- The first integrated check (`first.log`) passes all **32 tests**: the 27
+  new language tests, four catalog checks and the shared quality target across
+  nine cohorts. No candidate, data, assertion or deadline adjustment was
+  needed after adding the three resources. The three new JSON files total
+  13,350 bytes; no model files or executable extensions are bundled.
+- Final receipt: `regression.log` passes **729 tests across 27 selected
+  lib/integration targets**, with five existing ignores (two opt-in model
+  diagnostics and three subprocess-only entry points exercised by parents).
+  Strict `cargo clippy --all-features --all-targets -- -D warnings` passes in
+  35.96 s (`clippy.log`). Compilation and tests use one build job in a serial
+  4 GiB user scope, with no swap. Static shipping/partition/tensor suites pass
+  11/22/21 tests; 250 packaged documentation links resolve. Formatting, shell
+  syntax and diff checks pass. Previous-source and final-added-file SHA-256
+  receipts are retained in the same task directory and verify unchanged
+  files throughout validation. Functional tensor remains 69 functions and
+  79 cells, with no maturity-score increase.
+- No installation, personal services/configuration, commit, push, release or
+  archive build is performed. The native/GTK pack fixtures still cover the
+  historical fourteen. Source checks do not establish physical-keyboard,
+  real-model, clean-package-installation or remote-CI acceptance. Functional
+  tensor evidence is extended without changing its maturity scores.
+
+### Unreleased Japanese shopping, lodging and work packs — 2026 10 12
+
+- Add three original MIT, optional v1.0.0 data collections:
+  `org.suzaku.ja.shopping`, `org.suzaku.ja.travel` and `org.suzaku.ja.work`.
+  Each contains 32 readings, 12 continuation contexts and 24 sentences: 96
+  readings and 72 sentences in total. Shopping covers fitting rooms, sizes,
+  colours, receipts, wrapping and ordering; lodging covers hotels, reception,
+  check-in/out, luggage and facilities; work covers meetings, documents,
+  progress, approvals and handover. No purchases, bookings, accounts or work
+  systems are accessed. Japanese study, cooking and astronomy remain absent.
+- The available catalog grows from nineteen to twenty-two (EN 8/ZH 8/JA 6).
+  Each new pack uses 68 indexing units; Japanese collections total 388,
+  English/Chinese remain 2,976/622. The sixteen installed-record cap (including
+  disabled entries), all byte/layer/language budgets, candidate/page limits
+  and algorithms are unchanged. Existing nineteen JSON files and all three
+  builtin resources retain their exact bytes; original catalog order is fixed.
+  Ship the new JSON through the source package lists, update topic navigation
+  and explicitly distinguish Japanese rail from lodging under `travel`.
+- Keep the previous three sixteen-pack compatibility batches. Add three more,
+  each with the original fourteen plus Japanese internet and one new theme;
+  each executes the complete shared quality assertions. Their union
+  covers twenty-two, never a twenty-two-pack registry. Independently assert
+  memberships, capacity refusal and unchanged registry bytes. Three new
+  Japanese suites separately exercise the fixed six Japanese packs together;
+  old internet/family cohorts remain intact. Read-only catalog checks cover
+  language/topic filters, details and the two Japanese travel collections.
+- Fixed independent new expectations were run before adding the resources:
+  `/tmp/suzaku-ja-themes.Gr1leL/red.log` records 1 pass (old source hashes) and
+  30 expected missing-pack/catalog failures. The first integrated run,
+  `first.log`, records 30 passes and one new fixture failure: `ひきつぎし`
+  preserves an existing segmented conversion, placing the second authored
+  sentence at index 7, not on page one. Keep this failure as evidence; change
+  only that new expectation to pin all twelve texts/types and verify the
+  page-two payload, one exact commit, duplicate refusal and undo. All other
+  full/partial first-page checks remain strict. `pagination.log` then records
+  all 18 lodging/work tests passing, including extra written forms for all
+  32 entries and work continuation progress for all 12 authored contexts.
+- The first wider regression (`regression.log`) records 697 passing tests,
+  one failing target and five existing ignores. It exposed a historical
+  fixture assumption: the all-readings loop for study/cooking/lodging/work
+  always used the Chinese engine. The new Japanese lodging cohort therefore
+  failed on `ほてる` → ホテル. Route that loop by the pack's declared language;
+  retain every old Chinese reading, spelling normalization, Word assertion
+  and every selected Japanese entry. No product language/ranking code or
+  limit changes. This corrects test dispatch, not a failed Japanese conversion.
+- Final receipt: the corrected six-cohort quality target passes in
+  `language-routing.log`; the subsequent complete selected regression in
+  `regression-final.log` passes **698 tests across 23 lib/integration targets**,
+  with five pre-existing ignores (two opt-in model diagnostics and three
+  subprocess-only entry points exercised by their parent tests). Strict
+  `cargo clippy --all-features --all-targets -- -D warnings` passes in 33.46 s
+  (`clippy.log`). Builds/tests run serially with one build job and a user scope
+  bounded at 4 GiB, with no swap. Static shipping/partition/tensor suites pass
+  11/22/21 tests, 250 packaged documentation links resolve, shell syntax,
+  formatting, diff checks and the old-resource hashes pass. Final added
+  source/test hashes are retained in `final-additions.sha256` in the same
+  task directory. Earlier failures are retained, not replaced by the final log.
+- Coverage is finite: supported Romaji (case, long vowels, small kana and
+  n-apostrophe), Hiragana, written words, selected incomplete readings, word
+  and sentence payloads, adoption followed by known tails, absent/disabled
+  snapshots, four typed provider errors and empty responses, protected URL/
+  code/line boundaries, long-draft literals, exact submission and undo.
+  The existing spelling `amenitexi` is used for アメニティ; ordinary `ameniti`
+  still transliterates differently. Six-pack coexistence checks complete
+  word/sentence workflows, not every partial or failure-mode combination.
+  Index-based second-page selection is not a physical Page Down test.
+- No personal installation, service/config change, commit, push, package build
+  or release is performed. GTK/native fixtures remain the historical fourteen;
+  source checks do not imply physical-keyboard, real-model or remote-CI
+  acceptance. Functional-tensor evidence is updated without raising maturity.
+
+### Unreleased Japanese internet pack — 2026 10 12
+
+- Catch up the internet theme with optional `org.suzaku.ja.internet` version
+  `1.0.0`, using the same `internet` / `digital` tags as English and Chinese.
+  Add 48 readings, 20 continuation contexts and 40 authored sentences for
+  browsing, search, bookmarks, file transfers, sign-in status, posting and media.
+  Loanwords such as ブラウザー, ダウンロード and ファイル accompany 検索結果,
+  保存先 and 公開範囲. This is finite offline fallback, independent of any model;
+  it performs no network/account actions and reads no personal history.
+- The catalog now offers nineteen packages (EN 8/ZH 8/JA 3). The new pack uses
+  108 indexing units; all Japanese catalog packages total 184, while EN/ZH
+  remain 2,976/622. The 16 installed-record limit (disabled entries included),
+  2,048 single-pack, 4,096 per-language, byte/layer and candidate/page budgets
+  are unchanged. Freeze the previous eighteen JSON files, their full catalog
+  prefix and three builtin resources with independent SHA-256 expectations.
+- Preserve the two existing sixteen-pack cohorts and all their old assertions.
+  Add a third cohort: the original fourteen plus English/Japanese internet;
+  all original fourteen are needed by the unchanged shared candidate checks.
+  The entire `offline_pack_quality` body runs in a fresh process for each of
+  these three cohorts. Their union covers nineteen, not simultaneous installation
+  of nineteen. Keep the EN/ZH suites' historical eleven-pack membership by
+  naming the two original Japanese IDs explicitly. The new Japanese suite
+  separately loads all three Japanese packs plus EN/ZH internet (five total),
+  preserving old reading prefixes, 漢字/感じ and 選択/洗濯 priority, 改札/家族/
+  窓枠/洗濯物 workflows. New catalog checks reject each internet ID as a
+  seventeenth package without changing the registry bytes or loaded order.
+- Receipts: `/tmp/suzaku-japanese-internet.VDWKFw`. Fixed independent tests precede
+  the new data/catalog: `catalog-red.log` has one pass/three missing-entry failures,
+  and `japanese-red.log` has nine missing-entry failures. After registration,
+  `japanese-first.log` has seventeen passes/one failure: `ほぞんさ` offers 保存先
+  at index 1, its first sentence at 5 and its second at 7, with raw text at 8.
+  The new test incorrectly assumed both sentences must always be on page one;
+  the second is present on page two. Preserve the failure, both authored choices,
+  the old balancing rules and six-slot pages; add a specific page-two selection,
+  exact commit/duplicate suppression/undo contract rather than moving old ranks
+  or removing the case. Other full/partial inputs retain their page-one assertions.
+- Cover complete Romaji (including uppercase), Kana, long-vowel `-`, small-kana
+  spellings, apostrophe disambiguation, selected incomplete readings and horizontal
+  separators. Adopted-word tests reseed a draft and continue its known sentence,
+  not physical keyboard injection. Three representative contexts survive four
+  typed provider failures and empty replies; this is not real-provider/HTTP QA.
+  Protected URL/email/code examples retain exact literal commits and forbid new
+  authored sentences; generic Kana alternatives may still exist. Japanese drafts
+  beyond 256 characters remain bounded; no new long-draft window, general
+  morphology, arbitrary Katakana reverse lookup or prediction algorithm is added.
+- Update portable navigation, Linux shipping/smoke lists and tensor evidence,
+  without raising maturity scores. The GTK/native pack fixtures still cover the
+  historical fourteen packages, not the new internet themes. No personal
+  installation, service/configuration change, commit, push, release or version
+  bump. All builds/tests are serial, one build job, inside task-owned 2 GiB high/
+  4 GiB max/zero-swap scopes. Final validation results are recorded below.
+- `japanese-pagination.log` passes all nine Japanese tests after the fixture
+  correction. The `ほぞんさ` case now locks its twelve candidate texts in order,
+  both sentence positions and exact second-page payload/type; the normal index/
+  commit helpers still demand the first page. This selects a candidate through
+  the engine API, not a real PageDown event or a rendered native page.
+- The frozen final snapshot passes **667 Rust tests across nineteen targets**
+  (`final-regression.log`), zero failures and five explicit top-level ignores:
+  two library opt-ins and three parent-invoked snapshot entries. This includes
+  the previous sixteen-target/652-test coverage, nine new Japanese workflows,
+  four new catalog checks and two existing Japanese backfill regressions.
+  The common quality parent's three child cohorts are not counted again.
+  Eighteen prior package hashes and three builtin hashes match; new data/test
+  checksums are recorded in `final-additions.sha256`.
+- Strict all-feature/all-target Clippy passes (`clippy.log`, 32.85 seconds), as
+  do eleven shipping checks, twenty-two frozen vocabulary-partition guards,
+  twenty-one tensor tests, 250 packaged audit links, shell syntax and formatting/
+  diff checks. The tensor digest is
+  `dfe9c19f5cbbd4387b1a645e4c6fb12671b2f1eda130cc23cae78b3179b6b7d5`;
+  all existing maturity scores are unchanged. No archive/container/native gate
+  or remote CI result is claimed for this uncommitted development snapshot.
+
+### Unreleased bilingual internet packs — 2026 10 12
+
+- Append optional `internet` / `digital` collections, version `1.0.0`, for
+  browser tabs, search, bookmarks, transfer progress, sign-in status and sharing.
+  English has 64 explicit forms (including inflections, not 64 novel roots),
+  20 contexts/40 next-word choices and 40 sentences; Chinese has 48 readings,
+  20 contexts and 40 sentences. These authored expressions perform no network,
+  account or file operations, read no personal history and remain model-independent.
+- The available catalog grows from sixteen to eighteen (EN 8/ZH 8/JA 2).
+  Installation stays limited to sixteen records, including disabled entries;
+  no automatic removal, activation or capacity expansion. New packs use 552/108
+  indexing units; language totals across the catalog are 2,976/622/76, each below
+  the existing 4,096 budget. Single-pack 2,048 and byte/layer limits also stay fixed.
+  All previous sixteen JSON files, their catalog prefix and the three builtin
+  resources remain byte-identical to this turn's baseline.
+- Replace tests' obsolete assumption that every catalog entry fits together with
+  two explicit cohorts, retaining all prior candidate assertions: the historical
+  sixteen, and the original fourteen plus the internet pair. The complete old
+  `offline_pack_quality` assertion body runs once per cohort in fresh processes.
+  New EN/ZH workflow tests each additionally install eight same-language packs,
+  the other language's internet pack and two Japanese packs (eleven total), so
+  shopping and internet coexistence is covered too. An independent catalog test
+  checks the union of both sixteen-pack cohorts is exactly eighteen, all old
+  SHA-256 values, and rejection of either new ID as a seventeenth installation
+  without changing registry bytes or the loaded order. The original `2 + 0..14`
+  capacity test, historical candidate order and all native fixtures stay unchanged.
+- Independent fixed expectations precede catalog/data registration. Receipts are
+  in `/tmp/suzaku-internet-packs.O8d8TA`: `red.log` records catalog one pass/three
+  failures, Chinese nine failures, English three failures plus its parent-invoked
+  child entry; failures identify the missing catalog entries. `internet-first.log`
+  then passes all sixteen new top-level tests, with the child entry still explicitly
+  ignored outside its owning parents. Follow-up review improves one new English
+  sentence from `... device from yesterday?` to `... device after restarting?`
+  and strengthens Chinese URL/email checks to require exactly the literal row,
+  not merely absence of the authored sentence. Neither change relaxes an old test.
+- Preserve `regression.log` (635 passes/one failure/four explicit ignores):
+  `bundled_collections_match_sources_and_topic_filters_without_installing` catches
+  that new English sentence edit made after compilation but while the test run
+  was in progress. Its captured left/right values show `from yesterday?` in the
+  embedded binary versus `after restarting?` in the source file. This is a local
+  validation sequencing error, not an assertion to bypass or evidence of a
+  runtime candidate defect. Freeze the edited resources, then rebuild and run
+  the complete selected regression again; the exact file/content assertion stays.
+- Workflows cover full/unfinished spellings, word/dual-sentence choices, case and
+  spacing, long adopted drafts, continuation, exact explicit commit/duplicate
+  suppression/undo, and isolated absent/disabled/enabled snapshots. English tests
+  all forty branches against four typed failures and empty responses; Chinese
+  tests two representative contexts against four typed failures. Synthetic
+  providers and draft reseeding are not real-model quality, transport or keyboard
+  acceptance. URL/email/code checks protect literals rather than parsing websites.
+- Portable navigation, SDK guidance and both Linux shipping lists include the new
+  data. GTK and native pack fixtures remain the historical fourteen-pack subset;
+  their corruption checks and fixed guards are unchanged. Do not extrapolate
+  isolated Rust results to new-pack native/GTK, physical keyboards, personal
+  installation, archive/container acceptance or remote CI. No version bump,
+  commit, push, release, personal registry, input service or settings changes.
+  Validation remains serial with one build job and task-owned 2 GiB high/4 GiB
+  max/zero-swap scope; final test receipts are recorded below.
+- `final-regression.log`, rebuilt from the frozen final resources, passes **652
+  Rust tests across sixteen targets**, with zero failures and five explicit
+  top-level ignores (two library opt-ins and three parent-invoked snapshot
+  entries). It includes library 563, new internet 16, old shopping 16, family 12,
+  resource 15, registry-edge two, inventory seven, SDK one, common quality one
+  and offline-pack nineteen. Both quality cohorts execute within the one parent
+  test; nested checks are not counted again. The SDK wrapper includes ten Python
+  tests, not ten additional Rust tests. Sixteen old pack and three builtin hashes
+  match; `final-additions.sha256` freezes the new JSON and test files.
+- Strict all-feature/all-target Clippy passes in `clippy.log` (38.43 seconds).
+  Eleven shipping-list checks, twenty-two frozen vocabulary-partition guards,
+  twenty-one tensor tests, 250 packaged audit links, shell syntax and formatting/
+  diff checks pass. The tensor references the new data, tests and cohort helper,
+  with digest `2fdc776989c546fd7691e46f121ba6c0fbb21d718ffd8b459d214c36e72fcf26`;
+  all existing maturity scores stay unchanged. No archive/native/install gate
+  or remote CI was run for this uncommitted snapshot.
+
+### Unreleased bilingual shopping packs — 2026 10 12
+
+- Append two optional `shopping` / `errands` collections, version `1.0.0`, for
+  in-store choices, fitting, receipts and exchange questions. English provides
+  48 explicit forms, 12 contexts/24 next-word choices and 24 sentences; Chinese
+  provides 32 readings, 12 contexts and 24 sentences. Both are original authored
+  data, not transactions, stock queries or promises about store policies.
+- The catalog is now sixteen packs (EN 7/ZH 7/JA 2); no automatic activation.
+  New units are 342/68, with enabled per-language totals 2,424/514/76. Preserve
+  the existing 2,048 single-pack, 4,096 language and sixteen-installed-record
+  budgets. Disabled packs still occupy an installation slot; users with custom
+  packs choose collections rather than assuming every catalog entry must fit.
+  All previous fourteen JSON files and three builtin resources are byte-identical
+  to this turn's baseline, including earlier uncommitted vocabulary batches.
+  A new fixed SHA-256/prefix test preserves every old pack and its catalog order.
+- Update catalog/source/shipping lists, portable navigation, current total-count
+  assertions and language/topic filters. Keep the original eleven-pack FNV
+  checks and the `2 + 0..14` installation-limit test unchanged. The GTK and native
+  fixtures remain their fixed historical fourteen-pack subset: native also adds
+  a bad registry record, so blindly extending it to sixteen valid plus one bad
+  would violate its existing bound. Document this scope without deleting the
+  damaged-record assertion, changing frozen tuples/hashes or claiming new native
+  coverage. A future native expansion needs separate all-valid/corrupt sessions.
+- Evidence directory: `/tmp/suzaku-shopping-packs.nznwSu`. With the old catalog,
+  new fixed expectations fail as intended: catalog one pass/three failures,
+  English three failures plus its child-only ignore, Chinese eight failures
+  (`catalog-red.log`, `english-red.log`, `chinese-red.log`). After registering
+  both packages, all old pack/quality/family/inventory tests and new catalog tests
+  pass. Chinese initially gives seven passes/one failure (`pack-regression.log`),
+  exposing an incorrect new-test assumption that `jiu` can convert to 就.
+  Existing data has neither that single-character reading nor 就好; its bounded
+  prefix candidates remain 酒店/久等/纠错/就近. Sentences do not infer missing
+  phonetic entries, and this is not evidence of a lost valid continuation.
+- Correct only the new test contract: retain Han 就 progressing to the first
+  authored sentence, use known `le`/了 for the second sentence, retain the
+  再决定 path and add a separate `jiu` limitation/raw-preservation/old-order case.
+  No dictionary or algorithm is changed to hide the failure. Record 就/就好 as
+  a future generic-reading follow-up, not a completed shopping capability.
+  English's three top-level tests pass in `english-focused.log`; the explicitly
+  ignored child is exercised by parents. Tests cover authored word/dual-sentence
+  choices, partial spellings, exact literal text, case/spacing, long adopted drafts,
+  commit/duplicate suppression/undo, optional isolation and all-sixteen coexistence.
+  Provider errors are synthetic; draft reseeding is not physical keyboard QA.
+- Final distinct Rust results: **636 passes**, four explicit top-level ignores
+  (two library opt-ins and two parent-invoked subprocess entries). This combines
+  the unchanged passing old/catalog targets in `pack-regression.log`, three
+  English passes in `english-focused.log`, and the corrected Chinese nine plus
+  library 563/resource 15/registry-edge two/SDK one in `verified-regression.log`.
+  The SDK wrapper includes ten Python cases, not ten additional Rust tests.
+  Strict all-feature/all-target Clippy passes (`clippy.log`), as do 11 shipping,
+  22 frozen vocabulary-partition and 21 tensor tests, 250 packaged audit links,
+  shell syntax and formatting/diff checks. Fourteen old pack and three builtin
+  checksums match; tensor paths/evidence/digest are refreshed without score changes.
+- No commit, push, release, version bump, personal installation, input service
+  or configuration change. Local compilation/tests use one build job in a
+  task-owned 2 GiB high/4 GiB max/zero-swap scope. No new archive build, container
+  install, GTK/native input run or remote CI acceptance is claimed.
+
+### Unreleased offline-pack organization — 2026 10 12
+
+- Keep all fourteen shipped JSON files byte-identical: six English, six Chinese
+  and two Japanese. Preserve stable IDs, versions, catalog order and all original
+  entries, including intentional builtin overlaps and homophones. Add a portable
+  language/topic directory in `data/offline-packs/README.md`, distinguishing the
+  narrow astronomy and Japanese rail collections from broader topic coverage.
+- Add opt-in `pack catalog --details` and `pack inspect FILE`. Default catalog
+  remains an ordered manifest array; details/inspect share `OfflinePack::stats`.
+  Counts describe declared occurrences, separating word/sentence readings,
+  next-word options, standalone/continuation sentences and phrase endings.
+  Indexing units reuse the unchanged work-budget calculation, not unique words
+  or a quality score. Inspection uses the existing bounded schema/decoder reader
+  without reading a registry or initializing the active runtime; it is not a
+  signature, license or installed-pack compatibility check.
+- SDK collection parameters reject scalar strings/bytes rather than silently
+  making one-character entries; nested next-word collections are covered too.
+  Lists, tuples and generators preserve order, and a failed layer addition leaves
+  the authoring document untouched. Rust remains the authoritative validator;
+  the atomic no-clobber output path is unchanged. The SDK README documents source,
+  tar and deb tool paths and collection-versus-variadic API usage.
+- Both portable READMEs now have explicit packaging entries and tar/deb smoke
+  assertions. Shipping checks compare every navigation file/ID/version/language/
+  topic against its manifest and reject missing, duplicate or nonportable rows.
+  This does not repair all legacy package documentation links: the older copied
+  main README link to `data/lexicons/README.md` remains a separate follow-up.
+- Evidence: `/tmp/suzaku-pack-organization.28bTnV`. The initial command omitted
+  the Linux feature and failed compilation on existing GPU imports before tests
+  (`inventory-red.log`); use the project's Linux configuration, not a claimed
+  no-feature pass. Before implementation, inventory tests give two passes/five
+  failures (`inventory-linux-red.log`). The first new parser incorrectly copied
+  an unsized slice (`packs-regression.log`); retain its reference instead, without
+  weakening assertions. Corrected eight-target regression passes **42 tests**,
+  with one subprocess-only entry intentionally ignored at top level and invoked
+  by its parent (`packs-corrected.log`). The SDK target runs ten nested Python
+  cases, including validator delegation, unchanged output and temporary cleanup;
+  existing SDK integration also invokes the real Rust validator.
+- Library regression passes **563 tests**, two explicit ignores (`library.log`).
+  The eleven shipping checks, shell syntax, fourteen original checksums and
+  formatting/diff checks pass. Strict all-feature/all-target Clippy passes
+  (`clippy.log`); the 21 tensor checks and 250 packaged audit links pass, with
+  implementation/evidence paths refreshed and maturity scores unchanged.
+  Tests are serialized with one build job in a
+  task-owned 2 GiB high/4 GiB max/zero-swap scope. No personal registry, IME
+  service, settings, installation, package version, commit, push or release is
+  changed. No full package build/clean-container install, native input acceptance
+  or remote CI was run; previous CI cannot accept these uncommitted changes.
+
+### Unreleased laundry vocabulary and Japanese candidate backfill — 2026 10 12
+
+- Add English `daily_laundry` (eight contexts/16 sentences, zero new index forms),
+  Chinese 24 readings/eight contexts/16 sentences and Japanese 12 readings/six
+  contexts/12 sentences. New totals: English 6,143 forms/741 contexts/1,446
+  sentences; Chinese 3,066/735/1,468; Japanese 402/202/403. All previous resource
+  fields and ordered prefixes, including the three uncommitted batches, remain
+  unchanged. Fixed fingerprints retain English's 35 prior layers and every first
+  index position, Chinese 3,042/727/1,452 and Japanese 390/196/391. Fourteen pack
+  checksums match; data stays independent of host and model implementations.
+- Independent tests precede appending data: English one pass/six failures,
+  Chinese three/five, Japanese three/five; all-pack quality fails for missing
+  洗濯物. Complete forms, explicit partials, two sentence branches, literal input,
+  horizontal spacing/case, long drafts/adoption, exact and duplicate commit/undo
+  and typed model failures are checked. These are finite authored samples with
+  synthetic providers and core reseeding, not physical keyboard or model QA.
+- Expanding coverage to the existing Japanese family-pack target exposes two
+  baseline failures before laundry data: stale 366/184 current totals, and
+  `ま` losing the old pack Word 窓 after the previous batch appended 窓枠. The
+  latter is not a count-only failure: the active lexicon appends pack entries,
+  but the four-word completion cutoff prevents later entries reaching the mixer
+  despite unused second-page rows. A separate fixed `し` twelve-word test also
+  fails with only four words. Keep all receipts in
+  `/tmp/suzaku-laundry-vocabulary.GoOoKD`, including `family-baseline.log`,
+  `red.log` and `paging-red.log`; do not reinterpret previous narrower success
+  as acceptance of this previously untested family-pack path.
+- The first attempted fix enlarges the primary word pool. Its actual failures
+  remain in `focused.log`: one library <=4 contract, two new Japanese workflows
+  and the old all-pack 準備gadeki sentence contract. Extra word indices reduce
+  authored sentence weights and crowd out old continuations. Reject that design.
+  The final fix keeps the original four-word pool and original balancing; only
+  after balancing, append unique Word entries from a bounded twelve-word scan
+  into unused rows, below every existing score. Keep the final IBus twelve-row
+  and native byte limits, original literal, dictionary order and sentence scores.
+  This adds a bounded scan when Japanese has free rows; no zero-cost or native
+  latency claim is made. Model transport and preference behavior are untouched.
+- `japanese_completion_backfill` fixes the old ten `し` choices and compares
+  every Candidate field for limits ten/twelve; all four old sentence rows and
+  weights remain identical. Limits one through ten admit no overflow; added
+  進捗/写真 occupy the second page and commit/undo exactly once. Existing family
+  homophone and paging assertions are unchanged; only exact current totals are
+  updated. After the backfill correction, library, new English/Chinese, family,
+  resource and all-pack targets pass; one new Japanese test still overpromises
+  first-page visibility for both `sentakumon` sentences. Preserve this failure
+  in `focused-backfill.log`, retain first-page full-form checks and give the two
+  ambiguous sentaku partials dedicated bounded-page/commit checks. The second
+  sentakumon sentence must be on page two. Corrected Japanese nine tests plus
+  backfill two/family two/all-pack one pass in `focused-corrected.log`.
+- Serial, single-job, task-local 2 GiB high/4 GiB max/zero-swap checks only; no
+  personal IME service, configuration, version, commit, push, tag, release or
+  installation change. The older `e416e86` CI does not validate this dirty tree.
+  A separate review notes the historical 调试 entry uses `diao'shi`; leave that
+  pre-existing resource unchanged for a dedicated reading-quality follow-up,
+  without asserting that spelling is linguistically correct in new tests.
+- Final expanded vocabulary/boundary regression passes **688 tests across 90
+  integration targets**, zero failures or ignores, including all daily targets,
+  the old Japanese family pack and new backfill tests. A further seven targets
+  pass **71 tests** covering model merge/edit preservation, learned preference
+  order, native payload budgets and Chinese/English family packs. The English
+  family subprocess-only entry is explicitly ignored as a standalone test and
+  is invoked by its owning parent. With the non-overlapping 563 library tests,
+  15 resource contracts and all-pack quality, this is **1,338 distinct passing
+  top-level Rust tests**, two existing library ignores plus that subprocess
+  entry. `regression.log` and `mix-regression.log` preserve the final receipts.
+  This is not a full native, installed or remote-CI acceptance claim.
+- Strict all-feature/all-target Clippy passes with warnings denied; 21 tensor
+  validator tests, six pack-shipping tests, the refreshed source digest,
+  250 packaged audit links, formatting and diff checks pass. Independent
+  cross-review found no remaining blocker within this scope. The final change
+  preserves all prior resource prefixes and fourteen pack bytes; maturity
+  scores are not increased from these synthetic/local checks.
+
+### Unreleased household reports and repair appointments — 2026 10 12
+
+- Append English `daily_repairs` with eight contexts/16 sentences and zero new
+  index forms, Chinese with 24 readings/eight contexts/16 sentences, and Japanese
+  with 12 readings/six contexts/12 sentences. Totals: English 6,143 indexed forms,
+  733 contexts/1,430 sentences; Chinese 3,042 readings/727 contexts/1,452 sentences;
+  Japanese 390 readings/196 contexts/391 sentences. Expressions describe household
+  faults, request a visit or ask about progress, without giving repair instructions.
+- Fixed expectations precede data additions. Initial receipts are English one
+  pass/six failures, Chinese two passes/six failures, Japanese three passes/five
+  failures; the all-fourteen-pack test also fails for missing new data. One Chinese
+  failure is a new-test baseline mistake: `baoxiu` already ranks 保修 before 报修.
+  Correct only that new expectation, require both choices and their original order,
+  and verify the corrected negative-baseline test passes before appending Chinese
+  data. No production ranking changes. Preserve all receipts and pre-batch JSON
+  snapshots in `/tmp/suzaku-repairs-vocabulary.58RqJM`.
+- Fingerprints lock the prior 34 English layers, 725 contexts/1,414 sentences and
+  all 6,143 first index positions; Chinese 3,018 readings/719 contexts/1,436 sentences;
+  Japanese 378 readings/190 contexts/379 sentences. Direct comparison also confirms
+  every previous top-level field and ordered array prefix is unchanged, including
+  both earlier uncommitted batches. The fourteen recommended pack checksums match.
+- New fixed tests cover complete forms, explicit partials, both sentence branches,
+  original input/case/spacing, bounded candidates, adopted/reseeded continuation,
+  exact commit/undo and typed unavailable/missing/timeout/HTTP-error/empty-provider
+  fallback. Chinese checks 24 complete readings and 22 specific partials; wide
+  stems retain raw input and prior words rather than forcing every new match onto
+  page one. Japanese checks 17 explicit partials plus a repeated complete reading;
+  legacy homophones/grammar tails and the existing 256-character conservative
+  boundary remain unchanged. Error-provider coverage is all 16 English branches,
+  two Chinese examples and one Japanese example, not real-model or native input QA.
+- The first post-data run passes **601 tests**: 562 library, 23 new regression
+  cases, 15 resource contracts and the fourteen-pack quality target, with two
+  explicitly ignored existing library checks. Read-only cross-review finds no
+  data blocker; strengthen the Japanese helper to check the duplicate commit's
+  empty result/unchanged committed text, and assert both fixed-array lengths so
+  `zip` cannot silently lose coverage. No assertion or timeout is relaxed.
+- Only vocabulary resources, tests/current-total assertions and these records
+  change. Model/host/decoder behavior, capacities and personal installation stay
+  untouched. All Rust checks run serially with one build job and a task-owned
+  2 GiB high/4 GiB max/zero-swap memory limit. No version change, commit, push,
+  package, installation or service/configuration change is included; the earlier
+  `e416e86` CI result does not validate these uncommitted additions.
+- Expanded regression passes **660 tests across 85 integration targets**, zero
+  failures or ignored checks, including every daily-vocabulary target and the
+  strengthened Japanese cases, reading/completion boundaries, long drafts and
+  offline packs. With the non-overlapping library/resource/pack-quality targets,
+  this is **1,238 distinct passing Rust tests** and two explicit library ignores;
+  it is not the whole workspace/native/installed suite. Keep `focused.log` and
+  `regression.log` alongside the original failures.
+- Strict all-feature/all-target Clippy passes with warnings denied. The 21
+  tensor-validator tests, six pack-shipping tests, refreshed source digest,
+  250 packaged audit links, formatting and diff checks pass. Cross-review and
+  direct comparisons preserve all old data/positions; feature maturity scores
+  are not increased on the strength of this authored vocabulary batch.
+
+### Unreleased parcel collection and delivery vocabulary — 2026 10 12
+
+- Continue Chinese/English fallback after the visits batch, preserving that
+  entire uncommitted baseline. Append English `daily_delivery` with eight
+  contexts/16 sentences and no new index forms; Chinese adds 24 readings,
+  eight contexts and 16 sentences. Totals are English 6,143 indexed forms,
+  725 contexts/1,414 sentences and Chinese 3,018 readings/719 contexts/1,436
+  sentences. Japanese remains 378/190/379; all fourteen pack files stay intact.
+- Fixed independent expectations run before data: English one pass/six
+  failures; Chinese three passes/five failures; the fourteen-pack combination
+  fails on the absent new 快递到了 sentence. Preserve these receipts and the
+  exact pre-batch JSON snapshots in `/tmp/suzaku-delivery-vocabulary.p1aRtO`.
+  Old 33 English layers/717 contexts/1,398 sentences and all 6,143 first index
+  positions, plus Chinese 2,994 readings/711 contexts/1,420 sentences and flags,
+  have fixed fingerprints. No historical record is replaced to remove overlap.
+- New tests cover full forms, specific partials, both sentence branches,
+  raw/spacing/case preservation, adopted long drafts, explicit commit/undo and
+  typed provider failures/empty results. Chinese `mianda` and `kuaidida` are
+  deliberately broad: keep older words rather than promising every new word
+  on those stems; the 24 complete forms and 22 explicit partials have separate
+  checks. Appending an explicit reading can classify a former composed result
+  as Word, without claiming identical candidate arrays for every prefix.
+- No model/host/decoder behavior or capacity limit changes; only resource data,
+  tests and current-total assertions change. No real tracking, address lookup,
+  account data, collection code, personal input history or notification service
+  is used. These finite authored examples are not open-ended model quality or
+  native keyboard acceptance. All Rust compilation/tests remain serial with
+  one build job and task-local 2 GiB high/4 GiB max/zero-swap memory limits.
+- The earlier repair `e416e86` has passed all eight checks in
+  [CI 38233712926](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/38233712926).
+  Its one-shot monitor is paused and no release was published. That historical
+  result does not validate either subsequent uncommitted vocabulary batch.
+  No version change, commit, push, installation or service/configuration change
+  is included here.
+- After the append, the first fixed-data run passes all **593 tests** across
+  the library, the two new targets, resource contracts and fourteen-pack quality
+  (two existing library checks explicitly ignored). The adjacent regression
+  passes **248 tests across 31 targets**, zero failures/ignored checks, including
+  visits, household, mealtime, care, reading/continuation boundaries, long drafts
+  and pack behavior. This is **841 distinct passing Rust tests**, not a full
+  native or whole-workspace suite; no new assertion or timeout adjustment was
+  needed after adding the fixed data. Receipts remain in `focused.log` and
+  `regression.log` beside the pre-data failures.
+- Strict all-feature/all-target Clippy passes with warnings denied, alongside
+  21 tensor-validator tests, six pack-shipping tests, the refreshed source digest,
+  250 audit links, formatting and diff checks. Independent baseline comparison
+  confirms both prior JSON prefixes are unchanged and Japanese/the fourteen
+  recommended packs are byte-identical to the start of this batch. No new
+  remote CI or installation acceptance is claimed.
+
+### Unreleased visits and Japanese mealtime vocabulary — 2026 10 12
+
+- Resume fallback vocabulary after `e416e86`; the CI monitor still checks that
+  exact earlier repair, not these uncommitted additions. No version change,
+  commit, push, tag, release or personal installation is part of this batch.
+- Append English `daily_visits` (eight contexts/16 sentences, zero new indexed
+  forms), Chinese visits (24 readings/eight contexts/16 sentences) and Japanese
+  mealtime/tableware (12 readings/six contexts/12 sentences). Current totals:
+  English 6,143 index entries/717 contexts/1,398 sentences; Chinese 2,994
+  readings/711 contexts/1,420 sentences; Japanese 378/190/379. The three data
+  resources remain independent of model and host implementations. All old
+  content/order and English first index positions are fingerprinted; all fourteen
+  recommended pack bytes, capacity limits and production language code remain
+  unchanged (only two language modules' current-total test assertions update).
+- Keep the pre-data failures in `/tmp/suzaku-visits-vocabulary.LGEJru`:
+  English one pass/six failures, Chinese two/five, Japanese one/five. The Japanese
+  baseline also catches a new-test mistake: partial `bango` has an unchanged
+  kana first candidate, with 晩ご飯 before 番号 later on page one; correct that
+  new expectation without changing production ranks. First post-data runs pass
+  Japanese and the fourteen-pack combination, with one new-test contract error
+  each in English/Chinese. English `win` is an existing word, so exact raw text
+  may be a deduplicated Word rather than Literal; the corrected helper requires
+  one exact, local raw-text candidate and preserves exact commit/undo checks.
+  Chinese `qingji` has eight older matches before 请进: require all 24 full
+  readings and 19 specific partials, separately preserve old choices and literal
+  input for five broad stems. Do not enlarge capacity or displace old words to
+  pretend every ambiguous short prefix can show a new completion.
+- The corrected new cases pass 21 tests and the all-feature library passes 562
+  tests with two explicitly ignored checks. The resource target catches one
+  additional stale current-total assertion (367 Japanese continuations versus
+  the new 379); update that current count, retaining its old 14-context hash
+  and every other historical fingerprint. Preserve this failed target receipt
+  rather than labeling the first broader run successful.
+- New tests cover word/sentence reachability, raw/case/spacing preservation,
+  adopted/reseeded continuation, line/protected-token boundaries, exact commit
+  and undo, and typed provider failures/empty results. These are synthetic
+  engine checks, not native keyboard, real HTTP/model, desktop installation or
+  open-ended language-quality acceptance. Japanese's existing long-draft bound
+  and grammar behavior are unchanged. All compilation/tests use serial,
+  single-job, 2 GiB high/4 GiB max/zero-scope-swap limits.
+- Final expanded regression passes **648 tests across 83 integration targets**,
+  zero failures or ignored checks: every daily-vocabulary target plus reading,
+  sentence/partial completion, protected-context, long-draft, fallback and pack
+  regressions. Combined with the library this is **1,210 distinct passing Rust
+  tests and two explicitly ignored library checks**, not a full-workspace/native
+  suite. Strict all-feature/all-target Clippy passes with warnings denied.
+  The 21 tensor-validator and six pack-shipping tests, updated source digest,
+  250 audit links, formatting and diff checks also pass. Final receipts are
+  `regression.log`, `clippy.log` and `tensor-tests.log` beside the retained
+  earlier failures. There is no new remote CI or package/installation receipt
+  for these uncommitted vocabulary changes.
 
 ### 0.8.8 preference restart readiness repair — 2026 10 12
 

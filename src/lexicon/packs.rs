@@ -1,6 +1,6 @@
 //! Data-only offline packs. Installation is transactional; activation is a
 //! bounded, immutable startup snapshot, independent of hosts and model APIs.
-use super::{Lexicon, builtin, check_text};
+use super::{EntryKind, Lexicon, builtin, check_text};
 use crate::data::{files, paths};
 use serde::{Deserialize, Serialize};
 use serde_json::value::RawValue;
@@ -36,6 +36,25 @@ pub struct OfflinePack {
     pub format_version: u32,
     pub manifest: Manifest,
     pub lexicon: Lexicon,
+}
+
+/// Counts of declared records, not unique vocabulary or the number of
+/// candidates a decoder will display. Repeated priority anchors count again;
+/// projected sentence tokens belong only to the conservative indexing budget.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+pub struct PackStats {
+    pub word_layers: usize,
+    pub word_forms: usize,
+    pub word_readings: usize,
+    pub sentence_readings: usize,
+    pub next_word_contexts: usize,
+    pub next_word_choices: usize,
+    pub standalone_sentences: usize,
+    pub continuation_contexts: usize,
+    pub continuation_sentences: usize,
+    pub phrase_contexts: usize,
+    pub phrase_endings: usize,
+    pub indexing_units: usize,
 }
 
 impl OfflinePack {
@@ -159,6 +178,42 @@ impl OfflinePack {
             }
         }
         Ok(())
+    }
+
+    /// Inspect the pack alone without resolving an installed registry, merging
+    /// resources or initializing the active runtime snapshot.
+    pub fn stats(&self) -> PackStats {
+        let lex = &self.lexicon;
+        PackStats {
+            word_layers: lex.word_layers.len(),
+            word_forms: lex.word_layers.iter().map(|layer| layer.words.len()).sum(),
+            word_readings: lex
+                .readings
+                .iter()
+                .filter(|entry| entry.kind == EntryKind::Word)
+                .count(),
+            sentence_readings: lex
+                .readings
+                .iter()
+                .filter(|entry| entry.kind == EntryKind::Sentence)
+                .count(),
+            next_word_contexts: lex.next_words().count(),
+            next_word_choices: lex.next_words().map(|(_, words)| words.len()).sum(),
+            standalone_sentences: lex.sentences().count(),
+            continuation_contexts: lex.continuations.len(),
+            continuation_sentences: lex
+                .continuations
+                .iter()
+                .map(|(_, values)| values.len())
+                .sum(),
+            phrase_contexts: lex.phrase_endings.len(),
+            phrase_endings: lex
+                .phrase_endings
+                .iter()
+                .map(|(_, values)| values.len())
+                .sum(),
+            indexing_units: self.units(),
+        }
     }
 
     /// Conservative work budget, including sentence token projections. It is
@@ -540,6 +595,17 @@ pub fn recommended() -> Vec<OfflinePack> {
         include_str!("../../data/offline-packs/en-family.json"),
         include_str!("../../data/offline-packs/zh-Hans-family.json"),
         include_str!("../../data/offline-packs/ja-family.json"),
+        include_str!("../../data/offline-packs/en-shopping.json"),
+        include_str!("../../data/offline-packs/zh-Hans-shopping.json"),
+        include_str!("../../data/offline-packs/en-internet.json"),
+        include_str!("../../data/offline-packs/zh-Hans-internet.json"),
+        include_str!("../../data/offline-packs/ja-internet.json"),
+        include_str!("../../data/offline-packs/ja-shopping.json"),
+        include_str!("../../data/offline-packs/ja-travel.json"),
+        include_str!("../../data/offline-packs/ja-work.json"),
+        include_str!("../../data/offline-packs/ja-study.json"),
+        include_str!("../../data/offline-packs/ja-cooking.json"),
+        include_str!("../../data/offline-packs/ja-outdoors.json"),
     ]
     .into_iter()
     .map(|raw| OfflinePack::from_json(raw).expect("bundled offline pack must pass validation"))

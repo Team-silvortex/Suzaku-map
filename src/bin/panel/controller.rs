@@ -40,6 +40,14 @@ pub(super) struct HeldCompletion {
     truncated: bool,
 }
 
+/// A Back press belongs to one history state, not whichever edit is newest
+/// when the same button is redrawn under the pointer.
+pub(super) struct HeldRewind {
+    revision: u64,
+    seed: String,
+    language: String,
+}
+
 fn upload_vertex_data(
     device: &wgpu::Device,
     queue: &wgpu::Queue,
@@ -1979,6 +1987,7 @@ impl PanelState {
 
     pub(super) fn update_pressed_interaction(&mut self) {
         self.interaction.held_completion = None;
+        self.interaction.held_rewind = None;
         let Some((x, y)) = self.cursor_position else {
             self.interaction.pressed_interaction = None;
             self.interaction.press_target_rect = None;
@@ -1991,6 +2000,13 @@ impl PanelState {
         self.interaction.press_target_rect = press_target_rect;
         self.interaction.press_start_cursor = Some((x, y));
         self.interaction.press_start_instant = Some(Instant::now());
+        if pressed_interaction == Some(InteractionKind::RewindNextToken) {
+            self.interaction.held_rewind = Some(HeldRewind {
+                revision: self.completion_history.revision(),
+                seed: self.chrome.seed_text.clone(),
+                language: self.engine.snapshot().active_language,
+            });
+        }
         self.interaction.held_completion = match pressed_interaction {
             Some(InteractionKind::SelectNextToken(index)) => self
                 .last_scene
@@ -2180,6 +2196,18 @@ impl PanelState {
         if self.interaction.pressed_interaction != Some(expected) {
             return false;
         }
+        // Validate even after a repaint: identical Back geometry is not
+        // permission to undo a different edit or an undo/reapply roundtrip.
+        if expected == InteractionKind::RewindNextToken
+            && (self.native.showing
+                || self.interaction.held_rewind.as_ref().is_none_or(|held| {
+                    held.revision != self.completion_history.revision()
+                        || held.seed != self.chrome.seed_text
+                        || held.language != self.engine.snapshot().active_language
+                }))
+        {
+            return false;
+        }
         let Some((start_x, start_y)) = self.interaction.press_start_cursor else {
             return false;
         };
@@ -2286,6 +2314,7 @@ impl PanelState {
 
     pub(super) fn clear_pressed_interaction(&mut self) {
         self.interaction.held_completion = None;
+        self.interaction.held_rewind = None;
         self.interaction.pressed_interaction = None;
         self.interaction.press_target_rect = None;
         self.interaction.press_start_cursor = None;

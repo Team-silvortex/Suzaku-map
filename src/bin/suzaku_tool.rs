@@ -81,7 +81,7 @@ fn print_help() {
     println!("Usage:");
     println!("  suzaku_tool preferences [status|clear] (running Linux host only)");
     println!(
-        "  suzaku_tool pack [list|catalog|export ID FILE|validate FILE|install FILE [--replace]|enable ID|disable ID|remove ID|preview LANGUAGE TEXT]"
+        "  suzaku_tool pack [list|catalog [--details]|inspect FILE|export ID FILE|validate FILE|install FILE [--replace]|enable ID|disable ID|remove ID|preview LANGUAGE TEXT]"
     );
     println!(
         "  suzaku_tool data [status|backup [FILE]|validate FILE|restore FILE [--apply]|open [ime|panel|backups]]"

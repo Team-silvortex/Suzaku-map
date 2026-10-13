@@ -2971,7 +2971,103 @@
     {"reading": "duan'cai", "text": "端菜", "kind": "word"},
     {"reading": "jia'cai", "text": "夹菜", "kind": "word"},
     {"reading": "fan'liang", "text": "饭量", "kind": "word"},
-    {"reading": "xiao'die", "text": "小碟", "kind": "word"}
+    {"reading": "xiao'die", "text": "小碟", "kind": "word"},
+    {"reading": "men'kai'zhe'ne", "text": "门开着呢", "kind": "word"},
+    {"reading": "jin'lai'zuo'ba", "text": "进来坐吧", "kind": "word"},
+    {"reading": "tuo'xie'zai'men'kou", "text": "拖鞋在门口", "kind": "word"},
+    {"reading": "wo'gei'ni'dao'shui", "text": "我给你倒水", "kind": "word"},
+    {"reading": "sui'bian'zuo", "text": "随便坐", "kind": "word"},
+    {"reading": "bie'zhan'zai'men'kou", "text": "别站在门口", "kind": "word"},
+    {"reading": "zai'zuo'yi'hui'er", "text": "再坐一会儿", "kind": "word"},
+    {"reading": "wo'song'ni'chu'qu", "text": "我送你出去", "kind": "word"},
+    {"reading": "qing'jin", "text": "请进", "kind": "word"},
+    {"reading": "qing'zuo", "text": "请坐", "kind": "word"},
+    {"reading": "jin'wu", "text": "进屋", "kind": "word"},
+    {"reading": "qiao'men", "text": "敲门", "kind": "word"},
+    {"reading": "xuan'guan", "text": "玄关", "kind": "word"},
+    {"reading": "men'dian", "text": "门垫", "kind": "word"},
+    {"reading": "xie'gui", "text": "鞋柜", "kind": "word"},
+    {"reading": "cha'ji", "text": "茶几", "kind": "word"},
+    {"reading": "cha'bei", "text": "茶杯", "kind": "word"},
+    {"reading": "cha'hu", "text": "茶壶", "kind": "word"},
+    {"reading": "dao'cha", "text": "倒茶", "kind": "word"},
+    {"reading": "dao'shui", "text": "倒水", "kind": "word"},
+    {"reading": "zuo'ke", "text": "做客", "kind": "word"},
+    {"reading": "chuan'men", "text": "串门", "kind": "word"},
+    {"reading": "liu'bu", "text": "留步", "kind": "word"},
+    {"reading": "man'zou", "text": "慢走", "kind": "word"},
+    {"reading": "kuai'di'dao'le", "text": "快递到了", "kind": "word"},
+    {"reading": "bang'wo'shou'yi'xia", "text": "帮我收一下", "kind": "word"},
+    {"reading": "fang'men'kou'jiu'xing", "text": "放门口就行", "kind": "word"},
+    {"reading": "wo'xia'lou'qu", "text": "我下楼取", "kind": "word"},
+    {"reading": "bao'guo'hai'mei'dao", "text": "包裹还没到", "kind": "word"},
+    {"reading": "bao'zhuang'po'le", "text": "包装破了", "kind": "word"},
+    {"reading": "dao'le'da'dian'hua", "text": "到了打电话", "kind": "word"},
+    {"reading": "wo'lai'na'bao'guo", "text": "我来拿包裹", "kind": "word"},
+    {"reading": "dai'shou'dian", "text": "代收点", "kind": "word"},
+    {"reading": "qu'jian'tong'zhi", "text": "取件通知", "kind": "word"},
+    {"reading": "song'jian", "text": "送件", "kind": "word"},
+    {"reading": "lan'shou", "text": "揽收", "kind": "word"},
+    {"reading": "yun'dan", "text": "运单", "kind": "word"},
+    {"reading": "mian'dan", "text": "面单", "kind": "word"},
+    {"reading": "zhi'xiang", "text": "纸箱", "kind": "word"},
+    {"reading": "feng'xiang'jiao'dai", "text": "封箱胶带", "kind": "word"},
+    {"reading": "bao'zhuang'he", "text": "包装盒", "kind": "word"},
+    {"reading": "chai'kuai'di", "text": "拆快递", "kind": "word"},
+    {"reading": "yan'huo", "text": "验货", "kind": "word"},
+    {"reading": "jian'shu", "text": "件数", "kind": "word"},
+    {"reading": "huo'jia", "text": "货架", "kind": "word"},
+    {"reading": "kuai'di'dai", "text": "快递袋", "kind": "word"},
+    {"reading": "shang'men'qu'jian", "text": "上门取件", "kind": "word"},
+    {"reading": "qu'jian'ping'zheng", "text": "取件凭证", "kind": "word"},
+    {"reading": "chuang'hu'guan'bu'shang", "text": "窗户关不上", "kind": "word"},
+    {"reading": "men'ba'shou'song'le", "text": "门把手松了", "kind": "word"},
+    {"reading": "chou'ti'la'bu'kai", "text": "抽屉拉不开", "kind": "word"},
+    {"reading": "xi'yi'ji'bu'zhuan'le", "text": "洗衣机不转了", "kind": "word"},
+    {"reading": "ma'fan'jian'cha'yi'xia", "text": "麻烦检查一下", "kind": "word"},
+    {"reading": "ming'tian'fang'bian'shang'men'ma", "text": "明天方便上门吗", "kind": "word"},
+    {"reading": "da'gai'yao'xiu'duo'jiu", "text": "大概要修多久", "kind": "word"},
+    {"reading": "xiu'hao'le'gao'su'wo", "text": "修好了告诉我", "kind": "word"},
+    {"reading": "men'ba'shou", "text": "门把手", "kind": "word"},
+    {"reading": "men'suo", "text": "门锁", "kind": "word"},
+    {"reading": "jiao'lian", "text": "铰链", "kind": "word"},
+    {"reading": "suo'xin", "text": "锁芯", "kind": "word"},
+    {"reading": "sha'chuang", "text": "纱窗", "kind": "word"},
+    {"reading": "hua'gui", "text": "滑轨", "kind": "word"},
+    {"reading": "mi'feng'tiao", "text": "密封条", "kind": "word"},
+    {"reading": "wei'xiu'dan", "text": "维修单", "kind": "word"},
+    {"reading": "bao'xiu'ji'lu", "text": "报修记录", "kind": "word"},
+    {"reading": "shang'men'shi'jian", "text": "上门时间", "kind": "word"},
+    {"reading": "wei'xiu'shi'fu", "text": "维修师傅", "kind": "word"},
+    {"reading": "gu'zhang'miao'shu", "text": "故障描述", "kind": "word"},
+    {"reading": "wei'xiu'fei'yong", "text": "维修费用", "kind": "word"},
+    {"reading": "ling'jian", "text": "零件", "kind": "word"},
+    {"reading": "jian'xiu", "text": "检修", "kind": "word"},
+    {"reading": "xiu'li", "text": "修理", "kind": "word"},
+    {"reading": "yi'fu'hai'mei'gan", "text": "衣服还没干", "kind": "word"},
+    {"reading": "yi'fu'xi'hao'le", "text": "衣服洗好了", "kind": "word"},
+    {"reading": "zhe'jian'yao'shou'xi", "text": "这件要手洗", "kind": "word"},
+    {"reading": "shen'qian'fen'kai'xi", "text": "深浅分开洗", "kind": "word"},
+    {"reading": "bang'wo'liang'yi'xia", "text": "帮我晾一下", "kind": "word"},
+    {"reading": "xian'ba'wa'zi'shou'le", "text": "先把袜子收了", "kind": "word"},
+    {"reading": "jin'tian'chuan'na'jian", "text": "今天穿哪件", "kind": "word"},
+    {"reading": "xiu'zi'you'dian'chang", "text": "袖子有点长", "kind": "word"},
+    {"reading": "shou'xi", "text": "手洗", "kind": "word"},
+    {"reading": "ji'xi", "text": "机洗", "kind": "word"},
+    {"reading": "piao'xi", "text": "漂洗", "kind": "word"},
+    {"reading": "tuo'shui", "text": "脱水", "kind": "word"},
+    {"reading": "hong'gan", "text": "烘干", "kind": "word"},
+    {"reading": "xi'yi'fen", "text": "洗衣粉", "kind": "word"},
+    {"reading": "rou'shun'ji", "text": "柔顺剂", "kind": "word"},
+    {"reading": "liang'yi'sheng", "text": "晾衣绳", "kind": "word"},
+    {"reading": "xi'yi'lan", "text": "洗衣篮", "kind": "word"},
+    {"reading": "liang'shai", "text": "晾晒", "kind": "word"},
+    {"reading": "diao'se", "text": "掉色", "kind": "word"},
+    {"reading": "suo'shui", "text": "缩水", "kind": "word"},
+    {"reading": "xiu'kou", "text": "袖口", "kind": "word"},
+    {"reading": "ku'jiao", "text": "裤脚", "kind": "word"},
+    {"reading": "mao'yi", "text": "毛衣", "kind": "word"},
+    {"reading": "qun'zi", "text": "裙子", "kind": "word"}
   ],
   "continuations": [
     [
@@ -7891,6 +7987,230 @@
       [
         "先喝口汤，饭马上就盛好。",
         "先喝口汤，这个味道挺清淡。"
+      ]
+    ],
+    [
+      "门开着呢",
+      [
+        "门开着呢，直接进来就好。",
+        "门开着呢，我在客厅等你。"
+      ]
+    ],
+    [
+      "进来坐吧",
+      [
+        "进来坐吧，外面有点冷。",
+        "进来坐吧，我刚把茶泡好。"
+      ]
+    ],
+    [
+      "拖鞋在门口",
+      [
+        "拖鞋在门口，换好再进来吧。",
+        "拖鞋在门口，穿那双灰色的就行。"
+      ]
+    ],
+    [
+      "我给你倒水",
+      [
+        "我给你倒水，你先坐一会儿。",
+        "我给你倒水，想喝热的还是凉的？"
+      ]
+    ],
+    [
+      "随便坐",
+      [
+        "随便坐一会儿，我去切点水果。",
+        "随便坐，东西放在茶几上就好。"
+      ]
+    ],
+    [
+      "别站在门口",
+      [
+        "别站在门口，进屋慢慢聊。",
+        "别站在门口，里面还有空位。"
+      ]
+    ],
+    [
+      "再坐一会儿",
+      [
+        "再坐一会儿，我们还没聊完呢。",
+        "再坐一会儿，等雨小一点再走。"
+      ]
+    ],
+    [
+      "我送你出去",
+      [
+        "我送你出去，电梯就在右手边。",
+        "我送你出去，下次有空再来。"
+      ]
+    ],
+    [
+      "快递到了",
+      [
+        "快递到了，方便帮我拿一下吗？",
+        "快递到了，我晚点去取。"
+      ]
+    ],
+    [
+      "帮我收一下",
+      [
+        "帮我收一下，我还在路上。",
+        "帮我收一下，回来我去找你拿。"
+      ]
+    ],
+    [
+      "放门口就行",
+      [
+        "放门口就行，我马上过来拿。",
+        "放门口就行，谢谢你跑一趟。"
+      ]
+    ],
+    [
+      "我下楼取",
+      [
+        "我下楼取快递，马上就回来。",
+        "我下楼取，麻烦等我两分钟。"
+      ]
+    ],
+    [
+      "包裹还没到",
+      [
+        "包裹还没到，我再查一下物流。",
+        "包裹还没到，到了我告诉你。"
+      ]
+    ],
+    [
+      "包装破了",
+      [
+        "包装破了，里面的东西还完好吗？",
+        "包装破了，我先拍张照片。"
+      ]
+    ],
+    [
+      "到了打电话",
+      [
+        "到了打电话，我下来拿。",
+        "到了打电话，别放在外面。"
+      ]
+    ],
+    [
+      "我来拿包裹",
+      [
+        "我来拿包裹，取件码在手机里。",
+        "我来拿包裹，麻烦帮我找一下。"
+      ]
+    ],
+    [
+      "窗户关不上",
+      [
+        "窗户关不上，想约师傅过来看看。",
+        "窗户关不上，这个问题有几天了。"
+      ]
+    ],
+    [
+      "门把手松了",
+      [
+        "门把手松了，麻烦安排人来检查。",
+        "门把手松了，开关门时总晃。"
+      ]
+    ],
+    [
+      "抽屉拉不开",
+      [
+        "抽屉拉不开，能帮忙看一下吗？",
+        "抽屉拉不开，里面还有东西没拿。"
+      ]
+    ],
+    [
+      "洗衣机不转了",
+      [
+        "洗衣机不转了，想问问什么时候能来检查。",
+        "洗衣机不转了，已经提交报修了。"
+      ]
+    ],
+    [
+      "麻烦检查一下",
+      [
+        "麻烦检查一下门锁，最近不太好开。",
+        "麻烦检查一下，看看问题出在哪里。"
+      ]
+    ],
+    [
+      "明天方便上门吗",
+      [
+        "明天方便上门吗？我下午都在家。",
+        "明天方便上门吗？时间可以再商量。"
+      ]
+    ],
+    [
+      "大概要修多久",
+      [
+        "大概要修多久？我想安排一下时间。",
+        "大概要修多久？需要等配件吗？"
+      ]
+    ],
+    [
+      "修好了告诉我",
+      [
+        "修好了告诉我，我再过去拿。",
+        "修好了告诉我，我好安排时间。"
+      ]
+    ],
+    [
+      "衣服还没干",
+      [
+        "衣服还没干，今天先穿别的吧。",
+        "衣服还没干，再晾一会儿。"
+      ]
+    ],
+    [
+      "衣服洗好了",
+      [
+        "衣服洗好了，我去拿衣架。",
+        "衣服洗好了，帮忙一起晾吧。"
+      ]
+    ],
+    [
+      "这件要手洗",
+      [
+        "这件要手洗，先放在旁边吧。",
+        "这件要手洗，我晚点再洗。"
+      ]
+    ],
+    [
+      "深浅分开洗",
+      [
+        "深浅分开洗，白色的放这一边。",
+        "深浅分开洗，我来分一下。"
+      ]
+    ],
+    [
+      "帮我晾一下",
+      [
+        "帮我晾一下衬衫，我去收袜子。",
+        "帮我晾一下，衣架就在旁边。"
+      ]
+    ],
+    [
+      "先把袜子收了",
+      [
+        "先把袜子收了，其他的还没干。",
+        "先把袜子收了，放进抽屉里吧。"
+      ]
+    ],
+    [
+      "今天穿哪件",
+      [
+        "今天穿哪件？我想挑件薄一点的。",
+        "今天穿哪件？这两件都挺合适。"
+      ]
+    ],
+    [
+      "袖子有点长",
+      [
+        "袖子有点长，换小一号试试吧。",
+        "袖子有点长，穿着不太方便。"
       ]
     ]
   ]

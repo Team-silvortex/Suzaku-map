@@ -16,8 +16,16 @@
 输入先同步给出本地候选，再异步接收可选模型增强；不等模型失败后才生成本地候选。
 这一定位不新增模型开关或提供器分支，也不承诺任意文本都有完整句子建议。
 
+0.8.9 源码纳入下列来访、收寄件、报修、洗衣与日语餐桌扩充。相对 0.8.8 源码基线，
+新增 **96 条中文读音、36 条日语读音、164 条三语句子/续句记录**，英文索引不变。
+总量为 **6,143 项英文索引、741 组搭配、1,446 句；3,066 条中文读音、735 组语境、
+1,468 句；402 条日语读音、202 组语境、403 条续句记录**。
+可选目录另增至 25 包，最多安装仍为 16 包且不自动启用。以下“未发布”标题和未提交
+表述保留各轮当时的状态；并不代表当前源码缺少这些数据，也不代替新提交的验收。
+参见 [0.8.9 发布说明](../../docs/releases/0.8.9.md)。
+
 0.8.8 纳入下列家务、吃饭与餐具两轮扩充，相对 0.8.7 新增 **48 条中文读音、
-64 条中英短句**。当前总量为 **6,143 项英文索引、709 组搭配、1,382 句；
+64 条中英短句**。该发布候选总量为 **6,143 项英文索引、709 组搭配、1,382 句；
 2,970 条中文读音、703 组语境、1,404 句**；日语及十四个推荐包不变。
 见 [0.8.8 发布说明](../../docs/releases/0.8.8.md)。已有安装仍须重建或升级。
 
@@ -35,6 +43,120 @@
 2,816 条中文读音、651 组语境、1,300 句；314 条日语读音、158 组语境、
 315 条续句记录**。下文各轮记录保留当时的基线和验证范围；嵌入词库仍须重建/重装，
 不会自动更新既有安装。[0.8.6 发布说明](../../docs/releases/0.8.6.md)列出交付门槛。
+
+## 未发布：洗衣晾晒与穿着
+
+英文 `daily_laundry` 新增 **8 组搭配、16 句**，复用既有词形；中文新增
+**24 条读音、8 组语境、16 句**；日语新增 **12 条读音、6 组语境、12 句**。
+覆盖衣服干湿、分开洗、收衣、找袜子和日常穿着，不重复家庭主题包已有内容。
+当前源码为 **6,143 项英文索引、741 组搭配、1,446 句；3,066 条中文读音、
+735 组语境、1,468 句；402 条日语读音、202 组语境、403 条续句记录**。
+
+- `are these towels cle` → `are these towels clean` / `are these towels clean enough to use?`
+- `i'll bring the laundry ins` → `i'll bring the laundry inside` /
+  `i'll bring the laundry inside before the rain starts.`
+- `yi fu hai mei ga` → `衣服还没干` / `衣服还没干，今天先穿别的吧。`
+- `bang wo liang yi xi` → `帮我晾一下` / `帮我晾一下衬衫，我去收袜子。`
+- `sentakumono` → `洗濯物` / `洗濯物を取り込んでおきます。`
+- `heyaboshi` → `部屋干し` / `部屋干しにしておきます。`
+
+[英文](../../tests/daily_laundry_english.rs)、[中文](../../tests/daily_laundry_chinese.rs)
+与[日语](../../tests/daily_laundry_japanese.rs)固定预期先确认缺口，再追加数据。
+保留此前全部内容和英文 6,143 个首次索引位置；中文检查 24 个完整读音和 20 个明确半截。
+日语检查 12 个完整词及 12 个半截；`sentakumon` 同时涉及旧“選択”转换，第二条句子
+在后页选择，不把所有歧义结果强行挤进首屏。
+
+本轮还查出上一轮“窓枠”使家庭包“窓”从宽前缀 `ま` 的候选中消失。
+修复保留原四词补全与句子排名，仅用后续词填充剩余空位；IBus 总数仍最多 12 项，
+完整旧列表与分数、原文、两页选择和提交撤回由[专项回归](../../tests/japanese_completion_backfill.rs)
+及[家庭包旧回归](../../tests/family_pack_japanese.rs)验证。
+这不是扩大任意候选容量，也不保证任意短前缀都能看到所有词。日语空槽回填会增加一次
+有界词典扫描，不将核心测试当作真实键盘或端到端延迟验收。
+
+十四包字节、模型接口、英文索引预算和个人安装均未改动；词库仍是模型不可用时的本地兜底。
+准确结果和保留的失败记录见[开发记录](../../DEVELOPMENT.md)。本轮未提交、推送、发布或安装，
+此前 `e416e86` 的 CI 不能用于验收这些尚未提交的扩充与修复。
+
+## 未发布：居家报修与预约
+
+英文 `daily_repairs` 新增 **8 组搭配、16 句**，不增加索引词形；中文新增
+**24 条读音、8 组语境、16 句**；日语新增 **12 条读音、6 组语境、12 句**。
+覆盖门窗和家电故障描述、请人检查、上门时间、维修进度等日常沟通，不包含维修操作指导。
+该轮完成后为 **6,143 项英文索引、733 组搭配、1,430 句；3,042 条中文读音、
+727 组语境、1,452 句；390 条日语读音、196 组语境、391 条续句记录**。
+
+- `the window won't op` → `the window won't open` / `the window won't open properly.`
+- `can we arrange a vis` → `can we arrange a visit` / `can we arrange a visit for tomorrow morning?`
+- `chuang hu guan bu shan` → `窗户关不上` / `窗户关不上，想约师傅过来看看。`
+- `ma fan jian cha yi xi` → `麻烦检查一下` / `麻烦检查一下门锁，最近不太好开。`
+- `mizumore` → `水漏れ` / `水漏れを見てもらえますか。`
+- `tenken` → `点検` / `点検に来てもらえますか。`
+
+[英文](../../tests/daily_repairs_english.rs)、[中文](../../tests/daily_repairs_chinese.rs)
+和[日语](../../tests/daily_repairs_japanese.rs)先固定预期并验证缺口，再追加数据。
+保留此前全部三语记录及英文 6,143 个首次索引位置，包括尚未提交的来访、餐桌、收件数据。
+中文明确验证 24 个完整读音、22 个半截；宽前缀不承诺全部新词首屏可见，
+`baoxiu` 仍保持“保修”先于“报修”，两者都可选。日语保留旧同音排序、语法补尾和长稿限制。
+
+词库仍与模型、平台和输入实现解耦；未改十四个推荐包、候选容量或语言算法，
+不访问家庭设备、报修订单或个人输入历史。新用例覆盖词句、原文、空白续写、提交撤销和
+模拟模型失效；不把它们当作实体键盘或真实模型验收，准确范围见[开发记录](../../DEVELOPMENT.md)。
+本轮及前两轮均未提交/发布/安装；`e416e86` 的已通过 CI 不包含这些词库扩充。
+
+## 未发布：收件 取件与寄送
+
+英文 `daily_delivery` 新增 **8 组搭配、16 句**，全部复用既有词形；中文新增
+**24 条读音、8 组语境、16 句**。覆盖代收、门口放置、取件时间、再次投递、包装破损、
+打包寄送和收件用语；旧寄件、运费、来访招待等数据仍保留。
+该轮完成后为 **6,143 项英文索引、725 组搭配、1,414 句；3,018 条中文读音、
+719 组语境、1,436 句**。日语仍为 **378 条读音、190 组语境、379 条续句记录**。
+
+- `please leave the package ins` → `please leave the package inside` /
+  `please leave the package inside by the door.`
+- `i'll collect the parcel tod` → `i'll collect the parcel today` /
+  `i'll collect the parcel today after work.`
+- `kuai di dao l` → `快递到了` / `快递到了，方便帮我拿一下吗？`
+- `wo xia lou q` → `我下楼取` / `我下楼取快递，马上就回来。`
+- `我下楼取  kuai d` → `我下楼取  快递，马上就回来。`
+
+[英文](../../tests/daily_delivery_english.rs)与[中文](../../tests/daily_delivery_chinese.rs)
+固定预期先验证缺口，再追加数据。锁定此前全部英文 33 层及 6,143 个索引首次位置、
+中文 2,994 条读音和 711 组语境，包括上一轮尚未提交的来访数据。中文完整 24 词和
+22 个明确半截有独立检查；`mianda`、`kuaidida` 保留已有匹配，完整 `miandan`、
+`kuaididai` 才保证对应“面单”“快递袋”。不为短前缀挤掉旧词或扩大候选容量。
+显式新词也可为原先拼接结果提供 Word 分类，不承诺所有候选数组逐项不变。
+
+词库与模型、宿主继续解耦；不查询真实物流、不读订单/地址/取件码、不发送收件通知。
+十四个推荐包和日语数据均未修改，实际测试范围见[开发记录](../../DEVELOPMENT.md)。
+本轮及上一轮词库均未提交/发布，不能借用 `e416e86` 的 CI 结果；当前个人安装不变，
+需要重建/升级才能使用新增内置数据。
+
+## 未发布：来访招待与日语餐桌
+
+在 0.8.8 修复提交 `e416e86` 之后继续追加，**不属于该提交的 CI 验收或安装包**。
+英文 `daily_visits` 新增 **8 组搭配、16 句**，复用全部已有词形；中文新增
+**24 条读音、8 组语境、16 句**，覆盖请进、落座、倒水、随身物品放置和送客。
+日语新增 **12 条读音、6 组语境、12 句**，补餐具、添饭、摆盘等有限日常表达。
+该轮完成后为 **6,143 项英文索引、717 组搭配、1,398 句；2,994 条中文读音、
+711 组语境、1,420 句；378 条日语读音、190 组语境、379 条续句记录**。
+
+- `could you open the doo` → `could you open the door` / `could you open the door, please?`
+- `i'll bring you a dri` → `i'll bring you a drink` / `i'll bring you a drink in a moment.`
+- `jin lai zuo b` → `进来坐吧` / `进来坐吧，外面有点冷。`
+- `wo gei ni dao shui` → `我给你倒水` / `我给你倒水，你先坐一会儿。`
+- `torizara` → `取り皿` / `取り皿をもう一枚お願いします。`
+- `shokki` → `食器` / `食器を一緒に片付けましょう。`
+
+保留旧三语内容、英文全部 6,143 个首次索引位置和同音排序，不提高词库或候选上限。
+中文宽前缀 `qingji` 保留已有“请假、请教”等选项；完整 `qingjin` 可选“请进”，
+不承诺所有短前缀都显示新词。英文原文恰好是已知词（如 `win`）时，可能去重为
+Word 候选，仍可原样提交。日语仅补规范读音与固定续句，不引入任意活用推断。
+
+[英文](../../tests/daily_visits_english.rs)、[中文](../../tests/daily_visits_chinese.rs)和
+[日文](../../tests/daily_mealtime_japanese.rs)固定回归先确认缺口；另由
+[十四包组合回归](../../tests/offline_pack_quality.rs)检查旧推荐包共存。
+准确执行结果与首次失败保留在[开发记录](../../DEVELOPMENT.md)。词库与模型、宿主和
+算法仍解耦，不下载第三方语料或读取个人输入记录；未替换日常安装，须重建/重装才生效。
 
 ## 未发布：吃饭前后 餐具与打包
 
@@ -665,9 +787,9 @@ Linux 宿主及面板在构建引擎前读取已启用包，之后冻结为进�
 扩展预算独立于内置质量门禁：单包 256 KiB / 2,048 索引单元，最多安装 16 包，每种语言
 启用扩展总计不超过 4,096 单元；这不是去重词数。候选页数、解码窗口和模型预算不变。
 
-当前开发版再追加三个可选的 `family` / `home` 家庭生活集合：
+家庭生活扩充追加了三个可选的 `family` / `home` 集合：
 [英文](../offline-packs/en-family.json)、[中文](../offline-packs/zh-Hans-family.json)、
-[日文](../offline-packs/ja-family.json)，推荐目录现在是 **14 包**。
+[日文](../offline-packs/ja-family.json)，当时推荐目录达到 **14 包**。
 覆盖家庭成员、亲友探访、家务分工、洗衣和收纳；由项目编写，不使用个人家庭资料。
 英文包为 **60 个显式词形、16 组搭配、32 句**，中文包为 **36 条读音、16 组语境、32 句**，
 日文包为 **24 条读音、12 组语境、24 句**，合计 88 条短句。
@@ -681,6 +803,18 @@ Linux 宿主及面板在构建引擎前读取已启用包，之后冻结为进�
 日文 `sentaku` 仍优先原来的 `選択`，追加的 `洗濯` 不覆盖旧同音排序。
 可用 `pack catalog --language ja --topic family` 查找，再显式导出、安装；
 运行中的宿主和面板仍需重启才加载，不能只重开设置窗口。
+
+当前开发版继续追加 [英文购物包](../offline-packs/en-shopping.json) 和
+[中文购物包](../offline-packs/zh-Hans-shopping.json)，目录达到 **16 包**；
+可在 [词包目录](../offline-packs/README.md) 按语言与主题选择。
+两个包都是 `shopping` / `errands`、版本 `1.0.0`：英文 48 个显式词形、12 组搭配、24 句；
+中文 32 条读音、12 组语境、24 句。覆盖线下找货、试穿、收据与换货询问，
+不执行交易、不承诺商店政策。新增扩展预算分别为 342 / 68 单元，不改内置词库、
+原十四包字节/优先级或任何预算；不是给内置英文 6,144 索引门禁扩容。
+例如 `could i get a printed rec` → `could i get a printed receipt` /
+`could i get a printed receipt for this purchase?`；`shi yi jian zai na` →
+`试衣间在哪` / `试衣间在哪？我想试一下这件。`。
+最多安装 16 包的上限不变，禁用不释放名额；有自制包时请按需选择。
 
 ## 验证
 
@@ -705,6 +839,7 @@ cargo test --locked --all-features --test daily_clarification_english --test dai
 cargo test --locked --all-features --test offline_packs -- --test-threads=1
 cargo test --locked --all-features --test offline_pack_quality -- --test-threads=1
 cargo test --locked --all-features --test family_pack_english --test family_pack_chinese --test family_pack_japanese -- --test-threads=1
+cargo test --locked --all-features --test shopping_pack_catalog --test shopping_pack_english --test shopping_pack_chinese -- --test-threads=1
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-offline-pack-shipping.py
 ```
 
@@ -726,12 +861,15 @@ PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-offline-pack-shipping.py
 [原生 IBus 回归](../../scripts/test-native-sync.py)校验词句采用、撤回、续写与提交，
 后者用任务拥有的回环 HTTP 服务单独检查 503 和实际请求超时。
 
-[离线包词句回归](../../tests/offline_pack_quality.rs)在自有注册表中同时启用十四个包，
+[离线包词句回归](../../tests/offline_pack_quality.rs)在自有注册表中同时启用十六个包，
 检查新增 240 个英文词形可索引、144 条中文读音可选，以及独立编写的 32 / 32 个中英
 词句场景（中文四种拼写）、长短草稿与字面空白、下一词、大小写/撇号和半截拼音。
 模型不可用/缺失/超时/503 是类型化合成错误，不冒充真实网络或大模型质量验收。
 原生包专项另检查数字采用/撤回、Space 续写、词句精确提交和启动快照。
 三个 `family_pack_*` 回归用独立新进程检查家庭包的完整词句、拼写变体、采用后继续、
 撤回/精确提交、类型化模型失败及可选启停；目录浏览不会安装到个人注册表。
+`shopping_pack_catalog` 固定原十四包字节与顺序；中英 `shopping_pack_*` 用独立
+私有快照检查购物包、启停隔离及十六包共存。现有 GTK/native 词包专项仍覆盖历史
+十四包子集，本轮扩充不宣称新增包已经原生或个人桌面验收。
 静态发包清单回归拒绝目录、源码、打包和内容检查列表中的缺漏/重复/未知包，
 它不替代实际 `.deb` / `.tar.gz` 构建及干净容器安装验收。

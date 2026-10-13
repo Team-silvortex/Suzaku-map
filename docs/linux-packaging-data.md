@@ -279,6 +279,36 @@ suzaku-panel
 
 ## 离线词库包与制包 SDK
 
+### 先选语言和主题，再查看与安装
+
+当前源码提供 **25 个可选包：英文 8、简体中文 8、日文 9**。完整文件名、包 ID、
+版本和主题导航在源码 `data/offline-packs/README.md`；二进制 tar 包的对应位置为
+`share/suzaku/offline-packs/README.md`，`.deb` 安装后为
+`/usr/share/suzaku/offline-packs/README.md`，说明和 JSON 放在同一个目录中。
+英文、中文和日文均有观星、学习写作、烹饪备餐、旅行住宿、工作协作、家庭生活、购物和互联网日用表达；
+日文另有独立铁路包。主题齐备不代表三语词汇量或输入能力相同。
+`outdoors` 仅指观星相关示例，不是通用户外词典；`travel` 覆盖中英住宿出行及日文铁路、住宿两包，
+日文只找住宿时使用 `lodging`；`home` 同时覆盖家庭与烹饪，只找烹饪用 `cooking`。
+**25 是可选目录数量，不是安装配额**。
+同一注册表仍最多安装 16 包，禁用也占名额；
+达到上限后须保留分发 JSON，再明确移除不需要的包才能安装新 ID，不会自动淘汰旧包。
+
+**目录、未安装文件、个人安装状态是三回事**：`pack catalog` 查看工具内置的目录；
+当前开发版新增 `pack catalog --details` 显示每包的 `manifest` 和 `stats`，可与
+`--language`/`--topic` 任意组合，默认目录输出仍是原来的 manifest 数组。
+`pack inspect FILE` 只读查看尚未安装的 JSON，返回 `format_version`、`manifest`、
+`stats`、`validation`，沿用现有格式/语言规则校验；不读取注册表、不写入文件、不安装。
+查看已安装包仍用 `pack list`。旧版工具尚无这两个查看入口时可用 `pack validate`。
+
+`stats` 按包内声明记录计数，不去重：`word_layers`、`word_forms`、`word_readings`、
+`sentence_readings`、`next_word_contexts`、`next_word_choices`、`standalone_sentences`、
+`continuation_contexts`、`continuation_sentences`、`phrase_contexts`、`phrase_endings`。
+`indexing_units` 直接复用已有资源预算，**不是唯一词数、净新增词数或质量评分**。
+inspect/validate 成功不证明与当前启用组合兼容，也不是签名、来源或许可审核。
+包与已启用组合的冲突仍在明确安装/启用时检查，未增加自动安装或自动修复行为。
+
+### 格式与集合沿革
+
 0.8.0 新增数据型插件包，不执行第三方脚本或加载动态库，不访问模型或自动下载。
 第一版提供命令行管理，**尚无设置面板中的导入/启停列表，也不是热更新**。
 推荐集合随程序提供：英文、中文的 `outdoors` / `astronomy` 观星集合，以及日文
@@ -295,7 +325,7 @@ suzaku-panel
 `data/offline-packs/zh-Hans-study.json` 取得文件后可直接
 `suzaku-tool pack install ./zh-Hans-study.json`，不必升级语言算法。
 
-当前未发布开发版目录为 **十四包**：再加中英日 `family` / `home` 家庭生活集合，
+家庭生活扩充后目录达到 **十四包**：增加中英日 `family` / `home` 家庭生活集合，
 ID 为 `org.suzaku.en.family`、`org.suzaku.zh-hans.family`、`org.suzaku.ja.family`，
 包版本均为 `1.0.0`。英文 60 个显式词形/16 组语境/32 句，中文 36 条读音/16 组语境/32 句，
 日文 24 条读音/12 组语境/24 句，共 88 条短句；包内数量不等于去重新增索引数量。
@@ -304,11 +334,70 @@ ID 为 `org.suzaku.en.family`、`org.suzaku.zh-hans.family`、`org.suzaku.ja.fam
 打包清单与包内容检查清单均已加入这三个文件；静态一致性回归不是本快照已生成或
 发布十四包安装产物的声明，发布仍须下方实际产物和容器门禁。
 
+购物试穿扩充后开发目录达到 **十六包**，追加中英 `shopping` / `errands` 集合。
+ID 为 `org.suzaku.en.shopping`、`org.suzaku.zh-hans.shopping`，均为 `1.0.0`；
+英文 48 个显式词形、12 组搭配、24 句，中文 32 条读音、12 组语境、24 句。
+覆盖找货、尺码、试穿、收据与换货询问，不执行交易或承诺库存/退换政策。
+用 `pack catalog --topic shopping --details` 查看；旧十四包、内置词库与优先级不变。
+这两个包分别占 342 / 68 单元，当时十六包目录各语言为 2,424 / 514 / 76 单元（英/中/日），
+低于每语言 4,096 上限。最多安装 16 包的上限不变；禁用包仍占安装名额，
+如已装自制包请按需选择，目录展示不代表自动安装全部集合。
+新增包的引擎/私有注册表回归不代表 GTK、原生 IBus 或已发布安装包验收；
+现有 GTK/native 包专项仍固定在历史十四包子集，且保留原来的损坏记录隔离检查。
+
+中英 `internet` / `digital` 互联网日用集合加入后，开发目录达到 **十八包**。
+ID 为 `org.suzaku.en.internet`、`org.suzaku.zh-hans.internet`，均为 `1.0.0`；
+英文 64 个显式词形、20 组搭配、40 句，中文 48 条读音、20 组语境、40 句。
+这些是有限的浏览、搜索、收藏、下载/上传、登录状态和社交分享表达，不执行网络或账号
+操作，不访问浏览历史或个人内容，也不绑定具体模型、网站、浏览器或输入宿主。
+可用 `pack catalog --topic internet --details` 或 `--topic digital` 查看。
+旧十六包文件与目录优先级保留，单包、语言、注册表和最多安装 16 包的限制均不变。
+
+购物和互联网新增包的 Rust 回归使用明确的有界组合：历史十六包一组；原十四包加
+互联网两包另成十六包一组，二者联合覆盖十八包，**从不把十八包同时安装**。
+中英互联网专项各使用同语言八包、另一语言互联网一包和历史日文铁路/家庭两包，共十一包，包含
+对应语言的购物包；组合覆盖不代表任意第三方包兼容。目录回归另检查第十七个安装
+请求被拒绝且注册表字节不变。这些引擎/私有注册表检查不替代实际打包安装、GTK 或
+原生 IBus 验收；后两者仍是上述历史十四包范围。
+
+日文互联网集合补齐时，未发布开发目录由十八包达到 **十九包**；新增
+`org.suzaku.ja.internet`（`1.0.0`），与中英两包共用 `internet` / `digital` 标签。
+包内声明 **48 条读音、20 组语境、40 句**，包括 `ブラウザー`、`ダウンロード`、
+`ログイン` 等外来词，以及搜索、保存位置和公开范围等日常表达；数量不等于去重新增词数。
+用 `pack catalog --language ja --topic internet --details` 查看；仍是独立的 v1 数据包，
+不改模型接口、语言实现或旧十八包文件，不自动安装到个人环境。它补充日常网络表达，
+沿用现有罗马音、平假名和片假名输入路径，不表示提供完整形态分析或任意日语长句转换。
+新的组合回归在前述两组十六包之外，另以“原十四包加上英文、日文互联网两包”
+组成第三组十六包；三组联合覆盖十九包，不增加单个注册表的安装上限。
+日语互联网专项使用日文三包和中英互联网两包，共五包；中英专项仍固定在原十一包组合，
+保留它们此前的候选预期。打包和非安装 smoke 清单已加入日文 JSON，但这些源码检查
+不表示已重新构建、安装或验收发行产物，GTK/native 包专项仍保持历史十四包范围。
+
+随后补入日文购物、旅行住宿和工作协作，当时开发目录达到 **二十二包**。
+新增 `org.suzaku.ja.shopping`、`org.suzaku.ja.travel`、`org.suzaku.ja.work`，版本均为 `1.0.0`；
+每包 32 条读音、12 组语境、24 句，合计 96 条读音和 72 句，日文六包共 388 索引单元。
+三包均是独立原始数据，沿用现有罗马音/假名能力，不改模型或输入算法，不执行购买、预订或工作操作。
+旧十九包字节与顺序保持不变。原三组十六包之外，再分别以“原十四包＋日文互联网＋一个新主题”
+组成三组，共六组十六包，联合覆盖二十二包；各组执行同一套旧质量断言。
+新增三个日语专项还分别检查日文六包共同加载后的词句候选、续写、原文及提交撤回。
+最多安装十六包、单包/语言预算和候选上限均不变。新增包已进入源码打包清单，
+但源码回归不代替实际产物构建、原生键盘、安装或远端 CI 验收。
+
+再补入日文学习写作、烹饪和观星，当前开发目录为 **二十五包**。
+新增 `org.suzaku.ja.study`、`org.suzaku.ja.cooking`、`org.suzaku.ja.outdoors`，均为 `1.0.0`，
+每包 32 条读音、12 组语境和 24 句，合计新增 96 条读音、72 句；日文九包共 592 索引单元。
+旧二十二包和内置词库内容不变，不新增转写规则，不增加任何容量，也不自动安装到个人环境。
+组合回归再增加三组“原十四包＋日文互联网＋一个新主题”，九组各十六包，联合覆盖二十五包；
+新的三个日语专项分别检查九个日语包同时加载，旧六包/五包和中英组合仍保持原断言。
+原生 GTK/IBus 包检查范围仍为历史十四包；源数据与纯逻辑测试不是实际安装验收。
+
 `.deb` 使用 `suzaku-tool`，源码/压缩包使用 `suzaku_tool` / `./bin/suzaku_tool`：
 
 ```bash
 suzaku-tool pack catalog --language en --topic outdoors
+suzaku-tool pack catalog --language en --topic outdoors --details
 suzaku-tool pack export org.suzaku.en.outdoors ./en-outdoors.json
+suzaku-tool pack inspect ./en-outdoors.json
 suzaku-tool pack validate ./en-outdoors.json
 suzaku-tool pack install ./en-outdoors.json
 suzaku-tool pack list
@@ -364,17 +453,25 @@ ID 为最长 64 字节的小写字母开头 slug，只含小写字母、数字�
 Python 3.10+ 标准库即可；权威校验复用当前 Suzaku 的 `pack validate`，不另造一份易漂移的
 Python 词典算法。源码位置 `sdk/offline-packs/`；打包脚本把 SDK 放在
 `share/suzaku/offline-pack-sdk/`，推荐集合 JSON 放在 `share/suzaku/offline-packs/`
-（0.8.0 为三个，0.8.1 为十一个，当前未发布开发版为十四个）。
+（0.8.0 为三个，0.8.1 为十一个，0.8.9 为二十五个；最多安装仍为十六个）。
 `.deb` 安装后相应位置为 `/usr/share/suzaku/…`，无网络依赖或额外 pip 依赖。
+两个目录现在都附带 `README.md`；SDK 指南说明三种运行路径、方法及校验/无覆盖发布边界。
+Python 仅供制包使用，不随 SDK 打包；消费生成的 JSON 不需要 Python。
 
 ```bash
 # 源码：制出园艺示例包；不会安装，也不允许覆盖已存在的输出。
 python3 sdk/offline-packs/example.py ./garden.json ./target/debug/suzaku_tool
 # 或校验、规范化自己编写的 JSON：
 python3 sdk/offline-packs/suzaku_pack.py ./authored.json ./distribution.json --tool ./target/debug/suzaku_tool
+# 二进制 tar 包：从解压后的包根目录运行。
+python3 share/suzaku/offline-pack-sdk/example.py ./garden.json ./bin/suzaku_tool
 # 安装版示例：
 python3 /usr/share/suzaku/offline-pack-sdk/example.py ./garden.json /usr/bin/suzaku-tool
 ```
+
+这些是不同环境的可选入口，不应连续写入同一个输出文件；请在可写目录使用新的文件名。
+SDK 默认校验器名为 `suzaku_tool`，`.deb` 则为 `suzaku-tool`；显式传入路径可避免
+误用 PATH 中旧工具。未明确 `pack install` 前，制出的 JSON 不会进入个人安装状态。
 
 Python API 提供 `PackBuilder(...)`、`words(...)`、`reading(...)`、`continuation(...)`、
 `phrase_ending(...)`、`build(path, tool=...)`，见随附 `example.py`。

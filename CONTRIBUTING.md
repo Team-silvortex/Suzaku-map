@@ -635,11 +635,11 @@ adoption/undo check (ten total), also included
 in the complete gate. Fixed independent data/old-rank regressions live in the
 three `tests/daily_clarification_*.rs` suites. Synthetic typed errors and empty
 providers are not live-model or physical-keyboard qualification.
-For all recommended packs (bilingual outdoors/study/cooking/travel/work, Japanese rail,
+For the historical fourteen-pack subset (bilingual outdoors/study/cooking/travel/work, Japanese rail,
 and EN/ZH/JA family), use
 `SUZAKU_VOCABULARY_QA_SCOPE=packs bash scripts/test-linux-apps.sh vocabulary`.
 This separate gate uses the selected installation's adjacent `suzaku_tool` to export/install
-all fourteen recommended packs into the private QA data directory **before** starting its host and panel. It
+these fourteen packs into the private QA data directory **before** starting its host and panel. It
 checks 74 vocabulary workflows plus three Chinese and two Japanese builtin
 sentence-progress workflows (79 total), including the
 live companion's system-font draft rendering and editor focus. It neither reads nor changes
@@ -650,13 +650,46 @@ fourteen packs and opens the real panel; only both successful parts count as `pa
 The first part has all five progress controls (42 + 37 workflows); an exact-tuple
 Counter guard prevents omissions, and `scripts/test-vocabulary-partitions.py`
 protects old tuples, physical assertions, fail-closed scopes and fail-fast dispatch.
-The native pack-only scope installs all fourteen recommended packs and checks fourteen
+The native pack-only scope installs the same fourteen-pack subset and checks fourteen
 representative workflows in both default and inline-preedit modes. Family regression
 tests separately cover all 60 explicit English forms, 36 Chinese and 24 Japanese readings,
 the 88 authored sentences, independent toggles and synthetic provider failures. These
 are finite authored examples, not an open-ended model-quality benchmark. The shipping
 list check detects omitted/duplicated/unknown pack filenames without building or installing
 anything; it does not replace archive-content or clean-container installation gates.
+The current twenty-five-pack catalog includes EN/ZH/JA outdoors/astronomy, study/writing,
+cooking/home, travel/lodging, work/collaboration, family/home, shopping/errands and
+internet/digital collections. Japanese rail remains
+a separate travel collection. Availability is separate from the unchanged maximum
+of sixteen installed packs; disabled entries still occupy installation slots.
+Isolated Rust checks retain two explicit batches: the historical sixteen (including
+shopping), and the original fourteen plus the EN/ZH internet packs. A third batch
+uses the original fourteen plus the EN/JA internet packs.
+Three further batches each retain the original fourteen plus Japanese internet and one
+of Japanese shopping, lodging or work. Another three use the same original fourteen plus
+Japanese internet and one of study, cooking or astronomy. All nine batches have sixteen entries,
+rerun the complete shared quality assertions and their union covers twenty-five; no test installs all at once.
+The all-readings check routes each collection to its declared input language, including
+the new Japanese lodging/work themes; it does not skip any original Chinese entry.
+The EN/ZH internet suites additionally each use eight same-language packs, the other
+language's internet pack and the historical Japanese rail/family packs (eleven total),
+including shopping. The Japanese internet suite keeps its historical three Japanese packs and
+the EN/ZH internet packs (five total); it does not change the older EN/ZH test cohorts.
+The earlier Japanese shopping/lodging/work suites retain their fixed six-pack cohorts.
+The study/cooking/astronomy suites each exercise all nine Japanese packs together.
+`tests/internet_pack_catalog.rs`, `tests/japanese_internet_catalog.rs` and
+`tests/japanese_theme_catalog.rs` and `tests/japanese_learning_catalog.rs` freeze
+the older packs' bytes and catalog order,
+check read-only browsing and budgets, and reject a seventeenth installation without
+changing registry bytes. These finite browser/search/bookmark, download/upload,
+login-status and social-sharing expressions execute no network or account operations.
+Japanese data follows the existing Romaji/kana paths; the finite examples are not a
+claim of complete morphological analysis or arbitrary sentence conversion.
+The above GTK/native scopes still cover the historical fourteen only, not the newer
+shopping, internet or Japanese lodging/work/study/cooking/astronomy additions. The native damaged-record fixture deliberately
+adds one bad record within the unchanged sixteen-record registry limit; expanding that
+fixture requires separate all-valid and damaged-record sessions, not raising the limit
+or removing its corruption checks. New pack source tests do not imply native acceptance.
 The private IBus gate also checks sentence progress in short, threshold-crossing and long drafts,
 including consecutive numeric adoptions, valid homophones, exact undo and one explicit commit.
 To validate a user-local installation instead of rebuilding debug binaries, set

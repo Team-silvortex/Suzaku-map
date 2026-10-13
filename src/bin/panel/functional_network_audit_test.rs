@@ -732,8 +732,268 @@ impl ApplicationHandler<PanelUserEvent> for Probe {
                 "N01: {change}: incorrect standalone context boundary"
             );
         }
+        check_suspended_adoption_history(&mut app);
         self.completed = true;
         events.exit();
     }
     fn window_event(&mut self, _: &ActiveEventLoop, _: WindowId, _: WindowEvent) {}
+}
+
+fn check_suspended_adoption_history(app: &mut PanelApp) {
+    use suzaku_map::ime::{companion::NativeComposition, gpu::PanelLayoutMode};
+    use suzaku_map::platform::ime_host_dispatch::current_ime_host_dispatch;
+
+    assert!(app.tray.is_none());
+    assert!(app.native_sync.is_none());
+    assert!(app.native_presentation.is_none());
+    assert!(!current_ime_host_dispatch().marked_text_roundtrip);
+    let socket = std::path::PathBuf::from(
+        std::env::var_os("SUZAKU_LINUX_IME_SOCKET").expect("private, unused host socket"),
+    );
+    assert!(socket.starts_with(std::env::temp_dir()));
+    assert!(!socket.exists(), "this fixture must not contact a host");
+
+    for (language, seed, adopted) in [
+        (BuiltinLanguage::English, "hel", "hello"),
+        (BuiltinLanguage::ChineseSimplified, "nihao", "你好"),
+        (BuiltinLanguage::Japanese, "nihongo", "日本語"),
+    ] {
+        for write_finished in [false, true] {
+            for change in [
+                "view only",
+                "same settings",
+                "host language only",
+                "native manual sync",
+                "shortcuts only",
+                "language",
+                "language away and back",
+                "model",
+                "temperature",
+                "timeout",
+            ] {
+                let context = format!("{}: {change}, finished={write_finished}", language.id());
+                let original = ImeSettings {
+                    language,
+                    llm_enabled: false,
+                    ..Default::default()
+                };
+                original.save().unwrap();
+                app.last_native_ime_settings = None;
+                app.ime_settings_sync = Default::default();
+                let panel = app.panel.as_mut().unwrap();
+                panel.engine.configure_prediction(None);
+                panel.engine.clear_session_context();
+                panel.native = Default::default();
+                panel.completion_history.clear();
+                panel.chrome = PanelChromeState {
+                    llm_enabled: false,
+                    input_focused: false,
+                    panel_layout_mode: PanelLayoutMode::FollowCaret,
+                    ..Default::default()
+                };
+                panel.is_focused = false;
+                panel.cancel_primary_interaction();
+                app.apply_native_settings(original.clone(), false);
+                let panel = app.panel.as_mut().unwrap();
+                panel.chrome.set_seed_text(seed.into());
+                panel.chrome.move_caret_to_end();
+                panel.refresh_seed();
+                let committed = panel.engine.snapshot().committed_text;
+                let choice = panel
+                    .engine
+                    .candidates()
+                    .iter()
+                    .position(|candidate| candidate.text == adopted)
+                    .unwrap_or_else(|| panic!("{context}: missing default word {adopted:?}"));
+                panel.continue_sentence_candidate(choice);
+                assert_eq!(panel.chrome.seed_text, adopted, "{context}");
+                assert_eq!(panel.completion_history.labels().len(), 1, "{context}");
+                assert_eq!(panel.chrome.composed_tokens.len(), 1, "{context}");
+                assert_eq!(
+                    panel.engine.snapshot().committed_text,
+                    committed,
+                    "{context}"
+                );
+                // A middle caret and both drawer states must survive the temporary host view.
+                panel.chrome.caret_index = 1;
+                panel.chrome.input_modes_expanded = write_finished;
+                panel.chrome.blur_input();
+                let (sender, requests) = mpsc::sync_channel(4);
+                panel.native.sender = Some(sender);
+                let mut frame = NativeComposition {
+                    host: "00000000-0000-0000-0000-000000000042".into(),
+                    context: 42,
+                    revision: 1,
+                    focused: true,
+                    private: false,
+                    cursor: None,
+                    language: language.id().into(),
+                    seed: "synthetic external draft".into(),
+                    selected: 0,
+                    candidates: vec![],
+                };
+                panel.receive_native_frame(Some(frame.clone()));
+                assert!(panel.native.showing, "{context}");
+                assert_eq!(panel.chrome.seed_text, frame.seed, "{context}");
+                assert!(panel.chrome.composed_tokens.is_empty(), "{context}");
+                assert_eq!(panel.completion_history.labels().len(), 1, "{context}");
+                let native_chrome = (
+                    panel.chrome.seed_text.clone(),
+                    panel.chrome.caret_index,
+                    panel.chrome.input_modes_expanded,
+                );
+                let other = if language == BuiltinLanguage::Japanese {
+                    BuiltinLanguage::English
+                } else {
+                    BuiltinLanguage::Japanese
+                };
+                let mut next = original.clone();
+                match change {
+                    "view only" => {}
+                    "same settings" => {
+                        app.apply_native_settings(next.clone(), write_finished);
+                        app.apply_native_settings(next.clone(), write_finished);
+                    }
+                    "host language only" => {
+                        frame.language = other.id().into();
+                        frame.revision += 1;
+                        app.panel
+                            .as_mut()
+                            .unwrap()
+                            .receive_native_frame(Some(frame.clone()));
+                    }
+                    "native manual sync" => {
+                        app.panel.as_mut().unwrap().sync_manual_seed_base();
+                    }
+                    "shortcuts only" => {
+                        next.shortcut_profile =
+                            suzaku_map::ime::shortcuts::ShortcutProfile::HomeRow;
+                        app.apply_native_settings(next.clone(), write_finished);
+                    }
+                    "language" | "language away and back" => {
+                        next.language = other;
+                        app.apply_native_settings(next.clone(), write_finished);
+                        if change == "language away and back" {
+                            next = original.clone();
+                            app.apply_native_settings(next.clone(), write_finished);
+                        }
+                    }
+                    "model" | "temperature" | "timeout" => {
+                        match change {
+                            "model" => next.provider.model = "synthetic-adoption-provider".into(),
+                            "temperature" => next.provider.temperature_tenths = 8,
+                            "timeout" => next.provider.timeout_ms = 2500,
+                            _ => unreachable!(),
+                        }
+                        app.apply_native_settings(next.clone(), write_finished);
+                    }
+                    _ => unreachable!(),
+                }
+                let preserve = matches!(
+                    change,
+                    "view only"
+                        | "same settings"
+                        | "host language only"
+                        | "native manual sync"
+                        | "shortcuts only"
+                );
+                let panel = app.panel.as_mut().unwrap();
+                assert!(
+                    !panel.chrome.llm_enabled,
+                    "{context}: network must remain disabled"
+                );
+                assert_eq!(
+                    panel.engine.prediction_status(),
+                    suzaku_map::ime::PredictionStatus::Disabled,
+                    "{context}"
+                );
+                assert!(panel.native.showing, "{context}");
+                assert_eq!(panel.native.frame.as_ref(), Some(&frame), "{context}");
+                assert_eq!(
+                    (
+                        panel.chrome.seed_text.clone(),
+                        panel.chrome.caret_index,
+                        panel.chrome.input_modes_expanded,
+                    ),
+                    native_chrome,
+                    "{context}: acknowledged settings altered the external draft"
+                );
+                assert_eq!(panel.engine.snapshot().seed_text, adopted, "{context}");
+                assert_eq!(
+                    panel.engine.snapshot().committed_text,
+                    committed,
+                    "{context}"
+                );
+                assert!(!panel.native_candidates_busy(), "{context}");
+                assert!(
+                    matches!(requests.try_recv(), Err(mpsc::TryRecvError::Empty)),
+                    "{context}"
+                );
+
+                panel.leave_native_view();
+                assert!(!panel.native.showing, "{context}");
+                assert_eq!(panel.chrome.seed_text, adopted, "{context}");
+                assert_eq!(panel.chrome.caret_index, 1, "{context}: lost saved caret");
+                assert_eq!(
+                    panel.chrome.input_modes_expanded, write_finished,
+                    "{context}"
+                );
+                assert_eq!(panel.engine.snapshot().seed_text, adopted, "{context}");
+                assert_eq!(
+                    panel.engine.snapshot().active_language,
+                    next.language.id(),
+                    "{context}"
+                );
+                assert_eq!(
+                    panel.engine.snapshot().committed_text,
+                    committed,
+                    "{context}"
+                );
+                assert_eq!(panel.native.frame.as_ref(), Some(&frame), "{context}");
+                assert_eq!(
+                    panel.completion_history.labels().len(),
+                    usize::from(preserve),
+                    "{context}: incorrect suspended adoption history boundary"
+                );
+                assert_eq!(
+                    panel.chrome.composed_tokens.len(),
+                    usize::from(preserve),
+                    "{context}"
+                );
+                panel.rewind_next_token();
+                let expected = if preserve { seed } else { adopted };
+                assert_eq!(panel.chrome.seed_text, expected, "{context}");
+                assert_eq!(panel.engine.snapshot().seed_text, expected, "{context}");
+                assert_eq!(
+                    panel.chrome.caret_index,
+                    if preserve { seed.chars().count() } else { 1 },
+                    "{context}"
+                );
+                assert_eq!(
+                    panel.chrome.input_modes_expanded, write_finished,
+                    "{context}"
+                );
+                assert!(panel.completion_history.labels().is_empty(), "{context}");
+                assert!(panel.chrome.composed_tokens.is_empty(), "{context}");
+                assert_eq!(
+                    panel.engine.snapshot().committed_text,
+                    committed,
+                    "{context}"
+                );
+                assert_eq!(panel.native.frame.as_ref(), Some(&frame), "{context}");
+                assert!(!panel.native_candidates_busy(), "{context}");
+                assert!(
+                    matches!(requests.try_recv(), Err(mpsc::TryRecvError::Empty)),
+                    "{context}"
+                );
+                assert!(!panel.chrome.llm_enabled, "{context}");
+                assert!(!current_ime_host_dispatch().marked_text_roundtrip);
+                assert!(
+                    !socket.exists(),
+                    "{context}: fixture unexpectedly acquired a host"
+                );
+                println!("PASS: suspended adoption history {context}");
+            }
+        }
+    }
 }

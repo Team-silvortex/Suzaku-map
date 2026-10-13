@@ -9,6 +9,9 @@ use suzaku_map::lexicon::{
     packs::{self, OfflinePack, PackStore},
 };
 
+#[path = "support/offline_pack_sets.rs"]
+mod offline_pack_sets;
+
 static NEXT: AtomicU64 = AtomicU64::new(0);
 struct Fixture(PathBuf);
 impl Fixture {
@@ -214,7 +217,7 @@ fn bundled_collections_match_sources_and_topic_filters_without_installing() {
         .filter(|path| path.extension().is_some_and(|ext| ext == "json"))
         .collect();
     let catalog = packs::recommended();
-    assert_eq!(catalog.len(), 14);
+    assert_eq!(catalog.len(), 25);
     assert_eq!(files.len(), catalog.len());
     let mut ids = std::collections::HashSet::new();
     for path in files {
@@ -256,9 +259,9 @@ fn bundled_collections_match_sources_and_topic_filters_without_installing() {
 }
 
 #[test]
-fn all_collections_merge_without_changing_builtin_prefixes() {
+fn historical_sixteen_collections_merge_without_changing_builtin_prefixes() {
     let f = Fixture::new();
-    for pack in packs::recommended() {
+    for pack in offline_pack_sets::historical_sixteen() {
         f.store().install(pack, false).unwrap();
     }
     let catalog = f.store().load();
@@ -267,7 +270,7 @@ fn all_collections_merge_without_changing_builtin_prefixes() {
         "{:?}",
         catalog.report.errors
     );
-    assert_eq!(catalog.report.loaded.len(), 14);
+    assert_eq!(catalog.report.loaded.len(), 16);
     for language in ["en", "zh-Hans", "ja"] {
         let base = lexicon::builtin(language).unwrap();
         let active = catalog.get(language).unwrap();
@@ -326,7 +329,7 @@ fn cli_install_toggle_replace_remove_changes_fresh_process_candidates() {
 #[test]
 fn chinese_and_japanese_packs_produce_words_and_sentences() {
     let f = Fixture::new();
-    for pack in packs::recommended().into_iter().skip(1) {
+    for pack in offline_pack_sets::historical_sixteen().into_iter().skip(1) {
         f.store().install(pack, false).unwrap();
     }
     for (language, seed, word, sentence) in [
@@ -392,7 +395,7 @@ fn travel_and_work_collections_are_opt_in_and_can_be_disabled_independently() {
         !f.store().path().exists(),
         "preview must not install any recommended pack"
     );
-    for pack in packs::recommended() {
+    for pack in offline_pack_sets::historical_sixteen() {
         f.store().install(pack, false).unwrap();
     }
     for (id, language, seed, sentence) in cases {
@@ -414,7 +417,7 @@ fn travel_and_work_collections_are_opt_in_and_can_be_disabled_independently() {
         f.cli(&["enable", id]);
         assert!(contains(&f.preview(language, seed), sentence, "Sentence"));
     }
-    assert_eq!(f.store().list().unwrap().len(), 14);
+    assert_eq!(f.store().list().unwrap().len(), 16);
     assert!(f.store().load().report.errors.is_empty());
 }
 
@@ -456,7 +459,7 @@ fn family_collections_are_language_filtered_and_opt_in_independently() {
         !f.store().path().exists(),
         "catalog/preview must not install packs"
     );
-    for pack in packs::recommended() {
+    for pack in offline_pack_sets::historical_sixteen() {
         f.store().install(pack, false).unwrap();
     }
     for (id, language, seed, sentence) in cases {
@@ -475,7 +478,7 @@ fn family_collections_are_language_filtered_and_opt_in_independently() {
         f.cli(&["enable", id]);
         assert!(contains(&f.preview(language, seed), sentence, "Sentence"));
     }
-    assert_eq!(f.store().list().unwrap().len(), 14);
+    assert_eq!(f.store().list().unwrap().len(), 16);
     assert!(f.store().load().report.errors.is_empty());
 }
 

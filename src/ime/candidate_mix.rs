@@ -195,7 +195,26 @@ pub fn offline(
         pool.push(candidate(seed.into(), CandidateKind::Literal, 55.0));
     }
     let pinned = pinned_count(language, &pool);
-    native_payload_budget(seed, balance(pool, pinned, limit), limit)
+    let mut output = balance(pool, pinned, limit);
+    let fill_limit = limit.clamp(1, super::companion::MAX_CANDIDATES);
+    if BuiltinLanguage::resolve(language) == Some(BuiltinLanguage::Japanese)
+        && output.len() < fill_limit
+    {
+        // Preserve the entire existing list and its sentence weights. Broader
+        // Japanese readings may have later builtin/pack words, but they should
+        // only fill unused slots, not displace earlier conversions or sentences.
+        let mut weight = output.iter().map(|c| c.score).fold(55.0, f32::min);
+        for (text, kind) in japanese::word_completion_backfill(seed) {
+            if kind == CandidateKind::Word && !output.iter().any(|c| c.text == text) {
+                weight -= 0.5;
+                output.push(candidate(text, kind, weight));
+                if output.len() == fill_limit {
+                    break;
+                }
+            }
+        }
+    }
+    native_payload_budget(seed, output, limit)
 }
 
 fn pinned_count(language: &str, pool: &[Candidate]) -> usize {

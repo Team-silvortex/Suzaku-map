@@ -1,5 +1,8 @@
 //! Optional authored family/home expressions, not personal data or a benchmark.
 //! Every activation scenario gets a fresh process and an exclusively owned store.
+#[path = "support/offline_pack_sets.rs"]
+mod offline_pack_sets;
+
 use std::{
     collections::HashSet,
     fs,
@@ -559,10 +562,10 @@ fn family_enabled_disabled_and_absent_snapshots_use_fresh_processes() {
 }
 
 #[test]
-fn family_words_sentences_and_failures_coexist_with_all_recommended_packs() {
+fn family_words_sentences_and_failures_coexist_with_historical_sixteen_packs() {
     family_pack();
     let fixture = Fixture::new();
-    for pack in packs::recommended() {
+    for pack in offline_pack_sets::historical_sixteen() {
         fixture.store().install(pack, false).unwrap();
     }
     fixture.child("quality");
@@ -615,7 +618,10 @@ fn family_pack_snapshot_child() {
             );
         }
         "quality" => {
-            assert_eq!(report.loaded.len(), packs::recommended().len());
+            assert_eq!(
+                report.loaded.len(),
+                offline_pack_sets::historical_sixteen().len()
+            );
             assert!(report.loaded.iter().any(|id| id == FAMILY_ID));
             quality_workflows();
         }
