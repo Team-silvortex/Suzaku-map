@@ -32,7 +32,7 @@ trap cleanup EXIT
 
 suzaku_ci_select_native_partitions() {
   local suzaku_ci_only_flag suzaku_ci_selected_flag=""
-  suzaku_ci_native_partitions=(core fallback)
+  suzaku_ci_native_partitions=(core-lifecycle core-composition recovery fallback)
   for suzaku_ci_only_flag in \
     SUZAKU_NATIVE_PACKS_ONLY SUZAKU_NATIVE_PRESENTATION_ONLY \
     SUZAKU_NATIVE_LANGUAGE_ONLY SUZAKU_NATIVE_CONTROL_IO_ONLY \
@@ -52,6 +52,13 @@ suzaku_ci_select_native_partitions() {
       suzaku_ci_native_partitions=(focused)
     fi
   done
+  if [[ ${SUZAKU_NATIVE_CORE_PART+x} == x ]]; then
+    if [[ $suzaku_ci_selected_flag != SUZAKU_NATIVE_CORE_ONLY ||
+          ( $SUZAKU_NATIVE_CORE_PART != lifecycle && $SUZAKU_NATIVE_CORE_PART != composition ) ]]; then
+      printf 'Native core part requires CORE_ONLY and lifecycle or composition\n' >&2
+      return 2
+    fi
+  fi
 }
 
 suzaku_ci_run_native_partitions() {
@@ -60,7 +67,9 @@ suzaku_ci_run_native_partitions() {
   for suzaku_ci_native_partition in "${suzaku_ci_native_partitions[@]}"; do
     suzaku_ci_partition_env=()
     case "$suzaku_ci_native_partition" in
-      core) suzaku_ci_partition_env=(SUZAKU_NATIVE_CORE_ONLY=1) ;;
+      core-lifecycle) suzaku_ci_partition_env=(SUZAKU_NATIVE_CORE_ONLY=1 SUZAKU_NATIVE_CORE_PART=lifecycle) ;;
+      core-composition) suzaku_ci_partition_env=(SUZAKU_NATIVE_CORE_ONLY=1 SUZAKU_NATIVE_CORE_PART=composition) ;;
+      recovery) suzaku_ci_partition_env=(SUZAKU_NATIVE_RECOVERY_ONLY=1) ;;
       fallback) suzaku_ci_partition_env=(SUZAKU_NATIVE_FALLBACK_ONLY=1) ;;
       focused) ;;
     esac
@@ -86,14 +95,14 @@ suzaku_ci_run_native_partitions() {
     cleanup
     suzaku_ci_tmp=""
   done
-  if [[ ${suzaku_ci_native_partitions[*]} == 'core fallback' ]]; then
+  if [[ ${suzaku_ci_native_partitions[*]} == 'core-lifecycle core-composition recovery fallback' ]]; then
     printf 'PASS: complete native IBus gate; core and all HTTP fallback cases passed.\n'
   fi
 }
 
 if [[ "$suzaku_ci_mode" == ibus || "$suzaku_ci_mode" == ibus-custom-shortcuts ]]; then
   # Reject incompatible focused requests before compiling or starting a bus.
-  # Full gates build once and retain every assertion across two fresh sessions.
+  # Full gates build once and retain every assertion across four fresh sessions.
   if [[ "$suzaku_ci_mode" == ibus ]]; then
     suzaku_ci_select_native_partitions
   elif [[ ${SUZAKU_IBUS_INLINE_PREEDIT:-0} == 1 ]]; then

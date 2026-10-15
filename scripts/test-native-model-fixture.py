@@ -13,6 +13,7 @@ import subprocess
 from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, call
+from fixtures.native_partition_projection import historical_source
 
 
 class NativeModelFixtureTests(unittest.TestCase):
@@ -221,8 +222,13 @@ class NativePartitionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.source = Path(__file__).with_name("test-native-sync.py")
-        cls.tree = ast.parse(cls.source.read_text())
-        cls.runner = Path(__file__).with_name("test-linux-ci.sh").read_text()
+        cls.tree = ast.parse(historical_source(cls.source))
+        cls.runner = historical_source(Path(__file__).with_name("test-linux-ci.sh"))
+
+    def test_core_session_dispatch_guard(self):
+        result = subprocess.run(["/usr/bin/python3", "-B", str(Path(__file__).with_name(
+            "test-native-core-partitions.py"))], capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def python_selector(self):
         names = {"NATIVE_ONLY_FLAGS", "native_only_mode"}

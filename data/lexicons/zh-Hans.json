@@ -3091,7 +3091,31 @@
     {"reading": "chong'dian'di'zuo", "text": "充电底座", "kind": "word"},
     {"reading": "sheng'yu'dian'liang", "text": "剩余电量", "kind": "word"},
     {"reading": "dian'liang'bai'fen'bi", "text": "电量百分比", "kind": "word"},
-    {"reading": "ling'sheng'yin'liang", "text": "铃声音量", "kind": "word"}
+    {"reading": "ling'sheng'yin'liang", "text": "铃声音量", "kind": "word"},
+    {"reading": "zhao'pian'fa'yuan'tu'ba", "text": "照片发原图吧", "kind": "word"},
+    {"reading": "zhe'zhang'zhao'pian'you'dian'hu", "text": "这张照片有点糊", "kind": "word"},
+    {"reading": "jie'tu'fa'gei'wo'kan'kan", "text": "截图发给我看看", "kind": "word"},
+    {"reading": "wen'jian'ming'gai'yi'xia", "text": "文件名改一下", "kind": "word"},
+    {"reading": "fu'jian'wo'chong'xin'fa'le", "text": "附件我重新发了", "kind": "word"},
+    {"reading": "zhe'ge'ban'ben'shi'zui'xin'de", "text": "这个版本是最新的", "kind": "word"},
+    {"reading": "wen'dang'li'xie'qing'chu'le", "text": "文档里写清楚了", "kind": "word"},
+    {"reading": "shou'dao'hou'hui'wo'yi'xia", "text": "收到后回我一下", "kind": "word"},
+    {"reading": "yuan'tu", "text": "原图", "kind": "word"},
+    {"reading": "ya'suo'tu", "text": "压缩图", "kind": "word"},
+    {"reading": "tu'xiang'bi'li", "text": "图像比例", "kind": "word"},
+    {"reading": "gao'qing'tu", "text": "高清图", "kind": "word"},
+    {"reading": "qing'xi'du", "text": "清晰度", "kind": "word"},
+    {"reading": "tu'pian'chi'cun", "text": "图片尺寸", "kind": "word"},
+    {"reading": "heng'ping", "text": "横屏", "kind": "word"},
+    {"reading": "shu'ping", "text": "竖屏", "kind": "word"},
+    {"reading": "pai'she'shi'jian", "text": "拍摄时间", "kind": "word"},
+    {"reading": "xiang'ce'feng'mian", "text": "相册封面", "kind": "word"},
+    {"reading": "wen'jian'yu'lan", "text": "文件预览", "kind": "word"},
+    {"reading": "pi'liang'fa'song", "text": "批量发送", "kind": "word"},
+    {"reading": "fa'song'ji'lu", "text": "发送记录", "kind": "word"},
+    {"reading": "gong'xiang'xiang'ce", "text": "共享相册", "kind": "word"},
+    {"reading": "wen'dang'fu'ben", "text": "文档副本", "kind": "word"},
+    {"reading": "xiu'gai'ji'lu", "text": "修改记录", "kind": "word"}
   ],
   "continuations": [
     [
@@ -8291,6 +8315,62 @@
       [
         "耳机放盒里了，等会儿出门再拿。",
         "耳机放盒里了，就在桌子旁边。"
+      ]
+    ],
+    [
+      "照片发原图吧",
+      [
+        "照片发原图吧，我想看清楚细节。",
+        "照片发原图吧，压缩后看不清。"
+      ]
+    ],
+    [
+      "这张照片有点糊",
+      [
+        "这张照片有点糊，可以再拍一张吗？",
+        "这张照片有点糊，我找找有没有清楚的。"
+      ]
+    ],
+    [
+      "截图发给我看看",
+      [
+        "截图发给我看看，我确认一下内容。",
+        "截图发给我看看，记得把完整提示截上。"
+      ]
+    ],
+    [
+      "文件名改一下",
+      [
+        "文件名改一下，方便大家查找。",
+        "文件名改一下，把日期也加上吧。"
+      ]
+    ],
+    [
+      "附件我重新发了",
+      [
+        "附件我重新发了，这次应该完整了。",
+        "附件我重新发了，你看看能不能打开。"
+      ]
+    ],
+    [
+      "这个版本是最新的",
+      [
+        "这个版本是最新的，后面都用这一份吧。",
+        "这个版本是最新的，旧文件可以先留着。"
+      ]
+    ],
+    [
+      "文档里写清楚了",
+      [
+        "文档里写清楚了，你可以先看一下。",
+        "文档里写清楚了，有疑问我们再讨论。"
+      ]
+    ],
+    [
+      "收到后回我一下",
+      [
+        "收到后回我一下，我好确认有没有漏发。",
+        "收到后回我一下，不着急，方便时回复就好。"
       ]
     ]
   ]

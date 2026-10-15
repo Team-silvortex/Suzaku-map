@@ -402,6 +402,42 @@ fn recommended_collections_keep_word_sentence_and_fallback_workflows() {
     // including its longer context. Do not change a shipped pack to make a new
     // built-in key collision disappear; these expectations are independent.
     for (language, seed, word, sentence) in [
+        (
+            "en",
+            "please check the file nam",
+            "please check the file name",
+            "please check the file name before sending it.",
+        ),
+        (
+            "en",
+            "could you add your not",
+            "could you add your notes",
+            "could you add your notes to the shared document?",
+        ),
+        (
+            "zh-Hans",
+            "zhao pian fa yuan tu b",
+            "照片发原图吧",
+            "照片发原图吧，我想看清楚细节。",
+        ),
+        (
+            "zh-Hans",
+            "fu jian wo chong xin fa l",
+            "附件我重新发了",
+            "附件我重新发了，你看看能不能打开。",
+        ),
+        (
+            "ja",
+            "kakuchoushi",
+            "拡張子",
+            "拡張子を含めたファイル名を教えてください。",
+        ),
+        (
+            "ja",
+            "akusesuken",
+            "アクセス権",
+            "アクセス権を確認してもらえますか。",
+        ),
         ("ja", "soujiki", "掃除機", "掃除機をかけてから出かけます。"),
         ("ja", "bunbetsu", "分別", "分別の方法を確認します。"),
         ("ja", "kanki", "換気", "換気のために窓を開けます。"),

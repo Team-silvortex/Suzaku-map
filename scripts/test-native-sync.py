@@ -51,7 +51,18 @@ def native_only_mode(environment):
     return selected[0] if selected else None
 
 
+def native_core_part(environment, only_flag):
+    """A core subpart is valid only with the explicit core diagnostic mode."""
+    if "SUZAKU_NATIVE_CORE_PART" not in environment:
+        return None
+    part = environment["SUZAKU_NATIVE_CORE_PART"]
+    if only_flag != "SUZAKU_NATIVE_CORE_ONLY" or part not in ("lifecycle", "composition"):
+        raise ValueError("Native core part requires CORE_ONLY and lifecycle or composition")
+    return part
+
+
 native_only_flag = native_only_mode(os.environ)
+native_core_partition = native_core_part(os.environ, native_only_flag)
 runtime = Path(os.environ["XDG_RUNTIME_DIR"])
 assert os.environ.get("SUZAKU_NATIVE_SYNC_QA") == "1"
 assert str(runtime).startswith("/tmp/suzaku-sync-qa.")
@@ -7943,30 +7954,33 @@ try:
             check_tray_activation(bus)
             print(f"PASS: isolated activation/release repetition {attempt + 1}/{repetitions}", flush=True)
         raise SystemExit(0)
-    check_native_presentation(bus, host_environment)
-    check_tray_activation(bus)
-    check_language_shortcut(bus)
-    check_held_language_transitions(bus)
-    check_custom_language_long_workflows(bus)
-    check_post_process_preedit(bus)
-    check_candidate_page_boundaries(bus)
-    check_candidate_row_boundaries(bus)
-    check_screen_keys(bus)
-    check_english_prose_workflows(bus)
-    check_japanese_daily_workflows(bus)
-    check_engine_event_boundaries(bus)
-    check_prediction_cancellation(bus)
-    check_native_draft_limits(bus)
-    check_prediction_length_boundaries(bus)
-    check_commit_target_boundaries(bus)
-    check_cancel_target_boundaries(bus)
-    check_draft_end_prediction_boundaries(bus)
-    check_language_target_boundaries(bus)
-    check_content_type_commit_boundaries(bus)
-    check_content_type_prediction_boundaries(bus)
-    check_engine_destruction(bus)
-    check_engine_destruction_prediction(bus)
-    check_committed_model_context(bus)
+    if native_core_partition != "composition":
+        check_native_presentation(bus, host_environment)
+        check_tray_activation(bus)
+        check_language_shortcut(bus)
+        check_held_language_transitions(bus)
+        check_custom_language_long_workflows(bus)
+        check_post_process_preedit(bus)
+        check_candidate_page_boundaries(bus)
+        check_candidate_row_boundaries(bus)
+        check_screen_keys(bus)
+        check_english_prose_workflows(bus)
+        check_japanese_daily_workflows(bus)
+        check_engine_event_boundaries(bus)
+        check_prediction_cancellation(bus)
+        check_native_draft_limits(bus)
+        check_prediction_length_boundaries(bus)
+        check_commit_target_boundaries(bus)
+        check_cancel_target_boundaries(bus)
+        check_draft_end_prediction_boundaries(bus)
+        check_language_target_boundaries(bus)
+        check_content_type_commit_boundaries(bus)
+        check_content_type_prediction_boundaries(bus)
+        check_engine_destruction(bus)
+        check_engine_destruction_prediction(bus)
+        check_committed_model_context(bus)
+    if native_core_partition == "lifecycle":
+        raise SystemExit(0)
     context = create_context(bus, "suzaku-sync-qa-a")
     commits = []
     lookup = observe_lookup(context)
@@ -8223,8 +8237,9 @@ try:
         assert probe.returncode == 0, probe.stderr
         assert f"committed={json.dumps(expected)}" in probe.stdout, probe.stdout
         print(probe.stdout.strip())
-    check_password_probe_cleanup(bus)
-    check_engine_recovery(bus)
+    if native_core_partition != "composition":
+        check_password_probe_cleanup(bus)
+        check_engine_recovery(bus)
     print("PASS: push, late subscriber, exact candidates, selection, replacement, commit, stale revisions, context switches, English digits/modifiers/punctuation, CJK number keys, later-page AI selection, model reload draft/context boundaries, Tone requests/persistence/write failure, private/password, Escape/focus-out and host restart")
 finally:
     failure = sys.exc_info()[1]

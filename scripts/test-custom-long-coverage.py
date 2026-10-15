@@ -9,6 +9,7 @@ import hashlib
 from pathlib import Path
 import textwrap
 import unittest
+from fixtures.native_partition_projection import historical_source
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE_PATH = ROOT / "scripts/test-custom-shortcuts-ibus.py"
@@ -85,7 +86,7 @@ class CustomLongCoverageTests(unittest.TestCase):
     def test_parse_without_execution_and_preserve_whole_legacy_fixture_and_runner(self):
         compile(TREE, str(SOURCE_PATH), "exec")
         self.assertEqual(hashlib.sha256(project(SOURCE).encode()).hexdigest(), FIXTURE_HASH)
-        self.assertEqual(hashlib.sha256((ROOT / "scripts/test-linux-ci.sh").read_bytes()).hexdigest(), RUNNER_HASH)
+        self.assertEqual(hashlib.sha256(historical_source(ROOT / "scripts/test-linux-ci.sh").encode()).hexdigest(), RUNNER_HASH)
 
     def test_projection_rejects_moved_duplicate_or_argument_changed_call(self):
         exact = "        run_checks(fixture)\n        run_long_checks(fixture)\n"

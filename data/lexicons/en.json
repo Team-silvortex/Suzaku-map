@@ -12137,6 +12137,38 @@
         "my phone is on silent during the meeting.",
         "my phone is on charge, so i'll reply later."
       ]
+    },
+    {
+      "id": "daily_sharing",
+      "words": [],
+      "next_words": [
+        ["i've attached a",["photo","document"]],
+        ["could you open this",["attachment","folder"]],
+        ["please send the photos",["again","tonight"]],
+        ["the shared folder is",["empty","ready"]],
+        ["i can't see the",["attachment","changes"]],
+        ["please check the file",["name","size"]],
+        ["could you add your",["notes","name"]],
+        ["i'll send the final",["version","photos"]]
+      ],
+      "sentences": [
+        "i've attached a photo of the box for you to check.",
+        "i've attached a document with the details you asked for.",
+        "could you open this attachment and check the details?",
+        "could you open this folder and find the photos?",
+        "please send the photos again when you have a moment.",
+        "please send the photos tonight so i can save them.",
+        "the shared folder is empty, so i'll add the photos.",
+        "the shared folder is ready for the rest of the team.",
+        "i can't see the attachment in your last message.",
+        "i can't see the changes in this document.",
+        "please check the file name before sending it.",
+        "please check the file size before you upload it.",
+        "could you add your notes to the shared document?",
+        "could you add your name to the file before sending it?",
+        "i'll send the final version after checking the details.",
+        "i'll send the final photos once everyone is ready."
+      ]
     }
   ],
   "phrase_endings": [

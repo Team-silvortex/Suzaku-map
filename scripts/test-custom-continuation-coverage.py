@@ -9,11 +9,12 @@ import ast
 import hashlib
 from pathlib import Path
 import unittest
+from fixtures.native_partition_projection import historical_source
 
 
 ROOT = Path(__file__).resolve().parent.parent
 NATIVE_PATH = ROOT / "scripts/test-native-sync.py"
-SOURCE = NATIVE_PATH.read_text()
+SOURCE = historical_source(NATIVE_PATH)
 TREE = ast.parse(SOURCE)
 HELPER = "check_custom_language_pending_continuation"
 PREDECESSOR = "check_custom_language_pending_boundaries"
@@ -234,14 +235,14 @@ class CustomContinuationCoverageTests(unittest.TestCase):
     def test_historical_guard_assertions_matrices_and_hashes_are_unchanged(self):
         for path, expected in GUARD_BEFORE_SHA256.items():
             with self.subTest(path=path):
-                source = (ROOT / path).read_text()
+                source = historical_source(ROOT / path)
                 compile(ast.parse(source), path, "exec")
                 self.assertEqual(hashlib.sha256(project_guard(path, source).encode()).hexdigest(), expected)
 
     def test_runner_preload_and_production_language_implementation_are_unchanged(self):
         for path, expected in UNCHANGED_FILE_SHA256.items():
             with self.subTest(path=path):
-                self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), expected)
+                self.assertEqual(hashlib.sha256(historical_source(ROOT / path).encode()).hexdigest(), expected)
 
     def test_projection_rejects_bad_arguments_moved_duplicate_or_extra_calls(self):
         call = only((node for node in ast.walk(TREE) if exact_call(node, HELPER)), "continuation call")
@@ -267,7 +268,7 @@ class CustomContinuationCoverageTests(unittest.TestCase):
         self.assertNotEqual(hashlib.sha256(project_native(changed).encode()).hexdigest(), NATIVE_BEFORE_SHA256)
         for path, expected in GUARD_BEFORE_SHA256.items():
             with self.subTest(path=path):
-                source = (ROOT / path).read_text()
+                source = historical_source(ROOT / path)
                 changed = source + "\n# unrelated historical guard mutation\n"
                 self.assertNotEqual(hashlib.sha256(project_guard(path, changed).encode()).hexdigest(), expected)
                 changed = source.replace(PREDECESSOR + '", 1)', PREDECESSOR + '", 2)', 1)

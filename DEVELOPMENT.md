@@ -9,6 +9,7 @@ Historical unreleased headings retain their development-time status. The accumul
 architecture and vocabulary changes below the 0.9.0 entry are included in this source
 candidate; their individual validation records retain their original scope. A source
 commit is not package-release acceptance. See [0.9.0 release notes](docs/releases/0.9.0.md).
+Entries above the 0.9.0 source-candidate record are later, uncommitted follow-ups.
 
 ## Current priority: Chinese and English input on Linux
 
@@ -46,6 +47,164 @@ checks and clean-container installation checks to pass before publication. Other
 are added only after their own acceptance, not implied by the shared version number.
 This is a release requirement, not a claim that automatic publication is implemented or
 that existing 0.7.x tags already have assets. See [Linux packaging](docs/linux-packaging-data.md).
+
+### Unreleased native core session budget repair — 2026 10 15
+
+- Preserve the exact 0.9.0 failure: commit `04ddfcc8a8724ccd7d7a389167aa0f0a2fc25405`,
+  [CI run 38385254322](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/38385254322),
+  job `115255326329`, step 24 (native IBus composition/candidate synchronization)
+  exits 124. The core private session starts at 11:06:28.890 UTC; password probe
+  cleanup passes at 11:08:27.204; the 120-second outer limit fires at 11:08:28.907.
+  Recovery has only 1.70 seconds left, less than its unchanged 4.05 seconds of
+  required stability windows even before host restarts. This is accumulated
+  suite load, not evidence of a password cleanup deadlock. The all-gates join
+  correctly rejects it; package/application success is not release acceptance.
+  Remote evidence remains under `/tmp/suzaku-0.9.0-ci-failure.1xc8F2/`.
+- Default native gates now require four sequential, fresh private sessions:
+  `core-lifecycle`, `core-composition`, `recovery`, `fallback`. Retain each
+  **120-second** deadline, three-second kill grace, all local waits/assertions,
+  immutable data, and inline-preedit inheritance. Build once, fail immediately
+  on any failed session, and print complete success only after all four pass.
+  The first part keeps the original 24 bus-level checks in order; the second
+  keeps the entire context-a/context-b input, model, Tone, host-restart and probe
+  chain together. Recovery reuses its existing focused password/N44 entry;
+  all 53 fallback cases still exercise both HTTP-503 and timeout replies.
+  Existing focused requests remain diagnostics, not complete-gate acceptance.
+  `SUZAKU_NATIVE_CORE_PART=lifecycle|composition` requires explicit CORE_ONLY;
+  empty/unknown/conflicting requests fail before builds, servers or a bus.
+- Before routing changes, freeze eight independent source/dispatch tests:
+  bounded red execution reports 14 failed assertions/subtests and one missing
+  selector error across eight tests (`partition-red-bounded.log`), then all
+  eight pass. The original fixture SHA is
+  `79f48467d0ef49a9610bbc542e6b4dc5631fcd8599163917eb4496cb890d3c77`,
+  runner SHA `521c5da0c7cc6a586e64fdb7fd57312a1d534363a3b9ccce376fbc57b748adbb`.
+  Exact source projections remove only the new routing/read adapters and restore
+  these bytes and every historical hash. All 88 old functions/classes are unchanged.
+  The new guard tests actual, unprojected dispatch, fresh paths, both transports,
+  all focused modes, failure propagation and mutation rejection. A new child test
+  in the existing model-fixture gate makes CI execute it without changing YAML.
+- Independent review identifies a missing-child-test loophole in the new
+  projection: a ninth negative test first fails (`ci-entry-red.log`, eight pass /
+  one fail), then requiring the exact CI entry closes it. A sixth historical
+  custom-long guard initially rejects the changed runner; add only its exact
+  historical read adapter, retaining its old hash and physical assertions.
+  No original expectation is weakened. The initial new-test hash `1f9d60bc…`
+  changes to `0c85a582…` only to bound failure output instead of dumping the
+  whole fixture, then adds the new negative test and sixth guard fingerprint.
+  Python 3.12 then exposes a native `ast.dump` format mismatch (eight pass /
+  one fail, `python312-red.log`). Reuse the existing `stable_ast_dump` formatter;
+  keep the original fallback fingerprint, assertions and AST unchanged. Both
+  Python 3.12 and the system interpreter pass all nine tests afterward. This
+  replaces intermediate guard hash `ab5e8f5e…`; final nine-test guard SHA256:
+  `5d940fac22283bfba1ed8643ec933f4bfda217d5eb14a654720bf2f34d454185`.
+- Both complete private IBus gates pass with exit zero (`native-normal.log`,
+  `native-inline.log`): eight successful sessions, and **106 controlled HTTP
+  failure/deadline workflows per transport**. N44 completes in 4.782 / 4.779
+  seconds; fallback completes in 50.489 / 50.512 seconds. These are individual
+  workflow timings, not whole-session durations. Original private portal
+  warnings remain visible; they do not turn a failed check into success.
+  Runs are serial/offline, one Cargo job, 4 GiB maximum and no swap.
+- The final source-only checks, Bash syntax and ShellCheck are recorded in
+  `/tmp/suzaku-native-core-budget.AZo2sz/`. The initially missing ShellCheck is
+  downloaded only into this temporary directory from the configured Ubuntu
+  repository, version 0.11.0-2; the package SHA256 matches the local APT index
+  (`06990eaf21b5dfa3d855e492f7ca2d6fcacf63b490a73a545850c50cf7af2bce`).
+  It is extracted without system installation; the modified runner passes.
+  Thirteen source-only suites pass (204 parent tests; nested child output is
+  not added again), including the unchanged YAML all-gates graph, six historical
+  projection adapters, probe teardown and native diagnostics. Preserve the first
+  custom-long failure in `source-validation.log`; its repaired check and all
+  suites pass in `source-validation-final.log`. All six adapted historical
+  suites also pass under Python 3.12, as does the standalone nine-test guard
+  (`source-python312-final.log`). Inventory guards pass 29 tests each under
+  the system interpreter and Python 3.12/ASCII defaults; 250 local audit links
+  resolve. The source snapshot includes the actual partition/old-guard readers,
+  without changing topology or maturity scores. These are not remote acceptance.
+- Keep the preceding uncommitted sharing vocabulary and production changes
+  exactly intact. This repair changes test orchestration/guards, not the input
+  implementation or corpus; no new full Rust result is claimed. No commit,
+  push, CI rerun, tag, release, personal installation or input-service change.
+  The old release monitor remains paused; publication requires a new exact
+  source commit's remote CI and accepted-package verification.
+
+### Unreleased everyday file and photo sharing vocabulary — 2026 10 13
+
+- Extend immediate, model-independent fallback after source commit `04ddfcc`:
+  English adds eight contexts / sixteen sentences; Chinese adds 24 readings /
+  eight contexts / sixteen sentences; Japanese adds twelve readings / six
+  contexts / twelve continuations. Cover sending original photos, missing or
+  resent attachments, file names, shared documents, access and image details.
+  New totals: English 6,143 indexed forms / 757 contexts / 1,478 sentences;
+  Chinese 3,114 readings / 751 contexts / 1,500 sentences; Japanese 498 readings /
+  250 contexts / 499 continuations. The vocabulary remains authored fallback.
+- Freeze six workflow tests per language before changing resources:
+  `daily_sharing_english` SHA256
+  `a17c9ea743d03b8574d319200e373d21ea6e70a8fe342d29513fd4b321004ade`,
+  Chinese `5fbe49eab9730a0a2f3e04addd26460055b866d3a1928979cdf63b9ad6a074d7`,
+  Japanese `7e63efd3f1401b65f51827b6673423dd169ec6f87e16859efb41d8155399e5fc`.
+  Red execution completes three targets: three boundary passes and fifteen
+  missing-entry/context/window failures. Keep `red.log` and the exact original
+  resources under `/tmp/suzaku-daily-sharing.O83xtA/`.
+- Cover complete and fixed partial inputs, Word/Sentence/raw choices,
+  case/apostrophe/horizontal-space preservation, adoption and authored-tail
+  reseeding/restoration, exact once-only submission/undo, protected tokens/line
+  boundaries, and unavailable/timeout/empty synthetic providers. These are
+  isolated core workflows, not native key dispatch or real-model evaluation.
+  Japanese long compounds preserve old base words; ファイル名/添付ファイル/
+  共有リンク/再送信 receive Word entries only. Six specific contexts include
+  解像度 instead of introducing extra competing ファイル continuations.
+- Peel only the exact new raw append ranges and compare every prior resource
+  byte. Retain all old English layers/index positions, 3,090 Chinese readings /
+  743 contexts / 1,484 sentences and 486 Japanese readings / 244 contexts /
+  487 continuations, including flags/order. All 25 optional packs and SDK stay
+  unchanged. English/Japanese production stays unchanged; three current-total
+  library test assertions and current resource/family totals are synchronized.
+  Historical tests, projected SHA values and the existing multi-stage resource
+  projections remain intact behind one precise new sharing projection.
+- Append two examples per language to the original nine sixteen-pack quality
+  cohorts, retaining all old cases and budgets. The first full regression
+  completes 182 top-level result groups: **2,113 passed / eight failed / 32
+  explicitly ignored** (`full-regression.log`). All eighteen new sharing tests
+  pass. Seven old Chinese tests expose the same short `zheg` first-page
+  regression; one resource test exposes an overlooked current-total assertion
+  (487 Japanese continuations, now 499), not a changed historical fingerprint.
+- The decoder still emits the same four Word conversions at weights 100/92/90/88.
+  Its fifth extra mixed Prefix completion, `这个版本是最新的`, gets weight 89
+  and displaces `这个` from page one. Freeze two independent priority tests
+  before repair (`chinese_prefix_priority`, SHA256
+  `77e8c5b901a03edf0d9815844244e6eec29fead9b6ecd9663e6bf019e7ebc272`):
+  one red failure / one pass in `priority-red.log`. After all authored queries
+  and deduplication, stably defer only extra Word completions which strictly
+  extend a decoder conversion that is itself a dictionary word. Compare the
+  original text, not trimmed/normalized prefixes. Preserve decoder order,
+  same-text Word/Sentence deduplication, homophones, exact/specific readings,
+  query sources, all existing limits and the outer scoring formula; the extra
+  long Word's relative weight is deliberately lowered but it remains selectable.
+  No vocabulary-specific exception or separator requirement is introduced.
+- The twelve-target repaired focused run passes **98 tests / zero failures**
+  (`focused-fixed.log`), covering both new priority tests, sharing, all seven
+  previously failing Chinese suites, partial continuation/probe and resource
+  preservation. Independent read-only review confirms the post-author placement
+  preserves categories, query sources and untrimmed boundaries. No claim is made
+  that every short word has higher weight in all ambiguous inputs.
+- The repaired complete locked all-feature Rust regression passes **2,123 tests /
+  zero failures / 32 explicitly ignored**, across 183 top-level result groups
+  (`full-regression-fixed.log`). Count each Cargo target's final result, not
+  nested subprocess output. The unchanged terminal-n suite passes seven tests
+  in 238.28 seconds, and the nine-cohort pack quality test passes in 56.33 seconds.
+  Execution remains serial/offline, one Cargo job, a 4 GiB maximum and no swap;
+  assertions and deadlines are not relaxed. The 32 existing opt-in/subprocess
+  tests retain their original meanings; native/UI and real-model gates have not
+  been newly run for this batch.
+- Strict locked all-feature/all-target Clippy passes with warnings denied
+  (`clippy.log`, 37.93 seconds); formatting and whitespace checks pass.
+- Resource-byte preservation and all four frozen fixture hashes pass; tensor
+  schema guards pass 29 tests each under the system Python and Python 3.12 with
+  ASCII defaults, shipping guards pass eleven tests, and 250 local audit links
+  resolve. The sparse source fingerprint includes the new priority test, with
+  existing maturity scores unchanged. This dirty workspace cannot use the
+  0.9.0 release commit's CI or packages as acceptance.
+  No version, commit, push, installation or release-monitor changes are made.
 
 ### 0.9.0 source candidate — 2026 10 13
 

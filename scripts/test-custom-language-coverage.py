@@ -8,11 +8,12 @@ import ast
 import hashlib
 from pathlib import Path
 import unittest
+from fixtures.native_partition_projection import historical_source
 
 
 ROOT = Path(__file__).resolve().parent.parent
 NATIVE_PATH = ROOT / "scripts/test-native-sync.py"
-SOURCE = NATIVE_PATH.read_text()
+SOURCE = historical_source(NATIVE_PATH)
 TREE = ast.parse(SOURCE)
 NATIVE_BEFORE_SHA256 = "b101512a7dadccfa924ee7a7835d21be684f3904d2b8f9237dffebc8bf0f3dc8"
 GUARD_BEFORE_SHA256 = {
@@ -209,14 +210,14 @@ class CustomLanguageCoverageTests(unittest.TestCase):
     def test_historical_guards_only_add_exact_custom_projection_support(self):
         for path, expected in GUARD_BEFORE_SHA256.items():
             with self.subTest(path=path):
-                source = (ROOT / path).read_text()
+                source = historical_source(ROOT / path)
                 compile(ast.parse(source), path, "exec")
                 self.assertEqual(hashlib.sha256(project_guard(path, source).encode()).hexdigest(), expected)
 
     def test_runner_workers_deadlines_and_bridge_are_unchanged(self):
         for path, expected in UNCHANGED_FILE_SHA256.items():
             with self.subTest(path=path):
-                self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), expected)
+                self.assertEqual(hashlib.sha256(historical_source(ROOT / path).encode()).hexdigest(), expected)
 
     def test_native_projection_rejects_changed_arguments_moved_duplicate_or_legacy_edits(self):
         for name in APPENDED_CALLS:
@@ -247,10 +248,10 @@ class CustomLanguageCoverageTests(unittest.TestCase):
     def test_historical_projection_cannot_hide_assertion_or_timeout_changes(self):
         for path, digest in GUARD_BEFORE_SHA256.items():
             with self.subTest(path=path):
-                source = (ROOT / path).read_text()
+                source = historical_source(ROOT / path)
                 changed = source + "\n# unrelated guard mutation\n"
                 self.assertNotEqual(hashlib.sha256(project_guard(path, changed).encode()).hexdigest(), digest)
-        held = (ROOT / "scripts/test-held-language-coverage.py").read_text()
+        held = historical_source(ROOT / "scripts/test-held-language-coverage.py")
         with self.assertRaises(AssertionError):
             project_guard("scripts/test-held-language-coverage.py", held.replace(
                 HELD_MAP_ADDITION, HELD_MAP_ADDITION.replace('("check_held_language_pending", 1)',

@@ -256,6 +256,103 @@ fn remove_unique_append(source: &mut String, first: &str, after: &str) {
     source.replace_range(start..end, "");
 }
 
+fn builtin_before_daily_sharing(language: &str, source: &str) -> String {
+    // Peel only this exact append before passing untouched historical bytes to
+    // the older projections. These fingerprints were fixed at the 0.9.0 source.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            let layers = current["word_layers"].as_array().unwrap();
+            assert_eq!(layers.len(), 38);
+            assert_eq!(layers[36]["id"], "daily_devices");
+            assert_eq!(layers[37]["id"], "daily_sharing");
+            assert!(layers[37]["words"].as_array().unwrap().is_empty());
+            assert_eq!(layers[37]["next_words"].as_array().unwrap().len(), 8);
+            assert_eq!(layers[37]["sentences"].as_array().unwrap().len(), 16);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_sharing\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "28cdfb440cb057e99cb077fd04ee25827bc31bd7b1e2834901b4ff0911c50d86"
+        }
+        "zh-Hans" | "ja" => {
+            let (
+                old_readings,
+                old_contexts,
+                added_readings,
+                added_contexts,
+                first_word,
+                first_context,
+                last_word,
+                expected_sentences,
+                first_append,
+                first_context_append,
+                sha,
+            ) = if language == "zh-Hans" {
+                (
+                    3090,
+                    743,
+                    24,
+                    8,
+                    "照片发原图吧",
+                    "照片发原图吧",
+                    "修改记录",
+                    1500,
+                    ",\n    {\"reading\": \"zhao'pian'fa'yuan'tu'ba\",",
+                    ",\n    [\n      \"照片发原图吧\",",
+                    "e1983c1917ad5e1130697bc8a56b5c99c0306347a17dc024bfd11c2f5f499c07",
+                )
+            } else {
+                (
+                    486,
+                    244,
+                    12,
+                    6,
+                    "ファイル名",
+                    "拡張子",
+                    "解像度",
+                    499,
+                    ",\n    {\"reading\": \"ふぁいるめい\",",
+                    ",\n    [\n      \"拡張子\",",
+                    "08b39a5dceeafe14ee82f70b2d23b0cbae208dd52631fe242fbf5e2db2b87c38",
+                )
+            };
+            let readings = current["readings"].as_array().unwrap();
+            let contexts = current["continuations"].as_array().unwrap();
+            assert_eq!(readings.len(), old_readings + added_readings);
+            assert_eq!(contexts.len(), old_contexts + added_contexts);
+            assert_eq!(readings[old_readings]["text"], first_word);
+            assert_eq!(readings.last().unwrap()["text"], last_word);
+            assert_eq!(contexts[old_contexts][0], first_context);
+            assert!(
+                contexts[old_contexts..]
+                    .iter()
+                    .all(|row| row[1].as_array().unwrap().len() == 2)
+            );
+            assert_eq!(
+                contexts
+                    .iter()
+                    .map(|row| row[1].as_array().unwrap().len())
+                    .sum::<usize>(),
+                expected_sentences
+            );
+            remove_unique_append(
+                &mut previous,
+                first_append,
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, first_context_append, "\n  ]\n}\n");
+            sha
+        }
+        _ => panic!("unexpected builtin language"),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
 fn builtin_before_japanese_cleaning(language: &str, source: &str) -> String {
     if language != "ja" {
         return source.to_owned();
@@ -538,7 +635,8 @@ fn japanese_internet_preserves_all_eighteen_source_bytes_and_catalog_positions()
         );
     }
     for (language, source, expected) in BUILTIN {
-        let before_cleaning = builtin_before_japanese_cleaning(language, source);
+        let before_sharing = builtin_before_daily_sharing(language, source);
+        let before_cleaning = builtin_before_japanese_cleaning(language, &before_sharing);
         let before_weather = builtin_before_japanese_weather(language, &before_cleaning);
         let before_errands = builtin_before_japanese_errands(language, &before_weather);
         assert_eq!(

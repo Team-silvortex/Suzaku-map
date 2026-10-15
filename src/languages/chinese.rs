@@ -391,7 +391,32 @@ pub(crate) fn mixed_candidates(
             }
         }
     }
-    output
+    // Extra prefix completions must not outrank an existing shorter dictionary
+    // conversion just because the vocabulary grew. Defer only strict textual
+    // extensions absent from the decoder's Word choices. Do this after all
+    // authored queries so their sources, deduplication and kinds stay intact.
+    let mut prioritized = Vec::with_capacity(output.len());
+    let mut deferred_words = Vec::new();
+    for item in output {
+        let (text, kind) = &item;
+        let extra_extension = *kind == CandidateKind::Word
+            && !conversions
+                .iter()
+                .any(|(base, kind)| *kind == CandidateKind::Word && base == text)
+            && conversions.iter().any(|(base, kind)| {
+                *kind == CandidateKind::Word
+                    && is_dictionary_word(base)
+                    && text.len() > base.len()
+                    && text.starts_with(base)
+            });
+        if extra_extension {
+            deferred_words.push(item);
+        } else {
+            prioritized.push(item);
+        }
+    }
+    prioritized.extend(deferred_words);
+    prioritized
 }
 
 pub fn pinyin_candidates(seed: &str) -> Vec<String> {
@@ -733,7 +758,7 @@ mod tests {
 
     #[test]
     fn authored_continuations_are_unique_complete_and_preserve_padding() {
-        assert_eq!(pinyin().len(), 3090);
+        assert_eq!(pinyin().len(), 3114);
         let mut phrases = std::collections::HashSet::new();
         let mut sentences = std::collections::HashSet::new();
         for (phrase, values) in vocabulary().continuations() {

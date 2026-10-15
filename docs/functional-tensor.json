@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "date": "2026-10-13",
-    "head": "c7e1b3f42ca5177d0e4da2edc91f410a053bbef4",
+    "date": "2026-10-15",
+    "head": "04ddfcc8a8724ccd7d7a389167aa0f0a2fc25405",
     "dirty": true,
-    "source_sha256": "29c6e15a754b7463e591a2bfcc2107e985f2298bdacc767de97bf58fdc80d556",
-    "note": "2026-10-13的0.9.0候选：在0.8.9源码修复c7e1b3f之后积累架构整理、三语数码及日语办事/天气/清洁词库；head记录父提交而非当前未提交内容。版本与Android/macOS构建号同步为0.9.0/40。E-pack-boundaries记录离线包format/catalog/store/runtime职责分层，E-model-boundaries记录模型适配器上移和旧路径兼容，E-model-legacy记录旧trait/英文工厂隔离及核心直接使用预测错误/取消类型，E-daily-devices、E-japanese-errands、E-japanese-weather和E-japanese-cleaning分别记录四批日用词句与独立回归；当前功能/实现/关联仍为69/49/79，不因搬移或词量提高人工序数评分。原CI38348392943的240秒失败与六分区修复见E-ci-vocabulary-sessions；父提交CI不作为本轮代码的验收。0.9.0最终执行和包发布边界见DEVELOPMENT及docs/releases/0.9.0.md。其他历史证据及原失败均保留：偏好见E-native-preference/E-preference-lifecycle，崩溃/清理见E-daemon-abort/E-daemon-probe，安装见E-installed-input-tasks/E-installed-custom-shortcuts，既有源码修复和词库扩充见各关联证据。已发布0.8.7、旧私有测试、本轮源码/回归均不等于当前个人安装、实体键盘、真实模型、跨平台原生或精确提交发布验收。源指纹只覆盖implementations.paths/tests，不是整个仓库；源码列表含四个词包子模块、模型规范/兼容入口及全部模型子模块、兼容测试、架构守卫、三语设备及日语办事/天气/清洁测试。"
+    "source_sha256": "5bd038045dcfc450a7edd5f9ca356dfb680138588962a967ce42604fb4b21997",
+    "note": "2026-10-15在0.9.0源码04ddfcc之后的未提交文件/照片分享词库及原生门禁修复；head记录父提交，版本/build仍0.9.0/40。E-native-core-sessions保留CI38385254322的core120秒退出124及聚合失败，拆为四个必需私有会话，原断言/120秒不变，普通/行内完整本地通过；不代替新精确提交的CI和accepted包，发布仍暂停。E-daily-sharing记录EN8搭配16句、ZH24读音8语境16句、JA12读音6语境12句，旧数据/25包/SDK保留；额外中文长词移后保护旧短词首屏，解码器/公式/容量不变。准确本地范围与原始失败见DEVELOPMENT。E-pack-boundaries、E-model-boundaries/E-model-legacy、E-daily-devices和日语办事/天气/清洁已纳入0.9.0；CI38348392943失败及六分区修复见E-ci-vocabulary-sessions。功能/实现/关联仍69/49/79，不因词量/测试提高人工序数评分；旧证据不等于个人安装、实体键盘、真实模型、跨平台原生或精确发布验收。源指纹仅覆盖implementations.paths/tests，含新sharing、中文排序及实际原生分区/历史投影守卫，不是整个仓库。"
   },
   "architectures": [
     {
@@ -393,7 +393,8 @@
         "tests/daily_delivery_english.rs",
         "tests/daily_repairs_english.rs",
         "tests/daily_laundry_english.rs",
-        "tests/daily_devices_english.rs"
+        "tests/daily_devices_english.rs",
+        "tests/daily_sharing_english.rs"
       ]
     },
     {
@@ -432,6 +433,8 @@
         "tests/daily_repairs_chinese.rs",
         "tests/daily_laundry_chinese.rs",
         "tests/daily_devices_chinese.rs",
+        "tests/daily_sharing_chinese.rs",
+        "tests/chinese_prefix_priority.rs",
         "tests/chinese_partial_sentence_probe.rs",
         "tests/chinese_partial_continuation.rs",
         "tests/chinese_function_words.rs",
@@ -472,6 +475,7 @@
         "tests/daily_errands_japanese.rs",
         "tests/daily_weather_japanese.rs",
         "tests/daily_cleaning_japanese.rs",
+        "tests/daily_sharing_japanese.rs",
         "tests/japanese_cleaning_coexistence.rs",
         "tests/japanese_authored_backfill.rs",
         "tests/japanese_completion_backfill.rs",
@@ -1017,6 +1021,7 @@
         "scripts/test-linux-ci.sh",
         "scripts/test-linux-apps.sh",
         "scripts/functional-tensor.py",
+        "scripts/fixtures/native_partition_projection.py",
         ".github/workflows/ci.yml"
       ],
       "tests": [
@@ -1026,6 +1031,12 @@
         "scripts/test-linux-apps.py",
         "scripts/test-native-ibus-trace.py",
         "scripts/test-native-model-fixture.py",
+        "scripts/test-native-core-partitions.py",
+        "scripts/test-held-language-coverage.py",
+        "scripts/test-custom-language-coverage.py",
+        "scripts/test-custom-boundary-coverage.py",
+        "scripts/test-custom-continuation-coverage.py",
+        "scripts/test-custom-long-coverage.py",
         "scripts/test-vocabulary-partitions.py",
         "scripts/run-ast-guard.py",
         "scripts/test-ast-guard.py",
@@ -1571,6 +1582,13 @@
       "note": "保持十四JSON字节、ID/版本/顺序和默认catalog结构，显式details/inspect只读统计原始声明记录，不读注册表/初始化运行词库；索引单元复用旧预算，不冒充唯一词数或兼容/许可证明。SDK拒绝文本充集合，保留生成器和顺序，权威校验/原子无覆盖发布不变。新增中英日手工统计、坏注册表隔离与参数/文件边界回归；目录逐项核对manifest与分发清单，两个README加入包和smoke断言。实跑范围和原始失败见开发记录，不提高成熟度；未实际打包安装/原生键盘/远端CI验收。"
     },
     {
+      "id": "E-daily-sharing",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/en.json", "data/lexicons/zh-Hans.json", "data/lexicons/ja.json", "src/languages/chinese.rs", "tests/daily_sharing_english.rs", "tests/daily_sharing_chinese.rs", "tests/daily_sharing_japanese.rs", "tests/chinese_prefix_priority.rs", "tests/lexicon_resources.rs", "tests/offline_pack_quality.rs", "tests/family_pack_japanese.rs", "tests/japanese_internet_catalog.rs"],
+      "scope": "2026-10-13在0.9.0源码后的三语照片/附件/文件协作日用fallback",
+      "note": "EN8搭配16句，ZH24读音8语境16句，JA12读音6语境12句。三份各六项测试先固定预期红测：3边界通过、15新内容缺口失败；保护完整/选定半截、词句原文、大小写/水平空白、采用续写及还原、精确一次提交撤回、未知/URL/跨行边界及Unavailable/Timeout/empty模型回退。日语复合词沿用既有Romaji规则，文件名等仅Word、解像度加入六个明确语境。全部旧资源和字节/顺序/标记、25包及SDK保留，英文6143索引不增；三条库unit当前总数与共享资源/family总数同步，旧历史投影SHA及行为断言不改。两例每语追加原九组16包共存。首轮全仓2113通过8失败32忽略：7个旧中文zheg首屏回归和1处漏同步当前总数。独立两项排序测试先1失败1通过；生产仅在全部作者查询/去重后稳定移后严格延伸原整体字典Word的额外Word，原文比较、不跨未知前缀；保留原解码器及Word次序、同音、精确/明确半截、类别、查询源、容量和外层公式，额外长词相对权重有意降低但仍可选择。修后12目标98项定向及183组全仓2123项通过、0失败、32原有忽略；严格Clippy、格式、资源/词包/文档守卫通过，准确范围和原始日志见开发记录。0.9.0原提交CI不能用于本轮工作区验收，不提高成熟度；无模型协议、个人安装、版本、提交推送或发布跟进更改，不宣称真人键盘或真实模型验收。"
+    },
+    {
       "id": "E-japanese-cleaning",
       "kind": "historical_run",
       "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/ja.json", "src/languages/japanese.rs", "tests/daily_cleaning_japanese.rs", "tests/japanese_cleaning_coexistence.rs", "tests/lexicon_resources.rs", "tests/offline_pack_quality.rs", "tests/family_pack_japanese.rs", "tests/japanese_internet_catalog.rs"],
@@ -1688,6 +1706,13 @@
       "paths": ["DEVELOPMENT.md", "docs/ibus-candidates.md", "docs/known-limitations.md", "tests/preference_persistence.rs"],
       "scope": "2026-10-12偏好持久化第一阶段：可移植编解码、Linux私有文件和引擎冷恢复API",
       "note": "目标默认开启可随时清除，但未接宿主后台保存/启动恢复/退出冲刷/托盘磁盘清除确认，当前native仅内存且个人安装不动。v1 HMAC-SHA256-128按域/字节长度区分语言querycandidate，32byte随机key同文件不等于匿名化/加密；512KiB/2048有界严格解析，24h半衰期覆盖停机/单调时钟，倒退不增加。私有owned目录/0600 regular singlelink/no-follow/nonblock，协作独占锁、临时fsync+rename+父目录sync，坏文件/检测外部编辑保留，非同UID恶意race CAS。清除后mutation revision及同revision tombstone拒绝旧保存；独立owner拒绝foreign snapshot/旧receipt。首27专项/1736全量通过后追加foreign receipt红测，owner修复后首全量1737零失败30显式ignored共128组；15新集成含两个实际进程/文件、late/private restore与live selection，熵故障单测保留RAM但拒export。不把这些当native/UI/慢I/O/安装/真实模型验收，不改旧断言/期限或旧成熟度。"
+    },
+    {
+      "id": "E-native-core-sessions",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "scripts/test-linux-ci.sh", "scripts/test-native-sync.py", "scripts/fixtures/native_partition_projection.py", "scripts/test-native-core-partitions.py", "scripts/test-native-model-fixture.py", "scripts/test-held-language-coverage.py", "scripts/test-custom-language-coverage.py", "scripts/test-custom-boundary-coverage.py", "scripts/test-custom-continuation-coverage.py", "scripts/test-custom-long-coverage.py"],
+      "scope": "2026-10-15修复0.9.0准确CI的原生core累计120秒超时，不延时限的四会话完整门禁",
+      "note": "04ddfcc/run38385254322/job115255326329 step24原core120.02秒exit124；密码cleanup PASS后只剩1.70秒，N44至少4.05秒固定窗口，聚合115265543056正确失败，旧证据保留且发布暂停。default顺序core-lifecycle/core-composition/recovery/fallback，各fresh私有总线/配置、原120秒+3秒kill、inline继承及失败即停；完整成功仅四区全过。24旧bus检查保序，context-a到b/模型/Tone/重启/两probe完整原块不拆；恢复复用旧focused入口，53样例各HTTP503/timeout均保留。88旧函数/类和全部物理断言原字节，六历史guard精确投影保留旧hash；新guard检查实际dispatch/选择器/漏区/时限/变异。先8项red failures14/errors1，再全绿；新增CI入口删改负例先8过1败再修，漏custom-long read适配失败保留后修；3.12指纹差异先8过1败，复用旧stable_ast_dump且原hash不变，两版本最终9绿。现有CI modelguard调用新guard，无YAML/总job预算变化。普通/inline完整8session均exit0、每种106受控回退；N44 4.782/4.779秒是单项而非整区时长。源守卫、ShellCheck、Bash和矩阵准确范围见开发记录。保留此前未提交词库；无生产输入、语料、安装、服务、版本、提交推送、远端重跑或发布更改，不提高评分，不宣称实体键盘/实模/新提交远端验收。"
     },
     {
       "id": "E-ci-vocabulary-sessions",
@@ -2590,6 +2615,7 @@
         2
       ],
       "evidence": [
+        "E-daily-sharing",
         "E-daily-devices",
         "E-daily-laundry",
         "E-daily-repairs",
@@ -2630,6 +2656,7 @@
         2
       ],
       "evidence": [
+        "E-daily-sharing",
         "E-daily-devices",
         "E-daily-laundry",
         "E-daily-repairs",
@@ -2672,6 +2699,7 @@
         2
       ],
       "evidence": [
+        "E-daily-sharing",
         "E-daily-devices",
         "E-daily-laundry",
         "E-daily-repairs",
@@ -2725,6 +2753,7 @@
         "E-japanese-cleaning",
         "E-japanese-weather",
         "E-japanese-errands",
+        "E-daily-sharing",
         "E-daily-devices",
         "E-daily-laundry",
         "E-japanese-backfill",
@@ -3323,6 +3352,7 @@
       "evidence": [
         "E-pack-boundaries",
         "E-ci-vocabulary-sessions",
+        "E-native-core-sessions",
         "E-ci-lanes",
         "E-python-ast-format",
         "E-daemon-abort",

@@ -8,11 +8,12 @@ import ast
 import hashlib
 from pathlib import Path
 import unittest
+from fixtures.native_partition_projection import historical_source
 
 
 ROOT = Path(__file__).resolve().parent.parent
 NATIVE_PATH = ROOT / "scripts/test-native-sync.py"
-SOURCE = NATIVE_PATH.read_text()
+SOURCE = historical_source(NATIVE_PATH)
 TREE = ast.parse(SOURCE)
 
 # Independently frozen before either new held-language helper was inserted.
@@ -196,7 +197,7 @@ class HeldLanguageCoverageTests(unittest.TestCase):
     def test_runner_and_language_worker_are_unchanged(self):
         for name, expected in UNCHANGED_FILE_HASHES.items():
             with self.subTest(name=name):
-                self.assertEqual(hashlib.sha256((ROOT / name).read_bytes()).hexdigest(), expected)
+                self.assertEqual(hashlib.sha256(historical_source(ROOT / name).encode()).hexdigest(), expected)
 
     def test_bridge_only_changes_the_completed_feedback_render_to_presentation(self):
         source = (ROOT / "src/linux/ibus_engine_bridge.c").read_text()
