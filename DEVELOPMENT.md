@@ -3,13 +3,18 @@
 Historical implementation notes, including earlier behavior and experimental platforms.
 Start with the [README](README.md) and [known limitations](docs/known-limitations.md).
 
-Current source version: **0.9.0 — Model boundaries and everyday fallback**.
+Current source version: **0.9.1 — Everyday composition and continuation sources**.
 
-Historical unreleased headings retain their development-time status. The accumulated
-architecture and vocabulary changes below the 0.9.0 entry are included in this source
-candidate; their individual validation records retain their original scope. A source
-commit is not package-release acceptance. See [0.9.0 release notes](docs/releases/0.9.0.md).
-Entries above the 0.9.0 source-candidate record are later, uncommitted follow-ups.
+Historical unreleased/uncommitted headings retain their development-time status.
+The 0.9.1 source candidate includes the earlier model/pack organization, sharing,
+belongings, borrowing, basic Chinese readings and candidate-source repairs below;
+individual validation records retain their original scope. Parent `ef0e920`
+contains sharing and the native core-session repair; those changes are included,
+not new English-provider changes. The additional Japanese pagination repair
+below is part of this release candidate. A source commit
+and local validation do not substitute for exact-commit package acceptance.
+See [0.9.1 release notes](docs/releases/0.9.1.md). Earlier failed release runs remain
+historical evidence; their artifacts must not supply this version.
 
 ## Current priority: Chinese and English input on Linux
 
@@ -47,6 +52,688 @@ checks and clean-container installation checks to pass before publication. Other
 are added only after their own acceptance, not implied by the shared version number.
 This is a release requirement, not a claim that automatic publication is implemented or
 that existing 0.7.x tags already have assets. See [Linux packaging](docs/linux-packaging-data.md).
+
+### 0.9.1 source candidate — 2026 10 15
+
+- Cargo version **0.9.1**, synchronized Android/macOS build **41**. Include the
+  daily belongings/borrowing and independent Chinese 借/还/给/书/拿/放/带/用/
+  过/完/回/找/到/家/这/本 readings, without adding builtin 里/那 or template
+  sentences for character composition. Compared with the 0.9.0 source record,
+  include sharing as well: **88 Chinese / 36 Japanese readings and 132 authored
+  sentences/continuations**; EN indexed forms remain 6,143. Current EN/ZH/JA
+  totals are **6143/773/1510**, **3178/767/1532**, **522/262/523**.
+- Include narrowly scoped candidate-mixer/source fixes for partial-word
+  sentence slots, displaced root Prefix contexts and visible compound Prefix
+  Words extending real finished branches. Preserve source data and prior
+  regression evidence; all formulas, final limits and model contracts remain.
+  Versioned acceptance results are appended after execution, not inferred from
+  the historical per-batch results. No personal install or service changes.
+- The first full versioned Rust run found a real compatibility regression in
+  the unchanged study-pack partial-reading test: `きょうかし` still generated
+  both 教科書 sentences, but borrowing Word additions pushed the second to
+  position 7. Preserve that failure and every old first-/later-page assertion.
+  Only a unique strict whole-reading Word that corrects the greedy first word
+  (not merely extending it) may share the extra sentence-slot policy, with
+  its own two authored sentences already in the actual pool. Incomplete ASCII
+  probes and competing whole-reading Words do not qualify. Existing
+  `kyouyu`, `ほぞんさ` and transit later-page rules remain unchanged.
+  No search, Word order, weight formula, four-sentence generation cap,
+  six-slot page, twelve-candidate limit or model protocol is increased.
+  The frozen new study regression `b2a5ba8c…` first fails on that exact
+  second-sentence page assertion, then passes unchanged for Kana, Romaji,
+  uppercase and horizontal-space input, preserving Word order/weights,
+  literal commits and model competition. Its initial missing `kind` field
+  was a new-test compilation error, corrected before the final red fixture.
+  All **41 tests across five affected Japanese targets** pass. This scoped
+  rerun is not added again to the final full-version counts below.
+- Final versioned local acceptance: **2,237 Rust tests pass / 0 fail / 32
+  explicitly ignored**, across **198 result groups**, using the unchanged
+  complete all-features suite and serial test execution. Strict all-target,
+  all-feature Clippy passes with warnings denied (**41.33 seconds**). The
+  private Xvfb/DBus UI gate passes **19/19** (18 panel cases plus the executable
+  single-instance launch gate); multilingual glyph rendering reports no missing
+  glyphs. The executable reports `suzaku-map 0.9.1`. Earlier full-run and fixture
+  failures above remain recorded; focused repeats are not double-counted.
+  Version/build/resource totals, formatting, tensor guards, CI graph, vocabulary
+  partition, shipping, 250 packaged document links and inverse-byte preservation
+  checks pass. Builds/tests run serially with 2 GiB high / 4 GiB maximum memory,
+  no swap and no OOM. This is local source/private-UI acceptance, not a new
+  personal installation, physical-keyboard/model-quality claim or substitute
+  for this exact clean commit's remote native/container/package gates.
+- The 0.9.0 source commit `04ddfcc` remains unaccepted: its CI run
+  `38385254322` failed the native core deadline. Parent `ef0e920` later passed
+  run `38709250004`, but that success does not accept this new version. Await
+  this exact clean commit's complete CI, accepted artifacts, manifests,
+  checksums and container install/upgrade/removal gates before publishing any
+  annotation tag or downloadable Linux Alpha prerelease. Do not reuse old
+  artifacts or relabel the 0.9.0 failure.
+
+### Unreleased Chinese compound-branch continuation sources — 2026 10 15
+
+- Follow the previous bare-homophone repair into composite inputs, using only
+  an isolated optional `na -> 那` pack. With the pack enabled, `na guo lai`
+  still displayed the old Word 拿国来得及吗, but lost its two already authored
+  continuations before final pagination. Keep the original before/after probe
+  and twelve-choice baseline. Do not dismiss source loss as ordinary list
+  truncation or add builtin 那 before resolving broader compatibility.
+- Add private `DecodedPinyin.finished_count`, captured after finished-path
+  deduplication/take-five and before Prefix completions. Preserve the public
+  vector API, search body, ordering, beam/completion limits and literal-tail
+  recovery; attaching a frozen prefix preserves the count. A Sentence-kind
+  Prefix is not a finished path, so kind and display position alone are not
+  accepted as provenance.
+- Recover only an already visible Word beyond the old five-source window,
+  when the primary is a dictionary Word and an actual secondary finished
+  Sentence is its strict textual prefix. Reuse existing authored-tail matching
+  and suffix preservation, append after all prior mixed results and deduplicate.
+  No primary-Word anchor, substring-only match, missing/early/extra decode path
+  or inferred reading. There are still at most four visible Prefix completions;
+  source availability expands narrowly, not the final six/twelve slots or
+  model/native budgets. No data, outer mixer, normalizer or protocol change.
+- New fixture initially had a compile-only error comparing Lexicon without
+  PartialEq; retain it and compare serialized values instead. An initial
+  six-test run then gave **three passes/three failures**: two source gaps and
+  a separate long `na ben shu gei ni` alternative absent from the full twelve
+  slots. That long unadopted branch remains unresolved. Preserve the failure,
+  narrow the direct-composition promise to three smaller cases, and explicitly
+  test selecting 那 / 那本书 then reseeding and continuing 给你. This is a
+  different supported engine workflow, not a fix for the long full-Pinyin
+  branch, real key events or an IBus/panel adoption acceptance.
+- Before production edits, re-freeze the six-test scoped fixture at SHA256
+  `3d153439b8ee0948130db231377817d1bb993b7f14bd2394c8ece746c69526b9`:
+  **four compatibility passes/two source-gap failures**, then **six unchanged
+  passes** after the repair. Enabled/disabled fresh processes use only owned
+  temporary stores. All five old Words, six old authored Sentences and the
+  literal for `na guo lai` remain selectable/committable within twelve slots
+  across contiguous/separated/apostrophe/uppercase/tone spellings; preserve
+  primary100 and relative old Word order, not their old scores/page positions
+  after adding an optional homophone. New 那 branches are not all promised
+  visible in a full pool. Thirteen unchanged disabled vectors and all thirty
+  prior reference vectors remain. Cover 那本书/我要那本书/我那, selected-Han
+  horizontal-gap preservation, short/long Unicode prefixes, explicit once-only
+  commit/undo, raw text, quotes/numbers/wrong splits/tokens/seven line boundaries
+  and unavailable/timeout/empty synthetic providers before and after polling.
+- Three new unit tests cover real finished provenance versus Sentence Prefix,
+  wrong kinds, primary/substrings/equal/early exclusions, and boundary-prefix
+  recovery/empty/overlong metadata. Focused validation: new six, prior seven
+  source tests, prior nine reference tests, all five old/new displaced helper
+  tests and the metadata unit pass. Repeated focused runs are not added to the
+  later scoped acceptance total.
+- A reversible source projection restores the exact pre-fix file, including
+  the old search body, wrapper semantics, assertions and bare-source repair.
+  Three language data files, outer mixer, old twelve character/daily fixtures,
+  prior source fixture, 25 packs/SDK and their limits remain unchanged. Chinese
+  stays **3,178 readings / 767 contexts / 1,532 authored sentences**; EN/JA,
+  version/build **0.9.0/40**, personal installation and release follow-up stay
+  unchanged. Builtin 那, the separate 里/lian segmentation risk and broader
+  multi-branch capacity work remain deferred. No maturity-score increase or
+  full-repository/native/physical-keyboard/real-model/remote-CI claim.
+- Review found the original boundary checks exercised bare `na`, not compound
+  tails. Add a separate one-test fixture without changing the frozen six:
+  SHA256 `5e39895df5dd90d314f6dde0d035570d2554d879746e64505ce5efe6fd7981ea`.
+  In a fresh enabled-pack process, 21 compound quote/numeric/token/line inputs
+  keep literal byte-exact once-only commits and undo, without borrowing the
+  six bare compound sentences. Require a unique completion marker to reject
+  accidental zero-test child runs. This test passes in 0.04 seconds; it does
+  not promise every converted alternative preserves every symbol or that all
+  URLs are categorically unconvertible.
+- Final scoped acceptance: **1,052 passes / zero failures / two existing
+  opt-in model diagnostic ignores**, in 63 top-level result groups. The main
+  run covers 61 affected integration targets/468 passes and the full library/
+  583 passes with two ignores (58.78 seconds). The review-added independent
+  boundary target adds one pass after that run; together these are 62 affected
+  integration targets, not a claim that the added test ran in the earlier
+  invocation. Focused six/seven/nine/helper repeats are not double-counted.
+  Strict all-target Clippy, including the added boundary target, passes in
+  1m 06s. Formatting/diff, source/resource/fixture preservation, 29 tensor
+  guards under each of two Python/locale configurations, 11 shipping guards
+  and 250 packaged audit links pass. Independent read-only reviews found no
+  blocking implementation/test issue and prompted the extra boundary test;
+  all deferred risks above remain open.
+
+### Unreleased Chinese displaced continuation sources — 2026 10 15
+
+- Repair an existing source-selection gap before adding more homophones. For
+  a complete, single authored reading with at least two distinct exact Words,
+  recover only Words among the original first four root Prefix choices that
+  are actually visible beyond the decoder's old first-five source window.
+  Use each whole Word's own existing authored context, append after all old
+  mixed output, and deduplicate. Do not borrow the fifth mixed extra, later
+  finished paths, inferred compact multi-syllable readings or arbitrary words.
+- Existing bare `ta / hao / you` now recover the two authored sentences for
+  `太好了 / 好久不见 / 优先级`. Their old primary, seven Word choices' relative
+  order/labels/source/score bits and literal remain. The added Sentence pair
+  intentionally uses normal first-page sentence slots; affected complete
+  vectors and page positions are not claimed unchanged. Final 6/12 page/list,
+  beam and completion limits remain, but the bounded source set expands as
+  described. No decoder, normalizer, candidate-mixer or model protocol change.
+- Freeze seven engine tests at SHA256
+  `6b435ad0f573c7bc855ad5c82b0b6fbc7839b6b8ce658af7e3fca5acde1f7c8b`:
+  actual before **three compatibility passes/four source-gap failures**, then
+  **seven unchanged passes** after the production fix. Thirteen independently
+  sampled old full vectors, plus all thirty prior reference vectors, remain
+  protected. Test case/tone and trailing horizontal spacing, Word adoption and
+  reseeding, explicit once-only commit/undo, raw input, protected tokens,
+  quotes/numbers/seven line boundaries and unavailable/timeout/empty synthetic
+  models. These do not certify physical keyboards or real providers.
+- A private optional `na -> 那` test pack, enabled/disabled in fresh processes,
+  proves the original 闹钟 Word's two authored sentences stay reachable after
+  an added homophone. No personal store, service or installation is used.
+  Builtin 那 is still deferred pending composite-input compatibility; this is
+  not full 那 support. The separate 里/`lian -> 里安` segmentation risk remains
+  unresolved, without changing old snapshots or introducing a syllable rule.
+- Three new helper tests cover distinct exact texts, visible Word provenance,
+  original four-Prefix budget, exclusions and stable mixed-output prefixes.
+  Initial helper run was **two passes/one new-test assertion failure**: the
+  test incorrectly treated engine-deduplicated output as raw mixed output.
+  Preserve that diagnostic; correct only the new assertion to the actual old
+  five-Word prefix, without changing production or the frozen seven-test suite.
+  All three helper tests then pass. Broader scoped acceptance is recorded below,
+  separately from these focused results.
+- Chinese remains **3,178 readings / 767 contexts / 1,532 authored sentences**;
+  all three data files, six older character fixtures, six daily fixtures,
+  old behavior assertions, 25 optional packs and SDK stay byte-identical to the
+  pre-fix workspace. Version/build **0.9.0/40**, release follow-up and personal
+  installation stay unchanged. No new node or maturity-score increase.
+- Scoped engine acceptance: **1,042 passes / zero failures / two existing
+  opt-in model diagnostic ignores**, in 61 top-level result groups. All 60
+  affected Chinese/shared-resource/nine-cohort pack/fallback/input-edge/
+  long-draft/prediction/preference integration targets give 462 passes; the
+  full library gives 580 passes and two ignores in 55.44 seconds. The new
+  seven engine and three helper tests are included once, not added again.
+  Strict Clippy then found only a complex tuple type in the new fixture.
+  Preserve that failure and replace the declaration with a `SourceCase` type
+  alias; no input, assertion, expected vector or production byte changes.
+  Removing only this declaration refactor restores the exact frozen fixture
+  SHA above; final file SHA is
+  `92a957098500685c792fa6253133e910ae4ec9c1c45d537789685791ff4e6fd9`.
+  Post-alias the same seven tests pass again (not double-counted), and strict
+  all-target Clippy passes in 28.79 seconds. Formatting/diff checks and raw
+  preservation checks pass; 29 tensor guards under each of two Python/locale
+  configurations, 11 shipping guards and 250 packaged audit links also pass.
+  Two independent read-only reviews found no blocking implementation or
+  test-provenance issue; documentation review retained the deferred risks.
+  Scoped Rust results do not substitute for full-repository, native,
+  real-model, cross-platform or exact-commit CI acceptance.
+
+### Unreleased basic Chinese reference/classifier readings — 2026 10 15
+
+- Final scope is just `zhe -> 这` and `ben -> 本`, two independent Word
+  mappings. Chinese becomes **3,178 readings / 767 contexts / 1,532 authored
+  sentences**. No new contexts or canned phrases. Known readings compose
+  `这本书 / 我用这 / 我拿这本书 / 这本书给你 / 我有这本书` as Sentence spans.
+  `这个 / 这边 / 那边 / 在哪里 / 本周 / 本地 / 本地模型` are existing Words
+  and remain compatibility controls, not new claims.
+- The planned `li -> 里` / `zhe -> 这` / `na -> 那` scope was not accepted.
+  Read-only source review found that a second `na` Exact would move the old
+  闹钟 completion outside the five-path authored-continuation source window;
+  defer 那 rather than lose its two old sentences. The reduced 里/这 experiment
+  used frozen fixture `221557dc...`: pre-data two passes/seven gaps, then
+  **eight passes/one real regression**. Existing `an -> 安` made bare `lian`
+  become `里安` Sentence primary instead of the exact prior 联想 candidate
+  vector. Keep that failure and the separate failing boundary-unit experiment.
+  A general syllable-prefix restriction would also change existing `xian /
+  nian / qian` splits and require explicit-tone/pack compatibility work; it was
+  **not implemented**. Restore exact pre-data resource SHA
+  `a829f6ae589bc865225513e4dc5c5ede957bbb39307e7a9432973f13b254ead0`
+  and the original decoder before choosing the two final mappings. 里 and 那
+  remain unresolved follow-up work; neither bug is reported as fixed. The
+  experimental unit is not left failing or ignored in the shipped source;
+  its original code/log remains with the task evidence. The final old-vector
+  guard still detects that 里 regression, without updating its golden value.
+- Independently sample 本-related inputs and old ambiguity vectors before data,
+  then freeze nine final tests at SHA256
+  `883952a3afd704129d6ebbcae57f60ac220e9f6dcb8f7aa5dd5752c098605c6a`.
+  Final pre-data **two compatibility passes/seven content gaps**; append only
+  这/本 and maintain totals: **nine passes unchanged**. Thirty complete old
+  candidate-vector fingerprints include `lian / xian / nian / qian / na /
+  na guo lai`, shorter prefixes, prior six characters and sensitive pagination.
+  Original 闹钟 and 本地模型 sentence pairs, complete homophones, decoder-four
+  word order and separately weighted old extras stay selectable. Bare exact
+  这/本 intentionally precede broad completions; do not promise unchanged
+  score/page/primary for those bare or newly completable partial inputs.
+- Cover selection/reseeding of 这/本 and 这本书 followed by known readings,
+  exact horizontal gaps and Unicode frozen prefixes, mixed `这ben shu /
+  我拿zhe ben shu / 本shu`, once-only commit/undo, raw input, case/tone,
+  quotes/numbers, wrong splits, protected tokens/seven line boundaries and
+  unavailable/timeout/empty synthetic models. These are engine-level tests,
+  not physical-keyboard or real-provider acceptance.
+- Prepend a raw projection restoring the exact pre-data SHA above; all old
+  hashes/windows/assertions remain. Five older character fixtures update only
+  their current total `3176 -> 3178` (current SHA prefixes `e4623656...`,
+  `55a090d7...`, `e5de6786...`, `d49159ec...`, `396bc3d9...`). Add two flows to
+  the same nine 16-pack cohorts without changing old cases or quotas. Prior
+  reading/flag/context bytes, EN/JA resources, six daily fixtures, 25 packs/SDK,
+  production algorithms, weights, budgets and model/host protocols remain.
+  Chinese production source only maintains a unit-test total. Version/build
+  **0.9.0/40**, personal installation and release follow-up stay unchanged.
+  Local scoped validation does not substitute for full-repository, native,
+  real-model, cross-platform or exact-commit CI acceptance.
+- Final scoped acceptance: **1,032 passes / zero failures / two existing opt-in
+  model diagnostic ignores**, in 60 top-level result groups. All 59 affected
+  Chinese/shared-resource/nine-cohort pack/fallback/input-edge/long-draft/
+  prediction/preference integration targets give 455 passes; the full library
+  gives 577 passes and two ignores in 66.59 seconds. The nine final reference
+  tests are included once. The rejected 里 experiment and boundary-unit red
+  result are not counted as acceptance. Independent implementation/documentation
+  reviews confirm preservation and accurately deferred risks. Strict all-target
+  Clippy passes in 42.37 seconds. Formatting/diff and byte-preservation checks,
+  29 tensor guards under each of two Python/locale configurations, 11 shipping
+  guards and 250 packaged audit links pass.
+
+### Unreleased basic Chinese arrival/home readings — 2026 10 15
+
+- Append just two independent Word mappings, `dao -> 到` and `jia -> 家`, after
+  the result-character window. Chinese becomes **3,176 readings / 767 contexts /
+  1,532 authored sentences**, without new contexts or canned phrases. Known
+  readings now compose `找到 / 我找到 / 我找到书了 / 拿到书 / 我的家 / 你的家`
+  as Sentence conversions. Preserve existing `拿倒水` beside new `拿到书`.
+  `到家 / 回家 / 到了 / 我家 / 家人` were already dictionary Words; `找到了 /
+  带到家 / 回到家 / 我到家了 / 我回家` already had composite paths. They are
+  compatibility controls, not newly claimed abilities. Missing `里 / 这里`
+  readings still constrain arbitrary composition; this is not a full dictionary,
+  tone disambiguation or semantic repair.
+- Sample the actual pre-data engine and freeze nine tests at SHA256
+  `b9b55f2a8f307682df527ae5062a49199854d62d8d297c377c7b67a652642651`.
+  Before data: **two compatibility passes / seven content-gap failures**.
+  Append only two rows and maintain current totals: **nine passes unchanged**.
+  Sixteen real complete candidate-vector fingerprints protect shorter prefixes,
+  prior four characters, `hai mei zhao da`, `到家hou` and earlier ambiguous
+  inputs, including text/label/role/source/score bits/order. Bare exact 到/家
+  intentionally precede old broad completions. Preserve decoder-four relative
+  order plus the separately weighted fifth mixed word; all old choices remain
+  selectable, without freezing their old bare-prefix score/page. Full compounds
+  and original sensitive Word/sentence pairs remain selectable and committable.
+- Test adoption/reseeding of 到/家 followed by known readings: contiguous
+  `到家 / 家人` are existing Words, while literal internal horizontal gaps
+  produce Sentence spans and remain exact. Mixed `拿dao / 回到jia / 到jia`
+  reaches the correct Sentence/Word role; the latter reuses 到家's existing two
+  authored continuations. Cover Unicode frozen prefixes, once-only commit/undo,
+  raw input, uppercase/tone spelling, quotes/numbers, wrong splits, protected
+  tokens/seven line boundaries and unavailable/timeout/empty synthetic models.
+  Selection/reseeding does not claim actual physical-keyboard or provider QA.
+- Prepend a raw preservation projection restoring exact pre-data Chinese SHA
+  `927b8940451a0e2d585ed35b8acd3634c8ea21d3e7162d0e06c79a4340c28ea4`.
+  Keep all prior projection hashes, append windows, reading/flag/context bytes
+  and behavioral assertions. Four older character fixtures maintain only their
+  current total `3174 -> 3176` (current SHA prefixes `d4f82378...`, `a8136e13...`,
+  `d02c25bd...`, `0510d1d0...`). Add two flows to the same nine 16-pack cohorts
+  without changing old cases or quotas. EN/JA resources, six daily fixtures,
+  25 packs/SDK, production algorithms, weights, budgets and model/host protocols
+  stay unchanged; Chinese production source only updates a unit-test total.
+  Version/build **0.9.0/40**, personal installation and release follow-up remain
+  untouched. Scoped validation below does not substitute for full-repository,
+  native input, real-model, cross-platform or exact-commit CI acceptance.
+- Scoped acceptance: **1,023 passes / zero failures / two existing opt-in model
+  diagnostic ignores**, in 59 top-level result groups. All 58 affected Chinese,
+  shared-resource/nine-cohort pack/fallback/input-edge/long-draft/prediction/
+  preference integration targets give 446 passes; the full library gives
+  577 passes and two ignores in 57.54 seconds. The nine new tests are included,
+  not counted again. Independent read-only implementation and documentation
+  reviews confirm raw preservation, candidate roles and bounded claims.
+  Strict all-target Clippy passes in 46.92 seconds. Formatting/diff checks,
+  byte-preservation checks, 29 tensor guards under each of two Python/locale
+  configurations, 11 shipping guards and 250 packaged audit links pass.
+
+### Unreleased basic Chinese result/return/find readings — 2026 10 15
+
+- Append `guo -> 过`, `wan -> 完`, `hui -> 回`, `zhao -> 找`: three missing
+  independent readings and one homophone, all Word records. Chinese becomes
+  **3,174 readings / 767 contexts / 1,532 authored sentences**. No new contexts
+  or canned phrases. Known readings compose `用完 / 我用完 / 我回去 / 我找书 /
+  回来 / 回去 / 我用过 / 放过去` as Sentence conversions. `guo` retains its
+  original `国` primary even with tone digits; `过` is deliberately selectable,
+  not a semantic or tone-based replacement. Full `na guo lai` remains the
+  existing `拿过来` Word primary; mixed `拿guo lai` keeps `拿国来` Sentence
+  primary and additionally offers that existing Word.
+- Sample actual pre-data runtime and freeze nine new tests. Initial fixture
+  SHA `3a81d136c60468ecbf6f2b7871d8d6efd6536d0e3ab0b3d4c91ea6b24514edf8`
+  gave two compatibility passes/seven gaps before data, then eight passes/one
+  failure: its spaced `用完 还给你` expectation wrongly assumed a whole Word
+  and continuous whole-phrase authored context. Restore exact pre-data Chinese
+  SHA `5e5bf32538490c988b7116bf3dfafcf0c4e63228ea2a235e95c96d13db72949f`
+  and independently sample no gap, space, Tab and ideographic space. The old
+  engine already classified the spaced result as Sentence, with its original
+  tail suggestions rather than that whole-phrase pair. Correct only the new
+  fixture to those observed roles; retain both failure and diagnostic logs.
+  Re-freeze SHA `4b7217019cafc0add8e3da73a95640ab7e81e11fe68d204714461b05f5f4309f`:
+  pre-data **two compatibility passes/seven content gaps**, then append just
+  four rows: **nine passes unchanged**. The diagnostic is not acceptance.
+- Twelve pre-data full vectors preserve short prefixes and `wo jie ni /
+  shi yong / haimeishu / huan ge`: text, label, role, source, score bits and
+  position. Existing decoder-four words keep relative order; separately
+  weighted mixed extras and all five old broad choices stay selectable, not
+  necessarily on their old page or score. Full compounds/homophones retain
+  primary choices; `还没找到` and its two authored sentences remain first-page
+  choices alongside new decoded `还没找大`. Missing `到` / `家` independent
+  readings still limit arbitrary composition; this is not a complete dictionary.
+- Test selection/reseeding after conversion, exact horizontal gaps and Unicode
+  frozen prefixes, mixed `我还没zhao到`, once-only commit/undo, literal fallback,
+  case/tone compatibility, quotes/digits, bad splits, protected tokens, seven
+  line boundaries and unavailable/timeout/empty synthetic models. No physical
+  keyboard or real-provider claim. Add four flows to the same nine 16-pack
+  cohorts without changing their original cases or quotas. Prepend a new raw
+  projection restoring the exact pre-data SHA; all old projections stay intact.
+- Preserve prior reading/context bytes, EN/JA resources, six daily fixtures,
+  25 packs/SDK and production algorithms. Only current-total assertions in the
+  Chinese unit/resource tests and three older character fixtures change
+  `3170 -> 3174`; their fixed append windows and behavioral expectations do not.
+  Those three fixture SHAs now start `d8150e26...`, `dbcbc2cf...`, `c8d1728d...`.
+  Version/build **0.9.0/40**, personal installation, model/host protocols,
+  budgets, weights and release follow-up stay unchanged. No local result substitutes for
+  full-repository, native keyboard, cross-platform or exact-commit CI acceptance.
+- Scoped acceptance: **1,014 passes / zero failures / two existing opt-in
+  model diagnostic ignores**, in 58 top-level result groups. All 57 affected
+  Chinese/shared-resource/nine-cohort pack/fallback/input-edge/long-draft/
+  prediction/preference integration targets give 437 passes; the full library
+  gives 577 passes and two ignores in 55.99 seconds. The nine new tests are
+  included, not counted twice. Two independent read-only reviews confirm data
+  preservation, corrected spacing expectations and bounded capability claims.
+  Strict all-target Clippy passes in 41.46 seconds. Formatting/diff checks,
+  byte-preservation checks, 29 tensor guards under each of two Python/locale
+  configurations, 11 shipping guards and 250 packaged audit links pass.
+
+### Unreleased basic Chinese everyday-action readings — 2026 10 15
+
+- Append four independent Word mappings: `na -> 拿`, `fang -> 放`, `dai -> 带`,
+  `yong -> 用`. Chinese becomes **3,170 readings / 767 contexts / 1,532 authored
+  sentences**, without new contexts or canned phrases. Known readings can compose
+  `我拿书 / 我放书 / 我带书 / 我用书`, `拿给你` and `用一下` as Sentence conversions.
+  Adopt an action then continue known readings, preserve horizontal gaps and
+  Unicode frozen prefixes, and reach existing Word/context pairs from mixed
+  `我明天dai lai huan ni` and `先fang我这里保管`.
+- Sample real engine output before data, then freeze nine independent tests at
+  SHA256 `8f0267a3a3ae68c2e11446868365d95b9d9a2a1b057c155780fcf884797260fa`.
+  Pre-data: **two compatibility passes / seven content-gap failures**. Append
+  only the four rows and current-total maintenance: **all nine pass unchanged**.
+  Ten original full candidate-vector fingerprints protect shorter prefixes and
+  the prior `huan ge` / `haimeishu` behavior, including text/label/kind/source/
+  score bits/position. Full homophones stay primary; old broad decoder-four
+  words retain relative order and all five prior choices remain selectable.
+  The separately weighted fifth mixed word is not confused with decoder order.
+- Exact bare actions intentionally precede old broad completions. Preserve
+  `我防水` alongside new `我放书`, and `用一下就还` alongside new `用一下`;
+  sensitive partials retain words, authored sentences and exact original text
+  within the existing 12 choices, not necessarily their old score/page/primary.
+  Complete `那边 / 哪个更好 / 哪天方便 / 放心 / 方案 / 代码` and the four
+  `shi yong` homophones keep their original primary/order expectations. This is
+  not tone disambiguation, a mapping of `na` to 哪/那, or arbitrary Pinyin:
+  missing independent readings still constrain composition; `拿guo lai` is not
+  promised to become 拿过来. Engine selection/reseeding is not physical-key QA.
+- Check exact word/sentence/literal roles, once-only commit/undo, uppercase/tone
+  compatibility, seven horizontal endings, quotes/numeric punctuation, wrong
+  splits, protected tokens/seven line boundaries and unavailable/timeout/empty
+  synthetic providers. Add four flows to the original nine 16-pack cohorts,
+  retaining their existing cases and quotas. An exact raw projection restores
+  pre-data Chinese SHA `96852c00402fc799dda6d273c2b1bb26443d75899ee7177edc55b661c6fd5836`.
+  Every previous reading/flag/context byte, English/Japanese resource, six daily
+  fixtures, 25 packs and SDK remains. The two older character fixtures only
+  maintain the current total `3166 -> 3170`, not their behavioral assertions or
+  fixed append windows (current SHAs `6bb6646e...` and `a00ec3f4...`). Chinese
+  production code only updates its unit-test total; the previous mixer and
+  provenance/pagination implementation is byte-identical to the turn baseline.
+  No weights, budgets, model/host protocols, preferences, version/build
+  **0.9.0/40**, personal installation or release-follow-up changes.
+- Final scoped acceptance: **1,005 passes / zero failures / two existing
+  opt-in diagnostic ignores**, in 57 top-level result groups. All 56 affected
+  Chinese/shared-resource/nine-cohort pack/fallback/input-edge/long-draft/
+  prediction/preference integration targets give 428 passes; the full library
+  gives 577 passes and two model-diagnostic ignores in 55.51 seconds. The nine
+  new tests are included, not counted twice from red/green runs. Strict all-target
+  Clippy passes in 39.49 seconds. Formatting, exact-byte preservation, 29 tensor
+  guards in each of two interpreters, 11 pack-shipping guards and 250 packaged
+  links pass. Logs are in `/tmp/suzaku-basic-actions.BhebGL/`. This is not all
+  workspace integration/binary targets, native GUI/physical keyboard, real-model,
+  cross-platform, latency or remote CI/package acceptance; earlier 996/484/524/
+  1,055 totals are not reused. No commit, push, installation or service change.
+
+### Unreleased basic Chinese giving/book readings — 2026 10 15
+
+- Append only `gei -> 给` and `shu -> 书` as Word readings. Chinese now has
+  **3,166 readings / 767 contexts / 1,532 authored sentences**; no authored
+  context or sentence is added. Reuse known readings for `给你`, `给我书` and
+  `我给你书`, adopt `书` then continue `gei ni`, and adopt `借` then `shu` to
+  obtain the existing Word `借书`. Mixed `用完还gei ni` can reach the existing
+  Word and authored continuations. Preserve Han spacing, raw text, case/tone
+  compatibility, protected tokens, numeric punctuation and seven line boundaries.
+  This is finite composition, not semantic generation or tone disambiguation.
+- Exact `gei/shu` intentionally precede old broad completions; all previous
+  broad words remain selectable within 12, with the original decoder words in
+  their relative order. Do not promise unchanged mixed-extra positions or scores.
+  Complete compounds and `结束` before `借书`, `hai/jie/huan`, six real before-data
+  candidate-vector fingerprints and `huange/huan ge -> 换个说法` stay protected.
+  Defer `ge -> 个`: it would introduce finished `还个` ahead of that old partial.
+  `书ji -> 书籍` and arbitrary giving tails are not promised by these two rows.
+- Record the initial test-label mistake rather than hiding a failed run:
+  the first fixture SHA `89a0fcd6366839ac42669bafe415f8c4b89d500c8c9d766cd4e42c7ad4920208`
+  passes eight and fails one after data. It incorrectly identifies `蔬菜` as the
+  fourth decoder word, whereas both pre-data output and source identify `水果`
+  there and `蔬菜` as a separately weighted extra. Correct only that new tuple,
+  retaining all five old words and the relative-order assertion; independent
+  review confirms the correction. Restore exact pre-data resource SHA
+  `49fd40d87d1fff86290249d47b883106178da9a4a8b1630f76a174ab33c2dd14`,
+  re-freeze SHA `bccc744c11aec6fa71cc2ea527091b3fb24358a91db5d96e72d64f1bca36fd2a`,
+  and rerun: **two compatibility passes / seven missing-content failures** before
+  the append, **all nine pass unchanged** after it. Initial and corrected logs
+  are retained separately in `/tmp/suzaku-basic-giving.EFG66M/`.
+- Expanded validation then finds a real compatibility failure: **418 passes /
+  one failure** in 55 integration targets. `haimeishu` now has primary converted
+  Sentence `还没书`, followed by whole Word `还没睡`; the former consumes a
+  sentence slot and evicts the latter's second authored continuation from page
+  one. Preserve this run as `regression-before-fix.log` and all old assertions.
+  Do not globally exempt every Sentence anchor: the older ambiguous
+  `chumenqianshoushiyixi` page must retain four words and its second sentence on
+  page two. Add one library regression first (one failure before implementation),
+  then use original decoder provenance: only a first Sentence immediately
+  followed by a whole dictionary Word with its own authored pair qualifies,
+  and the two converted texts must differ only in their final Unicode scalar.
+  When both sentences remain available, reserve their two suggestion slots
+  independently of the conversion anchor. Offline, model merging and preference
+  balancing share this seed-based rule; a previously reordered page cannot
+  establish provenance. Decoder order, weights, anchors, six-per-page/twelve-total
+  limits and exact raw choice remain unchanged. The new four-spelling regression
+  also covers empty-model merging, preference rebalance and limits 0..12.
+  It passes after the fix, along with 35 existing/new focused tests, including
+  the original routine and ambiguous-page controls. Broader results below are
+  separate from these focused runs.
+- Independent review also identifies the long-draft second-balancing path:
+  an initial tail page may be correct, then full-seed preference sorting loses
+  its provenance. Add a real Unicode long-draft regression first (one failure),
+  then reuse the existing safe local-tail boundary and compare the exact frozen
+  prefix plus lossless padded word/continuation. Both 40-repeat prefixes, with
+  and without final spaces, retain their page through empty merging and positive
+  preference sorting; the same new test passes without edits. Do not raise the
+  independent 256-character model-request limit. A partially executed broader
+  run is intentionally stopped before this repair and saved separately; it is
+  not acceptance. A third unit covers a valid nonempty model and a sentence
+  preference: these slots still compete by weight, not a permanent pin of the
+  two local authored texts. Small limits must prioritize the literal and cannot
+  promise a whole pair. No measured latency claim is made for this extra bounded
+  provenance check.
+- The subsequent expanded run exposes two old carry tests that intentionally
+  put the second sentence on page two: `口袋检查以西` and `口袋检查一下` meet
+  the initial immediate-word criterion but differ in two final characters.
+  Preserve `partial-before-carry-guard.log` and tighten the structural rule to
+  the final-scalar conflict above (`还没书 / 还没睡`), rather than changing
+  any old carry/time/shopping/care pagination assertion. Both interrupted broader
+  runs are diagnostic evidence, never accepted totals. Final acceptance reruns
+  all 55 affected Chinese/shared/input-boundary targets and the complete library;
+  it is not a claim that all 134 broad integration targets completed.
+- Older resource bytes, contexts, six belongings/borrowing fixtures, English/
+  Japanese data, 25 packs and SDK stay unchanged. The previous lending fixture
+  only changes its current count `3164 -> 3166`; every old behavioral assertion
+  and fixed window remains. Its SHA changes from `cad6a0fe...` to `fb90a919...`,
+  so it is not claimed byte-identical. Add a raw projection before all historical
+  projections and two new flows to the original nine 16-pack cohorts. Production
+  language code adds the provenance query and updates its unit total; the mixer
+  changes only conditional page reservation as above. No decoder/rank formula,
+  capacity, provider/host protocol, personal data, version/build **0.9.0/40**,
+  installation or release-follow-up changes.
+- Final scoped acceptance: **996 passes / zero failures / two existing opt-in
+  diagnostic ignores**, in 56 top-level result groups. All 55 affected Chinese/
+  shared-resource/nine-cohort pack/fallback/input-edge/long-draft/prediction/
+  preference integration targets give 419 passes; the complete library gives
+  577 passes and two ignores in 56.48 seconds. The ignores remain
+  `model::live::diagnose_synthetic_translation_holdouts` and
+  `model::live::profile_synthetic_candidate_request`, both requiring explicit
+  local QA opt-in. The nine new fixture cases and three library regressions are
+  included, not counted again from focused runs. Strict all-target Clippy passes
+  in 40.80 seconds; formatting, byte preservation, 29 tensor guards in each of
+  two interpreters, 11 shipping guards and 250 packaged links pass. Final logs
+  are `accepted-integration.log`, `accepted-library.log`, `accepted-clippy.log`
+  and `static.log` in `/tmp/suzaku-basic-giving.EFG66M/`. This is not every
+  workspace integration/binary target, native GUI, physical keyboard, real-model,
+  cross-platform, latency or remote CI/package acceptance. Earlier batch totals
+  and interrupted broad runs are not reused. No commit, push or installation.
+
+### Unreleased basic Chinese lending-character readings — 2026 10 15
+
+- Resolve the borrowing round's recorded gap with exactly two appended Word
+  readings: `jie -> 借`, `huan -> 还`. Keep `hai -> 还` intact. Chinese now has
+  **3,164 readings / 767 contexts / 1,532 authored sentences**; no context or
+  canned sentence is added. English/Japanese resources, 25 packs and SDK are
+  unchanged. New exact readings intentionally precede their former broad-prefix
+  completions; old words remain selectable within 12 candidates. This uses the
+  original decoder/ranking policy, not a new scoring rule or larger budget.
+- Before adding data, inspect real engine output (`before-probe.log`) and fix
+  nine full-vector fingerprints for `j/ji/hu/hua/ha/hai/HAI/hai2/hai  `, including
+  text, label, role, source and score bits. Freeze nine independent tests,
+  SHA256 `cad6a0fe8b97b2ea15f23b2a5c496988824b64a8739d939ef4ccd66e258a6a49`.
+  Pre-data execution gives **two compatibility passes / seven content-gap
+  failures**, then all nine pass unchanged after only the two data rows and
+  current-total updates. The original diagnostic is not counted as acceptance.
+- Keep `jie'shu -> 结束` before `借书`, full compounds and the old alias intact.
+  Existing `wo jie ni -> 我接你` remains primary; `我借你` becomes an additional
+  decoded span. Demonstrate `jie huan -> 借还`, `wo huan ni -> 我还你`, adoption
+  followed by known readings, mixed Han/Pinyin, long frozen prefixes, exact raw
+  input, once-only commit/undo and unavailable/timeout/empty-model fallback.
+  Preserve literal Han spacing, closing quotes, numeric punctuation, protected
+  tokens and line boundaries. Tone digits retain existing normalization only:
+  `jie4shu1` is not promised to disambiguate `借书` over `结束`. This does not add
+  all missing characters or unrestricted Pinyin/semantic generation.
+- A new exact raw projection restores the previous Chinese source SHA256
+  `5856488e8461b851560e0c75cf815d536c5cbff3dd277dcd7bc2d0d00a25b1c9`;
+  every older projection/fingerprint and the prior two uncommitted batches stay
+  intact. Add two bare-character and two decoded-span checks to the original
+  nine 16-pack cohorts without changing any older assertion or quota. Production
+  code only updates one unit-test current total. No provider, host, preference
+  file, version/build **0.9.0/40**, installation or release-follow-up changes.
+- This batch's scoped run has **484 passes / zero failures / zero ignores** in
+  55 top-level result groups: 54 integration targets give 410 passes (Chinese
+  core/daily/theme packs, resources, shared nine-cohort pack compatibility,
+  fallback, input edges, long drafts, prediction preservation and preference
+  learning), followed by 74 language-library units (502 unrelated units filtered).
+  The nine new tests are included, not counted twice. Strict all-target Clippy
+  passes in 39.91 seconds. Formatting, exact-byte preservation, 29 tensor guards
+  under each of two interpreters, 11 pack-shipping guards and 250 packaged links
+  pass. Evidence is in `/tmp/suzaku-borrow-return-chars.U7BmoU/`; this is not a
+  full-workspace, native GUI/keyboard, real-model, cross-platform or remote CI/
+  package acceptance. Preceding 524/1,055 results are not reused. No commit,
+  push, install or service change.
+
+### Unreleased everyday borrowing, return and safekeeping vocabulary — 2026 10 15
+
+- Extend the uncommitted belongings snapshot, not an earlier clean source or
+  installed dictionary. Add EN eight contexts / 16 sentences, ZH 24 readings /
+  eight contexts / 16 sentences, JA 12 readings / six contexts / 12 sentences.
+  Current totals become EN **6,143 forms / 773 contexts / 1,510 sentences**,
+  ZH **3,162 readings / 767 contexts / 1,532 sentences**, JA **522 readings /
+  262 contexts / 523 sentences**. Fill borrowing for a couple of days, bringing
+  items back, return locations/deadlines and temporary safekeeping; do not
+  replace existing borrow/return phrases or add contexts to ambiguous old words.
+- Freeze six tests per language before data: EN SHA256
+  `783df945c8b5fbf8fb8a873833377ae1f724ef2b8d694a1d72c6927af5bd9691`, ZH
+  `c6f7a8bb1a122790ebaac07c5790da1e1b4351b76b7ad2f06429667fdd9d33d4`, JA
+  `33d65d8f18e24ba1ff401cde32b882818a50ca7f16fa461956dd0a51aeb234d6`.
+  The pre-data run records **four old-choice/boundary passes and 14 missing-content
+  failures**. Preserve those expectations, full/specific-partial spelling, case,
+  Kana/nasal rules, exact raw drafts, horizontal whitespace, word adoption and
+  continued editing/reseeding, explicit once-only commit/undo and synthetic
+  unavailable/timeout/empty-model fallback. EN/JA assert first-page words and
+  sentences; ZH asserts first-page words and sentence reachability within 12.
+- Strip only the new raw windows to restore the previous resource hashes:
+  EN `a82974d60229dcee5751bf7400e7054349412fad9b119895e818690c1360cfee`,
+  ZH `4bc27922b35d1df2aae11cc693e116588428e6e408e3669f2df78ba9fb3e14fc`,
+  JA `b177c38d3e7afc78b0059b9397436ece66bf8f22d2c9864fb087837819069ac5`.
+  All older raw projections/fingerprints and belongings fixtures stay intact.
+  Compare new readings/contexts/sentences with all existing built-ins and the
+  corresponding optional packs. Add two examples per language to the same nine
+  16-pack cohorts; all 25 optional packs and SDK bytes, quotas and scores remain.
+  Production language code changes only three unit-test current totals. Keep
+  model/host protocols, version/build **0.9.0/40**, installation and release state.
+- Scoped validation passes **524 tests / zero failures / zero ignored**, across
+  65 top-level result groups: 64 affected language/day-to-day/pack/resource,
+  fallback, input-edge, long-draft, preservation and preference targets give
+  450 passes; language-filtered library units give 74 (502 unrelated units
+  filtered). Keep nested child results out of that count. All eighteen frozen
+  new tests pass unchanged, all seven terminal-n tests pass in 244.79 seconds,
+  and the nine original 16-pack cohorts pass with six new examples.
+- Strict all-feature/all-target Clippy passes in 38.67 seconds; formatting,
+  raw/production/frozen-test preservation and diff checks pass. Inventory guards
+  give 29 passes on each of the system interpreter and Python 3.12/ASCII defaults;
+  eleven shipping guards pass and 250 packaged audit links resolve. Runs remain
+  serial/offline, one Cargo job, 4 GiB maximum and no swap. This is targeted engine
+  acceptance, not a new full-repository, native/GUI, physical-keyboard, real-model,
+  cross-platform, performance or remote CI/package result.
+  Evidence: `/tmp/suzaku-daily-borrowing.QtSMBl/` (`red.log`, `focused.log`,
+  `language-units.log`, `clippy.log`, `static.log` and exact prior snapshots).
+  No install, commit, push or CI/release monitor change.
+- Read-only follow-up identifies missing exact single-character readings
+  `jie -> 借` and `huan -> 还`; only `hai -> 还` exists. Their current standalone
+  seeds use prefix word completions instead. These mappings are not added here:
+  first freeze prior choices, homophones and compound/progress boundaries in a
+  separate targeted round, since exact entries can change primary selection.
+
+### Unreleased everyday belongings and retrieval vocabulary — 2026 10 15
+
+- Append authored finding, ownership, safekeeping and collection expressions to
+  source `ef0e920c9b11f45085d44e1b23c7d7da5a44731a`. English adds eight contexts /
+  16 sentences with no new index forms; Chinese adds 24 readings / eight contexts /
+  16 sentences; Japanese adds 12 readings / six contexts / 12 continuations.
+  Totals: EN **6,143 forms / 765 contexts / 1,494 sentences**, ZH **3,138 readings /
+  759 contexts / 1,516 sentences**, JA **510 readings / 256 contexts / 511 sentences**.
+  Natural examples include `i found your wallet`, `你看到我的钱包了吗` and `持ち主`.
+  Existing lost-property expressions remain; the Japanese batch adds specific
+  compounds without attaching new sentences to old ambiguous short words.
+- Freeze six tests per language before appending data: English SHA256
+  `d663be32e1606d5db1c75079dfd7bf3455bc55522e306b80539f1e38e6450d3b`, Chinese
+  `88d8ec881d6ed2c93ff0e83291aeb05a937a5d93d1326369557604d197cc16db`, Japanese
+  `67b78034bcf7282b87e3a5e014e37540c607fcbb2be9e99e0dbf468b33a68009`.
+  The complete pre-data run records **four boundary/old-choice passes and 14
+  missing-content failures**; no expectation is changed after that run.
+  Checks cover complete/specific partial input, case/Kana/apostrophes, first-page
+  words in all three languages and sentences in EN/JA, selectable ZH sentences
+  within the original 12-candidate bound, exact raw input, spacing, adoption/reseeding,
+  explicit one-time commits/undo, protected/unknown/line boundaries, prior short
+  choices, and synthetic unavailable/timeout/empty-model results.
+- Remove only the exact appended raw windows to recover the prior three resource
+  files byte-for-byte. Preserve all prior content, order and flags; all 25 optional
+  packs and SDK bytes stay unchanged. New authored content is checked for exact
+  duplicates against the existing built-ins and corresponding language packs.
+  Add two cases per language to the original nine 16-pack compatibility cohorts;
+  retain all older fixtures, raw projections and historical SHA fingerprints.
+  Synchronize current-total assertions only; production language algorithms,
+  budgets, scores, host/model protocol and version/build **0.9.0/40** are unchanged.
+- Scoped validation passes **1,055 tests / zero failures / three existing
+  subprocess-only harness ignores**, across 136 top-level result groups: 123
+  language/day-to-day/resource/pack targets give 878 passes, twelve fallback,
+  input-edge, long-draft, model-preservation and preference targets give 103,
+  and the language-filtered library run gives 74 (502 unrelated units filtered).
+  Counts use only each target's final result, not nested child summaries. The
+  fixed eighteen new tests pass unchanged; old terminal-n coverage passes all
+  seven tests in 251.52 seconds and nine fixed 16-pack cohorts pass with the six
+  new examples. Do not equate these authored engine checks with physical input.
+- Strict all-feature/all-target Clippy passes in 38.79 seconds. Formatting,
+  exact resource/production/test preservation, inventory guards (29 each on
+  the system interpreter and Python 3.12 with ASCII defaults), eleven package
+  shipping guards and 250 audit links pass. No full-repository Rust, native/GUI,
+  performance or remote CI acceptance is claimed for this batch. Runs remain
+  serial/offline with one Cargo job, 4 GiB maximum memory and no swap.
+  Evidence directory: `/tmp/suzaku-daily-belongings.sNaVC9/` (`red.log`,
+  `workflows.log`, `language-units.log`, `boundaries.log`, `clippy.log`, `static.log`).
+  This batch does not install, commit, push,
+  monitor CI, change the paused release follow-up or certify physical keyboard,
+  live-model, desktop-positioning, cross-platform or package acceptance.
 
 ### Unreleased native core session budget repair — 2026 10 15
 

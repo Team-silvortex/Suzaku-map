@@ -215,6 +215,41 @@ fn word_completions(seed: &str) -> Vec<(String, crate::ime::candidate_mix::Candi
     word_completions_with_limit(seed, 4, false)
 }
 
+/// Source two existing sentences only when one unambiguous whole-reading Word
+/// corrects a greedy split into a different word. Extending an already correct
+/// written prefix, competing root words and unfinished consonant probes retain
+/// their existing pagination. The mixer must also verify both actual rows.
+pub(crate) fn root_correction_continuations(seed: &str) -> Option<Vec<String>> {
+    use crate::ime::candidate_mix::CandidateKind;
+    if seed.chars().count() > 256 {
+        return None;
+    }
+    let kana = composition_kana(seed);
+    if kana.is_empty() || kana.chars().any(|ch| ch.is_ascii_alphabetic()) {
+        return None;
+    }
+    let (_, segmented_word) = conversion_prefix(&kana)?;
+    let (word, kind) = word_completions(seed).into_iter().next()?;
+    if kind != CandidateKind::Word || word.starts_with(segmented_word) {
+        return None;
+    }
+    let mut roots = vocabulary().readings().iter().filter(|entry| {
+        entry.kind == EntryKind::Word && entry.reading != kana && entry.reading.starts_with(&kana)
+    });
+    if roots.next()?.text != word || roots.any(|entry| entry.text != word) {
+        return None;
+    }
+    let (_, values) = vocabulary()
+        .continuations()
+        .find(|(context, _)| *context == word)?;
+    (values.len() >= 2
+        && values
+            .iter()
+            .take(2)
+            .all(|text| text.len() > word.len() && text.starts_with(&word)))
+    .then(|| values[..2].to_vec())
+}
+
 /// Additional words may fill unused mixed-list slots, without replacing the
 /// primary four completions or changing authored sentence weights.
 pub(crate) fn word_completion_backfill(

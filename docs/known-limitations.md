@@ -1,7 +1,18 @@
 # Alpha limitations and support
 
-0.9.0 targets Ubuntu 24.04 amd64, IBus and X11 / GNOME XWayland. Cross-platform architecture
+0.9.1 targets Ubuntu 24.04 amd64, IBus and X11 / GNOME XWayland. Cross-platform architecture
 does not imply cross-platform stability. Keep another input method available.
+
+- **0.9.1 finite fallback and branch competition:** builtin Chinese still lacks independent
+  里/那 readings. Adding 里 experimentally changed `lian` into 里安; that change was rejected,
+  not hidden by updating old vectors. Private-pack tests for 那 protect displaced authored
+  sources and selected-Han continuation, but a long full-Pinyin `na ben shu gei ni` alternative
+  can still be cut from the twelve-slot pool. Source recovery is bounded and provenance-based,
+  not arbitrary segmentation, tone disambiguation or a promise that every old/new branch fits.
+  Word/sentence slots and scores may intentionally change when adding exact readings.
+  Engine selection/reseeding tests are not physical-keyboard or native-application acceptance.
+  Resource counts describe authored data, not language coverage or model quality. See the
+  [0.9.1 scope](releases/0.9.1.md) and [lexicon record](../data/lexicons/README.md).
 
 - **Ubuntu 26.04 development checks:** the initial home-life vocabulary run timed out after
   44 of 50 GTK workflows and emitted Python IBus `g_object_is_floating` warnings; those failures

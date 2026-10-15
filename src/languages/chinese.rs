@@ -211,6 +211,47 @@ pub(crate) fn is_dictionary_word(text: &str) -> bool {
     dictionary_words().contains(text)
 }
 
+/// A single finished span can precede a whole-word completion after the
+/// dictionary grows. Keep that immediate word's own authored pair available;
+/// later words behind several ambiguous conversions do not qualify. Inspect
+/// original decoder provenance, never a page already reordered by the mixer.
+pub(crate) fn immediate_word_continuations(seed: &str) -> Option<Vec<String>> {
+    let choices = pinyin_choices(seed);
+    let [
+        (converted, CandidateKind::Sentence),
+        (word, CandidateKind::Word),
+        ..,
+    ] = choices.as_slice()
+    else {
+        return None;
+    };
+    let context_word = word.trim_matches(is_pinyin_spacing);
+    if !is_dictionary_word(context_word) {
+        return None;
+    }
+    // Protect only a one-character final completion conflict (e.g. 书 / 睡).
+    // Replacing several characters is an existing ambiguous branch and keeps
+    // its original pagination, even if a whole-word alternative follows it.
+    let converted = converted.trim_matches(is_pinyin_spacing);
+    let converted_prefix = &converted[..converted.char_indices().next_back()?.0];
+    let word_prefix = &context_word[..context_word.char_indices().next_back()?.0];
+    if converted_prefix != word_prefix {
+        return None;
+    }
+    vocabulary()
+        .continuations()
+        .find(|(context, values)| *context == context_word && values.len() >= 2)
+        .and_then(|(_, values)| {
+            values
+                .iter()
+                .map(|text| {
+                    text.strip_prefix(context_word)
+                        .map(|suffix| format!("{word}{suffix}"))
+                })
+                .collect()
+        })
+}
+
 // Reuse the decoder's existing bounded choices. Its first five finished paths
 // can precede a correct partial Word; up to four verified completion paths then
 // follow. No new reading, beam path or literal interpretation is inferred here.
@@ -225,6 +266,69 @@ fn continuation_paths(
             *index < 5 || (include_completed_words && *kind == CandidateKind::Word)
         })
         .map(|(_, (text, _))| text.as_str())
+}
+
+// A second whole-reading homophone can push the fourth root Prefix past the
+// old first-five source window. Recover only that already published Word;
+// never treat later finished paths or the fifth mixed extra as new sources.
+fn displaced_prefix_sources(
+    code: &str,
+    choices: &[(String, CandidateKind)],
+    entries: &[&PinyinEntry],
+) -> Vec<&'static str> {
+    let code = code.trim_matches(is_pinyin_spacing);
+    if code.is_empty() || !code.bytes().all(|ch| ch.is_ascii_lowercase()) {
+        return Vec::new();
+    }
+    let mut exact = entries
+        .iter()
+        .filter(|entry| entry.kind == EntryKind::Word && entry.reading == code)
+        .map(|entry| entry.text);
+    let Some(first) = exact.next() else {
+        return Vec::new();
+    };
+    if !exact.any(|text| text != first) {
+        return Vec::new();
+    }
+    entries
+        .iter()
+        .filter(|entry| entry.match_input(code) == Some(ReadingMatch::Prefix))
+        .take(4)
+        .filter(|entry| {
+            choices
+                .iter()
+                .skip(5)
+                .any(|(text, kind)| *kind == CandidateKind::Word && text == entry.text)
+        })
+        .map(|entry| entry.text)
+        .collect()
+}
+
+// A visible Prefix Word can complete an earlier finished Sentence branch even
+// when a dictionary Word is primary. Do not mistake a Sentence-kind Prefix for
+// that finished witness: use the decoder's actual pre-completion boundary.
+fn displaced_branch_sources(
+    choices: &[(String, CandidateKind)],
+    finished_count: usize,
+) -> impl Iterator<Item = &str> {
+    let primary_word = choices.first().is_some_and(|(text, kind)| {
+        *kind == CandidateKind::Word && is_dictionary_word(text.trim_matches(is_pinyin_spacing))
+    });
+    let finished = &choices[..finished_count.min(5).min(choices.len())];
+    choices
+        .iter()
+        .skip(5)
+        .filter(move |(text, kind)| {
+            primary_word
+                && *kind == CandidateKind::Word
+                && finished.iter().skip(1).any(|(anchor, kind)| {
+                    *kind == CandidateKind::Sentence
+                        && !anchor.is_empty()
+                        && text.len() > anchor.len()
+                        && text.starts_with(anchor)
+                })
+        })
+        .map(|(text, _)| text.as_str())
 }
 
 /// Match already converted text without erasing its literal horizontal padding.
@@ -350,7 +454,10 @@ pub(crate) fn mixed_candidates(
     // When the primary conversion already is a dictionary word, preserve the
     // original homophone page instead of promoting unrelated longer contexts
     // (e.g. shijian -> 时间 must not evict 世间 for 时间安排's sentences).
-    let conversions = pinyin_choices(seed);
+    let DecodedPinyin {
+        choices: conversions,
+        finished_count,
+    } = pinyin_choices_with_provenance(seed);
     let include_completed_words = conversions
         .first()
         .is_some_and(|(text, _)| !is_dictionary_word(text.trim_matches(is_pinyin_spacing)));
@@ -416,6 +523,36 @@ pub(crate) fn mixed_candidates(
         }
     }
     prioritized.extend(deferred_words);
+    // Preserve the old mixed output and its score indices before appending
+    // recovered whole-word contexts. Final page quotas still apply normally.
+    for word in displaced_prefix_sources(
+        &code,
+        &conversions,
+        pinyin_starting_with(code.trim_matches(is_pinyin_spacing)),
+    ) {
+        if let Some((_, values)) = vocabulary()
+            .continuations()
+            .find(|(context, _)| *context == word)
+        {
+            for text in values {
+                if !prioritized.iter().any(|(candidate, _)| candidate == text) {
+                    prioritized.push((text.clone(), CandidateKind::Sentence));
+                }
+            }
+        }
+    }
+    for converted in displaced_branch_sources(&conversions, finished_count) {
+        if let Some((tail, values)) = authored_continuation(converted, false) {
+            for text in values {
+                if let Some(suffix) = authored_sentence_suffix(tail, text, false) {
+                    let continuation = format!("{converted}{suffix}");
+                    if !prioritized.iter().any(|(text, _)| *text == continuation) {
+                        prioritized.push((continuation, CandidateKind::Sentence));
+                    }
+                }
+            }
+        }
+    }
     prioritized
 }
 
@@ -427,9 +564,21 @@ pub fn pinyin_candidates(seed: &str) -> Vec<String> {
 }
 
 fn pinyin_choices(seed: &str) -> Vec<(String, CandidateKind)> {
+    pinyin_choices_with_provenance(seed).choices
+}
+
+#[derive(Default)]
+struct DecodedPinyin {
+    choices: Vec<(String, CandidateKind)>,
+    // Number of unique retained finished paths, before Prefix completions.
+    finished_count: usize,
+}
+
+fn pinyin_choices_with_provenance(seed: &str) -> DecodedPinyin {
     let choices = decode_pinyin_choices(seed);
     if seed.chars().count() > super::draft::LOCAL_TAIL_CHARS
         || choices
+            .choices
             .iter()
             .any(|(_, kind)| *kind != CandidateKind::Literal)
     {
@@ -442,26 +591,30 @@ fn pinyin_choices(seed: &str) -> Vec<(String, CandidateKind)> {
     let Some((prefix, tail)) = super::draft::chinese_boundary_tail(seed) else {
         return choices;
     };
-    let recovered = decode_pinyin_choices(tail);
+    let mut recovered = decode_pinyin_choices(tail);
     if !recovered
+        .choices
         .iter()
         .any(|(_, kind)| *kind != CandidateKind::Literal)
     {
         return choices;
     }
+    for (text, _) in &mut recovered.choices {
+        *text = format!("{prefix}{text}");
+    }
     recovered
-        .into_iter()
-        .map(|(text, kind)| (format!("{prefix}{text}"), kind))
-        .collect()
 }
 
-fn decode_pinyin_choices(seed: &str) -> Vec<(String, CandidateKind)> {
+fn decode_pinyin_choices(seed: &str) -> DecodedPinyin {
     if seed.trim().is_empty() {
-        return Vec::new();
+        return DecodedPinyin::default();
     }
     let input_chars = seed.chars().count();
     if input_chars > super::draft::LOCAL_TAIL_CHARS {
-        return vec![(seed.into(), CandidateKind::Literal)];
+        return DecodedPinyin {
+            choices: vec![(seed.into(), CandidateKind::Literal)],
+            finished_count: 0,
+        };
     }
     let normalized = normalize_pinyin(seed);
     let mut paths = vec![(0usize, String::new(), 0usize)];
@@ -557,6 +710,7 @@ fn decode_pinyin_choices(seed: &str) -> Vec<(String, CandidateKind)> {
             (text, kind)
         })
         .collect();
+    let finished_count = output.len();
     output.extend(
         completions
             .into_iter()
@@ -567,12 +721,208 @@ fn decode_pinyin_choices(seed: &str) -> Vec<(String, CandidateKind)> {
     if seen.insert(seed.to_owned()) {
         output.push((seed.into(), CandidateKind::Literal));
     }
-    output
+    DecodedPinyin {
+        choices: output,
+        finished_count,
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn displaced_branch_sources_require_finished_sentence_provenance_and_visible_word() {
+        let mut choices: Vec<_> = [
+            ("拿过来", CandidateKind::Word),
+            ("拿国来", CandidateKind::Sentence),
+            ("那国来", CandidateKind::Sentence),
+            ("那过来", CandidateKind::Sentence),
+            ("拿国来不及了", CandidateKind::Word),
+            ("拿国来得及吗", CandidateKind::Word),
+            ("拿过来不及了", CandidateKind::Word),
+            ("na guo lai", CandidateKind::Literal),
+        ]
+        .into_iter()
+        .map(|(text, kind)| (text.into(), kind))
+        .collect();
+        assert_eq!(
+            displaced_branch_sources(&choices, 4).collect::<Vec<_>>(),
+            ["拿国来得及吗"]
+        );
+        // A Sentence-kind Prefix must not be mistaken for a finished anchor.
+        assert!(displaced_branch_sources(&choices, 1).next().is_none());
+        assert!(displaced_branch_sources(&choices, 0).next().is_none());
+        for kind in [CandidateKind::Word, CandidateKind::Literal] {
+            choices[1].1 = kind;
+            assert!(displaced_branch_sources(&choices, 2).next().is_none());
+        }
+        choices[1].1 = CandidateKind::Sentence;
+        for kind in [CandidateKind::Sentence, CandidateKind::Literal] {
+            choices[5].1 = kind;
+            assert!(displaced_branch_sources(&choices, 2).next().is_none());
+        }
+        choices[5].1 = CandidateKind::Word;
+        for (text, kind) in [
+            ("拿过来", CandidateKind::Sentence),
+            ("拿过来", CandidateKind::Literal),
+            ("未收录主词", CandidateKind::Word),
+        ] {
+            choices[0] = (text.into(), kind);
+            assert!(displaced_branch_sources(&choices, 2).next().is_none());
+        }
+    }
+
+    #[test]
+    fn displaced_branch_sources_keep_original_window_and_do_not_use_primary_or_substrings() {
+        let choices: Vec<_> = [
+            ("拿过来", CandidateKind::Word),
+            ("拿国来", CandidateKind::Sentence),
+            ("拿国来得及吗", CandidateKind::Word),
+            ("无关", CandidateKind::Sentence),
+            ("另一项", CandidateKind::Word),
+            ("拿过来不及了", CandidateKind::Word),
+            ("前文拿国来得及吗", CandidateKind::Word),
+            ("拿国来", CandidateKind::Word),
+        ]
+        .into_iter()
+        .map(|(text, kind)| (text.into(), kind))
+        .collect();
+        assert!(displaced_branch_sources(&choices, 2).next().is_none());
+        assert!(displaced_branch_sources(&[], 5).next().is_none());
+    }
+
+    #[test]
+    fn decoded_finished_boundary_survives_literal_prefix_recovery_without_changing_choices() {
+        for tail in ["na guo lai", "ni hao", "shijian", "shi jian"] {
+            let decoded = pinyin_choices_with_provenance(tail);
+            assert!((1..=5).contains(&decoded.finished_count));
+            assert_eq!(decoded.choices, pinyin_choices(tail));
+            let prefix = "API。";
+            let recovered = pinyin_choices_with_provenance(&format!("{prefix}{tail}"));
+            assert_eq!(recovered.finished_count, decoded.finished_count);
+            assert_eq!(
+                recovered.choices,
+                decoded
+                    .choices
+                    .into_iter()
+                    .map(|(text, kind)| (format!("{prefix}{text}"), kind))
+                    .collect::<Vec<_>>()
+            );
+        }
+        assert!(pinyin_choices_with_provenance("").choices.is_empty());
+        let seed = "字".repeat(super::super::draft::LOCAL_TAIL_CHARS + 1);
+        let decoded = pinyin_choices_with_provenance(&seed);
+        assert_eq!(decoded.finished_count, 0);
+        assert_eq!(decoded.choices, [(seed, CandidateKind::Literal)]);
+    }
+
+    #[test]
+    fn displaced_prefix_source_window_requires_distinct_single_reading_homophones() {
+        let entries = [
+            PinyinEntry::new("ka", "甲"),
+            PinyinEntry::new("ka", "乙"),
+            PinyinEntry::new("ka'ba", "第一"),
+            PinyinEntry::new("ka'ca", "第二"),
+            PinyinEntry::new("ka'da", "第三"),
+            PinyinEntry::new("ka'fa", "第四"),
+            PinyinEntry::new("ka'ga", "第五"),
+        ];
+        let refs: Vec<_> = entries.iter().collect();
+        let choices: Vec<_> = ["甲", "乙", "第一", "第二", "第三", "第四", "第五"]
+            .into_iter()
+            .map(|text| (text.to_owned(), CandidateKind::Word))
+            .collect();
+        assert_eq!(displaced_prefix_sources("ka", &choices, &refs), ["第四"]);
+        assert_eq!(
+            displaced_prefix_sources("ka \t\u{3000}", &choices, &refs),
+            ["第四"]
+        );
+        for code in ["", "ka'", "ka\n", "ka4.5", "ka2:30", "k a", "甲ka"] {
+            assert!(
+                displaced_prefix_sources(code, &choices, &refs).is_empty(),
+                "{code:?}"
+            );
+        }
+        let duplicate_refs = [
+            &entries[0],
+            &entries[0],
+            &entries[2],
+            &entries[3],
+            &entries[4],
+            &entries[5],
+        ];
+        assert!(displaced_prefix_sources("ka", &choices, &duplicate_refs).is_empty());
+        let single_refs = [
+            &entries[0],
+            &entries[2],
+            &entries[3],
+            &entries[4],
+            &entries[5],
+        ];
+        assert!(displaced_prefix_sources("ka", &choices, &single_refs).is_empty());
+    }
+
+    #[test]
+    fn displaced_prefix_source_requires_visible_word_and_does_not_reset_four_prefix_limit() {
+        let entries = [
+            PinyinEntry::new("ka", "甲"),
+            PinyinEntry::new("ka", "乙"),
+            PinyinEntry::new("ka'ba", "第一"),
+            PinyinEntry::new("ka'ca", "第二"),
+            PinyinEntry::new("ka'da", "第三"),
+            PinyinEntry::new("ka'fa", "第四"),
+            PinyinEntry::new("ka'ga", "第五"),
+        ];
+        let refs: Vec<_> = entries.iter().collect();
+        for kind in [CandidateKind::Sentence, CandidateKind::Literal] {
+            let mut choices = vec![("甲".to_owned(), CandidateKind::Word); 5];
+            choices.push(("第四".to_owned(), kind));
+            choices.push(("第五".to_owned(), CandidateKind::Word));
+            assert!(displaced_prefix_sources("ka", &choices, &refs).is_empty());
+        }
+        let early: Vec<_> = ["甲", "乙", "第一", "第二", "第四", "第五"]
+            .into_iter()
+            .map(|text| (text.to_owned(), CandidateKind::Word))
+            .collect();
+        assert!(displaced_prefix_sources("ka", &early, &refs).is_empty());
+        let later_finished: Vec<_> = ["甲", "乙", "甲", "甲", "甲", "未有前缀来源"]
+            .into_iter()
+            .map(|text| (text.to_owned(), CandidateKind::Word))
+            .collect();
+        assert!(displaced_prefix_sources("ka", &later_finished, &refs).is_empty());
+    }
+
+    #[test]
+    fn displaced_whole_contexts_append_after_the_original_mixed_extra_without_duplicates() {
+        for (seed, original, pair) in [
+            (
+                "ta",
+                ["他们", "讨论", "堂食", "太好了", "太棒了"],
+                ["太好了，终于等到你了。", "太好了，我们一起去吧。"],
+            ),
+            (
+                "hao",
+                ["好吃", "好喝", "好的", "好久不见", "好厉害"],
+                ["好久不见，最近怎么样？", "好久不见，有空一起吃饭吧。"],
+            ),
+            (
+                "you",
+                ["游泳", "邮件", "优先", "优先级", "优惠"],
+                ["优先级请再确认一下。", "优先级较高的事项先处理。"],
+            ),
+        ] {
+            let choices = mixed_candidates(seed);
+            assert_eq!(
+                choices[..5],
+                original.map(|text| (text.into(), CandidateKind::Word))
+            );
+            assert_eq!(
+                choices[5..],
+                pair.map(|text| (text.into(), CandidateKind::Sentence))
+            );
+        }
+    }
 
     #[test]
     fn unfinished_reading_cannot_consume_a_final_apostrophe_to_invent_a_syllable() {
@@ -758,7 +1108,7 @@ mod tests {
 
     #[test]
     fn authored_continuations_are_unique_complete_and_preserve_padding() {
-        assert_eq!(pinyin().len(), 3114);
+        assert_eq!(pinyin().len(), 3178);
         let mut phrases = std::collections::HashSet::new();
         let mut sentences = std::collections::HashSet::new();
         for (phrase, values) in vocabulary().continuations() {

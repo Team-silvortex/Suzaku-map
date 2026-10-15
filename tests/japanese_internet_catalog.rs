@@ -256,6 +256,348 @@ fn remove_unique_append(source: &mut String, first: &str, after: &str) {
     source.replace_range(start..end, "");
 }
 
+fn builtin_before_reference_characters(language: &str, source: &str) -> String {
+    if language != "zh-Hans" {
+        return source.to_owned();
+    }
+    let current: Value = serde_json::from_str(source).unwrap();
+    let readings = current["readings"].as_array().unwrap();
+    assert_eq!(readings.len(), 3178);
+    for (entry, (reading, text)) in readings[3176..].iter().zip([("zhe", "这"), ("ben", "本")]) {
+        assert_eq!(entry["reading"], reading);
+        assert_eq!(entry["text"], text);
+        assert_eq!(entry["kind"], "word");
+    }
+    assert_eq!(current["continuations"].as_array().unwrap().len(), 767);
+    let mut previous = source.to_owned();
+    remove_unique_append(
+        &mut previous,
+        ",\n    {\"reading\": \"zhe\", \"text\": \"这\", \"kind\": \"word\"}",
+        "\n  ],\n  \"continuations\": [",
+    );
+    assert_eq!(
+        source_sha256(&previous),
+        "a829f6ae589bc865225513e4dc5c5ede957bbb39307e7a9432973f13b254ead0"
+    );
+    previous
+}
+
+fn builtin_before_arrival_characters(language: &str, source: &str) -> String {
+    if language != "zh-Hans" {
+        return source.to_owned();
+    }
+    let current: Value = serde_json::from_str(source).unwrap();
+    let readings = current["readings"].as_array().unwrap();
+    assert_eq!(readings.len(), 3176);
+    for (entry, (reading, text)) in readings[3174..].iter().zip([("dao", "到"), ("jia", "家")]) {
+        assert_eq!(entry["reading"], reading);
+        assert_eq!(entry["text"], text);
+        assert_eq!(entry["kind"], "word");
+    }
+    assert_eq!(current["continuations"].as_array().unwrap().len(), 767);
+    let mut previous = source.to_owned();
+    remove_unique_append(
+        &mut previous,
+        ",\n    {\"reading\": \"dao\", \"text\": \"到\", \"kind\": \"word\"}",
+        "\n  ],\n  \"continuations\": [",
+    );
+    assert_eq!(
+        source_sha256(&previous),
+        "927b8940451a0e2d585ed35b8acd3634c8ea21d3e7162d0e06c79a4340c28ea4"
+    );
+    previous
+}
+
+fn builtin_before_result_characters(language: &str, source: &str) -> String {
+    if language != "zh-Hans" {
+        return source.to_owned();
+    }
+    let current: Value = serde_json::from_str(source).unwrap();
+    let readings = current["readings"].as_array().unwrap();
+    assert_eq!(readings.len(), 3174);
+    for (entry, (reading, text)) in
+        readings[3170..]
+            .iter()
+            .zip([("guo", "过"), ("wan", "完"), ("hui", "回"), ("zhao", "找")])
+    {
+        assert_eq!(entry["reading"], reading);
+        assert_eq!(entry["text"], text);
+        assert_eq!(entry["kind"], "word");
+    }
+    assert_eq!(current["continuations"].as_array().unwrap().len(), 767);
+    let mut previous = source.to_owned();
+    remove_unique_append(
+        &mut previous,
+        ",\n    {\"reading\": \"guo\", \"text\": \"过\", \"kind\": \"word\"}",
+        "\n  ],\n  \"continuations\": [",
+    );
+    assert_eq!(
+        source_sha256(&previous),
+        "5e5bf32538490c988b7116bf3dfafcf0c4e63228ea2a235e95c96d13db72949f"
+    );
+    previous
+}
+
+fn builtin_before_action_characters(language: &str, source: &str) -> String {
+    if language != "zh-Hans" {
+        return source.to_owned();
+    }
+    let current: Value = serde_json::from_str(source).unwrap();
+    let readings = current["readings"].as_array().unwrap();
+    assert_eq!(readings.len(), 3170);
+    for (entry, (reading, text)) in
+        readings[3166..]
+            .iter()
+            .zip([("na", "拿"), ("fang", "放"), ("dai", "带"), ("yong", "用")])
+    {
+        assert_eq!(entry["reading"], reading);
+        assert_eq!(entry["text"], text);
+        assert_eq!(entry["kind"], "word");
+    }
+    assert_eq!(current["continuations"].as_array().unwrap().len(), 767);
+    let mut previous = source.to_owned();
+    remove_unique_append(
+        &mut previous,
+        ",\n    {\"reading\": \"na\", \"text\": \"拿\", \"kind\": \"word\"}",
+        "\n  ],\n  \"continuations\": [",
+    );
+    assert_eq!(
+        source_sha256(&previous),
+        "96852c00402fc799dda6d273c2b1bb26443d75899ee7177edc55b661c6fd5836"
+    );
+    previous
+}
+
+fn builtin_before_giving_characters(language: &str, source: &str) -> String {
+    if language != "zh-Hans" {
+        return source.to_owned();
+    }
+    let current: Value = serde_json::from_str(source).unwrap();
+    let readings = current["readings"].as_array().unwrap();
+    assert_eq!(readings.len(), 3166);
+    for (entry, (reading, text)) in readings[3164..].iter().zip([("gei", "给"), ("shu", "书")]) {
+        assert_eq!(entry["reading"], reading);
+        assert_eq!(entry["text"], text);
+        assert_eq!(entry["kind"], "word");
+    }
+    assert_eq!(current["continuations"].as_array().unwrap().len(), 767);
+    let mut previous = source.to_owned();
+    remove_unique_append(
+        &mut previous,
+        ",\n    {\"reading\": \"gei\", \"text\": \"给\", \"kind\": \"word\"}",
+        "\n  ],\n  \"continuations\": [",
+    );
+    assert_eq!(
+        source_sha256(&previous),
+        "49fd40d87d1fff86290249d47b883106178da9a4a8b1630f76a174ab33c2dd14"
+    );
+    previous
+}
+
+fn builtin_before_lending_characters(language: &str, source: &str) -> String {
+    if language != "zh-Hans" {
+        return source.to_owned();
+    }
+    let current: Value = serde_json::from_str(source).unwrap();
+    let readings = current["readings"].as_array().unwrap();
+    assert_eq!(readings.len(), 3164);
+    for (entry, (reading, text)) in readings[3162..].iter().zip([("jie", "借"), ("huan", "还")]) {
+        assert_eq!(entry["reading"], reading);
+        assert_eq!(entry["text"], text);
+        assert_eq!(entry["kind"], "word");
+    }
+    assert_eq!(current["continuations"].as_array().unwrap().len(), 767);
+    let mut previous = source.to_owned();
+    remove_unique_append(
+        &mut previous,
+        ",\n    {\"reading\": \"jie\", \"text\": \"借\", \"kind\": \"word\"}",
+        "\n  ],\n  \"continuations\": [",
+    );
+    assert_eq!(
+        source_sha256(&previous),
+        "5856488e8461b851560e0c75cf815d536c5cbff3dd277dcd7bc2d0d00a25b1c9"
+    );
+    previous
+}
+
+fn builtin_before_daily_borrowing(language: &str, source: &str) -> String {
+    // Restore the exact previously validated, uncommitted belongings snapshot.
+    // Every older projection below continues receiving its original raw bytes.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            let layers = current["word_layers"].as_array().unwrap();
+            assert_eq!(layers.len(), 40);
+            assert_eq!(layers[38]["id"], "daily_belongings");
+            assert_eq!(layers[39]["id"], "daily_borrowing");
+            assert!(layers[39]["words"].as_array().unwrap().is_empty());
+            assert_eq!(layers[39]["next_words"].as_array().unwrap().len(), 8);
+            assert_eq!(layers[39]["sentences"].as_array().unwrap().len(), 16);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_borrowing\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "a82974d60229dcee5751bf7400e7054349412fad9b119895e818690c1360cfee"
+        }
+        "zh-Hans" | "ja" => {
+            let (readings, contexts, first, first_reading, last, sentences, sha) =
+                if language == "zh-Hans" {
+                    (
+                        3162,
+                        767,
+                        "这个能借我两天吗",
+                        "zhe'ge'neng'jie'wo'liang'tian'ma",
+                        "借书卡",
+                        1532,
+                        "4bc27922b35d1df2aae11cc693e116588428e6e408e3669f2df78ba9fb3e14fc",
+                    )
+                } else {
+                    (
+                        522,
+                        262,
+                        "返却期限",
+                        "へんきゃくきげん",
+                        "貸出カード",
+                        523,
+                        "b177c38d3e7afc78b0059b9397436ece66bf8f22d2c9864fb087837819069ac5",
+                    )
+                };
+            let rows = current["readings"].as_array().unwrap();
+            let continuation = current["continuations"].as_array().unwrap();
+            let added_contexts = if language == "ja" { 6 } else { 8 };
+            let added_readings = if language == "ja" { 12 } else { 24 };
+            assert_eq!(rows.len(), readings);
+            assert_eq!(continuation.len(), contexts);
+            assert_eq!(rows[readings - added_readings]["text"], first);
+            assert_eq!(rows.last().unwrap()["text"], last);
+            assert_eq!(continuation[contexts - added_contexts][0], first);
+            assert!(
+                continuation[contexts - added_contexts..]
+                    .iter()
+                    .all(|row| row[1].as_array().unwrap().len() == 2)
+            );
+            assert_eq!(
+                continuation
+                    .iter()
+                    .map(|row| row[1].as_array().unwrap().len())
+                    .sum::<usize>(),
+                sentences
+            );
+            remove_unique_append(
+                &mut previous,
+                &format!(",\n    {{\"reading\": \"{first_reading}\","),
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(
+                &mut previous,
+                &format!(",\n    [\n      \"{first}\","),
+                "\n  ]\n}\n",
+            );
+            sha
+        }
+        _ => panic!("unexpected builtin language"),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
+fn builtin_before_daily_belongings(language: &str, source: &str) -> String {
+    // Peel only this batch. The exact ef0e920 bytes then enter the unchanged
+    // sharing and older projections; no historical fingerprint is refreshed.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            let layers = current["word_layers"].as_array().unwrap();
+            assert_eq!(layers.len(), 39);
+            assert_eq!(layers[37]["id"], "daily_sharing");
+            assert_eq!(layers[38]["id"], "daily_belongings");
+            assert!(layers[38]["words"].as_array().unwrap().is_empty());
+            assert_eq!(layers[38]["next_words"].as_array().unwrap().len(), 8);
+            assert_eq!(layers[38]["sentences"].as_array().unwrap().len(), 16);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_belongings\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "0cfbbf740bf2bb2906e0ff469283492d5b9b8072a60182c61ed8260585999af3"
+        }
+        "zh-Hans" | "ja" => {
+            let (
+                old_readings,
+                old_contexts,
+                added_readings,
+                added_contexts,
+                first_word,
+                last_word,
+                first_append,
+                first_context_append,
+                sentence_count,
+                sha,
+            ) = if language == "zh-Hans" {
+                (
+                    3114,
+                    751,
+                    24,
+                    8,
+                    "钥匙忘在家里了",
+                    "领取登记",
+                    ",\n    {\"reading\": \"yao'shi'wang'zai'jia'li'le\",",
+                    ",\n    [\n      \"钥匙忘在家里了\",",
+                    1516,
+                    "495b0bb85bd4da7459aee2e52f4af5bf55d9ba4776f97b31cdde946c59f0fb08",
+                )
+            } else {
+                (
+                    498,
+                    250,
+                    12,
+                    6,
+                    "持ち主",
+                    "パスケース",
+                    ",\n    {\"reading\": \"もちぬし\",",
+                    ",\n    [\n      \"持ち主\",",
+                    511,
+                    "34dd6b8cb4422e06571828105e7d73307d1e6bc6352763df65a2c3d016ea7f91",
+                )
+            };
+            let readings = current["readings"].as_array().unwrap();
+            let contexts = current["continuations"].as_array().unwrap();
+            assert_eq!(readings.len(), old_readings + added_readings);
+            assert_eq!(contexts.len(), old_contexts + added_contexts);
+            assert_eq!(readings[old_readings]["text"], first_word);
+            assert_eq!(readings.last().unwrap()["text"], last_word);
+            assert_eq!(contexts[old_contexts][0], first_word);
+            assert!(
+                contexts[old_contexts..]
+                    .iter()
+                    .all(|row| row[1].as_array().unwrap().len() == 2)
+            );
+            assert_eq!(
+                contexts
+                    .iter()
+                    .map(|row| row[1].as_array().unwrap().len())
+                    .sum::<usize>(),
+                sentence_count
+            );
+            remove_unique_append(
+                &mut previous,
+                first_append,
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, first_context_append, "\n  ]\n}\n");
+            sha
+        }
+        _ => panic!("unexpected builtin language"),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
 fn builtin_before_daily_sharing(language: &str, source: &str) -> String {
     // Peel only this exact append before passing untouched historical bytes to
     // the older projections. These fingerprints were fixed at the 0.9.0 source.
@@ -635,7 +977,15 @@ fn japanese_internet_preserves_all_eighteen_source_bytes_and_catalog_positions()
         );
     }
     for (language, source, expected) in BUILTIN {
-        let before_sharing = builtin_before_daily_sharing(language, source);
+        let before_references = builtin_before_reference_characters(language, source);
+        let before_arrivals = builtin_before_arrival_characters(language, &before_references);
+        let before_results = builtin_before_result_characters(language, &before_arrivals);
+        let before_actions = builtin_before_action_characters(language, &before_results);
+        let before_giving = builtin_before_giving_characters(language, &before_actions);
+        let before_characters = builtin_before_lending_characters(language, &before_giving);
+        let before_borrowing = builtin_before_daily_borrowing(language, &before_characters);
+        let before_belongings = builtin_before_daily_belongings(language, &before_borrowing);
+        let before_sharing = builtin_before_daily_sharing(language, &before_belongings);
         let before_cleaning = builtin_before_japanese_cleaning(language, &before_sharing);
         let before_weather = builtin_before_japanese_weather(language, &before_cleaning);
         let before_errands = builtin_before_japanese_errands(language, &before_weather);

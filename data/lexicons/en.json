@@ -12169,6 +12169,70 @@
         "i'll send the final version after checking the details.",
         "i'll send the final photos once everyone is ready."
       ]
+    },
+    {
+      "id": "daily_belongings",
+      "words": [],
+      "next_words": [
+        ["i found your",["wallet","glasses"]],
+        ["is this your",["scarf","notebook"]],
+        ["my bag might be",["upstairs","outside"]],
+        ["please look under the",["table","sofa"]],
+        ["i may have left my",["jacket","bottle"]],
+        ["i'll keep it",["safe","here"]],
+        ["could you bring back my",["umbrella","notebook"]],
+        ["i can collect my",["bag","coat"]]
+      ],
+      "sentences": [
+        "i found your wallet under the chair.",
+        "i found your glasses next to the sofa.",
+        "is this your scarf on the back of the chair?",
+        "is this your notebook by the window?",
+        "my bag might be upstairs in the bedroom.",
+        "my bag might be outside near the door.",
+        "please look under the table before we leave.",
+        "please look under the sofa for the missing keys.",
+        "i may have left my jacket in your car.",
+        "i may have left my bottle at your house.",
+        "i'll keep it safe until you come back.",
+        "i'll keep it here so you can collect it later.",
+        "could you bring back my umbrella when you visit?",
+        "could you bring back my notebook after work?",
+        "i can collect my bag tomorrow morning.",
+        "i can collect my coat on the way home."
+      ]
+    },
+    {
+      "id": "daily_borrowing",
+      "words": [],
+      "next_words": [
+        ["may i use your",["notebook","scissors"]],
+        ["do you have a spare",["charger","umbrella"]],
+        ["i only need it for",["today","tonight"]],
+        ["please return it to the",["shelf","drawer"]],
+        ["you can leave it",["here","upstairs"]],
+        ["i'll put it back in the",["box","cupboard"]],
+        ["can you keep this",["safe","dry"]],
+        ["thanks for letting me use your",["book","jacket"]]
+      ],
+      "sentences": [
+        "may i use your notebook to take a few notes?",
+        "may i use your scissors to open this package?",
+        "do you have a spare charger i could use?",
+        "do you have a spare umbrella for the walk home?",
+        "i only need it for today and i'll return it tomorrow.",
+        "i only need it for tonight so you can have it tomorrow.",
+        "please return it to the shelf when you finish.",
+        "please return it to the drawer after using it.",
+        "you can leave it here until tomorrow morning.",
+        "you can leave it upstairs next to the desk.",
+        "i'll put it back in the box when i'm done.",
+        "i'll put it back in the cupboard after dinner.",
+        "can you keep this safe while i'm away?",
+        "can you keep this dry until i get back?",
+        "thanks for letting me use your book for the weekend.",
+        "thanks for letting me use your jacket on the way home."
+      ]
     }
   ],
   "phrase_endings": [

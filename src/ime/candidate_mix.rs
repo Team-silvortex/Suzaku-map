@@ -195,7 +195,7 @@ pub fn offline(
         pool.push(candidate(seed.into(), CandidateKind::Literal, 55.0));
     }
     let pinned = pinned_count(language, &pool);
-    let mut output = balance(pool, pinned, limit);
+    let mut output = balance_for_seed(language, seed, pool, pinned, limit);
     let fill_limit = limit.clamp(1, super::companion::MAX_CANDIDATES);
     if BuiltinLanguage::resolve(language) == Some(BuiltinLanguage::Japanese)
         && output.len() < fill_limit
@@ -374,7 +374,10 @@ pub fn merge_predictions(
             }
         }
     }
-    (balance(local, pinned, limit), accepted)
+    (
+        balance_for_seed(language, seed, local, pinned, limit),
+        accepted,
+    )
 }
 
 /// Preferences only rank candidates already supplied by a decoder/provider.
@@ -400,7 +403,7 @@ pub(crate) fn personalize(
     if !changed {
         let pool = if pool.len() > limit {
             let pinned = pinned_count(language, &pool);
-            balance(pool, pinned, limit)
+            balance_for_seed(language, seed, pool, pinned, limit)
         } else {
             pool
         };
@@ -424,7 +427,7 @@ pub(crate) fn personalize(
         }
     }
     let pinned = pinned_count(language, &pool);
-    let mut pool = balance(pool, pinned, limit);
+    let mut pool = balance_for_seed(language, seed, pool, pinned, limit);
     // Sort with the full bonus first, then clamp presentation weights. Otherwise
     // a default weight of 100 could never be displaced by a learned conversion.
     for candidate in &mut pool {
@@ -435,7 +438,51 @@ pub(crate) fn personalize(
     native_payload_budget(seed, pool, limit)
 }
 
-fn balance(mut pool: Vec<Candidate>, pinned: usize, limit: usize) -> Vec<Candidate> {
+fn balance_for_seed(
+    language: &str,
+    seed: &str,
+    pool: Vec<Candidate>,
+    pinned: usize,
+    limit: usize,
+) -> Vec<Candidate> {
+    // Recompute from original decoder choices on every balancing stage. An
+    // already sorted page cannot establish whether a word was the immediate
+    // decoder fallback or appeared only after many ambiguous conversions.
+    let reserve_pair = limit >= 5
+        && pool
+            .first()
+            .is_some_and(|c| c.kind == CandidateKind::Sentence)
+        && {
+            // Use the exact existing safe window, also after its frozen prefix
+            // has been reattached. Do not reinterpret URL/identifier boundaries
+            // or increase the independent whole-draft model request limit.
+            let (prefix, tail) =
+                crate::languages::draft::long_local_tail(language, seed).unwrap_or(("", seed));
+            let values = match BuiltinLanguage::resolve(language) {
+                Some(BuiltinLanguage::ChineseSimplified) => {
+                    chinese::immediate_word_continuations(tail)
+                }
+                Some(BuiltinLanguage::Japanese) => japanese::root_correction_continuations(tail),
+                _ => None,
+            };
+            values.is_some_and(|values| {
+                values.iter().take(2).all(|text| {
+                    pool.iter().any(|c| {
+                        c.kind == CandidateKind::Sentence
+                            && c.text.strip_prefix(prefix) == Some(text.as_str())
+                    })
+                })
+            })
+        };
+    balance(pool, pinned, limit, reserve_pair)
+}
+
+fn balance(
+    mut pool: Vec<Candidate>,
+    pinned: usize,
+    limit: usize,
+    reserve_word_pair: bool,
+) -> Vec<Candidate> {
     let limit = limit.max(1);
     let mut seen = HashSet::new();
     pool.retain(|c| !c.text.is_empty() && c.score.is_finite() && seen.insert(c.text.clone()));
@@ -446,7 +493,16 @@ fn balance(mut pool: Vec<Candidate>, pinned: usize, limit: usize) -> Vec<Candida
     let quota: usize = if page >= 5 { 2 } else { 1 };
     let mut reserved = Vec::new();
     for kind in [CandidateKind::Word, CandidateKind::Sentence] {
-        let mut needed = quota.saturating_sub(pool.iter().filter(|c| c.kind == kind).count());
+        let anchors = pool.iter().filter(|c| c.kind == kind).count();
+        // Only a verified immediate whole-word fallback receives this policy.
+        // Its preceding converted span must not consume an authored-sentence
+        // slot. Neither scores, typing anchors nor page/count limits change.
+        let anchors = if reserve_word_pair && kind == CandidateKind::Sentence {
+            0
+        } else {
+            anchors
+        };
+        let mut needed = quota.saturating_sub(anchors);
         let mut index = 0;
         while needed > 0 && pool.len() + reserved.len() < page && index < rest.len() {
             if rest[index].kind == kind {
@@ -1279,7 +1335,7 @@ mod tests {
             CandidateKind::Sentence,
             78.0,
         ));
-        let mixed = balance(pool, 2, 12);
+        let mixed = balance(pool, 2, 12, false);
         assert_eq!(mixed[0].text, "hel");
         assert_eq!(mixed[1].text, "hello");
         assert_eq!(
@@ -1299,6 +1355,162 @@ mod tests {
                 .windows(2)
                 .all(|pair| pair[0].score >= pair[1].score)
         );
+    }
+
+    #[test]
+    fn immediate_word_sentence_slots_still_allow_model_and_sentence_preferences() {
+        let seed = "haimeishu";
+        let local = engine("zh-Hans", seed).candidates().to_vec();
+        let model_text = "还没书，先确认一下。";
+        let (merged, accepted) = merge_model(
+            "zh-Hans",
+            seed,
+            local,
+            vec![LlmCompletion {
+                text: model_text.into(),
+                kind: Some(CandidateKind::Sentence),
+                score_bias: 1.0,
+            }],
+            12,
+        );
+        assert!(accepted);
+        let preferred_text = "还没睡，不过准备休息了。";
+        let learned = personalize("zh-Hans", seed, merged.clone(), true, 12, |c| {
+            if c.text == preferred_text { 4.0 } else { 0.0 }
+        });
+        for choices in [&merged, &learned] {
+            assert_eq!(choices[0].text, "还没书");
+            assert_eq!(choices[0].score, 100.0);
+            assert!(choices.len() <= 12);
+            assert!(
+                choices
+                    .iter()
+                    .any(|c| c.text == seed && c.kind == CandidateKind::Literal)
+            );
+            let page = &choices[..PAGE_SIZE];
+            assert!(
+                page.iter()
+                    .filter(|c| c.kind == CandidateKind::Word)
+                    .count()
+                    >= 2
+            );
+            assert!(
+                page[1..]
+                    .iter()
+                    .filter(|c| c.kind == CandidateKind::Sentence)
+                    .count()
+                    >= 2
+            );
+            assert!(
+                page.iter()
+                    .any(|c| c.text == model_text && c.source == CandidateSource::Model)
+            );
+        }
+        assert!(
+            learned[..PAGE_SIZE]
+                .iter()
+                .any(|c| c.text == preferred_text)
+        );
+        assert!(merged.iter().any(|c| c.text == preferred_text));
+    }
+
+    #[test]
+    fn long_converted_span_keeps_continuations_after_prefixed_rebalancing() {
+        for prefix in ["前文 café 😀。".repeat(40), "前文 café 😀。  ".repeat(40)] {
+            let seed = format!("{prefix}haimeishu");
+            assert!(seed.chars().count() > crate::languages::draft::LOCAL_TAIL_CHARS);
+            let local = engine("zh-Hans", &seed).candidates().to_vec();
+            let (merged, accepted) = merge_model("zh-Hans", &seed, local.clone(), Vec::new(), 12);
+            assert!(!accepted);
+            let learned = personalize("zh-Hans", &seed, local.clone(), true, 12, |c| {
+                if c.text.ends_with("还没说") {
+                    0.5
+                } else {
+                    0.0
+                }
+            });
+            for choices in [&local, &merged, &learned] {
+                assert_eq!(choices[0].text, format!("{prefix}还没书"));
+                assert_eq!(choices[0].score, 100.0);
+                assert!(choices.len() <= 12);
+                assert!(choices.iter().all(|c| c.text.starts_with(&prefix)));
+                assert!(
+                    choices
+                        .iter()
+                        .any(|c| c.text == seed && c.kind == CandidateKind::Literal)
+                );
+                for sentence in ["还没睡，我把手头的事收个尾。", "还没睡，不过准备休息了。"]
+                {
+                    let expected = format!("{prefix}{sentence}");
+                    assert!(
+                        choices[..PAGE_SIZE]
+                            .iter()
+                            .any(|c| c.text == expected && c.kind == CandidateKind::Sentence),
+                        "{choices:?}"
+                    );
+                }
+            }
+            assert_eq!(local, merged);
+        }
+    }
+
+    #[test]
+    fn sentence_conversion_anchor_keeps_two_continuations_without_changing_budgets() {
+        for seed in ["haimeishu", "hai mei shu", "hai'mei'shu", "HAI MEI SHU"] {
+            let local = engine("zh-Hans", seed).candidates().to_vec();
+            let (merged, accepted) = merge_model("zh-Hans", seed, local.clone(), Vec::new(), 12);
+            assert!(!accepted);
+            let learned = personalize("zh-Hans", seed, merged.clone(), true, 12, |c| {
+                if c.text == "还没说" { 0.5 } else { 0.0 }
+            });
+            for choices in [&local, &merged, &learned] {
+                assert_eq!(choices[0].text, "还没书");
+                assert_eq!(choices[0].kind, CandidateKind::Sentence);
+                assert_eq!(choices[0].score, 100.0);
+                assert!(choices.len() <= 12);
+                assert!(
+                    choices
+                        .iter()
+                        .any(|c| c.text == seed && c.kind == CandidateKind::Literal)
+                );
+                assert!(
+                    choices[..PAGE_SIZE]
+                        .iter()
+                        .filter(|c| c.kind == CandidateKind::Word)
+                        .count()
+                        >= 2
+                );
+                for text in ["还没睡，我把手头的事收个尾。", "还没睡，不过准备休息了。"]
+                {
+                    assert!(
+                        choices[..PAGE_SIZE]
+                            .iter()
+                            .any(|c| c.text == text && c.kind == CandidateKind::Sentence),
+                        "{seed}: {choices:?}"
+                    );
+                }
+            }
+            assert_eq!(
+                local, merged,
+                "an empty model merge must preserve the local vector"
+            );
+            for choices in [&local, &learned] {
+                for limit in 0..=12 {
+                    let limited =
+                        personalize("zh-Hans", seed, choices.clone(), true, limit, |_| 0.0);
+                    assert_eq!(limited[0], choices[0]);
+                    assert!(limited.len() <= limit.max(1));
+                    assert!(limited.iter().all(|c| choices.contains(c)));
+                    if limit > 1 {
+                        assert!(
+                            limited
+                                .iter()
+                                .any(|c| c.text == seed && c.kind == CandidateKind::Literal)
+                        );
+                    }
+                }
+            }
+        }
     }
 
     #[test]

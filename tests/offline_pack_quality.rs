@@ -398,10 +398,232 @@ fn recommended_collections_keep_word_sentence_and_fallback_workflows() {
     assert_eq!(report.loaded.len(), 16);
     assert!(report.errors.is_empty(), "{report:?}");
 
+    // Two reference/classifier readings, unchanged cohorts, limits and old cases.
+    for (reading, word, seed, sentence) in [
+        ("zhe", "这", "wo yong zhe", "我用这"),
+        ("ben", "本", "zhe ben shu gei ni", "这本书给你"),
+    ] {
+        let mut ime = engine("zh-Hans");
+        ime.seed(reading);
+        has(&ime, word, CandidateKind::Word);
+        assert_eq!(ime.candidates()[0].text, word);
+        assert!(ime.candidates().iter().any(|c| c.text == reading));
+        commit(&mut ime, word);
+        let mut ime = engine("zh-Hans");
+        ime.seed(seed);
+        has(&ime, sentence, CandidateKind::Sentence);
+        assert!(ime.candidates().len() <= 12);
+        assert!(ime.candidates().iter().any(|c| c.text == seed));
+        assert!(
+            ime.candidates()
+                .iter()
+                .all(|c| c.source == CandidateSource::Local)
+        );
+        commit(&mut ime, sentence);
+    }
+
+    // Two independent arrival/home readings, within the unchanged cohorts and
+    // quotas. These combined spans are decoded, not authored sentence entries.
+    for (reading, word, seed, sentence) in [
+        ("dao", "到", "wo zhao dao shu le", "我找到书了"),
+        ("jia", "家", "wo de jia", "我的家"),
+    ] {
+        let mut ime = engine("zh-Hans");
+        ime.seed(reading);
+        has(&ime, word, CandidateKind::Word);
+        assert_eq!(ime.candidates()[0].text, word);
+        assert!(ime.candidates().iter().any(|c| c.text == reading));
+        commit(&mut ime, word);
+        let mut ime = engine("zh-Hans");
+        ime.seed(seed);
+        has(&ime, sentence, CandidateKind::Sentence);
+        assert!(ime.candidates().len() <= 12);
+        assert!(ime.candidates().iter().any(|c| c.text == seed));
+        assert!(
+            ime.candidates()
+                .iter()
+                .all(|c| c.source == CandidateSource::Local)
+        );
+        commit(&mut ime, sentence);
+    }
+
+    // Result/return/find mappings reuse the same cohorts and quotas. 过 is an
+    // additional homophone, never a semantic replacement of the original 国.
+    for (reading, word, seed, sentence) in [
+        ("guo", "过", "wo yong guo", "我用过"),
+        ("wan", "完", "wo yong wan", "我用完"),
+        ("hui", "回", "wo hui qu", "我回去"),
+        ("zhao", "找", "wo zhao shu", "我找书"),
+    ] {
+        let mut ime = engine("zh-Hans");
+        ime.seed(reading);
+        has(&ime, word, CandidateKind::Word);
+        assert_eq!(
+            ime.candidates()[0].text,
+            if reading == "guo" { "国" } else { word }
+        );
+        assert!(ime.candidates().iter().any(|c| c.text == reading));
+        commit(&mut ime, word);
+        let mut ime = engine("zh-Hans");
+        ime.seed(seed);
+        assert!(
+            ime.candidates()
+                .iter()
+                .any(|c| c.text == sentence && c.kind == CandidateKind::Sentence)
+        );
+        assert!(ime.candidates().len() <= 12);
+        assert!(ime.candidates().iter().any(|c| c.text == seed));
+        assert!(
+            ime.candidates()
+                .iter()
+                .all(|c| c.source == CandidateSource::Local)
+        );
+        commit(&mut ime, sentence);
+    }
+
+    // New action characters share the original cohorts and quotas. Combined
+    // spans are Sentence conversions, not additional authored phrase records.
+    for (reading, word, seed, sentence) in [
+        ("na", "拿", "wo na shu", "我拿书"),
+        ("fang", "放", "wo fang shu", "我放书"),
+        ("dai", "带", "wo dai shu", "我带书"),
+        ("yong", "用", "wo yong shu", "我用书"),
+    ] {
+        let mut ime = engine("zh-Hans");
+        ime.seed(reading);
+        has(&ime, word, CandidateKind::Word);
+        assert_eq!(ime.candidates()[0].text, word);
+        assert!(ime.candidates().iter().any(|c| c.text == reading));
+        commit(&mut ime, word);
+        let mut ime = engine("zh-Hans");
+        ime.seed(seed);
+        has(&ime, sentence, CandidateKind::Sentence);
+        assert!(ime.candidates().len() <= 12);
+        assert!(ime.candidates().iter().any(|c| c.text == seed));
+        assert!(
+            ime.candidates()
+                .iter()
+                .all(|c| c.source == CandidateSource::Local)
+        );
+        commit(&mut ime, sentence);
+    }
+
+    // Giving/book words extend the same nine 16-pack cohorts. These complete
+    // spans are decoded, not new authored sentence records or larger quotas.
+    for (reading, character, combined, converted) in [
+        ("gei", "给", "gei ni", "给你"),
+        ("shu", "书", "wo gei ni shu", "我给你书"),
+    ] {
+        let mut ime = engine("zh-Hans");
+        ime.seed(reading);
+        has(&ime, character, CandidateKind::Word);
+        assert_eq!(ime.candidates()[0].text, character);
+        assert!(ime.candidates().iter().any(|c| c.text == reading));
+        commit(&mut ime, character);
+        let mut ime = engine("zh-Hans");
+        ime.seed(combined);
+        has(&ime, converted, CandidateKind::Sentence);
+        assert!(ime.candidates().len() <= 12);
+        assert!(ime.candidates().iter().any(|c| c.text == combined));
+        assert!(
+            ime.candidates()
+                .iter()
+                .all(|c| c.source == CandidateSource::Local)
+        );
+        commit(&mut ime, converted);
+    }
+
+    // Two exact character readings and freely decoded spans, not new authored
+    // sentences. Keep all original compatibility cases and quotas below intact.
+    for (reading, character, combined, converted) in [
+        ("jie", "借", "jie huan", "借还"),
+        ("huan", "还", "wo huan ni", "我还你"),
+    ] {
+        let mut ime = engine("zh-Hans");
+        ime.seed(reading);
+        has(&ime, character, CandidateKind::Word);
+        assert_eq!(ime.candidates()[0].text, character);
+        assert!(ime.candidates().iter().any(|c| c.text == reading));
+        commit(&mut ime, character);
+        let mut ime = engine("zh-Hans");
+        ime.seed(combined);
+        has(&ime, converted, CandidateKind::Sentence);
+        assert!(ime.candidates().len() <= 12);
+        assert!(ime.candidates().iter().any(|c| c.text == combined));
+        assert!(
+            ime.candidates()
+                .iter()
+                .all(|c| c.source == CandidateSource::Local)
+        );
+        commit(&mut ime, converted);
+    }
+
     // New built-in daily expressions must coexist with the old cooking pack,
     // including its longer context. Do not change a shipped pack to make a new
     // built-in key collision disappear; these expectations are independent.
     for (language, seed, word, sentence) in [
+        (
+            "en",
+            "may i use your noteb",
+            "may i use your notebook",
+            "may i use your notebook to take a few notes?",
+        ),
+        (
+            "en",
+            "can you keep this saf",
+            "can you keep this safe",
+            "can you keep this safe while i'm away?",
+        ),
+        (
+            "zh-Hans",
+            "zhe ge neng jie wo liang tian m",
+            "这个能借我两天吗",
+            "这个能借我两天吗？周末我就还给你。",
+        ),
+        (
+            "zh-Hans",
+            "wo ming tian dai lai huan n",
+            "我明天带来还你",
+            "我明天带来还你，谢谢你借给我用。",
+        ),
+        (
+            "ja",
+            "henkyakukigen",
+            "返却期限",
+            "返却期限を教えてもらえますか。",
+        ),
+        (
+            "ja",
+            "azukesaki",
+            "預け先",
+            "預け先を決めてから出かけます。",
+        ),
+        (
+            "en",
+            "i found your wall",
+            "i found your wallet",
+            "i found your wallet under the chair.",
+        ),
+        (
+            "en",
+            "could you bring back my umbr",
+            "could you bring back my umbrella",
+            "could you bring back my umbrella when you visit?",
+        ),
+        (
+            "zh-Hans",
+            "yao shi wang zai jia li l",
+            "钥匙忘在家里了",
+            "钥匙忘在家里了，我得回去拿一趟。",
+        ),
+        (
+            "zh-Hans",
+            "wo wan dian guo qu n",
+            "我晚点过去拿",
+            "我晚点过去拿，你先替我收好。",
+        ),
+        ("ja", "mochinushi", "持ち主", "持ち主を探しています。"),
+        ("ja", "hokanbasho", "保管場所", "保管場所を確認してきます。"),
         (
             "en",
             "please check the file nam",

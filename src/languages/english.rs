@@ -1976,8 +1976,8 @@ mod tests {
                 "unreachable sentence: {sentence}"
             );
         }
-        assert_eq!(keys.len(), 757);
-        assert_eq!(sentences.len(), 1478);
+        assert_eq!(keys.len(), 773);
+        assert_eq!(sentences.len(), 1510);
     }
 
     #[test]

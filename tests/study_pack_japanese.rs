@@ -512,6 +512,76 @@ fn study_japanese_selected_partials_and_reading_separators_preserve_choices() {
         },
     );
 }
+
+#[test]
+fn study_japanese_unique_root_correction_keeps_existing_pair_without_pinning_it_over_models() {
+    fresh(
+        "study_japanese_unique_root_correction_keeps_existing_pair_without_pinning_it_over_models",
+        |fixture| {
+            fixture.initialize(true, false);
+            let pair = [
+                "教科書の例をもう一度読んでみます。",
+                "教科書を明日の授業に持っていきます。",
+            ];
+            for seed in ["きょうかし", "kyoukashi", "KYOUKASHI", "きょう かし"] {
+                let ime = engine(seed);
+                draft(&ime, seed);
+                assert_eq!(ime.candidates()[0].text, "今日かし");
+                assert_eq!(ime.candidates()[0].score, 100.0);
+                assert_eq!(
+                    ime.candidates()
+                        .iter()
+                        .filter(|c| c.kind == CandidateKind::Word)
+                        .map(|c| (c.text.as_str(), c.score))
+                        .collect::<Vec<_>>(),
+                    [
+                        ("教科書", 90.5),
+                        ("今日貸して", 90.0),
+                        ("今日貸出期間", 89.5),
+                        ("今日貸し借り", 89.0),
+                        ("今日貸し出し", 54.5),
+                        ("今日貸出カード", 54.0),
+                    ]
+                );
+                for (text, score) in pair.into_iter().zip([76.5, 76.0]) {
+                    let position = index(&ime, text, CandidateKind::Sentence);
+                    assert_eq!(ime.candidates()[position].score, score);
+                    commit_once(&mut engine(seed), text, CandidateKind::Sentence);
+                }
+                commit_once(&mut engine(seed), seed, CandidateKind::Literal);
+
+                let model_sentence = "教科書の新しい例を確認します。";
+                let (merged, accepted) = suzaku_map::ime::candidate_mix::merge_model(
+                    "ja",
+                    seed,
+                    ime.candidates().to_vec(),
+                    vec![LlmCompletion {
+                        text: model_sentence.into(),
+                        score_bias: 1.0,
+                        kind: None,
+                    }],
+                    PAGE_SIZE * 2,
+                );
+                assert!(accepted);
+                assert_eq!(merged[0], ime.candidates()[0]);
+                let position = merged
+                    .iter()
+                    .position(|c| c.text == model_sentence)
+                    .unwrap();
+                assert!(position < PAGE_SIZE);
+                assert_eq!(merged[position].kind, CandidateKind::Sentence);
+                assert_eq!(merged[position].source, CandidateSource::Model);
+                assert!(position < merged.iter().position(|c| c.text == pair[1]).unwrap());
+                assert!(merged.len() <= PAGE_SIZE * 2);
+                assert!(
+                    merged
+                        .iter()
+                        .any(|c| c.text == seed && c.kind == CandidateKind::Literal)
+                );
+            }
+        },
+    );
+}
 #[test]
 fn study_japanese_adopted_words_continue_without_committing_draft() {
     fresh(

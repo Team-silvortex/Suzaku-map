@@ -3115,7 +3115,71 @@
     {"reading": "fa'song'ji'lu", "text": "发送记录", "kind": "word"},
     {"reading": "gong'xiang'xiang'ce", "text": "共享相册", "kind": "word"},
     {"reading": "wen'dang'fu'ben", "text": "文档副本", "kind": "word"},
-    {"reading": "xiu'gai'ji'lu", "text": "修改记录", "kind": "word"}
+    {"reading": "xiu'gai'ji'lu", "text": "修改记录", "kind": "word"},
+    {"reading": "yao'shi'wang'zai'jia'li'le", "text": "钥匙忘在家里了", "kind": "word"},
+    {"reading": "bao'li'zai'zhao'yi'xia", "text": "包里再找一下", "kind": "word"},
+    {"reading": "ni'kan'dao'wo'de'qian'bao'le'ma", "text": "你看到我的钱包了吗", "kind": "word"},
+    {"reading": "zhe'ba'san'shi'shui'de", "text": "这把伞是谁的", "kind": "word"},
+    {"reading": "dong'xi'wang'zai'che'shang'le", "text": "东西忘在车上了", "kind": "word"},
+    {"reading": "bang'wo'liu'zhe'xian'bie'reng", "text": "帮我留着先别扔", "kind": "word"},
+    {"reading": "wo'wan'dian'guo'qu'na", "text": "我晚点过去拿", "kind": "word"},
+    {"reading": "zhao'dao'le'jiu'zai'zhuo'shang", "text": "找到了就在桌上", "kind": "word"},
+    {"reading": "yao'shi'chuan", "text": "钥匙串", "kind": "word"},
+    {"reading": "yao'shi'kou", "text": "钥匙扣", "kind": "word"},
+    {"reading": "ling'qian'bao", "text": "零钱包", "kind": "word"},
+    {"reading": "ka'bao", "text": "卡包", "kind": "word"},
+    {"reading": "zheng'jian'dai", "text": "证件袋", "kind": "word"},
+    {"reading": "yan'jing'he", "text": "眼镜盒", "kind": "word"},
+    {"reading": "er'ji'dai", "text": "耳机袋", "kind": "word"},
+    {"reading": "shou'na'bao", "text": "收纳包", "kind": "word"},
+    {"reading": "wai'tao'kou'dai", "text": "外套口袋", "kind": "word"},
+    {"reading": "ku'zi'kou'dai", "text": "裤子口袋", "kind": "word"},
+    {"reading": "zuo'wei'di'xia", "text": "座位底下", "kind": "word"},
+    {"reading": "zhao'ling'qi'shi", "text": "招领启事", "kind": "word"},
+    {"reading": "ji'cun'chu", "text": "寄存处", "kind": "word"},
+    {"reading": "yi'luo'wu'pin", "text": "遗落物品", "kind": "word"},
+    {"reading": "wu'pin'gui'shu", "text": "物品归属", "kind": "word"},
+    {"reading": "ling'qu'deng'ji", "text": "领取登记", "kind": "word"},
+    {"reading": "zhe'ge'neng'jie'wo'liang'tian'ma", "text": "这个能借我两天吗", "kind": "word"},
+    {"reading": "wo'ming'tian'dai'lai'huan'ni", "text": "我明天带来还你", "kind": "word"},
+    {"reading": "xian'fang'wo'zhe'li'bao'guan", "text": "先放我这里保管", "kind": "word"},
+    {"reading": "dong'xi'wo'ti'ni'shou'zhe", "text": "东西我替你收着", "kind": "word"},
+    {"reading": "jie'zou'qian'gen'wo'shuo'sheng", "text": "借走前跟我说声", "kind": "word"},
+    {"reading": "huan'de'shi'hou'gao'su'wo", "text": "还的时候告诉我", "kind": "word"},
+    {"reading": "zan'shi'fang'ni'na'bian'ba", "text": "暂时放你那边吧", "kind": "word"},
+    {"reading": "wo'yong'wan'jiu'song'hui'lai", "text": "我用完就送回来", "kind": "word"},
+    {"reading": "jie'yong'ji'lu", "text": "借用记录", "kind": "word"},
+    {"reading": "gui'huan'shi'jian", "text": "归还时间", "kind": "word"},
+    {"reading": "lin'shi'bao'guan", "text": "临时保管", "kind": "word"},
+    {"reading": "wu'pin'jiao'jie", "text": "物品交接", "kind": "word"},
+    {"reading": "jie'yong'qi'xian", "text": "借用期限", "kind": "word"},
+    {"reading": "jie'huan'deng'ji", "text": "借还登记", "kind": "word"},
+    {"reading": "dai'wei'bao'guan", "text": "代为保管", "kind": "word"},
+    {"reading": "zan'cun'wu'pin", "text": "暂存物品", "kind": "word"},
+    {"reading": "ji'cun'ping'tiao", "text": "寄存凭条", "kind": "word"},
+    {"reading": "bao'guan'xiang", "text": "保管箱", "kind": "word"},
+    {"reading": "chu'wu'gui", "text": "储物柜", "kind": "word"},
+    {"reading": "jie'yong'ren", "text": "借用人", "kind": "word"},
+    {"reading": "wu'pin'qing'dan", "text": "物品清单", "kind": "word"},
+    {"reading": "yuan'yang'gui'huan", "text": "原样归还", "kind": "word"},
+    {"reading": "dang'mian'jiao'huan", "text": "当面交还", "kind": "word"},
+    {"reading": "jie'shu'ka", "text": "借书卡", "kind": "word"},
+    {"reading": "jie", "text": "借", "kind": "word"},
+    {"reading": "huan", "text": "还", "kind": "word"},
+    {"reading": "gei", "text": "给", "kind": "word"},
+    {"reading": "shu", "text": "书", "kind": "word"},
+    {"reading": "na", "text": "拿", "kind": "word"},
+    {"reading": "fang", "text": "放", "kind": "word"},
+    {"reading": "dai", "text": "带", "kind": "word"},
+    {"reading": "yong", "text": "用", "kind": "word"},
+    {"reading": "guo", "text": "过", "kind": "word"},
+    {"reading": "wan", "text": "完", "kind": "word"},
+    {"reading": "hui", "text": "回", "kind": "word"},
+    {"reading": "zhao", "text": "找", "kind": "word"},
+    {"reading": "dao", "text": "到", "kind": "word"},
+    {"reading": "jia", "text": "家", "kind": "word"},
+    {"reading": "zhe", "text": "这", "kind": "word"},
+    {"reading": "ben", "text": "本", "kind": "word"}
   ],
   "continuations": [
     [
@@ -8371,6 +8435,118 @@
       [
         "收到后回我一下，我好确认有没有漏发。",
         "收到后回我一下，不着急，方便时回复就好。"
+      ]
+    ],
+    [
+      "钥匙忘在家里了",
+      [
+        "钥匙忘在家里了，我得回去拿一趟。",
+        "钥匙忘在家里了，你先进去吧。"
+      ]
+    ],
+    [
+      "包里再找一下",
+      [
+        "包里再找一下，看看侧边的口袋。",
+        "包里再找一下，可能夹在本子中间了。"
+      ]
+    ],
+    [
+      "你看到我的钱包了吗",
+      [
+        "你看到我的钱包了吗？刚才好像还在这里。",
+        "你看到我的钱包了吗？我去问问前台。"
+      ]
+    ],
+    [
+      "这把伞是谁的",
+      [
+        "这把伞是谁的？我先放在门口。",
+        "这把伞是谁的？走的时候别忘了拿。"
+      ]
+    ],
+    [
+      "东西忘在车上了",
+      [
+        "东西忘在车上了，我联系一下司机。",
+        "东西忘在车上了，你帮我看看后排。"
+      ]
+    ],
+    [
+      "帮我留着先别扔",
+      [
+        "帮我留着先别扔，我晚点来取。",
+        "帮我留着先别扔，那是我还要用的。"
+      ]
+    ],
+    [
+      "我晚点过去拿",
+      [
+        "我晚点过去拿，你先替我收好。",
+        "我晚点过去拿，出发前再联系你。"
+      ]
+    ],
+    [
+      "找到了就在桌上",
+      [
+        "找到了就在桌上，刚才被纸挡住了。",
+        "找到了就在桌上，我这就收起来。"
+      ]
+    ],
+    [
+      "这个能借我两天吗",
+      [
+        "这个能借我两天吗？周末我就还给你。",
+        "这个能借我两天吗？我想带回去试试。"
+      ]
+    ],
+    [
+      "我明天带来还你",
+      [
+        "我明天带来还你，今天先放在我包里。",
+        "我明天带来还你，谢谢你借给我用。"
+      ]
+    ],
+    [
+      "先放我这里保管",
+      [
+        "先放我这里保管，你走的时候再拿。",
+        "先放我这里保管，免得一会儿找不到。"
+      ]
+    ],
+    [
+      "东西我替你收着",
+      [
+        "东西我替你收着，回来记得找我拿。",
+        "东西我替你收着，就放在柜子里面。"
+      ]
+    ],
+    [
+      "借走前跟我说声",
+      [
+        "借走前跟我说声，我好知道东西在哪。",
+        "借走前跟我说声，用完放回原处就行。"
+      ]
+    ],
+    [
+      "还的时候告诉我",
+      [
+        "还的时候告诉我，我看看有没有漏下的。",
+        "还的时候告诉我，我们约个方便的时间。"
+      ]
+    ],
+    [
+      "暂时放你那边吧",
+      [
+        "暂时放你那边吧，我回头来拿。",
+        "暂时放你那边吧，别跟别人的混在一起。"
+      ]
+    ],
+    [
+      "我用完就送回来",
+      [
+        "我用完就送回来，不会耽误你用。",
+        "我用完就送回来，谢谢你帮忙。"
       ]
     ]
   ]

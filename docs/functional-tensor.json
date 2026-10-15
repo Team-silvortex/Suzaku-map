@@ -2,10 +2,10 @@
   "schema_version": 1,
   "snapshot": {
     "date": "2026-10-15",
-    "head": "04ddfcc8a8724ccd7d7a389167aa0f0a2fc25405",
+    "head": "ef0e920c9b11f45085d44e1b23c7d7da5a44731a",
     "dirty": true,
-    "source_sha256": "5bd038045dcfc450a7edd5f9ca356dfb680138588962a967ce42604fb4b21997",
-    "note": "2026-10-15在0.9.0源码04ddfcc之后的未提交文件/照片分享词库及原生门禁修复；head记录父提交，版本/build仍0.9.0/40。E-native-core-sessions保留CI38385254322的core120秒退出124及聚合失败，拆为四个必需私有会话，原断言/120秒不变，普通/行内完整本地通过；不代替新精确提交的CI和accepted包，发布仍暂停。E-daily-sharing记录EN8搭配16句、ZH24读音8语境16句、JA12读音6语境12句，旧数据/25包/SDK保留；额外中文长词移后保护旧短词首屏，解码器/公式/容量不变。准确本地范围与原始失败见DEVELOPMENT。E-pack-boundaries、E-model-boundaries/E-model-legacy、E-daily-devices和日语办事/天气/清洁已纳入0.9.0；CI38348392943失败及六分区修复见E-ci-vocabulary-sessions。功能/实现/关联仍69/49/79，不因词量/测试提高人工序数评分；旧证据不等于个人安装、实体键盘、真实模型、跨平台原生或精确发布验收。源指纹仅覆盖implementations.paths/tests，含新sharing、中文排序及实际原生分区/历史投影守卫，不是整个仓库。"
+    "source_sha256": "45fe082404a98ab162123a4d7630a38a35d62f0a21c89eee26c268e31ed75f10",
+    "note": "2026-10-15准备0.9.1源码候选，版本/build0.9.1/41；head ef0e920为准备时父提交，dirty说明此清单采样于提交前工作区。纳入分享/物品寻找/借还/基础读音及候选来源工作，历史未发布/未提交标题与分轮结果保留其当时范围，不代表本候选缺少这些改动。EN6143/773/1510、ZH3178/767/1532、JA522/262/523，25包/SDK与模型协议及容量保持。最新E-chinese-compound-sources采用私有finished_count和可见PrefixWord严格扩展secondary真实finishedSentence的证据，保旧作者来源；此前bare来源与单末字句位保护一并纳入，未宣称所有分数/页位原样。6fixture3d153439…4兼容过2缺口败→6原样过；3unit和独立compound边界保留各自执行范围。初新test比较错误、长na ben shu gei ni满12竞争缺失及里/lian失败留档；内置那/里未加，显式采用后reseed不是全拼长branch修复或实键盘/IBus验收。版本首轮全量抓到旧学习包きょうかし教科書第二句落至index7，失败保留。仅原首个补全为唯一整读音Word且纠正而非延长贪心首词、双作者句实际存在时共享句位；保kyouyu/ほぞんさ旧后页、Word序/权重、4句/6格/12项/256窗口与模型竞争。冻结新增study b2a5ba8c先真实页位失败后原样过，初漏kind编译错误另记；五组日语41过非全仓结果。版本全量结果见DEVELOPMENT的0.9.1记录，不借旧1052/1032等定向数当全仓重验。旧04ddfcc CI38385254322失败保留，父ef0e920 CI38709250004成功也不接受新版本。用户授权新提交CI与包全部验收后发布，暂不建标签/Release，不用旧包。无个人安装/服务改动，实际模型/物理键盘/其他平台原生未新增验收。69功能/49实现/79关联/全部评分不变，摘要仅覆盖implementations.paths/tests；提交前采样不是包source_dirty状态。"
   },
   "architectures": [
     {
@@ -394,7 +394,9 @@
         "tests/daily_repairs_english.rs",
         "tests/daily_laundry_english.rs",
         "tests/daily_devices_english.rs",
-        "tests/daily_sharing_english.rs"
+        "tests/daily_sharing_english.rs",
+        "tests/daily_belongings_english.rs",
+        "tests/daily_borrowing_english.rs"
       ]
     },
     {
@@ -434,6 +436,17 @@
         "tests/daily_laundry_chinese.rs",
         "tests/daily_devices_chinese.rs",
         "tests/daily_sharing_chinese.rs",
+        "tests/daily_belongings_chinese.rs",
+        "tests/daily_borrowing_chinese.rs",
+        "tests/chinese_lending_characters.rs",
+        "tests/chinese_giving_characters.rs",
+        "tests/chinese_action_characters.rs",
+        "tests/chinese_result_characters.rs",
+        "tests/chinese_arrival_characters.rs",
+        "tests/chinese_reference_characters.rs",
+        "tests/chinese_continuation_provenance.rs",
+        "tests/chinese_compound_sources.rs",
+        "tests/chinese_compound_boundaries.rs",
         "tests/chinese_prefix_priority.rs",
         "tests/chinese_partial_sentence_probe.rs",
         "tests/chinese_partial_continuation.rs",
@@ -476,6 +489,8 @@
         "tests/daily_weather_japanese.rs",
         "tests/daily_cleaning_japanese.rs",
         "tests/daily_sharing_japanese.rs",
+        "tests/daily_belongings_japanese.rs",
+        "tests/daily_borrowing_japanese.rs",
         "tests/japanese_cleaning_coexistence.rs",
         "tests/japanese_authored_backfill.rs",
         "tests/japanese_completion_backfill.rs",
@@ -1582,6 +1597,76 @@
       "note": "保持十四JSON字节、ID/版本/顺序和默认catalog结构，显式details/inspect只读统计原始声明记录，不读注册表/初始化运行词库；索引单元复用旧预算，不冒充唯一词数或兼容/许可证明。SDK拒绝文本充集合，保留生成器和顺序，权威校验/原子无覆盖发布不变。新增中英日手工统计、坏注册表隔离与参数/文件边界回归；目录逐项核对manifest与分发清单，两个README加入包和smoke断言。实跑范围和原始失败见开发记录，不提高成熟度；未实际打包安装/原生键盘/远端CI验收。"
     },
     {
+      "id": "E-chinese-compound-sources",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "src/languages/chinese.rs", "tests/chinese_compound_sources.rs", "tests/chinese_compound_boundaries.rs", "tests/chinese_continuation_provenance.rs", "tests/chinese_reference_characters.rs"],
+      "scope": "2026-10-15私有同音包复合输入下，已显示Prefix Word严格扩展真实已完成Sentence分支时保留其作者续句",
+      "note": "私有na那包使na guo lai显示拿国来得及吗却丢原两句，原拿过来Word与自己两句仍在；不混同最终12裁剪。新增私有DecodedPinyin.finished_count在原finished去重take5后、Prefix extend前保存；公开Vec wrapper、旧搜索body/排序/限额/字面prefix恢复语义保持，前文只加到text不重算count。补源须primary dictionaryWord、skip5后已可见PrefixWord、strict扩展secondary真实finished Sentence；不取主Word/等值/子串/伪finished PrefixSentence/缺失或早位项。用现有authored(false)/suffix匹配，原mixed尾后追加去重，无硬编码新词/来源索引/typed缓存。可用来源有界扩充，最终6/12、beam24/completions64/权重公式/模型native协议不改。初新测试直接比较Lexicon无PartialEq编译错留档，只改serde比较；初6项3过3败含两来源fail及长na ben shu gei ni新branch在满12被裁，后者明确未修，不修改产品追它。缩小直接拼接为那本书/我要那本书/我那，另验显式选那/那本书后reseed续给你，保7横空白与短/长Unicode前文；不是全拼长branch修复或真实键盘/IBus采用实测。生产修改前最终6fixture3d153439b8ee0948130db231377817d1bb993b7f14bd2394c8ece746c69526b9冻结：4兼容过2缺口败，fix后6不改过；原5Words/6作者句/literal仍在12内可选并once提交撤回，原primary100/Word相对序保持但包新增后score/page可变，新增那分支不保证全显示。disabled13全向量及旧reference30不改，bare引号数值/坏split/保护token/7行/3合成模型前后pool保持；3新unit验证finished provenance与metadata恢复。审查后另加compound_boundaries独立fixture5e39895df5dd90d314f6dde0d035570d2554d879746e64505ce5efe6fd7981ea，直接测复合引号数值/URL标识/换行原文，不改最终6fixture。原三语JSON/外层mixer/12旧fixture/旧bare来源fixture/25包SDK逐字保持；可逆投影还原整个旧源，含搜索与旧断言。ZH仍3178/767/1532，内置那/里及长分支裁剪仍待处理。无安装/版本/发布/全仓/native/实模/物理键盘/跨平台/远端验收声明，不提高评分。"
+    },
+    {
+      "id": "E-chinese-prefix-sources",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "src/languages/chinese.rs", "tests/chinese_continuation_provenance.rs", "tests/chinese_reference_characters.rs"],
+      "scope": "2026-10-15裸完整单作者读音、多同音Word时保留原四Prefix整词的作者句来源；不新增词库",
+      "note": "同音Exact须有不同Word文本，只恢复原root Prefix前四中conversions第六项以后实际可见的Word；按整词context精确查询，在旧mixed全部结果后稳定追加去重。不重置四Prefix预算、不取第五extra/后来finished/紧凑多音节猜测。ta/hao/you已有太好了/好久不见/优先级对句恢复，旧primary/7Word相对序/label/source/scorebits及raw55保持；新Sentence占正常首页句位，affected完整帧/页位有意改变。七引擎fixture SHA256 6b435ad0f573c7bc855ad5c82b0b6fbc7839b6b8ce658af7e3fca5acde1f7c8b先冻结，真实before3兼容pass4缺口fail，fix后7不改pass。13真旧全向量含shijian/shi jian/na/na guo lai/haimeishu，前轮30也不改；case/tone/末尾横空白、选词重设、明确once提交撤回、原文、引号数字/七行/token及三合成模型失败覆盖。3新helper测试原2pass1新断言fail：把engine去重后输出误当raw mixed，留原日志，只修正新断言为旧5Word prefix，生产与7fixture不改后3pass。私有na那单行包enable/disable两新进程，原闹钟对句不丢且builtin未变；无个人store/服务/配置。未证明那复合输入，内置那未加，里/lian分段风险仍在。ZH3178/767/1532，三语数据/六旧char/六日用fixture/旧断言/25包SDK逐字保留；decoder/normalize/mixer/weight/beam/final6与12/model协议未改，来源可用性窄范围扩充。61结果组1042pass0fail2原自选模型诊断ignore：60相关集成462和完整lib580（55.44秒，另2ignore），新7+3已计其中。初Clippy只报新fixture复杂type，保留失败，仅提取SourceCase声明别名，全部输入/断言/旧向量/生产字节不改；反转此声明精确恢复冻结6b435ad0…，当前fixture92a957098500685c792fa6253133e910ae4ec9c1c45d537789685791ff4e6fd9。别名后同7项再过不重复计数，strict all-target Clippy28.79秒通过，格式/diff/raw保持/29双解释器tensor守卫/11shipping守卫/250links通过。独立只读复审无阻断，保留全部已知范围。无安装/版本/发布变化，非全仓/native/物理键盘/实模/跨平台/远端验收，不提高评分。"
+    },
+    {
+      "id": "E-chinese-reference-chars",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/zh-Hans.json", "src/languages/chinese.rs", "tests/chinese_reference_characters.rs", "tests/chinese_arrival_characters.rs", "tests/chinese_result_characters.rs", "tests/chinese_action_characters.rs", "tests/chinese_giving_characters.rs", "tests/chinese_lending_characters.rs", "tests/lexicon_resources.rs", "tests/japanese_internet_catalog.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-15最终zhe这/ben本两独立Word；里/那方案未验收，未改分段",
+      "note": "3178读音/767语境/1532作者句，无新增语境/模板句。最终组合这本书/我用这/我拿这本书/这本书给你/我有这本书为Sentence；旧这个/这边/在哪里/本周/本地模型等Word不是新增。初计划li里/zhe这/na那，源审核发现那将旧闹钟移出5路径作者来源窗，故暂缓。里/这冻结221557dc…before2过7缺口，append后8过1回归：lian变里安，另边界unit红测也留档。全局限制会改xian/nian/qian等旧分解及tone/包行为，因此未实现，实验unit不以忽略留在源码；恢复a829f6ae…旧原始数据和原decoder，只改为最终两词，未冒称解决里/那问题。最终新9fixture883952a3afd704129d6ebbcae57f60ac220e9f6dcb8f7aa5dd5752c098605c6a：真实新before采样、冻结后2兼容pass7缺口fail、最终append后9不改pass。30真实旧全向量含lian/xian/nian/qian/na/na guo lai及短prefix/前6字/分页，仍保原闹钟/本地模型对句、整词/同音序、decoder4和mixed第五旧词可选。采用重设、这本书续写、横空白/Unicode前文、混合汉字、once提交撤回、原文/case/tone/数字引号/坏拆分/保护token/七行边界/三合成失败均验，非物理键盘/实际模型。新raw前置投影恢复a829f6ae589bc865225513e4dc5c5ede957bbb39307e7a9432973f13b254ead0旧字节；五旧charfixture只total3176到3178，旧窗口/hash/断言保持，原九组16包加2flow不改旧cases/cohorts/配额。ENJA/六日用fixture/25包SDK/production算法/权重/预算/协议保持，Chinese源只unit总数。最终60结果组1032pass0fail2原自选模型诊断ignore：59相关集成455、完整lib577（66.59秒，另2ignore），最终新9不重复计，拒绝的里/分段unit红测不计验收；严格Clippy42.37秒、格式/字节保留/29双解释器守卫/11分发守卫/250链接通过。不借旧结果，不外推全仓/native/键盘/实模/跨平台/远端验收，不改安装/版本/发布跟进。"
+    },
+    {
+      "id": "E-chinese-arrival-chars",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/zh-Hans.json", "src/languages/chinese.rs", "tests/chinese_arrival_characters.rs", "tests/chinese_result_characters.rs", "tests/chinese_action_characters.rs", "tests/chinese_giving_characters.rs", "tests/chinese_lending_characters.rs", "tests/lexicon_resources.rs", "tests/japanese_internet_catalog.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-15基础结果字后追加dao到/jia家两个独立Word；纯数据、非语义修复",
+      "note": "3176读音/767语境/1532作者句，无新增context/模板句。找到/我找到/我找到书了/拿到书/我的家/你的家为新组合Sentence；旧到家/回家/到了/我家/家人Word主项，以及找到了/带到家/回到家/我到家了/我回家旧组合保持，不能冒充新增。新9tests SHA b9b55f2a8f307682df527ae5062a49199854d62d8d297c377c7b67a652642651先冻结：before2兼容pass7缺口fail，只追加2map和维护total后9原样过。16真旧全向量保更短prefix/前4字/hai mei zhao da/到家hou/旧歧义；原decoder4相对序和第五mixedextra全可选，旧拿倒水保留，不保新裸字/部分输入的旧主项/分数/页位。采用重设后到家/家人连续为Word，保字间横空白为Sentence；拿dao/回到jia/到jia的准确角色与到家原两句、Unicode冻结前文/once提交撤回/原文/大小写tone/数字引号/坏拆分/保护token/七行边界/三合成模型失败均验，非物理键盘或实际模型。无独立里/这里，非任意拼音/声调消歧。raw新前置投影恢复927b8940451a0e2d585ed35b8acd3634c8ea21d3e7162d0e06c79a4340c28ea4字节；四旧charfixture仅当前总数3174到3176，旧窗口/golden/行为不改，九组16包只另加2flow，原cohort/配额保持。EN/JA/六日用fixture/25包SDK/production算法/权重/预算/协议保持，Chinese源只unit总数。最终59结果组1023pass0fail2原自选模型诊断ignore：58相关集成446、完整lib577（57.54秒，另2ignore），新9不重复计；严格Clippy46.92秒、格式/字节保留/29双解释器守卫/11分发守卫/250链接通过。不借旧结果，不外推全仓/native/键盘/实模/跨平台/远端验收，不改安装/版本/发布跟进。"
+    },
+    {
+      "id": "E-chinese-result-chars",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/zh-Hans.json", "src/languages/chinese.rs", "tests/chinese_result_characters.rs", "tests/chinese_action_characters.rs", "tests/chinese_giving_characters.rs", "tests/chinese_lending_characters.rs", "tests/lexicon_resources.rs", "tests/japanese_internet_catalog.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-15基础动作后追加guo过/wan完/hui回/zhao找四Word映射；非声调或语义消歧",
+      "note": "当前3174读音/767语境/1532作者句，无新语境/模板句；三个新独立读音加一同音，guo仍国优先，已知读音组合用完/我回去/我找书/我用过为Sentence，非任意字库。12真旧全向量、完整词/同音主项及decoder4相对序/旧extra可选保持。新9tests最初3a81…在新数据8/1：错误假设中间空格仍是整词及其作者对；精确恢复pre-data5e5bf325…并实际采样确认原Sentence角色和原尾部两句，纠正新fixture，失败证据保留。重新冻结4b7217019cafc0add8e3da73a95640ab7e81e11fe68d204714461b05f5f4309f，再before2兼容pass7缺口fail、append后9不改pass。采用重设/混合/空白/Unicode前文/once提交撤回/原文/数字引号/坏拆/七行边界/三合成失败均覆盖，非物理键盘/实模。原始投影前置恢复5e5bf…旧字节；旧三charfixture仅当前总数3170到3174，旧窗口/行为不改。九组16包另增四flow，原cohort/配额不变；EN/JA/六日用fixture/25包/SDK及算法/分值/容量/协议保持，Chinese源只unit总数。最终58结果组1014pass0fail2原自选模型诊断ignore：57相关集成437、完整lib577（55.99秒，另2ignore），新9不重复计；严格Clippy41.46秒、格式/字节保留/29双解释器守卫/11分发守卫/250链接通过。不借前轮结果，不外推全仓/native/键盘/实模/跨平台/远端验收，无安装/版本/发布跟进更改。"
+    },
+    {
+      "id": "E-chinese-action-chars",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/zh-Hans.json", "src/languages/chinese.rs", "tests/chinese_action_characters.rs", "tests/chinese_giving_characters.rs", "tests/chinese_lending_characters.rs", "tests/lexicon_resources.rs", "tests/japanese_internet_catalog.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-15基础给书之后追加na拿/fang放/dai带/yong用4个独立Word读音",
+      "note": "3170读音/767语境/1532作者句，无新context/模板句。组合我拿书/我放书/我带书/我用书、拿给你/用一下为Sentence；旧我防水/用一下就还Word仍可提交，采用重设/横空白/混合汉字复用旧词句/Unicode冻结前文/once提交撤销/正确tone容忍但非消歧/引号数字/坏拆分/URL/七跨行/三类合成模型失败均验。新9tests SHA8f0267a3a3ae68c2e11446868365d95b9d9a2a1b057c155780fcf884797260fa先冻结：pre-data2兼容pass7缺口fail、只append4map和total后9不改pass。10真旧全向量保护短前缀及huan ge/haimeishu；完整那边/哪天方便/哪个更好/放心/代码等主项及使用四同音序不动，旧decoder4相对序和mixed额外旧词全可选，不保裸动作/半截旧分值/页位。不是任意Pinyin/声调或语义修复，拿guo lai仍不承诺拿过来，未做物理键盘。新raw投影恢复旧96852c…原字节，旧全部reading/flag/context/六日用fixture/EN/JA/25包/SDK保持；两旧charfixture只current count3166到3170，旧窗口/行为不改；九组16包新增四flow，旧cohorts/断言/配额原封。Chinese代码只unit总数，前轮mix与来源/分页实现本轮字节不变。最终57结果组1005pass0fail2原自选诊断ignore：56受影响集成428、完整lib577（另2ignore），9新项不重复计；严格Clippy39.49秒、格式/字节/29双解释器守卫/11分发守卫/250链接过。范围见开发记录，不借996/484/524/1055，不外推全仓/native/实模/键盘/跨平台/性能/CI交付，无安装/版本/发布跟进更改。"
+    },
+    {
+      "id": "E-chinese-giving-chars",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/zh-Hans.json", "src/languages/chinese.rs", "src/ime/candidate_mix.rs", "tests/chinese_giving_characters.rs", "tests/chinese_lending_characters.rs", "tests/lexicon_resources.rs", "tests/japanese_internet_catalog.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-15基础借还读音之后追加gei→给、shu→书两Word映射",
+      "note": "仅gei给/shu书两Word，无新context/作者句。已知读音组合/采用续写/边界/长前文/once提交撤回及三类合成模型失败；旧同音/完整词/六向量/broad可选保持，不保mixed extra位置。暂缓ge个。新fixture首次89a0…误标蔬菜为decoder第四词而8/1，before/source证据纠正为水果并保五旧词；恢复49fd40d8…资源，重冻结bccc744c11aec6fa71cc2ea527091b3fb24358a91db5d96e72d64f1bca36fd2a，pre-data2pass7缺口fail、追加后9不改pass。55targets初418/1真回归：新还没书使还没睡第二句掉页；新unit先fail，原[Sentence,紧邻整词Word]且只末Unicode字不同/Word自身作者对限定句子竞争槽，四重排共用。旧carry两fail促收紧末字条件，其多字歧义/第二页与chumen等旧断言不改；134-target中断诊断不计验收。长稿另先红后绿，复用安全tail及精确prefix/gap，模型256不改；第三unit验证非空模型/句偏好竞争，非钉死本地句，限5原文优先。旧lending仅当前总数/SHA维护，所有旧行为断言/六日用fixture/EN/JA/25包/SDK保留，新raw投影前置、九组16包加两flow。生产只来源/条件分页，不改decoder/权重/容量/协议。最终56结果组996pass0fail2原自选诊断ignore：55受影响集成419、完整lib577（另2ignore），新9+3不重复计；严格Clippy40.80秒、格式/字节/29双解释器守卫/11分发守卫/250链接过。范围见开发记录，不借旧结果，不外推全仓/native/实模/键盘/跨平台/延迟/CI交付，无安装/版本/发布跟进更改。"
+    },
+    {
+      "id": "E-chinese-lending-chars",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/zh-Hans.json", "src/languages/chinese.rs", "tests/chinese_lending_characters.rs", "tests/lexicon_resources.rs", "tests/japanese_internet_catalog.rs", "tests/offline_pack_quality.rs"],
+      "scope": "2026-10-15在未提交借还批次后补jie→借和huan→还基础Word读音",
+      "note": "仅两条读音，无新context/作者句。先真实runtime采样，冻结9个完整候选向量指纹及9tests SHA cad6a0fe8b97b2ea15f23b2a5c496988824b64a8739d939ef4ccd66e258a6a49；pre-data2旧行为通过7缺口失败，追加后9项不改通过。新裸单字沿既有Exact优先于Prefix，旧broad词仍12项内可选，不保证原分数/全部首页；完整compound/同音结束先于借书、更短前缀和hai别名向量保持。wo jie ni保留我接你主项并提供我借你，已知读音可组合借还/我还你；采用、Space、重设、混合/长前文、一次提交撤回、三类合成失败及原文/数字/引号/错分/换行保护。不是任意字库或tone消歧，jie4shu1仍结束优先。新raw投影恢复原5856488e…，全部历史投影/旧两批fixture/EN/JA/25包/SDK保留；新增两字/两拼接span进入原九组16包共存。生产只同步一unit总数，算法/分值/beam/容量/协议不改。55顶层结果组484通过零失败零忽略：54中文核心/日用/主题包及共享资源/九组词包/回退/边界/长稿/保真/偏好targets410，语言库unit74（另502过滤），新9项不重复计数。严格Clippy39.91秒、格式/字节保留/29项双解释器守卫/11分发守卫/250链接过。准确范围另见开发记录，不借用此前结果或外推全仓/native/实模/键盘/跨平台/提交CI发布，不改安装或版本/发布跟进。"
+    },
+    {
+      "id": "E-daily-borrowing",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/en.json", "data/lexicons/zh-Hans.json", "data/lexicons/ja.json", "tests/daily_borrowing_english.rs", "tests/daily_borrowing_chinese.rs", "tests/daily_borrowing_japanese.rs", "tests/lexicon_resources.rs", "tests/offline_pack_quality.rs", "tests/family_pack_japanese.rs", "tests/japanese_internet_catalog.rs"],
+      "scope": "2026-10-15未提交belongings之后的三语借用/归还/临时保管fallback",
+      "note": "新增EN8搭配16句，ZH24读音8语境16句，JA12读音6语境12句。借用期限、带来归还、放回地点、临时代管和返却期限/貸出期間/預け先。各六项测试先冻结，红测4旧词/边界通过14新内容缺口失败；完整/明确半截、三语词与英日句首页/中文句12项内可选、原文、大小写/假名/鼻音/水平空白、采用续写重设、once提交撤回、未知/URL/跨行及三种合成模型失败。新增词句对旧内置和对应语言包无精确重复。精确新增raw范围剥离后恢复上一轮资源SHA，旧物品寻找fixture/全部历史投影指纹/25包/SDK保持，英文6143索引不增长。每语两例追加原九组16包共存；生产语言代码只同步三个unit当前总数，不改算法/分值/容量/模型协议。65顶层结果分组524通过零失败零忽略：64受影响语言/日用/词包/资源/回退/边界/长稿/保真/偏好targets450、语言库unit74（另502过滤），不重复计子输出。18新测试冻结通过，terminal-n7项244.79秒、原九组16包均过；严格Clippy38.67秒，格式/字节/29项双解释器守卫/11分发守卫/250链接过。准确本轮范围见开发记录，不借用1055历史结果，不宣称全仓/原生GUI/实模/物理键盘/跨平台/性能/CI发布验收，无安装或版本/发布跟进更改。"
+    },
+    {
+      "id": "E-daily-belongings",
+      "kind": "historical_run",
+      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/en.json", "data/lexicons/zh-Hans.json", "data/lexicons/ja.json", "tests/daily_belongings_english.rs", "tests/daily_belongings_chinese.rs", "tests/daily_belongings_japanese.rs", "tests/lexicon_resources.rs", "tests/offline_pack_quality.rs", "tests/family_pack_japanese.rs", "tests/japanese_internet_catalog.rs"],
+      "scope": "2026-10-15在ef0e920后的三语寻找物品/确认归属/保管取回fallback",
+      "note": "EN8搭配16句，ZH24读音8语境16句，JA12读音6语境12句。各六项固定预期先红测，4旧词/边界通过、14新内容缺口失败；测试冻结不改。覆盖完整和选定半截、三语词及英日句首页/中文句12项内可选/准确原文、大小写/假名/鼻音/水平空白、采用续写与重设、精确一次提交撤销、旧短词与URL/未知/换行边界、三类合成模型失败。新内容与旧内置及对应语言包无精确重复。剥离精确新增窗恢复父提交资源原字节；全部旧标记/顺序/25包/SDK保持，英文6143索引不增。每语两例追加原九组16包兼容，不刷新旧投影SHA；生产代码只同步三条库unit总数，算法/排序/预算/模型接口不改。136顶层结果分组共1055通过零失败3原有子进程入口忽略：123语言/日用/资源/词包targets为878，12边界/长草稿/模型保真/偏好targets为103，语言库单元74（另502过滤）。十八新测试冻结通过，旧terminal-n7项251.52秒、九组16包共存均过；不重复计子输出。严格Clippy38.79秒、格式/字节保留/29项双解释器盘点守卫/11分发守卫/250链接均过。准确范围与证据见开发记录，非开放式质量、真人键盘、实模、全仓或CI/发布验收，不改日常安装或发布跟进。"
+    },
+    {
       "id": "E-daily-sharing",
       "kind": "historical_run",
       "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/en.json", "data/lexicons/zh-Hans.json", "data/lexicons/ja.json", "src/languages/chinese.rs", "tests/daily_sharing_english.rs", "tests/daily_sharing_chinese.rs", "tests/daily_sharing_japanese.rs", "tests/chinese_prefix_priority.rs", "tests/lexicon_resources.rs", "tests/offline_pack_quality.rs", "tests/family_pack_japanese.rs", "tests/japanese_internet_catalog.rs"],
@@ -2615,6 +2700,8 @@
         2
       ],
       "evidence": [
+        "E-daily-borrowing",
+        "E-daily-belongings",
         "E-daily-sharing",
         "E-daily-devices",
         "E-daily-laundry",
@@ -2656,6 +2743,8 @@
         2
       ],
       "evidence": [
+        "E-daily-borrowing",
+        "E-daily-belongings",
         "E-daily-sharing",
         "E-daily-devices",
         "E-daily-laundry",
@@ -2699,6 +2788,16 @@
         2
       ],
       "evidence": [
+        "E-chinese-compound-sources",
+        "E-chinese-prefix-sources",
+        "E-chinese-reference-chars",
+        "E-chinese-arrival-chars",
+        "E-chinese-result-chars",
+        "E-chinese-action-chars",
+        "E-chinese-giving-chars",
+        "E-chinese-lending-chars",
+        "E-daily-borrowing",
+        "E-daily-belongings",
         "E-daily-sharing",
         "E-daily-devices",
         "E-daily-laundry",
@@ -2744,6 +2843,8 @@
         2
       ],
       "evidence": [
+        "E-daily-borrowing",
+        "E-daily-belongings",
         "E-japanese-romaji-progress",
         "E-japanese-reading-token-progress",
         "E-japanese-punctuation-progress",
@@ -2792,6 +2893,7 @@
         2
       ],
       "evidence": [
+        "E-chinese-giving-chars",
         "E-japanese-backfill",
         "E-prediction-error-boundaries",
         "E-prediction-edit-conflicts",
