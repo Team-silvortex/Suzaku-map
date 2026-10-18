@@ -256,6 +256,222 @@ fn remove_unique_append(source: &mut String, first: &str, after: &str) {
     source.replace_range(start..end, "");
 }
 
+fn builtin_before_daily_aftercare(language: &str, source: &str) -> String {
+    // Restore the exact prior working-tree resources, including messaging and appointments,
+    // before entering the unchanged historical raw-byte projection chain.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            let layers = current["word_layers"].as_array().unwrap();
+            assert_eq!(layers.len(), 43);
+            assert_eq!(layers[42]["id"], "daily_aftercare");
+            assert!(layers[42]["words"].as_array().unwrap().is_empty());
+            assert_eq!(layers[42]["next_words"].as_array().unwrap().len(), 6);
+            assert_eq!(layers[42]["sentences"].as_array().unwrap().len(), 12);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_aftercare\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "2dea601ac30fe1f80072e6147f873b422e21372674da854904425934a14bfc03"
+        }
+        "zh-Hans" | "ja" => {
+            let (readings, contexts, sentences, first_reading, first_context, sha) =
+                if language == "zh-Hans" {
+                    (
+                        3244,
+                        789,
+                        1576,
+                        "zhe'ge'shou'dao'shi'jiu'huai'le",
+                        "这个收到时就坏了",
+                        "83c673262924d5e13b67b1d7f2a4770e056b61bd3a7e63eb4cdc9beef80c7f00",
+                    )
+                } else {
+                    (
+                        556,
+                        279,
+                        557,
+                        "ほしょうしょ",
+                        "保証書",
+                        "040a15ec2176bda35796e3d9849afb631644325b49511e0cfb137e26d3333570",
+                    )
+                };
+            assert_eq!(current["readings"].as_array().unwrap().len(), readings);
+            let values = current["continuations"].as_array().unwrap();
+            assert_eq!(values.len(), contexts);
+            assert_eq!(
+                values
+                    .iter()
+                    .map(|row| row[1].as_array().unwrap().len())
+                    .sum::<usize>(),
+                sentences
+            );
+            remove_unique_append(
+                &mut previous,
+                &format!(
+                    ",\n    {{\"reading\": \"{first_reading}\", \"text\": \"{first_context}\", \"kind\": \"word\"}}"
+                ),
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(
+                &mut previous,
+                &format!(",\n    [\n      \"{first_context}\","),
+                "\n  ]\n}",
+            );
+            sha
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
+fn builtin_before_daily_appointments(language: &str, source: &str) -> String {
+    // Restore the exact prior working-tree resources, including messaging,
+    // before entering the unchanged historical raw-byte projection chain.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            let layers = current["word_layers"].as_array().unwrap();
+            assert_eq!(layers.len(), 42);
+            assert_eq!(layers[41]["id"], "daily_appointments");
+            assert!(layers[41]["words"].as_array().unwrap().is_empty());
+            assert_eq!(layers[41]["next_words"].as_array().unwrap().len(), 8);
+            assert_eq!(layers[41]["sentences"].as_array().unwrap().len(), 16);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_appointments\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "873ed5d19d8ea7074fc145850f1826ea3982d8b3bc1255c4d6fa6933bbd0a5fd"
+        }
+        "zh-Hans" | "ja" => {
+            let (readings, contexts, sentences, first_reading, first_context, sha) =
+                if language == "zh-Hans" {
+                    (
+                        3226,
+                        783,
+                        1564,
+                        "xu'yao'ti'qian'yu'yue'ma",
+                        "需要提前预约吗",
+                        "46f2f6845b4a1f31c8d3fb0bbb4cbd8168b87776e9e41e258db55a56c4a78f86",
+                    )
+                } else {
+                    (
+                        546,
+                        274,
+                        547,
+                        "よやくへんこう",
+                        "予約変更",
+                        "b03caa4651c054067eeca896b9f09746cd5d1c9d905a7d48a18c4b715ee25736",
+                    )
+                };
+            assert_eq!(current["readings"].as_array().unwrap().len(), readings);
+            let values = current["continuations"].as_array().unwrap();
+            assert_eq!(values.len(), contexts);
+            assert_eq!(
+                values
+                    .iter()
+                    .map(|row| row[1].as_array().unwrap().len())
+                    .sum::<usize>(),
+                sentences
+            );
+            remove_unique_append(
+                &mut previous,
+                &format!(
+                    ",\n    {{\"reading\": \"{first_reading}\", \"text\": \"{first_context}\", \"kind\": \"word\"}}"
+                ),
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(
+                &mut previous,
+                &format!(",\n    [\n      \"{first_context}\","),
+                "\n  ]\n}",
+            );
+            sha
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
+fn builtin_before_daily_messaging(language: &str, source: &str) -> String {
+    // Remove only this verified append. The entire older projection/hash chain
+    // below still receives its exact released 0.9.1 bytes, not new goldens.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            let layers = current["word_layers"].as_array().unwrap();
+            assert_eq!(layers.len(), 41);
+            assert_eq!(layers[40]["id"], "daily_messaging");
+            assert!(layers[40]["words"].as_array().unwrap().is_empty());
+            assert_eq!(layers[40]["next_words"].as_array().unwrap().len(), 8);
+            assert_eq!(layers[40]["sentences"].as_array().unwrap().len(), 16);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_messaging\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "09515ef76dc1cd24cef8c8171f2b8058bb11501877fd1e9fc54bf32854fc2e14"
+        }
+        "zh-Hans" | "ja" => {
+            let (readings, contexts, sentences, first_reading, first_context, sha) =
+                if language == "zh-Hans" {
+                    (
+                        3202,
+                        775,
+                        1548,
+                        "gang'kan'dao'ni'de'xiao'xi",
+                        "刚看到你的消息",
+                        "043376c6f148bdd4a4c5dee691c1337bc6819c182e76b9c1a5cd36e0bc96c23a",
+                    )
+                } else {
+                    (
+                        534,
+                        268,
+                        535,
+                        "めっせーじ",
+                        "メッセージ",
+                        "740c452b36eac1c87cd6af083e0bff6aadaac02dd9a0abd9078168c43165d194",
+                    )
+                };
+            assert_eq!(current["readings"].as_array().unwrap().len(), readings);
+            let values = current["continuations"].as_array().unwrap();
+            assert_eq!(values.len(), contexts);
+            assert_eq!(
+                values
+                    .iter()
+                    .map(|row| row[1].as_array().unwrap().len())
+                    .sum::<usize>(),
+                sentences
+            );
+            remove_unique_append(
+                &mut previous,
+                &format!(
+                    ",\n    {{\"reading\": \"{first_reading}\", \"text\": \"{first_context}\", \"kind\": \"word\"}}"
+                ),
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(
+                &mut previous,
+                &format!(",\n    [\n      \"{first_context}\","),
+                "\n  ]\n}",
+            );
+            sha
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
 fn builtin_before_reference_characters(language: &str, source: &str) -> String {
     if language != "zh-Hans" {
         return source.to_owned();
@@ -977,7 +1193,10 @@ fn japanese_internet_preserves_all_eighteen_source_bytes_and_catalog_positions()
         );
     }
     for (language, source, expected) in BUILTIN {
-        let before_references = builtin_before_reference_characters(language, source);
+        let before_aftercare = builtin_before_daily_aftercare(language, source);
+        let before_appointments = builtin_before_daily_appointments(language, &before_aftercare);
+        let before_messaging = builtin_before_daily_messaging(language, &before_appointments);
+        let before_references = builtin_before_reference_characters(language, &before_messaging);
         let before_arrivals = builtin_before_arrival_characters(language, &before_references);
         let before_results = builtin_before_result_characters(language, &before_arrivals);
         let before_actions = builtin_before_action_characters(language, &before_results);

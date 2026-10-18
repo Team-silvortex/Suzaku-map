@@ -1,7 +1,39 @@
 # Alpha limitations and support
 
-0.9.1 targets Ubuntu 24.04 amd64, IBus and X11 / GNOME XWayland. Cross-platform architecture
+0.9.2 targets Ubuntu 24.04 amd64, IBus and X11 / GNOME XWayland. Cross-platform architecture
 does not imply cross-platform stability. Keep another input method available.
+
+- **0.9.2 preparation and finite vocabulary:** local 0.9.2/build-42 validation passes
+  2,313 Rust checks, 19 private UI gates and strict Clippy; exact-commit remote
+  CI/package acceptance is still pending;
+  these notes are not a release or installation receipt. The three message,
+  appointment/queue and aftercare/packaging batches add 100 CJK readings and 122
+  trilingual authored sentences/continuations, not unrestricted generation. English's
+  6,143 indexed forms and their first-occurrence order are unchanged; Chinese/Japanese
+  remain curated dictionaries. Examples do not deliver messages, make reservations,
+  query real queues or determine store/refund policies. Builtin independent 里/那 and
+  the full-pool branch limitations described below remain unresolved.
+  Vocabulary additions may intentionally change candidate positions and weight indices:
+  `包装` gains an exact Word, and `renraku` gains second-page `連絡漏れ` while four
+  older sentence weights decrease by 0.5 under the unchanged formula. This is not a
+  claim that all rankings are identical to 0.9.1. The 25 recommended packs, SDK and
+  16-installed-pack limit are unchanged; both processes still need a restart for
+  pack changes. See [0.9.2 scope and acceptance status](releases/0.9.2.md).
+
+- **0.9.2 performance scope:** five alternating warm release replay pairs on one
+  Linux/Ryzen development machine measure lower candidate-computation mean times for
+  English (33.77%), Japanese builtin (54.06%) and Japanese with nine packs (57.66%).
+  These are local workload measurements, not UI/native-input, cold-start, arbitrary
+  application or real-model latency guarantees. The Japanese immutable Word-form
+  index stores up to three forms per Word once; startup/memory costs were not
+  benchmarked, and it is not a cross-draft input cache. A Chinese per-decode cache
+  trial was withdrawn for marginal benefit and added temporary storage. With its
+  source restored, the final Chinese control is observed slightly slower: mean
+  elapsed time +3.70%, p95 +4.84%; timing variation is possible, but no Chinese
+  acceleration or equal execution time is established. All 419 sampled full
+  candidate vectors are byte-identical across the performance-only comparison on
+  the same expanded data; this is not coverage of every draft or proof of all
+  pre-expansion rankings. See [measurement method and retained negative result](../DEVELOPMENT.md).
 
 - **0.9.1 finite fallback and branch competition:** builtin Chinese still lacks independent
   里/那 readings. Adding 里 experimentally changed `lian` into 里安; that change was rejected,

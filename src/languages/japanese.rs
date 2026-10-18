@@ -3,6 +3,7 @@
 use super::ranked_candidates;
 use crate::ime::{Candidate, LanguagePlugin};
 use crate::lexicon::{EntryKind, Lexicon};
+use std::{collections::HashSet, sync::OnceLock};
 
 fn vocabulary() -> &'static Lexicon {
     crate::lexicon::active("ja").expect("Japanese vocabulary is registered")
@@ -58,12 +59,154 @@ impl LanguagePlugin for JapaneseLanguagePlugin {
 }
 
 pub(crate) fn is_dictionary_word(text: &str) -> bool {
-    vocabulary().readings().iter().any(|entry| {
+    dictionary_word_index().contains(text)
+}
+
+fn dictionary_word_index() -> &'static HashSet<String> {
+    static WORDS: OnceLock<HashSet<String>> = OnceLock::new();
+    // The active catalog is immutable after startup, including enabled packs.
+    // This is membership only: candidate order never comes from set iteration.
+    WORDS.get_or_init(|| dictionary_word_forms(vocabulary()))
+}
+
+fn dictionary_word_forms(lexicon: &Lexicon) -> HashSet<String> {
+    lexicon
+        .readings()
+        .iter()
+        .filter(|entry| entry.kind == EntryKind::Word)
+        .flat_map(|entry| {
+            [
+                entry.text.clone(),
+                entry.reading.clone(),
+                hiragana_to_katakana(&entry.reading),
+            ]
+        })
+        .collect()
+}
+
+#[cfg(test)]
+fn is_dictionary_word_linear(lexicon: &Lexicon, text: &str) -> bool {
+    lexicon.readings().iter().any(|entry| {
         entry.kind == EntryKind::Word
             && (entry.text == text
                 || entry.reading == text
                 || hiragana_to_katakana(&entry.reading) == text)
     })
+}
+
+#[cfg(test)]
+mod dictionary_word_cache_tests {
+    use super::*;
+
+    #[test]
+    fn cached_membership_matches_linear_for_all_active_forms_and_authored_sentences() {
+        let lexicon = vocabulary();
+        for entry in lexicon.readings() {
+            let katakana = hiragana_to_katakana(&entry.reading);
+            for text in [entry.text.as_str(), entry.reading.as_str(), &katakana] {
+                assert_eq!(
+                    is_dictionary_word(text),
+                    is_dictionary_word_linear(lexicon, text),
+                    "{text:?} from {entry:?}"
+                );
+            }
+        }
+        for (_, sentences) in lexicon.continuations() {
+            for text in sentences {
+                assert_eq!(
+                    is_dictionary_word(text),
+                    is_dictionary_word_linear(lexicon, text),
+                    "authored sentence {text:?}"
+                );
+            }
+        }
+        for text in [
+            "",
+            " ",
+            " 日本語",
+            "日本語 ",
+            "\n",
+            "日本語\n",
+            "https://example.invalid/日本語",
+            "🙂日本語",
+            "ﾆﾎﾝｺﾞ",
+            "Ωテスト",
+            "İテスト",
+            "Σ123",
+            "e\u{301}",
+            "日本語\u{200b}",
+            "ニホンゴ\u{fe0f}",
+        ] {
+            assert_eq!(
+                is_dictionary_word(text),
+                is_dictionary_word_linear(lexicon, text),
+                "negative or Unicode probe {text:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn cached_index_is_reused_bounded_and_contains_only_linear_word_forms() {
+        let lexicon = vocabulary();
+        let index = dictionary_word_index();
+        assert!(std::ptr::eq(index, dictionary_word_index()));
+        let word_count = lexicon
+            .readings()
+            .iter()
+            .filter(|entry| entry.kind == EntryKind::Word)
+            .count();
+        assert!(index.len() <= word_count * 3);
+        for text in index {
+            assert!(is_dictionary_word_linear(lexicon, text), "{text:?}");
+        }
+    }
+
+    #[test]
+    fn sentence_readings_do_not_add_word_forms_but_existing_word_aliases_still_match() {
+        let lexicon = Lexicon::from_json(
+            r#"{
+                "format_version": 1,
+                "language": "ja",
+                "readings": [
+                    {"reading":"かな","text":"仮名","kind":"word"},
+                    {"reading":"き","text":"木","kind":"word"},
+                    {"reading":"き","text":"気","kind":"word"},
+                    {"reading":"ぶんしょう","text":"文章です。","kind":"sentence"},
+                    {"reading":"かな","text":"文章かなです。","kind":"sentence"},
+                    {"reading":"ひとこと","text":"仮名","kind":"sentence"},
+                    {"reading":"こうご","text":"カナ","kind":"sentence"}
+                ]
+            }"#,
+        )
+        .unwrap();
+        let index = dictionary_word_forms(&lexicon);
+        assert_eq!(index.len(), 7);
+        for entry in lexicon.readings() {
+            let katakana = hiragana_to_katakana(&entry.reading);
+            for text in [entry.text.as_str(), entry.reading.as_str(), &katakana] {
+                assert_eq!(
+                    index.contains(text),
+                    is_dictionary_word_linear(&lexicon, text),
+                    "{text:?} from {entry:?}"
+                );
+            }
+        }
+        for text in ["仮名", "かな", "カナ", "木", "気", "き", "キ"] {
+            assert!(index.contains(text), "existing Word form {text:?}");
+        }
+        for text in [
+            "文章です。",
+            "ぶんしょう",
+            "ブンショウ",
+            "文章かなです。",
+            "ひとこと",
+            "ヒトコト",
+            "こうご",
+            "コウゴ",
+        ] {
+            assert!(!index.contains(text), "Sentence-only form {text:?}");
+        }
+    }
 }
 
 /// Greedy dictionary segments plus untouched particles. This is a bounded

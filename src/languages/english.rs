@@ -575,17 +575,35 @@ pub(crate) fn mixed_candidates(
     seed: &str,
     context: &str,
 ) -> Vec<(String, crate::ime::candidate_mix::CandidateKind)> {
+    mixed_candidates_from_remainders(
+        seed,
+        sentence_remainders(seed, context)
+            .into_iter()
+            .map(|(_, remaining)| remaining),
+    )
+}
+
+fn mixed_candidates_from_remainders(
+    seed: &str,
+    remainders: impl IntoIterator<Item = &'static str>,
+) -> Vec<(String, crate::ime::candidate_mix::CandidateKind)> {
     use crate::ime::candidate_mix::CandidateKind;
     let mut output = Vec::new();
-    for (_, remaining) in sentence_remainders(seed, context) {
-        let text = if let Some(prefix) = english_word_prefix(seed) {
+    let mut remainders = remainders.into_iter();
+    let Some(first) = remainders.next() else {
+        return output;
+    };
+    let prefix = english_word_prefix(seed);
+    let canonical_prefix = prefix.map(canonical_word);
+    for remaining in std::iter::once(first).chain(remainders) {
+        let text = if let Some(prefix) = prefix {
             let split = remaining
                 .find(|ch: char| !is_word_char(ch))
                 .unwrap_or(remaining.len());
             let word = case_completion(
                 &format!(
                     "{}{suffix}",
-                    canonical_word(prefix),
+                    canonical_prefix.as_deref().unwrap(),
                     suffix = &remaining[..split]
                 ),
                 prefix,
@@ -598,8 +616,11 @@ pub(crate) fn mixed_candidates(
         } else {
             format!("{seed}{remaining}")
         };
-        if output.len() < 6 && !output.iter().any(|(value, _)| value == &text) {
+        if !output.iter().any(|(value, _)| value == &text) {
             output.push((text, CandidateKind::Sentence));
+            if output.len() == 6 {
+                break;
+            }
         }
     }
     output
@@ -664,6 +685,206 @@ pub(crate) fn word_from_continuation<'a>(seed: &str, text: &'a str) -> Option<&'
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // The pre-optimization loop remains an independent ordered-output oracle.
+    // It deliberately renders all remainders, including those beyond six choices.
+    fn linear_mixed_candidates(
+        seed: &str,
+        remainders: impl IntoIterator<Item = &'static str>,
+    ) -> Vec<(String, crate::ime::candidate_mix::CandidateKind)> {
+        use crate::ime::candidate_mix::CandidateKind;
+        let mut output = Vec::new();
+        for remaining in remainders {
+            let text = if let Some(prefix) = english_word_prefix(seed) {
+                let split = remaining
+                    .find(|ch: char| !is_word_char(ch))
+                    .unwrap_or(remaining.len());
+                let word = case_completion(
+                    &format!(
+                        "{}{suffix}",
+                        canonical_word(prefix),
+                        suffix = &remaining[..split]
+                    ),
+                    prefix,
+                );
+                format!(
+                    "{}{word}{}",
+                    &seed[..seed.len() - prefix.len()],
+                    &remaining[split..]
+                )
+            } else {
+                format!("{seed}{remaining}")
+            };
+            if output.len() < 6 && !output.iter().any(|(value, _)| value == &text) {
+                output.push((text, CandidateKind::Sentence));
+            }
+        }
+        output
+    }
+
+    #[test]
+    fn mixed_sentence_rendering_matches_the_old_linear_output() {
+        let mut probes = vec![
+            ("i".to_owned(), "".to_owned()),
+            ("p".to_owned(), "".to_owned()),
+            ("c".to_owned(), "".to_owned()),
+            ("I".to_owned(), "".to_owned()),
+            ("P".to_owned(), "".to_owned()),
+            ("C".to_owned(), "".to_owned()),
+            ("i still have the receip".to_owned(), "".to_owned()),
+            ("i still have the receipt".to_owned(), "".to_owned()),
+            ("i still have the ".to_owned(), "".to_owned()),
+            (
+                "the box is missing the instruction".to_owned(),
+                "".to_owned(),
+            ),
+            ("I’ve taken photos of the DAMAG".to_owned(), "".to_owned()),
+            (
+                "what should i include in the email".to_owned(),
+                "".to_owned(),
+            ),
+            ("i only just saw your messag".to_owned(), "".to_owned()),
+            ("do i need to book ahea".to_owned(), "".to_owned()),
+            ("please let me know the ".to_owned(), "".to_owned()),
+            ("hello—i still have the receip".to_owned(), "".to_owned()),
+            ("前文。i still have the receip".to_owned(), "".to_owned()),
+            (
+                "Earlier note.\ni still have the receip".to_owned(),
+                "".to_owned(),
+            ),
+            (
+                "https://('i still have the receip".to_owned(),
+                "".to_owned(),
+            ),
+            (
+                "file_name_('i still have the receip".to_owned(),
+                "".to_owned(),
+            ),
+            (
+                "unknownprefixi still have the receip".to_owned(),
+                "".to_owned(),
+            ),
+            ("".to_owned(), "".to_owned()),
+            ("  ".to_owned(), "".to_owned()),
+            ("receip".to_owned(), "i still have the".to_owned()),
+            ("receipt".to_owned(), "i still have the".to_owned()),
+            ("DAMAG".to_owned(), "I’ve taken photos of the".to_owned()),
+            ("ahea".to_owned(), "do i need to book".to_owned()),
+            ("rep".to_owned(), "thanks for the quick".to_owned()),
+            ("home ".to_owned(), "i'll reply when i'm".to_owned()),
+            ("receip".to_owned(), "https://i still have the".to_owned()),
+        ];
+        for gap in [" ", "  ", "\t", "\u{a0}", "\u{3000}", "\u{202f}"] {
+            probes.push((
+                format!(
+                    "{gap}{}{gap}addres",
+                    "please let me know the".replace(' ', gap)
+                ),
+                String::new(),
+            ));
+            probes.push((
+                format!("I’ve{gap}taken{gap}photos{gap}of{gap}the{gap}"),
+                String::new(),
+            ));
+        }
+        for separator in [
+            "\n", "\r", "\u{b}", "\u{c}", "\u{85}", "\u{2028}", "\u{2029}",
+        ] {
+            probes.push((format!("i still have{separator}the receip"), String::new()));
+        }
+        probes.push((
+            format!("{}i still have the receip", "前文😀。  ".repeat(100)),
+            "Older context. ".repeat(40),
+        ));
+        probes.push((
+            "receip".to_owned(),
+            format!("{}i still have the", "前文😀。  ".repeat(100)),
+        ));
+        for (seed, context) in probes {
+            let expected = linear_mixed_candidates(
+                &seed,
+                sentence_remainders(&seed, &context)
+                    .into_iter()
+                    .map(|(_, remaining)| remaining),
+            );
+            assert_eq!(
+                mixed_candidates(&seed, &context),
+                expected,
+                "{seed:?} / {context:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn mixed_sentence_rendering_stops_at_the_sixth_unique_output_not_the_sixth_input() {
+        use std::cell::Cell;
+        for seed in ["i", "p", "c"] {
+            let remainders: Vec<_> = sentence_remainders(seed, "")
+                .into_iter()
+                .map(|(_, remaining)| remaining)
+                .collect();
+            assert!(
+                remainders.len() > 6,
+                "{seed}: expected a broad authored prefix"
+            );
+            let rendered = Cell::new(0);
+            let actual = mixed_candidates_from_remainders(
+                seed,
+                remainders
+                    .iter()
+                    .copied()
+                    .inspect(|_| rendered.set(rendered.get() + 1)),
+            );
+            assert_eq!(
+                actual,
+                linear_mixed_candidates(seed, remainders.iter().copied())
+            );
+            assert_eq!(actual.len(), 6);
+            assert_eq!(
+                rendered.get(),
+                6,
+                "{seed}: render no discarded suffixes after filling six choices"
+            );
+            assert!(rendered.get() < remainders.len());
+        }
+        let duplicates = [
+            " am first.",
+            " am first.",
+            " am second.",
+            " am second.",
+            " am third.",
+            " am fourth.",
+            " am fifth.",
+            " am sixth.",
+            " am seventh.",
+        ];
+        let rendered = Cell::new(0);
+        let actual = mixed_candidates_from_remainders(
+            "i",
+            duplicates
+                .into_iter()
+                .inspect(|_| rendered.set(rendered.get() + 1)),
+        );
+        assert_eq!(actual, linear_mixed_candidates("i", duplicates));
+        assert_eq!(actual.len(), 6);
+        assert_eq!(
+            rendered.get(),
+            8,
+            "duplicates must not consume a unique-output slot"
+        );
+        assert_eq!(actual.last().unwrap().0, "i am sixth.");
+        let fewer_unique = [" am first.", " am first.", " am first.", " am second."];
+        let rendered = Cell::new(0);
+        let actual = mixed_candidates_from_remainders(
+            "i",
+            fewer_unique
+                .into_iter()
+                .inspect(|_| rendered.set(rendered.get() + 1)),
+        );
+        assert_eq!(actual, linear_mixed_candidates("i", fewer_unique));
+        assert_eq!(actual.len(), 2);
+        assert_eq!(rendered.get(), fewer_unique.len());
+    }
 
     // Current total, independent of the immutable per-layer historical baselines.
     const EXPECTED_DICTIONARY_WORDS: usize = 6143;
@@ -1976,8 +2197,8 @@ mod tests {
                 "unreachable sentence: {sentence}"
             );
         }
-        assert_eq!(keys.len(), 773);
-        assert_eq!(sentences.len(), 1510);
+        assert_eq!(keys.len(), 795);
+        assert_eq!(sentences.len(), 1554);
     }
 
     #[test]

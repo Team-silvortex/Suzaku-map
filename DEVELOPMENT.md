@@ -3,17 +3,21 @@
 Historical implementation notes, including earlier behavior and experimental platforms.
 Start with the [README](README.md) and [known limitations](docs/known-limitations.md).
 
-Current source version: **0.9.1 — Everyday composition and continuation sources**.
+Current source version: **0.9.2 / build 42 — Everyday fallback and measured candidate hot paths**.
 
+The released baseline is **0.9.1 / build 41**. The **0.9.2 source candidate** includes the everyday-messaging,
+appointment/walk-in and aftercare/packaging follow-ups, plus the retained English/Japanese
+candidate hot-path work. Candidate version synchronization does not change published assets.
 Historical unreleased/uncommitted headings retain their development-time status.
-The 0.9.1 source candidate includes the earlier model/pack organization, sharing,
+The published 0.9.1 baseline includes the earlier model/pack organization, sharing,
 belongings, borrowing, basic Chinese readings and candidate-source repairs below;
 individual validation records retain their original scope. Parent `ef0e920`
 contains sharing and the native core-session repair; those changes are included,
 not new English-provider changes. The additional Japanese pagination repair
-below is part of this release candidate. A source commit
+below was included in 0.9.1. Its preparation-time candidate records remain
+historical. A source commit
 and local validation do not substitute for exact-commit package acceptance.
-See [0.9.1 release notes](docs/releases/0.9.1.md). Earlier failed release runs remain
+See [0.9.2 release notes](docs/releases/0.9.2.md). Earlier failed release runs remain
 historical evidence; their artifacts must not supply this version.
 
 ## Current priority: Chinese and English input on Linux
@@ -52,6 +56,506 @@ checks and clean-container installation checks to pass before publication. Other
 are added only after their own acceptance, not implied by the shared version number.
 This is a release requirement, not a claim that automatic publication is implemented or
 that existing 0.7.x tags already have assets. See [Linux packaging](docs/linux-packaging-data.md).
+
+### 0.9.2 release preparation — 2026 10 16
+
+- Synchronize Cargo/lockfile, Android and both macOS bundle manifests to **0.9.2 / build 42**.
+  Other dependency versions, CI gates, 25 optional packs and their SDK remain unchanged.
+- Relative to released `da7dc6d`, add **22 English contexts / 44 sentences**, **66 Chinese Word
+  readings / 22 contexts / 44 sentences**, and **34 Japanese Word readings / 17 contexts /
+  34 continuations**. Totals: EN **6143/795/1554 (43 layers)**, ZH **3244/789/1576**,
+  JA **556/279/557**. Earlier content/order and all English indexed forms are preserved.
+- Carry the two measured hot-path changes and the rejected Chinese experiment's negative evidence
+  forward unchanged. Historical records below retain their own scope; the earlier scoped 1,417
+  checks are not a complete version acceptance. Final local full regression is recorded here
+  only after it finishes; remote CI and accepted-package verification remain separate gates.
+- User authorized commit/push and automatic Linux Alpha prerelease publication only after this
+  exact new commit passes every required remote gate and its own accepted assets are verified.
+  Do not substitute the successful 0.9.1 run, an old package or local results. No personal
+  installation, input service or configuration is changed by release preparation.
+
+### 0.9.2 final local acceptance — 2026 10 18
+
+- Complete `cargo test --locked --offline --all-features -- --test-threads=1` succeeds:
+  **2,313 passed / zero failed / 32 explicit ignores**, **213 unique result groups**,
+  zero filtered cases. This is a new complete run, not the prior scoped 1,417 or released
+  0.9.1's 2,237. The library contributes 588 passes and two opt-in model ignores.
+  Full `japanese_terminal_n_progress` passes all seven cases (257.09 seconds), including
+  all nine-pack cases previously omitted from scoped acceptance; `release_japanese_tail`
+  passes all eight cases (68.04 seconds). Child-process repetitions are not added again.
+- Separately, `scripts/test-linux-ci.sh ui` passes **19/19** required cases: 18 exact
+  opt-in panel tests and the single-instance executable launch gate. Each runs against private
+  Xvfb/D-Bus/XDG paths; original assertions, test-name checks and per-case deadlines remain.
+  These 19 were explicitly ignored in ordinary Cargo and are reported separately, not as
+  extra ordinary-suite passes. Three other ignored entries are immutable snapshot child
+  entry points invoked by their parent tests. Ten remaining opt-in native/data/settings/model
+  entries are not accepted by this local run; their relevant remote gates remain mandatory.
+- Strict `cargo clippy --locked --offline --all-features --all-targets -- -D warnings`
+  passes in **43.48 seconds**; formatting and diff checks pass. Rust is 1.95.0 on Linux
+  7.0.0-38-generic. Heavy checks run serially with one Cargo job, MemoryHigh=2 GiB,
+  MemoryMax=4 GiB and MemorySwapMax=0. Xvfb's retained MESA/DRI3 informational messages
+  do not prevent any required UI case from passing; no desktop configuration is changed.
+- Source-only checks pass: 29 tensor tests, 25 vocabulary-partition tests through the AST
+  wrapper, 11 offline-pack shipping tests, 18 CI release-graph tests, 250 audit-document links,
+  tensor digest and five-file version consistency. Recovery-time review confirms the same
+  three resources, production sources, 201 prior Rust tests, 25 packs/README and SDK bytes;
+  Cargo.lock differs only in the project's own version. These are not downloaded-package checks.
+- Logs and machine-readable 213-group results are retained in
+  `/tmp/suzaku-release-0.9.2.WEHW51/`; historical performance measurements remain separately
+  in `/tmp/suzaku-input-performance.RlbOfT/`. The final source digest is
+  `7323d4de2864afb9a01006df302f367be8f395818886bd8d921197fab958fa2e`.
+  No local result certifies physical keys in the user's applications, a real model, another
+  native platform, an installed upgrade or release publication. Exact-commit remote CI and
+  accepted-package validation still gate tagging and publication.
+
+### Historical measured local-input hot-path work — 2026 10 16
+
+- Start from `/tmp/suzaku-input-performance.RlbOfT/before-source.tar`, which
+  captures the dirty workspace including all three vocabulary follow-ups,
+  not clean HEAD, a published package or a new version. Keep vocabulary bytes,
+  public model contracts, candidate weights/order, quotas and source provenance
+  unchanged. Version/build remains **0.9.1/41**; no commit, push, release,
+  installation, personal configuration or input-service operation is performed.
+- Retain two narrow leaf optimizations. English computes the current word
+  prefix/canonical form once while rendering authored remainders and stops
+  immediately after its sixth **unique** output; duplicate remainders do not
+  consume a slot. It still performs the existing ordered sentence lookup.
+  Japanese replaces repeated linear Word-membership scans and repeated
+  Hiragana-to-Katakana allocations with one immutable startup-snapshot index
+  of the same Word text, reading and Katakana forms. Set iteration never
+  supplies candidate order. Sentence-only entries do not become Words merely
+  because they are in the resource; existing aliases shared with a Word retain
+  their original classification. This index has a one-time owned-storage cost
+  of at most three forms per Word, rather than zero memory overhead.
+- Investigate, measure and **withdraw** a third change: Chinese per-decode
+  memoization of entry matches at the same normalized byte offset. The
+  prototype retained all Exact matches, the original first four Prefix
+  matches, consumed byte offsets, 24-wide beam, 64 completions and 5/4 output
+  windows. Its reference/evaluation-count tests pass in the experimental
+  phase, but semantics-preserving tests alone do not establish a useful
+  performance gain. It also adds a bounded temporary offset table and
+  per-offset matched-entry vectors to each phonetic decode, albeit released
+  at the end of that call and allocated lazily rather than for pure Han input.
+  Allocation counts or peak RSS were not measured, so no quantified memory
+  saving or regression is claimed.
+- The first five alternating release-process pairs, preserved in
+  `rejected-memo-comparison.json` and `with-memo-rounds/`, show only nominal
+  Chinese mean **140.479 → 137.564 microseconds (-2.08%)** and p95
+  **233.154 → 230.097 microseconds (-1.31%)**. This small difference is not
+  enough to exclude local timing noise or justify the additional temporary
+  storage and complexity. Restore `src/languages/chinese.rs` with an exact
+  patch inverse, including removal of the three experimental tests/helpers,
+  to the dirty before-image rather than HEAD. `cmp` exits zero and both file
+  and archived member have SHA256
+  `14bd1536b3323516e87c286c665caa1c4aea0c6added277ebc85da2ec7019172`.
+  The existing **3,244** reading assertion and all older source remain intact.
+  Preserve phase logs and the rejected benchmark, not the rejected cache.
+- In that exploratory with-memo phase, nominal English mean reduction is
+  **30.84%**, Japanese builtin **55.44%**, and Japanese with nine packs
+  **56.76%**. These are explicitly intermediate measurements, not the final
+  retained-build results. Rebuild and replay the final build without the
+  Chinese memo separately; keep this rejected-phase report rather than
+  replacing it with the newer result. Do not reuse the experimental three
+  extra Chinese units or an earlier vocabulary batch's count as final passes.
+- Final retained-build results in `comparison.json`, from five new alternating
+  release-process pairs on this **Linux 7.0.0-38-generic / Ryzen 7735H** machine:
+  English mean **32.780 → 21.710 microseconds (-33.77%)**, p95
+  **89.958 → 34.605 (-61.53%)**; Japanese builtin mean
+  **223.810 → 102.815 (-54.06%)**, p95 **449.017 → 270.555 (-39.75%)**;
+  Japanese with nine packs mean **326.877 → 138.413 (-57.66%)**, p95
+  **695.868 → 346.937 (-50.14%)**. These are warm local replay measurements,
+  not a universal speedup or a CI timing threshold.
+  Chinese, whose source is restored byte-for-byte, is an explicit negative
+  control: mean **151.248 → 156.844 microseconds (+3.70% elapsed time)** and
+  p95 **254.374 → 266.698 (+4.84%)**. It is observed slightly slower in this
+  replay; run-to-run variation is possible, but neither equal performance nor
+  Chinese acceleration is established. Unchanged candidate results do not
+  imply unchanged execution time. Final post-withdrawal regression and
+  preservation pass as recorded below; strict Clippy also passes.
+- [The replay example](examples/input_hotpath_bench.rs) uses public synthetic
+  draft prefixes and `XRTabletImeEngine::seed`, not personal history or native
+  keys. Reproduce one builtin process with
+  `cargo run --locked --release --all-features --example input_hotpath_bench`;
+  use `cargo run --locked --release --all-features --example input_hotpath_bench -- --ja-packs`
+  for a separate process with nine Japanese packs. Add `-- --vectors` to the
+  builtin command or append `--vectors` after `--ja-packs` to output the public
+  synthetic vector subsets (328 builtin plus 91 pack vectors, 419 together),
+  without native input, personal stores or model requests.
+  Each default timed invocation performs two untimed corpus warmups before
+  timing 30 corpus replays; five paired runs are an external repetition that
+  alternates before/after process order, not five automatic program runs.
+  The comparison takes the median
+  of per-run mean/p50/p95 summaries, not a confidence interval or a pooled
+  statistical-significance result. Builtin English has 130 inputs, Chinese
+  107 and Japanese 91; a separate task-owned store loads the same nine Japanese
+  packs for another 91 inputs. Across five runs of 30 loops, each build has
+  **19,500 English / 16,050 Chinese / 13,650 Japanese builtin / 13,650
+  nine-pack Japanese timed samples**. Pack installation and index construction
+  are outside the warm timing loop; this does not measure startup latency.
+- Freeze [four end-to-end equivalence tests](tests/input_hotpath_equivalence.rs)
+  against the actual saved before-release behavior, SHA256
+  `8531802abcde493d889804c1103189ab8f08e89024ea4a966816e5646633ec8d`.
+  They were genuinely linked against the saved before-release library and
+  pass **4/4** against that baseline, protecting **419 actual complete vectors**
+  including text, label, kind, source, score bits and order. In the final
+  retained build, both builtin and nine-pack JSONL vector files compare
+  **byte-for-byte equal** to their saved before files, and all four replay
+  fingerprints match; this is not hash equality alone. English tests
+  additionally compare against the original
+  rendering loop and count the sixth unique-output stopping point; Japanese
+  tests compare indexed membership against the original linear predicate,
+  including Word/Sentence aliases and negative Unicode probes.
+- Final no-memo regression exits zero: `summary.json` records **1,417 passes /
+  zero failures / three existing explicit ignores** in **114 unique result
+  groups**. These are **113 integration targets / 829 passes**, plus the
+  complete library **588 passes / two ignores** (59.72 seconds). The main
+  command runs 112 integration targets without filters; separately, the
+  terminal-n `builtin_` selection passes three tests and explicitly filters
+  four other cases. Those four are not ignored, accepted or claimed as run;
+  neither the full nine-pack terminal-n matrix nor `release_japanese_tail`
+  is rerun. The two library ignores are opt-in real-model diagnostics; the
+  integration ignore is the English shopping-pack child-only entry point,
+  which its parent test actually invokes. The four final equivalence tests,
+  two new English units and three new Japanese units are already included.
+  Do not add the four before-library checks, the experimental with-memo 88-unit
+  run or child-process output again to these totals.
+- Final preservation checks pass against the **254-path dirty snapshot**.
+  The retained English/Japanese edits and new unit helpers inverse-restore
+  their entire original source files; Chinese is byte-identical without an
+  inverse. All **201 old test files, including the fourteen earlier vocabulary
+  fixtures**, retain their exact input/assertion/golden bytes. The other
+  **246 unchanged paths**, **25 JSON packs / three SDK files**, and
+  **Cargo.toml / Cargo.lock** meet their fixed before-image checks; these
+  overlapping audit categories are not added test counts.
+  Three platform-version files were deliberately absent from this selected
+  snapshot: `android/app/build.gradle.kts`,
+  `src/macos/SuzakuInputMethod-Info.plist` and
+  `src/macos/SuzakuPanel-Info.plist`. They separately match fixed commit
+  `da7dc6d0f2a265c37b365e994b58cf9183182a84`, not a fictitious archived copy.
+  Static checks pass: 29 tensor guards under each of the system and
+  Python 3.12/C-locale interpreters, 25 partition guards, eleven shipping
+  guards, 250 packaged audit-link checks, formatting and diff whitespace.
+  Strict Clippy with `--all-targets --all-features -D warnings` exits zero in
+  **43.51 seconds**. This final acceptance retains the measured Chinese
+  negative control and all scope limitations; it is not new native, real-model,
+  installed-package or release acceptance.
+- This is local warm engine work only. It does not establish UI repaint,
+  native-keyboard/IBus, application compatibility, startup, real-model latency
+  or model-quality improvements. No cross-draft typed-text cache, broader
+  decoder search, new candidate capacity or new vocabulary is retained in
+  this performance batch. The older sections below retain their complete
+  historical content and acceptance scope.
+
+### Unreleased aftercare messages, purchase evidence and packaging — 2026 10 16
+
+- Append to the dirty workspace already containing messaging and appointments,
+  not clean HEAD or a new release. English adds **6 contexts / 12 sentences**,
+  with unchanged **6,143 indexed forms** and **43 ordered layers**; Chinese adds
+  **18 Word readings / 6 contexts / 12 sentences**; Japanese adds **10 Word
+  readings / 5 contexts / 10 continuations**. This is **28 CJK readings and
+  34 authored sentences**. Latest totals are EN **6,143 / 795 / 1,554**, ZH
+  **3,244 / 789 / 1,576**, JA **556 / 279 / 557**. The two earlier batch
+  sections below retain their batch-time totals and acceptance records.
+- Examples include `i still have the receipt`, `bao'zhuang -> 包装`,
+  `gou mai ping zheng zen me ti gon -> 购买凭证怎么提供`, and
+  `hoshousho -> 保証書`. 包装 intentionally gains a complete Word; do not
+  freeze its former prefix-only vector as though this were not enrichment.
+  Related purchase evidence, packaging, return-address and progress requests
+  are finite authored utterances, not store policies, warranty/refund
+  entitlement, transactions or live progress queries. Existing 退货/退款申请/
+  换货/小票还在 and Japanese 領収書/返品/交換/故障/修理 were already covered;
+  previously composable Sentence text must not be called new conversion logic.
+  No standalone 里/那/把 mapping or broader Japanese morphology is added.
+  `henkin` previously only had a Kana fallback; it now gains the independent
+  common Word 返金, without an authored context of its own. This intentional
+  enrichment is distinct from the protected old return/receipt choices.
+- Freeze [English](tests/daily_aftercare_english.rs),
+  [Chinese](tests/daily_aftercare_chinese.rs),
+  [Japanese](tests/daily_aftercare_japanese.rs),
+  [compatibility](tests/daily_aftercare_compatibility.rs) and
+  [nine-pack](tests/daily_aftercare_packs.rs) fixtures before the data append.
+  Their respective SHA256 values are:
+  `20089c1f78964560a4d031d1e1da29bd1ba01b2b2ea1cf8c1f3099c0a501c898`,
+  `865927fb2b0e8cab2ef3ceb92d83883fffc7bf9790aafb8114976a18fdaf0f51`,
+  `abb055b2d7c4250157dfd20406665f806f2af9e8103d99c0d12d0df630377c42`,
+  `70e53169d7ad9f185146973daeb75064a1a81c11c55248c944c9403b75732576`,
+  `f3dac88d26a90af134abce3b549fc74603d61ea4b8a7c09de4925a4e973ca26b`.
+- Real before-data language runs give EN **1 pass / 5 gaps**, ZH **1 old-return
+  and boundary pass / 5 gaps**, JA **2 passes / 4 gaps**. Keep
+  `english-before.log`, `chinese-before.log`, `japanese-before.log` and all
+  frozen files under `/tmp/suzaku-aftercare-vocabulary.IoYVld/`.
+  The first compatibility invocation mistakenly omitted features and did not compile;
+  retain `compatibility-before.log` as failed diagnostic evidence, not a data
+  regression. Rerunning with the project's all-feature configuration passes
+  **3/3** in `compatibility-before-gpu.log`; no source fix or hidden failed
+  invocation is claimed.
+  It fixes **18 complete baseline vectors** (9 EN / 5 ZH / 4 JA), plus old
+  return/refund/exchange Word and authored-page assertions. The new package
+  target has **one old-control/boundary pass / one new-content gap failure**
+  in `packs-before.log`; do not count its child result again.
+- Fixed requirements cover complete and specifically near-complete spellings,
+  six horizontal gaps, short/long safe Unicode prefixes, exact raw text,
+  editable selection/reseed, known Han/Pinyin tails, once-only commit/undo,
+  protected tokens, unknown input and seven line boundaries. Synthetic
+  unavailable/timeout/empty providers must retain the entire local pool.
+  Private package workflows use all nine existing Japanese packs in fresh
+  processes and task-owned stores, not the user's installation. These are
+  engine requirements, not physical-keyboard, native-panel or real-model
+  acceptance. No prior batch's counts substitute for this round's scoped
+  acceptance.
+- Initial after-data focused acceptance: **18 integration targets / 97 passes /
+  zero failures**, including all **23 new checks** (18 language / 3 compatibility /
+  2 pack workflows). All five frozen fixtures remain unchanged. The eighteen
+  sampled complete old vectors retain exact fingerprints, and old return/
+  exchange authored pairs remain on page one. Resource/catalog history
+  projections pass. Preservation checks pass for the 251-path before-image,
+  fourteen inverse-restored paths, 228 other paths, nine previous fixtures and
+  five new frozen fixtures; these overlapping categories are not additive test
+  counts. Formatting and whitespace pass; 29 tensor guards pass under each of
+  the system interpreter and Python 3.12/C-locale interpreter, alongside
+  25 partition guards, eleven shipping guards and 250 packaged audit-link
+  checks. Focused repeats
+  are included once, not added again to the final totals below.
+- Final related-integration/library acceptance: **1,408 passes / zero failures /
+  three existing explicit ignores**, in **113 unique result groups**:
+  **112 integration targets / 825 passes** plus the complete library
+  **583 passes / two ignores** (58.18 seconds). The original command exits zero.
+  The main invocation runs 111 integration targets without filters; the
+  separate terminal-n `builtin_` run passes three tests and deliberately
+  filters four other cases. Those four are not ignored, accepted or claimed
+  as rerun; the expensive nine-pack terminal-n matrix and
+  `release_japanese_tail` target are not rerun. The integration ignore is the
+  English shopping-pack child-only entry point, which its parent test actually
+  invokes; it is not an unexecuted workflow or an additional pass. The two
+  library ignores remain opt-in real-model diagnostics.
+  Compared with the previous batch's 102 integration targets, this scope adds
+  ten: five new aftercare targets, both English/Chinese parcel targets,
+  both English/Chinese shopping-pack targets and `fallback_vocabulary`.
+  The initial 97 focused passes and child output are included only once, not
+  added again. `summary.json` records the exact 113-group inventory. This is
+  scoped engine acceptance, not full-repository, native-input, physical-keyboard,
+  real-model, installation or release/remote-CI acceptance.
+- Strict all-target/all-feature Clippy with warnings denied exits zero in
+  **42.67 seconds**. Final formatting, diff whitespace and byte-preservation
+  checks pass: the 251-path snapshot, fourteen inverse-restored paths,
+  228 other paths, nine prior fixtures and five new frozen fixtures all retain
+  their required bytes. These are overlapping audit categories, not added
+  Rust test counts. Static guard counts are recorded above; no failed
+  before-data invocation or prior-batch history is removed or reclassified.
+- The task's `before-source.tar` deliberately includes both dirty earlier
+  batches. Old resource bytes/order/flags are preserved by exact inverse
+  append removal before entering the unchanged historical projection chain.
+  In particular, removing the two new Chinese blocks restores raw SHA256
+  `83c673262924d5e13b67b1d7f2a4770e056b61bd3a7e63eb4cdc9beef80c7f00`;
+  the appended Chinese resource is
+  `3f09409d89c99b773c5ff8fb746aa5efd7e0bc5942cb9e6e62db5c43923da988`.
+  The eighteen Chinese readings and six contexts match the frozen fixture,
+  are default Word/no forced separators with canonical apostrophes, and have
+  no text, compact-reading, context or sentence collisions against the
+  original builtin plus eight Chinese packs. The earlier messaging `renraku`
+  reviewed delta and both failures remain historical evidence, not refreshed
+  goldens. No language algorithm, ranking formula, capacity, model contract,
+  recommended pack/SDK or version file changes. The catalog remains **25 packs
+  (8 EN / 8 ZH / 9 JA)** with **16 installed packs including disabled**.
+  Version/build remains **0.9.1/41**; no commit, push, release, installation,
+  personal configuration or input-service change is made.
+
+### Unreleased appointments, walk-ins and queue fallback — 2026 10 16
+
+- Build on the still-uncommitted messaging workspace, not a clean HEAD or a new
+  release. Append English **8 contexts / 16 sentences**, with unchanged 6,143
+  indexed forms; Chinese **24 Word readings / 8 contexts / 16 sentences**;
+  Japanese **12 Word readings / 6 contexts / 12 continuations**: **36 CJK
+  readings / 44 authored sentences**. Current totals are EN **6,143 / 789 /
+  1,542**, with **42 layers**; ZH **3,226 / 783 / 1,564**; JA **546 / 274 / 547**.
+  These are record counts, not quality scores, live opening times or a booking
+  feature. No personal appointment, medical advice or external service is used.
+- Explicit records include `do i need to book ahead`, `qu'hao -> 取号` and
+  `yoyakuhenkou -> 予約変更`, with near-complete inputs and authored contexts.
+  Replace only the proposed related phrase 预计等待时间 with the independently
+  missing 取号; retain 取号机 and the other 23 Chinese readings / sixteen
+  sentences. Before-data sampling has 去好 as the primary for `qu hao`, not
+  取号. Existing 预约/预约时间/营业时间/排队等候/叫号 and related package words
+  were already covered. Some longer text could already compose as Sentence;
+  new explicit Word classification and own-context continuations must not be
+  described as the first ability to enter those characters or new segmentation.
+- Freeze six tests each in [English](tests/daily_appointments_english.rs),
+  [Chinese](tests/daily_appointments_chinese.rs) and
+  [Japanese](tests/daily_appointments_japanese.rs). Unchanged SHA256 values:
+  `88f75b56182661b0ed443b7801cd96156ff39ab4c29ae3a4bf0063cce4ab14fd`,
+  `938cce647e03ab29e20c2a55d985f71eebfadbcf1406eb5a42bfdfbf858e4deb`,
+  `46ff636ae16daadcb2334936796ed535f98a1653e0e202bb28c3e7211fa49edf`.
+  Real before-data runs give EN **1 pass / 5 data gaps**, ZH **1 old-appointment
+  and boundary pass / 5 data gaps**, JA **2 passes / 4 data gaps**. Preserve
+  the combined EN/JA `english-japanese-before.log`, ZH `chinese-before.log`
+  and frozen files under `/tmp/suzaku-service-vocabulary.3cG9EV/`; there are
+  no separate EN and JA before logs for this batch. Data is now appended.
+- The new [compatibility target](tests/daily_appointments_compatibility.rs)
+  passes **3/3 before data**, preserving **17 sampled complete vectors** from
+  the actual current baseline (9 EN / 4 ZH / 4 JA, including messaging).
+  Separately require old 预约 primary/Word order and both old appointment
+  sentences on page one, the old repair pair within two pages, 营业时间 authors
+  on page one, and old Japanese 予約/受付/受付番号 Word anchors. Related pools
+  may gain useful choices; do not replace complete old goldens to hide losses
+  or promise identical scores for every enriched entry point. In the focused
+  after-data run all 17 complete vectors retain their original fingerprints,
+  and the old Word, authored-page and raw/protected-input assertions pass.
+  The earlier messaging `renraku` delta and its retained failures are unchanged
+  historical evidence below.
+- Add [two nine-Japanese-pack workflows](tests/daily_appointments_packs.rs)
+  in fresh processes and task-owned stores. They define complete/partial
+  appointment-choice reachability, old reservation/reception roots and travel
+  authors, exact commits and protected boundaries beside all nine original
+  Japanese packs. The before-data run has **one old-control/boundary pass and
+  one new-content gap failure** in `packs-before.log`; count each owning test
+  once, not its child output. Both unchanged tests pass after the data append.
+  They do not alter shipped packages, the 16-pack limit or actual installation.
+- The baseline `before-source.tar` in the same audit directory deliberately
+  captures the dirty workspace containing messaging, not HEAD's original
+  bytes. Inverse append removal restores EN raw SHA256
+  `873ed5d19d8ea7074fc145850f1826ea3982d8b3bc1255c4d6fa6933bbd0a5fd`,
+  ZH `46f2f6845b4a1f31c8d3fb0bbb4cbd8168b87776e9e41e258db55a56c4a78f86`,
+  JA `b03caa4651c054067eeca896b9f09746cd5d1c9d905a7d48a18c4b715ee25736`
+  before entering the unchanged older projection chain. Keep old resource
+  bytes/order/flags and behavior assertions; count guards only track totals.
+- Language algorithms, ranking formulas, model-independent prediction
+  contracts, 25 recommended packs (8 EN / 8 ZH / 9 JA), SDK and installed-pack
+  limit 16 remain unchanged. Version/build is still **0.9.1/41**; both data
+  batches are uncommitted, with no push, release, personal configuration,
+  input-service or installed-package change. Complete/specific partials,
+  horizontal spacing, safe-prefix scopes, editable adoption/reseed, literal
+  once-only commit/undo and synthetic unavailable/timeout/empty fallbacks are
+  test requirements, not real-model, physical-keyboard or IBus/panel acceptance.
+- Initial after-data focused acceptance: `after-focused.log` records **13
+  integration targets / 74 passes / zero failures**. All **five new frozen
+  fixtures remain unchanged**: 18 language tests, three compatibility tests
+  and two private nine-pack tests, **23 new passes** in total. The four prior
+  messaging targets also pass in this invocation. These are included within
+  the 74 passes, not extra counts; subprocess results are not added again.
+  These focused repetitions are not added to the broader totals below.
+- Final scoped acceptance: **1,348 Rust passes / zero failures / two existing
+  opt-in model diagnostics ignored**, in **103 unique result groups**:
+  **102 integration targets / 765 passes** and the complete library **583
+  passes / two ignores** (55.97 seconds). The broad invocation runs 101
+  integration targets without filters; a separate `builtin_` terminal-n run
+  passes three tests and deliberately filters its four other cases. Those
+  four are not ignored, newly accepted or claimed as rerun. In particular,
+  this batch does not rerun the expensive nine-pack terminal-n matrix or
+  `release_japanese_tail` target; their earlier results are historical only.
+  The five new targets and all focused targets are included once in this
+  final inventory, not counted again. The audit's `summarize.py` verifies the
+  exact target set and last top-level outcomes without double-counting child
+  output. Logs are `related-regression.log` and `terminal-n-builtin.log`.
+- Strict all-target/all-feature Clippy with warnings denied passes in **48.45
+  seconds**. Formatting, whitespace, 29 tensor guards under each of the normal
+  and Python 3.12/C-locale interpreters, 25 vocabulary-partition guards,
+  11 shipping guards and 250 packaged audit links pass. Exact preservation
+  auditing initially catches unintended indentation on three maintained
+  counter lines; restore the original eight/twelve-space indentation, not a
+  relaxed inverse rule. Final auditing restores all three raw resource hashes
+  and 14 maintained source/test paths to the fixed dirty before-image; another
+  223 snapshot paths, the prior four messaging fixtures, all five new frozen
+  fixtures, 25 packs/SDK and five version files remain byte-identical.
+  All 79 maturity cell scores, 69 functions, ten architectures and criteria
+  remain unchanged. Builds/tests run serially offline with 2 GiB high / 4 GiB
+  maximum memory and no swap. This scoped acceptance does not reuse the prior
+  1,729/2,237 totals, claim a full-repository/native/physical-keyboard/real-model
+  run, or accept a new release or remote CI. No commit, push or installation.
+
+### Unreleased everyday messaging and arrangement fallback — 2026 10 16
+
+- Start from the published **0.9.1 / build 41** vocabulary. Append authored
+  missed-message, later-reply, arrangement-confirmation and feedback examples:
+  English **8 next-word contexts / 16 sentences**, with no new indexed forms;
+  Chinese **24 Word readings / 8 contexts / 16 sentences**; Japanese **12 Word
+  readings / 6 contexts / 12 continuations**. This is **36 CJK readings and 44
+  trilingual sentences**, not a new conversion algorithm or model capability.
+  Current totals: EN **6,143 forms / 781 contexts / 1,526 sentences**, with
+  **41 ordered layers**; ZH **3,202 readings / 775 contexts / 1,548 sentences**;
+  JA **534 readings / 268 contexts / 535 continuation records**.
+- Examples: `i only just saw your messag` completes the message branch;
+  `gang kan dao ni de xiao x` completes 刚看到你的消息 with its authored pair;
+  `messe-ji` offers メッセージ and its authored continuations.
+  Word adoption/reseeding remains editable before exact submission. These are
+  finite fallback examples, not message delivery, personal-history inference,
+  a complete dictionary or real-model quality acceptance. No new independent
+  Chinese character mapping, including 里/那, is added.
+- Freeze six tests each in [English](tests/daily_messaging_english.rs),
+  [Chinese](tests/daily_messaging_chinese.rs) and
+  [Japanese](tests/daily_messaging_japanese.rs) before appending data. SHA256:
+  `75dab625bff760b15a37a7f0fc9f7bd875c2deb8de9028ee3364797c498a114a`,
+  `95fdf00c55e6c6743c7ceb3ab899a56773d09379bf68ad0ffa81acb510bcdfbc`,
+  `f702befea8b205302c06b23e9c3ac863add476d75d91da67064d3ad7f596801d`.
+  Before-data runs give EN **1 compatibility pass / 5 gaps**, ZH **1 pass /
+  5 gaps**, JA **2 passes / 4 gaps**; all three unchanged fixtures give **18
+  passes** after the append. Preserve the before and after logs under
+  `/tmp/suzaku-message-vocabulary.03kIAi/`, including `english-before.log`,
+  `chinese-before.log`, `japanese-before.log` and the focused after-data runs.
+- Separately freeze [39 old complete vectors](tests/daily_messaging_compatibility.rs):
+  11 English, 16 Chinese and 12 Japanese. The first after-data run rejects
+  `renraku` full-vector equality because the useful new Word 連絡漏れ enters
+  index 6, the second page; retain that failed run and the initial frozen
+  compatibility file. A second run that removes only the new Word still fails:
+  the existing mixed-index formula lowers four old authored sentences by 0.5.
+  Preserve `after-focused.log` and `after-focused-reviewed.log`, not just the
+  eventual passing run. Review only this exact delta in the new compatibility
+  test: require length **10**, exact text/label **連絡漏れ**, kind **Word**,
+  source **Local**, score bits exactly **90.0**, and position **PAGE_SIZE = 6**.
+  After removing precisely that unique row, require the four old authored
+  Sentences at indexes **4/5/6/7** to have actual score bits **77.5/77/76.5/76**.
+  Add exactly 0.5 to only those rows for the inverse comparison; the old
+  fingerprint **0xbb39602e6bdd4216** must then match. Old text, labels, kinds,
+  sources and order remain, including first-page text/order, not unchanged
+  scores for these four Sentences. The other **38 vectors remain identical**.
+  The reviewed compatibility target then passes **3/3** in
+  `compatibility-reviewed-weights.log`. No old golden is refreshed; do not
+  describe all four new fixtures as unchanged or generalize this exception.
+- Cover full/specific-partial spellings, case/apostrophes and horizontal spaces,
+  explicit once-only commit/undo, adoption/reseed, exact literal drafts,
+  protected/unknown tokens and seven line boundaries. Synthetic unavailable,
+  timeout and empty providers preserve complete local pools before/after polling.
+  Long-prefix checks retain each language's existing supported/unsupported scope;
+  they are not physical-keyboard, IBus/panel or real-provider acceptance.
+- Preserve all prior resource bytes/order/flags. The catalog's new inverse layer
+  removes only this append and restores the released 0.9.1 raw data before
+  entering the unchanged older projection chain. Existing count guards only
+  maintain current totals; old behavior assertions and capacities are retained.
+  No production conversion/ranking change accompanies the data; language source
+  changes only maintain test counts. The model-independent protocol, **25 packs
+  (8 EN / 8 ZH / 9 JA)**, SDK and **16 installed-pack limit**, including disabled
+  packs, remain unchanged. Version/build stays **0.9.1/41**; no commit, push,
+  release, installation, personal configuration or input-service change.
+- The expanded regression also catches one stale current-total guard in
+  `chinese_compound_boundaries`: the isolated one-reading pack gives **3,203**
+  active readings after this append, not the old **3,179**. Preserve that failed
+  parent/child output in `related-regression.log`; change only that total.
+  The same 21 input boundaries, all payload assertions and original test limits
+  remain unchanged. The exact inverse audit includes this metadata edit.
+- Final scoped acceptance: **1,729 Rust tests pass / 0 remaining failures / 5
+  existing explicit ignores**, across **156 unique result groups**. These are
+  **155 integration targets / 1,146 passes** and the complete library **583
+  passes / 2 opt-in diagnostics ignored** (56.85 seconds); the other three
+  ignores are subprocess-only English pack snapshot entry points exercised by
+  their owning parent tests. The broad invocation covered 154 integration
+  targets and retained its stale-total failure; the exact repaired boundary
+  target and the separate 15-test resource suite then pass. Replace that one
+  failed target result, do not count its child output or focused repeats twice.
+  `summarize.py` in the audit directory checks the exact target inventory and
+  every final top-level result. This is not one all-green monolithic invocation
+  or a full-repository/native acceptance claim.
+- Strict all-target, all-feature Clippy with warnings denied passes in **41.75
+  seconds**. Formatting, whitespace, 29 tensor guards under each of the normal
+  and Python 3.12/C-locale interpreters, 25 vocabulary-partition guards, 11 pack
+  shipping guards and 250 packaged audit links pass. Exact inverse checks restore
+  all three released raw JSON hashes and 14 maintained source/test paths;
+  the three language fixtures retain their original bytes. The reviewed
+  compatibility file is `e624bda30aa7f855935e0537123c785ca35014619fe80552969e099c7b1b0dda`;
+  reversing only its documented addition/weight assertions, import and test name
+  restores original frozen `6477a22ad63da5a5ef5f32ab56d5d636570a84f7fc915f457cb3d4e1199d8712`.
+  Builds and tests are serialized offline with 2 GiB high / 4 GiB maximum memory
+  and no swap. All 79 tensor cell scores, 69 functions and ten architecture domains
+  remain unchanged. No personal installation, actual keyboard, real-model,
+  remote CI or new package/release acceptance is implied.
 
 ### 0.9.1 source candidate — 2026 10 15
 

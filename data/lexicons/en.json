@@ -12233,6 +12233,96 @@
         "thanks for letting me use your book for the weekend.",
         "thanks for letting me use your jacket on the way home."
       ]
+    },
+    {
+      "id": "daily_messaging",
+      "words": [],
+      "next_words": [
+        ["i only just saw your",["message","email"]],
+        ["i'll reply when i'm",["home","free"]],
+        ["i'll read it",["later","tonight"]],
+        ["are we still on for",["tomorrow","tonight"]],
+        ["please confirm whether we're",["meeting","going"]],
+        ["please send a quick",["message","update"]],
+        ["thanks for the quick",["reply","update"]],
+        ["i've read your",["message","notes"]]
+      ],
+      "sentences": [
+        "i only just saw your message because my phone was on silent.",
+        "i only just saw your email and will read it now.",
+        "i'll reply when i'm home and can check the details.",
+        "i'll reply when i'm free after the meeting.",
+        "i'll read it later when i have more time.",
+        "i'll read it tonight and send you my notes.",
+        "are we still on for tomorrow at the usual time?",
+        "are we still on for tonight or should we pick another day?",
+        "please confirm whether we're meeting tomorrow morning.",
+        "please confirm whether we're going ahead with the plan.",
+        "please send a quick message when you're ready to leave.",
+        "please send a quick update when you have a moment.",
+        "thanks for the quick reply and the clear explanation.",
+        "thanks for the quick update on the meeting time.",
+        "i've read your message and i'll reply after lunch.",
+        "i've read your notes and will update the document."
+      ]
+    },
+    {
+      "id": "daily_appointments",
+      "words": [],
+      "next_words": [
+        ["do i need to book",["ahead","online"]],
+        ["i have a booking for",["today","tomorrow"]],
+        ["could i move my appointment to",["tomorrow","friday"]],
+        ["i've arrived for my",["appointment","booking"]],
+        ["is this the queue for",["tickets","service"]],
+        ["how long is the wait",["today","usually"]],
+        ["what time do you",["open","close"]],
+        ["can i come in",["today","tomorrow"]]
+      ],
+      "sentences": [
+        "do i need to book ahead before i come in?",
+        "do i need to book online or can i call instead?",
+        "i have a booking for today and would like to confirm the time.",
+        "i have a booking for tomorrow and may arrive a little early.",
+        "could i move my appointment to tomorrow afternoon?",
+        "could i move my appointment to friday at the same time?",
+        "i've arrived for my appointment and can wait here.",
+        "i've arrived for my booking a little early.",
+        "is this the queue for tickets or should i go inside?",
+        "is this the queue for service at the front desk?",
+        "how long is the wait today without a booking?",
+        "how long is the wait usually around this time?",
+        "what time do you open tomorrow morning?",
+        "what time do you close on friday?",
+        "can i come in today without a booking?",
+        "can i come in tomorrow before you close?"
+      ]
+    },
+    {
+      "id": "daily_aftercare",
+      "words": [],
+      "next_words": [
+        ["i still have the",["receipt","box"]],
+        ["i no longer have the",["packaging","receipt"]],
+        ["the box is missing the",["cable","instructions"]],
+        ["i've taken photos of the",["damage","label"]],
+        ["what should i include in the",["package","email"]],
+        ["please let me know the",["next","address"]]
+      ],
+      "sentences": [
+        "i still have the receipt if you need to see it.",
+        "i still have the box and the original packaging.",
+        "i no longer have the packaging so please let me know what to bring.",
+        "i no longer have the receipt but i can show you the order email.",
+        "the box is missing the cable that should come with it.",
+        "the box is missing the instructions for this item.",
+        "i've taken photos of the damage so you can see the problem.",
+        "i've taken photos of the label to help you check the order.",
+        "what should i include in the package before sending it back?",
+        "what should i include in the email so you can check the order?",
+        "please let me know the next step after you check the photos.",
+        "please let me know the address before i send the item back."
+      ]
     }
   ],
   "phrase_endings": [

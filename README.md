@@ -3,7 +3,7 @@
 A local-first, continuous-writing input method with word and sentence candidates,
 optional language models, and a compact floating companion panel.
 
-**0.9.1 · Linux / IBus Alpha preview.** Current validation targets **Ubuntu 24.04,
+**0.9.2 · Linux / IBus Alpha preview source candidate.** Current validation targets **Ubuntu 24.04,
 amd64, IBus, X11 or GNOME with XWayland**. Keep your usual input method available
 as a fallback. Other platforms remain experimental.
 
@@ -34,6 +34,17 @@ as a fallback. Other platforms remain experimental.
   these are **not** eight native input dictionaries.
 - Linux configuration backup and preview-first restore. Packages do not collect personal data.
 
+The 0.9.2 source candidate includes the messaging, appointment/walk-in and aftercare/packaging
+follow-ups below: **100 Chinese/Japanese Word readings and 122 authored sentences/continuations**
+over 0.9.1, with the same 6,143 English indexed forms. It also includes the measured English/Japanese
+candidate-computation optimizations. Historical “unreleased” batch records below describe their
+development-time status, not separate current releases. Publication requires this exact new commit's
+CI and package acceptance; the currently published packages remain 0.9.1 until that completes.
+See [0.9.2 release notes](docs/releases/0.9.2.md).
+Final local preparation passes **2,313 Rust checks / zero failures / 32 explicit ignores**,
+the separate **19/19 private UI gates**, strict Clippy and formatting. Those local results
+do not replace the new commit's remote CI, clean-container installation or accepted-package checks.
+
 Six configurable input shortcuts are available in **Settings → Shortcuts**:
 previous/next candidate, previous/next page, adoption and English/Chinese switching.
 Bindings support Ctrl or Alt, optional Shift, and a letter or Space (except reserved
@@ -41,10 +52,10 @@ Alt+Space combinations), with conflict checks,
 recording cancellation and per-action/all-binding reset. They are input-context shortcuts,
 not global hotkeys; desktop/application interception remains possible. See [shortcut rules](docs/shortcuts.md).
 
-0.9.1 extends everyday fallback for sharing, finding belongings, borrowing and returning items,
+Released 0.9.1 extends everyday fallback for sharing, finding belongings, borrowing and returning items,
 and adds independent Chinese character readings for known-word composition. Compared with the
 0.9.0 source baseline, built-ins add **132 sentences/continuations**, **88 Chinese readings**
-and **36 Japanese readings**; English indexed forms are unchanged. Totals are now
+and **36 Japanese readings**; English indexed forms are unchanged. Its released totals are
 **6,143 English indexed forms / 773 contexts / 1,510 sentences**,
 **3,178 Chinese readings / 767 contexts / 1,532 sentences**, and
 **522 Japanese readings / 262 contexts / 523 continuation records**.
@@ -52,6 +63,88 @@ Chinese candidate-source fixes retain authored continuations across selected par
 homophone conflicts without increasing list limits. Missing readings and full-pool branch
 competition remain; builtin 里/那 are not added. The model and offline-pack responsibilities
 remain separated behind the existing public APIs.
+
+The **local-input performance work included in 0.9.2 source** reduces warm candidate-computation mean
+time by about **34% for English, 54% for Japanese, and 58% with nine Japanese packs** in five
+alternating release-build replay pairs on this machine. All 419 sampled candidate vectors retain
+exact text, labels, types, sources, score bits and order. English stops rendering after six unique
+sentence choices; Japanese indexes immutable vocabulary membership, not users' drafts.
+A Chinese memoization trial was withdrawn for insufficient measured benefit; no Chinese,
+GUI/native-input, cold-start or model-latency speedup is claimed. See the
+[replay tool](examples/input_hotpath_bench.rs), [equivalence test](tests/input_hotpath_equivalence.rs)
+and [measurement limitations](DEVELOPMENT.md). Related local regression passes **1,417 checks**
+with zero failures and three existing explicit ignores; strict all-target/all-feature Clippy passes.
+This is scoped engine acceptance, not a complete native-input or release run, and does not change
+vocabulary or the installed app.
+
+The latest **aftercare and packaging development batch** adds six English contexts / twelve
+sentences, eighteen Chinese Word readings / six contexts / twelve sentences, and ten Japanese
+Word readings / five contexts / ten continuations: **28 CJK readings and 34 authored sentences**.
+Latest working-tree totals are **6,143 English indexed forms / 795 contexts / 1,554 sentences**
+(43 ordered layers), **3,244 Chinese readings / 789 contexts / 1,576 sentences**, and
+**556 Japanese readings / 279 contexts / 557 continuation records**. Examples include
+`i still have the receipt`, `bao'zhuang` → `包装`, `gou mai ping zheng zen me ti gon` →
+`购买凭证怎么提供`, and `hoshousho` → `保証書`. Existing return, refund, receipt and repair
+vocabulary was already available; explicit Words and authored requests do not determine store
+policies, refund eligibility or real after-sales progress. 包装 deliberately gains an exact Word.
+The [English](tests/daily_aftercare_english.rs), [Chinese](tests/daily_aftercare_chinese.rs),
+[Japanese](tests/daily_aftercare_japanese.rs),
+[baseline compatibility](tests/daily_aftercare_compatibility.rs) and
+[isolated nine-pack](tests/daily_aftercare_packs.rs) fixtures were fixed before the append.
+Before-data checks confirm the new gaps; the first after-data focused run passes all **23 new
+checks** without changing the five fixtures, including all 18 sampled complete old vectors.
+Final scoped regression has **1,408 passes / zero failures / three existing explicit ignores**:
+112 integration targets plus the complete library, with focused repetitions counted only once.
+It adds parcel, Chinese/English shopping-pack and fallback coverage to the prior scope, not a
+full-repository, native-input or installation run. Strict all-target/all-feature Clippy passes
+(42.67 seconds), as do formatting, static guards and byte-preservation checks; the
+[execution record](DEVELOPMENT.md) gives their exact scope.
+At that batch's acceptance, all three follow-ups were uncommitted and
+unreleased at **0.9.1 / build 41**, with unchanged algorithms, model contracts, optional packs and
+actual installation. They are now included in the **0.9.2 / build 42 source candidate**; only the
+separately described English/Japanese hot-path work changes production algorithms.
+The two earlier batch descriptions below retain their own historical totals
+and scoped acceptance records; they are not the latest totals or this batch's acceptance.
+
+An **unreleased messaging follow-up**, still version **0.9.1 / build 41**, adds missed-message,
+reply and arrangement-confirmation examples: eight English contexts / sixteen sentences,
+24 Chinese Word readings / eight contexts / sixteen sentences, and twelve Japanese Word readings /
+six contexts / twelve continuations. That batch reached **6,143 English indexed forms /
+781 contexts / 1,526 sentences**, **3,202 Chinese readings / 775 contexts / 1,548 sentences**, and
+**534 Japanese readings / 268 contexts / 535 continuation records**. Examples include
+`i only just saw your messag` → `i only just saw your message`,
+`gang kan dao ni de xiao x` → `刚看到你的消息`, and `messe-ji` → `メッセージ`.
+The [English](tests/daily_messaging_english.rs), [Chinese](tests/daily_messaging_chinese.rs),
+[Japanese](tests/daily_messaging_japanese.rs) and
+[reviewed compatibility](tests/daily_messaging_compatibility.rs) tests cover this finite data append;
+they do not certify physical keys, a real model or a new installation. One useful Japanese Word
+addition intentionally enriches an old second page and lowers four existing sentence weights by
+0.5 through the unchanged mixed-index formula; identical weights or rankings are not promised.
+No conversion algorithm, provider contract, new indexed English form or installed package is changed.
+This follow-up is **not included in the published 0.9.1 packages**.
+
+The next **unreleased appointment and walk-in follow-up** adds eight English contexts / sixteen
+sentences, 24 Chinese Word readings / eight contexts / sixteen sentences, and twelve Japanese Word
+readings / six contexts / twelve continuations: **36 CJK readings and 44 authored sentences**.
+Current working-tree totals are **6,143 English indexed forms / 789 contexts / 1,542 sentences**
+(42 ordered layers), **3,226 Chinese readings / 783 contexts / 1,564 sentences**, and
+**546 Japanese readings / 274 contexts / 547 continuation records**. Records include
+`qu'hao` → `取号`, `do i need to book ahead`, and `yoyakuhenkou` → `予約変更`.
+Appointment, opening-hour and queue vocabulary already existed; some longer text was already
+composable as a Sentence. This adds explicit Word entries and their own authored contexts,
+not the first ability to type those characters, live opening hours or an actual booking service.
+The [English](tests/daily_appointments_english.rs), [Chinese](tests/daily_appointments_chinese.rs),
+[Japanese](tests/daily_appointments_japanese.rs),
+[baseline compatibility](tests/daily_appointments_compatibility.rs) and
+[isolated nine-pack](tests/daily_appointments_packs.rs) tests define the intended scope.
+Before-data runs confirm the language gaps. All **23 new checks** pass unchanged, including the
+two isolated pack workflows. Final scoped regression has **1,348 passes / zero failures / two
+existing opt-in diagnostic ignores**; strict Clippy and preservation checks pass. This is not
+a complete new native/release acceptance; [the execution record](DEVELOPMENT.md) lists the
+exact included targets and explicit terminal-n filter, without counting focused repeats twice.
+At this historical acceptance, both follow-ups remained uncommitted at **0.9.1 / build 41**, with unchanged algorithms/model
+contracts and no installed-package, service or publication change.
+
 The optional data-only catalog contains **25 packs: 8 English, 8 Chinese and 9 Japanese**,
 including shopping, internet and additional Japanese topics. The unchanged installation limit is
 **16 packs, including disabled packs**; catalog availability does not automatically install or enable them.
@@ -73,7 +166,7 @@ Optional pack changes still require host/panel restart. Space continues writing;
 adoption and exact submission remain separate. Linux candidate preferences now persist by default,
 learning only confirmed choices; the tray exposes save/clear status and can clear them at any time.
 The local cache stores keyed fingerprints and counts, not raw drafts, but is still sensitive data.
-See [0.9.1 release notes](docs/releases/0.9.1.md),
+See [0.9.2 release notes](docs/releases/0.9.2.md),
 [lexicon scope](data/lexicons/README.md) and [known limitations](docs/known-limitations.md).
 Source publication does not update an existing installation. Native Wayland, real-model quality,
 broader Japanese morphology and non-Linux native behavior remain outside current acceptance.
@@ -84,7 +177,8 @@ Get the matching `.deb` and `.sha256` from [Releases](https://github.com/chiharu
 For 0.7.x, source tags can precede downloadable packages; use a release with attached packages or
 build from source. Starting with **0.8.0**, downloadable Linux packages and checksums are a
 [release requirement](docs/linux-packaging-data.md#从-080-开始的发布要求).
-Once published, use the matching 0.9.1 Release assets in the download directory on Ubuntu 24.04 amd64:
+Use the published 0.9.1 Release assets in the download directory on Ubuntu 24.04 amd64;
+the 0.9.2 source candidate above is not yet an accepted package upgrade:
 
 ```bash
 sha256sum -c suzaku_0.9.1_amd64.deb.sha256

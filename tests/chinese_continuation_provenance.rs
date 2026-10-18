@@ -295,7 +295,7 @@ fn private_optional_homophone_pack_keeps_original_fourth_prefix_context_without_
         }
         let fixture = Owned(path);
         let builtin = lexicon::builtin("zh-Hans").unwrap();
-        assert_eq!(builtin.readings().len(), 3178);
+        assert_eq!(builtin.readings().len(), 3244);
         let before = serde_json::to_value(builtin).unwrap();
         let pack = suzaku_map::lexicon::packs::OfflinePack::from_json(&serde_json::json!({
             "format_version":1,

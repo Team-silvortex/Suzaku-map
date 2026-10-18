@@ -3179,7 +3179,73 @@
     {"reading": "dao", "text": "到", "kind": "word"},
     {"reading": "jia", "text": "家", "kind": "word"},
     {"reading": "zhe", "text": "这", "kind": "word"},
-    {"reading": "ben", "text": "本", "kind": "word"}
+    {"reading": "ben", "text": "本", "kind": "word"},
+    {"reading": "gang'kan'dao'ni'de'xiao'xi", "text": "刚看到你的消息", "kind": "word"},
+    {"reading": "xiao'xi'wo'shou'dao'le", "text": "消息我收到了", "kind": "word"},
+    {"reading": "ni'ba'zhong'dian'fa'gei'wo", "text": "你把重点发给我", "kind": "word"},
+    {"reading": "fang'bian'shi'hui'wo'jiu'hao", "text": "方便时回我就好", "kind": "word"},
+    {"reading": "wo'men'gai'dao'xia'wu'ba", "text": "我们改到下午吧", "kind": "word"},
+    {"reading": "wo'xian'he'da'jia'que'ren", "text": "我先和大家确认", "kind": "word"},
+    {"reading": "wo'ba'yi'jian'zheng'li'yi'xia", "text": "我把意见整理一下", "kind": "word"},
+    {"reading": "you'xin'jin'zhan'zai'lian'xi", "text": "有新进展再联系", "kind": "word"},
+    {"reading": "lou'kan'xiao'xi", "text": "漏看消息", "kind": "word"},
+    {"reading": "wei'du'xiao'xi", "text": "未读消息", "kind": "word"},
+    {"reading": "xiao'xi'ti'xing", "text": "消息提醒", "kind": "word"},
+    {"reading": "yi'du'hui'zhi", "text": "已读回执", "kind": "word"},
+    {"reading": "guan'jian'xin'xi", "text": "关键信息", "kind": "word"},
+    {"reading": "zhong'dian'shuo'ming", "text": "重点说明", "kind": "word"},
+    {"reading": "bu'ji'zhe'hui'fu", "text": "不急着回复", "kind": "word"},
+    {"reading": "kong'le'zai'hui'wo", "text": "空了再回我", "kind": "word"},
+    {"reading": "gai'yue'shi'jian", "text": "改约时间", "kind": "word"},
+    {"reading": "ti'qian'gao'zhi", "text": "提前告知", "kind": "word"},
+    {"reading": "he'dui'shi'jian", "text": "核对时间", "kind": "word"},
+    {"reading": "que'ren'an'pai", "text": "确认安排", "kind": "word"},
+    {"reading": "xiu'gai'yi'jian", "text": "修改意见", "kind": "word"},
+    {"reading": "fan'kui'hui'zong", "text": "反馈汇总", "kind": "word"},
+    {"reading": "zui'xin'jin'zhan", "text": "最新进展", "kind": "word"},
+    {"reading": "hou'xu'an'pai", "text": "后续安排", "kind": "word"},
+    {"reading": "xu'yao'ti'qian'yu'yue'ma", "text": "需要提前预约吗", "kind": "word"},
+    {"reading": "ke'yi'zhi'jie'dao'dian'ma", "text": "可以直接到店吗", "kind": "word"},
+    {"reading": "yu'yue'shi'jian'neng'gai'ma", "text": "预约时间能改吗", "kind": "word"},
+    {"reading": "wo'yi'jing'dao'men'kou'le", "text": "我已经到门口了", "kind": "word"},
+    {"reading": "dao'dian'hou'zen'me'qu'hao", "text": "到店后怎么取号", "kind": "word"},
+    {"reading": "da'gai'hai'yao'pai'duo'jiu", "text": "大概还要排多久", "kind": "word"},
+    {"reading": "guo'hao'le'hai'neng'zai'pai'ma", "text": "过号了还能再排吗", "kind": "word"},
+    {"reading": "jin'tian'ji'dian'ting'zhi'jie'dai", "text": "今天几点停止接待", "kind": "word"},
+    {"reading": "yu'yue'ming'e", "text": "预约名额", "kind": "word"},
+    {"reading": "yu'yue'que'ren", "text": "预约确认", "kind": "word"},
+    {"reading": "xian'chang'yu'yue", "text": "现场预约", "kind": "word"},
+    {"reading": "xian'shang'yu'yue", "text": "线上预约", "kind": "word"},
+    {"reading": "yu'yue'bian'geng", "text": "预约变更", "kind": "word"},
+    {"reading": "qu'xiao'yu'yue", "text": "取消预约", "kind": "word"},
+    {"reading": "dao'dian'deng'ji", "text": "到店登记", "kind": "word"},
+    {"reading": "yu'yue'ping'zheng", "text": "预约凭证", "kind": "word"},
+    {"reading": "qu'hao'ji", "text": "取号机", "kind": "word"},
+    {"reading": "pai'dui'hao'ma", "text": "排队号码", "kind": "word"},
+    {"reading": "pai'dui'ren'shu", "text": "排队人数", "kind": "word"},
+    {"reading": "qu'hao", "text": "取号", "kind": "word"},
+    {"reading": "guo'hao'chong'pai", "text": "过号重排", "kind": "word"},
+    {"reading": "hou'wei'tong'zhi", "text": "候位通知", "kind": "word"},
+    {"reading": "fu'wu'shi'duan", "text": "服务时段", "kind": "word"},
+    {"reading": "zui'hou'jie'dai'shi'jian", "text": "最后接待时间", "kind": "word"},
+    {"reading": "zhe'ge'shou'dao'shi'jiu'huai'le", "text": "这个收到时就坏了", "kind": "word"},
+    {"reading": "wo'xiang'huan'tong'kuan'de", "text": "我想换同款的", "kind": "word"},
+    {"reading": "yuan'bao'zhuang'wo'hai'liu'zhe", "text": "原包装我还留着", "kind": "word"},
+    {"reading": "gou'mai'ping'zheng'zen'me'ti'gong", "text": "购买凭证怎么提供", "kind": "word"},
+    {"reading": "ji'hui'qu'xu'yao'shen'me", "text": "寄回去需要什么", "kind": "word"},
+    {"reading": "shou'hou'jin'du'bang'wo'cha'yi'xia", "text": "售后进度帮我查一下", "kind": "word"},
+    {"reading": "shou'hou'dan'hao", "text": "售后单号", "kind": "word"},
+    {"reading": "wen'ti'zhao'pian", "text": "问题照片", "kind": "word"},
+    {"reading": "bao'zhuang", "text": "包装", "kind": "word"},
+    {"reading": "huan'huo'shuo'ming", "text": "换货说明", "kind": "word"},
+    {"reading": "yuan'bao'zhuang", "text": "原包装", "kind": "word"},
+    {"reading": "pei'jian'qing'dan", "text": "配件清单", "kind": "word"},
+    {"reading": "gou'mai'ping'zheng", "text": "购买凭证", "kind": "word"},
+    {"reading": "ding'dan'jie'tu", "text": "订单截图", "kind": "word"},
+    {"reading": "ji'hui'di'zhi", "text": "寄回地址", "kind": "word"},
+    {"reading": "tui'jian'dan'hao", "text": "退件单号", "kind": "word"},
+    {"reading": "chu'li'jin'du", "text": "处理进度", "kind": "word"},
+    {"reading": "bu'fa'pei'jian", "text": "补发配件", "kind": "word"}
   ],
   "continuations": [
     [
@@ -8547,6 +8613,160 @@
       [
         "我用完就送回来，不会耽误你用。",
         "我用完就送回来，谢谢你帮忙。"
+      ]
+    ],
+    [
+      "刚看到你的消息",
+      [
+        "刚看到你的消息，刚才在忙没顾上看。",
+        "刚看到你的消息，我先看一下再回复你。"
+      ]
+    ],
+    [
+      "消息我收到了",
+      [
+        "消息我收到了，你不用再重复发了。",
+        "消息我收到了，等我确认好细节就回复。"
+      ]
+    ],
+    [
+      "你把重点发给我",
+      [
+        "你把重点发给我，我晚点一起看。",
+        "你把重点发给我，不确定的地方我再问你。"
+      ]
+    ],
+    [
+      "方便时回我就好",
+      [
+        "方便时回我就好，这件事不着急。",
+        "方便时回我就好，先忙你手头的事。"
+      ]
+    ],
+    [
+      "我们改到下午吧",
+      [
+        "我们改到下午吧，上午的时间有点赶。",
+        "我们改到下午吧，你看看几点合适。"
+      ]
+    ],
+    [
+      "我先和大家确认",
+      [
+        "我先和大家确认，再给你一个准信。",
+        "我先和大家确认，免得时间安排冲突。"
+      ]
+    ],
+    [
+      "我把意见整理一下",
+      [
+        "我把意见整理一下，晚点一起发给你。",
+        "我把意见整理一下，再说哪些地方需要改。"
+      ]
+    ],
+    [
+      "有新进展再联系",
+      [
+        "有新进展再联系，现在先按这个安排。",
+        "有新进展再联系，有变化我会告诉你。"
+      ]
+    ],
+    [
+      "需要提前预约吗",
+      [
+        "需要提前预约吗？我想周末过去一趟。",
+        "需要提前预约吗？还是到店后再登记？"
+      ]
+    ],
+    [
+      "可以直接到店吗",
+      [
+        "可以直接到店吗？我还没有预约。",
+        "可以直接到店吗？不行的话我先约个时间。"
+      ]
+    ],
+    [
+      "预约时间能改吗",
+      [
+        "预约时间能改吗？我想换到明天下午。",
+        "预约时间能改吗？原来的时段有点赶。"
+      ]
+    ],
+    [
+      "我已经到门口了",
+      [
+        "我已经到门口了，接下来去哪里登记？",
+        "我已经到门口了，需要先出示预约凭证吗？"
+      ]
+    ],
+    [
+      "到店后怎么取号",
+      [
+        "到店后怎么取号？是在前台办理吗？",
+        "到店后怎么取号？我第一次过来不太熟悉。"
+      ]
+    ],
+    [
+      "大概还要排多久",
+      [
+        "大概还要排多久？我先去附近买瓶水。",
+        "大概还要排多久？前面还有几位在等？"
+      ]
+    ],
+    [
+      "过号了还能再排吗",
+      [
+        "过号了还能再排吗？我刚才没听到叫号。",
+        "过号了还能再排吗？需要重新取一个号吗？"
+      ]
+    ],
+    [
+      "今天几点停止接待",
+      [
+        "今天几点停止接待？我怕赶过去太晚。",
+        "今天几点停止接待？取号截止时间一样吗？"
+      ]
+    ],
+    [
+      "这个收到时就坏了",
+      [
+        "这个收到时就坏了，我把照片发给你看。",
+        "这个收到时就坏了，麻烦帮我核实一下。"
+      ]
+    ],
+    [
+      "我想换同款的",
+      [
+        "我想换同款的，请问需要怎么处理？",
+        "我想换同款的，先帮我看看还有没有货。"
+      ]
+    ],
+    [
+      "原包装我还留着",
+      [
+        "原包装我还留着，需要一起寄回吗？",
+        "原包装我还留着，里面的配件也都在。"
+      ]
+    ],
+    [
+      "购买凭证怎么提供",
+      [
+        "购买凭证怎么提供？我可以发订单截图吗？",
+        "购买凭证怎么提供？需要把小票拍清楚吗？"
+      ]
+    ],
+    [
+      "寄回去需要什么",
+      [
+        "寄回去需要什么？麻烦发一份清单给我。",
+        "寄回去需要什么？地址也请再确认一下。"
+      ]
+    ],
+    [
+      "售后进度帮我查一下",
+      [
+        "售后进度帮我查一下，我想确认现在到哪一步了。",
+        "售后进度帮我查一下，有结果再告诉我就好。"
       ]
     ]
   ]
