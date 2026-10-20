@@ -12323,6 +12323,151 @@
         "please let me know the next step after you check the photos.",
         "please let me know the address before i send the item back."
       ]
+    },
+    {
+      "id": "daily_route",
+      "words": [],
+      "next_words": [
+        ["i'm leaving in",["two","ten"]],
+        ["i'm taking a different",["route","bus"]],
+        ["i'm at the other",["entrance","exit"]],
+        ["let's meet on the",["same","other"]],
+        ["i can't see you from",["here","inside"]],
+        ["please go ahead without",["me","us"]],
+        ["i just got off the",["bus","train"]],
+        ["please stay where you",["are","can"]]
+      ],
+      "sentences": [
+        "i'm leaving in two minutes so i'll message you when i'm outside.",
+        "i'm leaving in ten minutes and should be there before lunch.",
+        "i'm taking a different route because the road is closed.",
+        "i'm taking a different bus so i may arrive a little later.",
+        "i'm at the other entrance on the opposite side of the building.",
+        "i'm at the other exit so i'll walk around to meet you.",
+        "let's meet on the same side of the street as the cafe.",
+        "let's meet on the other side of the station near the shop.",
+        "i can't see you from here so could you come to the gate?",
+        "i can't see you from inside so i'll come outside to find you.",
+        "please go ahead without me if the bus is leaving.",
+        "please go ahead without us and we'll meet you there.",
+        "i just got off the bus and will walk to the entrance.",
+        "i just got off the train so i'll meet you by the exit.",
+        "please stay where you are and i'll come to you.",
+        "please stay where you can see the main entrance."
+      ]
+    },
+    {
+      "id": "daily_call",
+      "words": [],
+      "next_words": [
+        ["your video is",["frozen","clear"]],
+        ["the sound is",["ahead","behind"]],
+        ["i can hear my own",["voice","words"]],
+        ["let me switch to my",["headphones","phone"]],
+        ["i'll leave the call and",["connect","join"]],
+        ["please wait while i",["connect","switch"]]
+      ],
+      "sentences": [
+        "your video is frozen but i can still hear you.",
+        "your video is clear now that the camera is working again.",
+        "the sound is ahead of the video on my screen.",
+        "the sound is behind the video so it's hard to follow.",
+        "i can hear my own voice coming back through the speakers.",
+        "i can hear my own words a moment after i speak.",
+        "let me switch to my headphones so we can try the sound again.",
+        "let me switch to my phone and join the call from there.",
+        "i'll leave the call and connect again in a minute.",
+        "i'll leave the call and join again from my phone.",
+        "please wait while i connect my headphones.",
+        "please wait while i switch to another device."
+      ]
+    },
+    {
+      "id": "daily_storage",
+      "words": [],
+      "next_words": [
+        ["let's make room for the",["furniture","chairs"]],
+        ["please keep these in",["separate","one"]],
+        ["could you move this away from the",["door","window"]],
+        ["i'll put the smaller",["box","items"]],
+        ["please leave some space between the",["containers","chairs"]],
+        ["please put everything back where",["it","you"]]
+      ],
+      "sentences": [
+        "let's make room for the furniture before we bring it inside.",
+        "let's make room for the chairs before everyone arrives.",
+        "please keep these in separate containers so we can find what we need.",
+        "please keep these in one box so nothing gets lost.",
+        "could you move this away from the door so we can get through?",
+        "could you move this away from the window while i clean?",
+        "i'll put the smaller box inside the larger one.",
+        "i'll put the smaller items in the top drawer.",
+        "please leave some space between the containers so we can reach the back.",
+        "please leave some space between the chairs so people can walk through.",
+        "please put everything back where it was when you're done.",
+        "please put everything back where you found it before we leave."
+      ]
+    },
+    {
+      "id": "daily_restock",
+      "words": [],
+      "next_words": [
+        ["we're nearly out of",["detergent","batteries"]],
+        ["could you add these to the",["list","basket"]],
+        ["do we have any spare",["batteries","lightbulbs"]],
+        ["there's an unopened",["bottle","packet"]],
+        ["please use the open",["bottle","packet"]],
+        ["please tell me when we're",["nearly","out"]]
+      ],
+      "sentences": [
+        "we're nearly out of detergent so i'll add it to the list.",
+        "we're nearly out of batteries so please check the drawer first.",
+        "could you add these to the list before we go shopping?",
+        "could you add these to the basket after checking what we have at home?",
+        "do we have any spare batteries in the drawer?",
+        "do we have any spare lightbulbs or should i buy another pack?",
+        "there's an unopened bottle of detergent in the cupboard.",
+        "there's an unopened packet of sponges under the sink.",
+        "please use the open bottle before you start a new one.",
+        "please use the open packet before opening another one.",
+        "please tell me when we're nearly out so i can get some more.",
+        "please tell me when we're out of detergent and i'll add it to the list."
+      ]
+    },
+    {
+      "id": "daily_hygiene",
+      "words": [
+        "paper",
+        "soap",
+        "shampoo",
+        "toothpaste",
+        "tissue",
+        "tissues",
+        "conditioner",
+        "mouthwash"
+      ],
+      "next_words": [
+        ["could you bring me some",["paper","tissues"]],
+        ["we've run out of",["soap","toothpaste"]],
+        ["i've left the",["shampoo","conditioner"]],
+        ["could you hand me a",["tissue","towel"]],
+        ["there's another bottle of",["shampoo","mouthwash"]],
+        ["please check if we need",["toothpaste","conditioner"]]
+      ],
+      "sentences": [
+        "could you bring me some paper from the desk?",
+        "could you bring me some tissues from the bathroom?",
+        "we've run out of soap by the sink.",
+        "we've run out of toothpaste so i'll add it to the list.",
+        "i've left the shampoo on the bathroom shelf.",
+        "i've left the conditioner next to the shampoo.",
+        "could you hand me a tissue from that box?",
+        "could you hand me a towel from the shelf?",
+        "there's another bottle of shampoo in the cupboard.",
+        "there's another bottle of mouthwash on the bathroom shelf.",
+        "please check if we need toothpaste before you go out.",
+        "please check if we need conditioner before buying more."
+      ]
     }
   ],
   "phrase_endings": [

@@ -406,7 +406,7 @@ fn shopping_preserves_every_old_layer_context_sentence_and_index_rank() {
     for (word, rank) in before {
         assert_eq!(current[&word], rank, "changed old rank for {word}");
     }
-    assert!(current.len() < 6144);
+    assert_eq!(current.len(), 6151);
 }
 
 #[test]

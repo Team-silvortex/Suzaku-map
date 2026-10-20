@@ -418,5 +418,5 @@ fn mealtime_appends_fixed_data_preserving_all_legacy_records_and_6143_positions(
             "old index position changed: {word}"
         );
     }
-    assert!(after.len() < 6144);
+    assert_eq!(after.len(), 6151);
 }

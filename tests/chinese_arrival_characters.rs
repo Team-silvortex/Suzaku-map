@@ -97,11 +97,11 @@ fn signature(ime: &XRTabletImeEngine) -> u64 {
 #[test]
 fn two_independent_readings_append_after_result_window_without_authored_contexts() {
     let zh = lexicon::builtin("zh-Hans").unwrap();
-    assert_eq!(zh.readings().len(), 3244);
-    assert_eq!(zh.continuations().count(), 789);
+    assert_eq!(zh.readings().len(), 3330);
+    assert_eq!(zh.continuations().count(), 821);
     assert_eq!(
         zh.continuations().map(|(_, v)| v.len()).sum::<usize>(),
-        1576
+        1640
     );
     for (entry, &(reading, text, _)) in zh.readings()[3174..3176].iter().zip(ARRIVALS) {
         assert_eq!((&*entry.reading, &*entry.text), (reading, text));

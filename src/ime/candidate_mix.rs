@@ -474,14 +474,58 @@ fn balance_for_seed(
                 })
             })
         };
-    balance(pool, pinned, limit, reserve_pair)
+    let reserve_progress_pair = limit >= PAGE_SIZE
+        && BuiltinLanguage::resolve(language) == Some(BuiltinLanguage::Japanese)
+        && pool.first().is_some_and(|anchor| {
+            anchor.kind == CandidateKind::Sentence
+                && anchor.source == CandidateSource::Local
+                && japanese::authored_progress_continuations(seed, &anchor.text)
+                    .map(|values| (None, values))
+                    .or_else(|| {
+                        japanese::authored_vowel_completion(seed, &anchor.text)
+                            .map(|(word, values)| (Some(word), values))
+                    })
+                    .is_some_and(|(word, values)| {
+                        word.is_none_or(|word| {
+                            pool.iter().any(|candidate| {
+                                candidate.text == word
+                                    && candidate.kind == CandidateKind::Word
+                                    && candidate.source == CandidateSource::Local
+                            })
+                        }) && values[..2].iter().all(|text| {
+                            pool.iter().any(|candidate| {
+                                candidate.text == *text
+                                    && candidate.kind == CandidateKind::Sentence
+                                    && candidate.source == CandidateSource::Local
+                            })
+                        })
+                    })
+        });
+    if reserve_progress_pair {
+        // The conversion remains the typing anchor, not an authored extension.
+        // With exactly one page, reserve raw text before filling surplus Word
+        // slots so literal rescue cannot replace the second continuation.
+        balance_with_page_literal(pool, pinned, limit, true, limit == PAGE_SIZE)
+    } else {
+        balance(pool, pinned, limit, reserve_pair)
+    }
 }
 
 fn balance(
+    pool: Vec<Candidate>,
+    pinned: usize,
+    limit: usize,
+    reserve_word_pair: bool,
+) -> Vec<Candidate> {
+    balance_with_page_literal(pool, pinned, limit, reserve_word_pair, false)
+}
+
+fn balance_with_page_literal(
     mut pool: Vec<Candidate>,
     pinned: usize,
     limit: usize,
     reserve_word_pair: bool,
+    reserve_literal_on_page: bool,
 ) -> Vec<Candidate> {
     let limit = limit.max(1);
     let mut seen = HashSet::new();
@@ -492,9 +536,14 @@ fn balance(
     let page = PAGE_SIZE.min(limit);
     let quota: usize = if page >= 5 { 2 } else { 1 };
     let mut reserved = Vec::new();
+    if reserve_literal_on_page
+        && let Some(index) = rest.iter().position(|c| c.kind == CandidateKind::Literal)
+    {
+        reserved.push(rest.remove(index));
+    }
     for kind in [CandidateKind::Word, CandidateKind::Sentence] {
         let anchors = pool.iter().filter(|c| c.kind == kind).count();
-        // Only a verified immediate whole-word fallback receives this policy.
+        // Only a verified whole-word fallback or authored progress gets this.
         // Its preceding converted span must not consume an authored-sentence
         // slot. Neither scores, typing anchors nor page/count limits change.
         let anchors = if reserve_word_pair && kind == CandidateKind::Sentence {
@@ -787,6 +836,209 @@ fn english_preview_start(seed: &str, text: &str, room: usize) -> Option<usize> {
 mod tests {
     use super::*;
     use crate::ime::{CommitOptions, EngineConfig, XRTabletImeEngine};
+
+    fn japanese_progress_slot_fixture() -> Vec<Candidate> {
+        [
+            ("汚れが", CandidateKind::Sentence, 100.0),
+            ("汚れ学校", CandidateKind::Word, 91.0),
+            ("汚れ画面共有", CandidateKind::Word, 90.5),
+            ("汚れ画像サイズ", CandidateKind::Word, 90.0),
+            ("汚れ画面が止まっています", CandidateKind::Word, 89.5),
+            (
+                "汚れが気になるので拭いておきます。",
+                CandidateKind::Sentence,
+                77.0,
+            ),
+            ("汚れがきれいに落ちました。", CandidateKind::Sentence, 76.5),
+            ("汚レガ", CandidateKind::Sentence, 73.5),
+            ("汚れ ga", CandidateKind::Literal, 55.0),
+        ]
+        .into_iter()
+        .map(|(text, kind, score)| candidate(text.into(), kind, score))
+        .collect()
+    }
+
+    fn assert_japanese_progress_page(choices: &[Candidate], limit: usize) {
+        assert_eq!(choices[0], japanese_progress_slot_fixture()[0]);
+        assert!(choices.len() <= limit);
+        let page = &choices[..PAGE_SIZE.min(choices.len())];
+        assert!(
+            page.iter()
+                .filter(|c| c.kind == CandidateKind::Word)
+                .count()
+                >= 2
+        );
+        assert!(
+            page[1..]
+                .iter()
+                .filter(|c| c.kind == CandidateKind::Sentence)
+                .count()
+                >= 2
+        );
+        assert!(
+            choices
+                .iter()
+                .any(|c| c.text == "汚れ ga" && c.kind == CandidateKind::Literal)
+        );
+    }
+
+    #[test]
+    fn japanese_progress_keeps_two_authors_through_merge_and_personalization() {
+        let original = japanese_progress_slot_fixture();
+        let (merged, accepted) = merge_model("ja", "汚れ ga", original.clone(), Vec::new(), 12);
+        assert!(!accepted);
+        let local = balance_for_seed("ja", "汚れ ga", original.clone(), 1, 12);
+        assert_eq!(merged, local);
+        assert_eq!(local.len(), original.len());
+        assert!(original.iter().all(|c| local.contains(c)));
+        assert_eq!(
+            local
+                .iter()
+                .filter(|c| c.kind == CandidateKind::Word)
+                .collect::<Vec<_>>(),
+            original
+                .iter()
+                .filter(|c| c.kind == CandidateKind::Word)
+                .collect::<Vec<_>>()
+        );
+        for limit in PAGE_SIZE..=12 {
+            let limited = balance_for_seed("ja", "汚れ ga", original.clone(), 1, limit);
+            let learned = personalize("ja", "汚れ ga", local.clone(), true, limit, |c| {
+                if c.text == "汚れ画面が止まっています" {
+                    0.5
+                } else {
+                    0.0
+                }
+            });
+            for choices in [&limited, &learned] {
+                assert_japanese_progress_page(choices, limit);
+                for text in [
+                    "汚れが気になるので拭いておきます。",
+                    "汚れがきれいに落ちました。",
+                ] {
+                    assert!(choices[..PAGE_SIZE].iter().any(|c| c.text == text));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn japanese_progress_reservation_requires_the_actual_local_pair_and_seed() {
+        let original = japanese_progress_slot_fixture();
+        let unchanged = |language: &str, seed: &str, pool: Vec<Candidate>, limit| {
+            assert_eq!(
+                balance_for_seed(language, seed, pool.clone(), 1, limit),
+                balance(pool, 1, limit, false),
+                "unexpected progress policy for {language} {seed:?} / {limit}"
+            );
+        };
+        for seed in [
+            "汚れ g",
+            "未知 汚れ ga",
+            "https://example.invalid/汚れ ga",
+            "汚れがきれい",
+            "汚れが気",
+        ] {
+            unchanged("ja", seed, original.clone(), 12);
+        }
+        for boundary in [
+            '\n', '\r', '\u{b}', '\u{c}', '\u{85}', '\u{2028}', '\u{2029}',
+        ] {
+            unchanged("ja", &format!("汚れ{boundary}ga"), original.clone(), 12);
+        }
+        unchanged(
+            "ja",
+            &format!("{}汚れ ga", "既存。".repeat(100)),
+            original.clone(),
+            12,
+        );
+        for language in ["en", "zh-Hans"] {
+            unchanged(language, "汚れ ga", original.clone(), 12);
+        }
+        for limit in 0..PAGE_SIZE {
+            unchanged("ja", "汚れ ga", original.clone(), limit);
+        }
+        for mutation in 0..5 {
+            let mut pool = original.clone();
+            match mutation {
+                0 => {
+                    pool.remove(6);
+                }
+                1 => pool[6].kind = CandidateKind::Word,
+                2 => pool[6].source = CandidateSource::Model,
+                3 => pool[0].source = CandidateSource::Model,
+                _ => pool[0].text = "汚れがきれいに落ちました。".into(),
+            }
+            unchanged("ja", "汚れ ga", pool, 12);
+        }
+    }
+
+    #[test]
+    fn japanese_progress_keeps_sentence_slots_competitive_for_models_and_preferences() {
+        let original = japanese_progress_slot_fixture();
+        for limit in PAGE_SIZE..=12 {
+            let texts = [
+                "汚れが残っていないか確認します。",
+                "汚れが落ちたので乾かします。",
+            ];
+            let (merged, accepted) = merge_model(
+                "ja",
+                "汚れ ga",
+                original.clone(),
+                texts
+                    .iter()
+                    .map(|text| LlmCompletion {
+                        text: (*text).into(),
+                        kind: Some(CandidateKind::Sentence),
+                        score_bias: 1.0,
+                    })
+                    .collect(),
+                limit,
+            );
+            assert!(accepted);
+            assert_japanese_progress_page(&merged, limit);
+            for text in texts {
+                assert!(
+                    merged[..PAGE_SIZE]
+                        .iter()
+                        .any(|c| c.text == text && c.source == CandidateSource::Model)
+                );
+            }
+        }
+        let author = "汚れがきれいに落ちました。";
+        let (corroborated, accepted) = merge_model(
+            "ja",
+            "汚れ ga",
+            original.clone(),
+            vec![LlmCompletion {
+                text: author.into(),
+                kind: Some(CandidateKind::Sentence),
+                score_bias: 1.0,
+            }],
+            12,
+        );
+        assert!(accepted);
+        let local = corroborated.iter().find(|c| c.text == author).unwrap();
+        assert_eq!(local.source, CandidateSource::Local);
+        assert_eq!(local.label, author);
+        assert_eq!(corroborated.iter().filter(|c| c.text == author).count(), 1);
+        let (model, _) = merge_model(
+            "ja",
+            "汚れ ga",
+            original,
+            vec![LlmCompletion {
+                text: "汚れが別の場所にも残っています。".into(),
+                kind: Some(CandidateKind::Sentence),
+                score_bias: 1.0,
+            }],
+            12,
+        );
+        let preferred = personalize("ja", "汚れ ga", model, true, 12, |c| {
+            if c.text == author { 16.0 } else { 0.0 }
+        });
+        assert_japanese_progress_page(&preferred, 12);
+        assert!(preferred[..PAGE_SIZE].iter().any(|c| c.text == author));
+    }
 
     #[test]
     fn native_long_labels_show_complete_changed_tails_only() {
@@ -1636,5 +1888,392 @@ mod tests {
         assert_eq!(engine.candidates()[0].text, seed);
         assert_eq!(engine.candidates()[0].score, 100.0);
         assert_eq!(engine.candidates()[0].kind, CandidateKind::Literal);
+    }
+}
+
+#[cfg(test)]
+mod japanese_vowel_slot_tests {
+    use super::*;
+
+    const SEED: &str = "senganryo";
+    const AUTHORS: [&str; 2] = [
+        "洗顔料を買い物のメモに追加します。",
+        "洗顔料の予備はまだあります。",
+    ];
+
+    fn fixture() -> Vec<Candidate> {
+        [
+            ("洗顔りょ", CandidateKind::Sentence, 100.0),
+            ("せんがんりょ", CandidateKind::Unspecified, 92.0),
+            ("洗顔料", CandidateKind::Word, 90.5),
+            ("洗顔両方", CandidateKind::Word, 90.0),
+            ("センガンリョ", CandidateKind::Unspecified, 90.0),
+            (AUTHORS[0], CandidateKind::Sentence, 76.5),
+            ("洗顔了解", CandidateKind::Word, 89.5),
+            ("洗顔領収書", CandidateKind::Word, 89.0),
+            (AUTHORS[1], CandidateKind::Sentence, 76.0),
+            (SEED, CandidateKind::Literal, 55.0),
+        ]
+        .into_iter()
+        .map(|(text, kind, score)| candidate(text.into(), kind, score))
+        .collect()
+    }
+
+    fn page_invariants(pool: &[Candidate], limit: usize) {
+        assert_eq!(pool[0], fixture()[0]);
+        assert!(pool.len() <= limit);
+        let page = &pool[..PAGE_SIZE];
+        assert!(
+            page.iter()
+                .filter(|c| c.kind == CandidateKind::Word)
+                .count()
+                >= 2
+        );
+        assert!(
+            page[1..]
+                .iter()
+                .filter(|c| c.kind == CandidateKind::Sentence)
+                .count()
+                >= 2
+        );
+        assert!(
+            pool.iter()
+                .any(|c| c.text == SEED && c.kind == CandidateKind::Literal)
+        );
+    }
+
+    #[test]
+    fn unique_vowel_pair_preserves_conversion_word_order_weights_and_literal_capacity() {
+        let original = fixture();
+        for limit in PAGE_SIZE..=12 {
+            let actual = balance_for_seed("ja", SEED, original.clone(), 1, limit);
+            page_invariants(&actual, limit);
+            for author in AUTHORS {
+                assert!(actual[..PAGE_SIZE].iter().any(|c| c.text == author));
+            }
+            if limit == 12 {
+                assert_eq!(actual.len(), original.len());
+                assert!(original.iter().all(|c| actual.contains(c)));
+                assert_eq!(
+                    actual
+                        .iter()
+                        .filter(|c| c.kind == CandidateKind::Word)
+                        .collect::<Vec<_>>(),
+                    original
+                        .iter()
+                        .filter(|c| c.kind == CandidateKind::Word)
+                        .collect::<Vec<_>>()
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn vowel_pair_requires_real_local_word_pair_conversion_language_and_budget() {
+        let unchanged = |language, seed: &str, pool: Vec<Candidate>, limit| {
+            assert_eq!(
+                balance_for_seed(language, seed, pool.clone(), 1, limit),
+                balance(pool, 1, limit, false),
+                "unexpected vowel reservation for {language}/{seed:?}/{limit}"
+            );
+        };
+        for seed in [
+            "ほぞんさ",
+            "joushake",
+            "jikanta",
+            "kyouyu",
+            "senganry",
+            "xyzsenganryo",
+            "https://example.invalid/senganryo",
+        ] {
+            unchanged("ja", seed, fixture(), 12);
+        }
+        for boundary in [
+            '\n', '\r', '\u{b}', '\u{c}', '\u{85}', '\u{2028}', '\u{2029}',
+        ] {
+            unchanged("ja", &format!("sengan{boundary}ryo"), fixture(), 12);
+        }
+        unchanged(
+            "ja",
+            &format!("{}senganryo", "前文。".repeat(100)),
+            fixture(),
+            12,
+        );
+        for language in ["en", "zh-Hans"] {
+            unchanged(language, SEED, fixture(), 12);
+        }
+        for limit in 0..PAGE_SIZE {
+            unchanged("ja", SEED, fixture(), limit);
+        }
+        for mutation in 0..8 {
+            let mut pool = fixture();
+            match mutation {
+                0 => {
+                    pool.remove(2);
+                }
+                1 => pool[2].source = CandidateSource::Model,
+                2 => pool[2].kind = CandidateKind::Unspecified,
+                3 => {
+                    pool.remove(8);
+                }
+                4 => pool[8].source = CandidateSource::Model,
+                5 => pool[8].kind = CandidateKind::Word,
+                6 => pool[0].source = CandidateSource::Model,
+                _ => pool[0].text = "洗顔りょ?".into(),
+            }
+            unchanged("ja", SEED, pool, 12);
+        }
+    }
+
+    #[test]
+    fn vowel_sentence_slots_still_allow_model_and_preference_competition() {
+        let texts = ["洗顔料を棚に戻します。", "洗顔料はここに置きます。"];
+        for limit in PAGE_SIZE..=12 {
+            let (merged, accepted) = merge_model(
+                "ja",
+                SEED,
+                fixture(),
+                texts
+                    .iter()
+                    .map(|text| LlmCompletion {
+                        text: (*text).into(),
+                        kind: Some(CandidateKind::Sentence),
+                        score_bias: 1.0,
+                    })
+                    .collect(),
+                limit,
+            );
+            assert!(accepted);
+            page_invariants(&merged, limit);
+            for text in texts {
+                assert!(
+                    merged[..PAGE_SIZE]
+                        .iter()
+                        .any(|c| c.text == text && c.source == CandidateSource::Model)
+                );
+            }
+            let learned = personalize("ja", SEED, fixture(), true, limit, |c| {
+                if c.text == AUTHORS[1] { 24.0 } else { 0.0 }
+            });
+            page_invariants(&learned, limit);
+            assert!(learned[..PAGE_SIZE].iter().any(|c| c.text == AUTHORS[1]));
+        }
+    }
+}
+
+#[cfg(test)]
+mod japanese_repeat_balance_tests {
+    use super::*;
+    use crate::ime::{CommitOptions, EngineConfig, PredictionStatus, XRTabletImeEngine};
+    use crate::languages::llm::{LlmCompletionProvider, LlmCompletionRequest};
+    use std::sync::{
+        Arc,
+        atomic::{AtomicUsize, Ordering},
+    };
+    use std::time::{Duration, Instant};
+
+    const SEED: &str = "senganryo";
+    const MODEL_WORD: &str = "洗顔用タオル";
+    const MODEL_SENTENCES: [&str; 2] = ["洗顔料を棚に戻します。", "洗顔料はここに置きます。"];
+
+    fn fixture() -> Vec<Candidate> {
+        // Real ten-row local pool from the hygiene regression, not model text.
+        [
+            ("洗顔りょ", CandidateKind::Sentence, 100.0),
+            ("せんがんりょ", CandidateKind::Unspecified, 92.0),
+            ("洗顔料", CandidateKind::Word, 90.5),
+            ("洗顔両方", CandidateKind::Word, 90.0),
+            ("センガンリョ", CandidateKind::Unspecified, 90.0),
+            (
+                "洗顔料を買い物のメモに追加します。",
+                CandidateKind::Sentence,
+                76.5,
+            ),
+            ("洗顔了解", CandidateKind::Word, 89.5),
+            ("洗顔領収書", CandidateKind::Word, 89.0),
+            (
+                "洗顔料の予備はまだあります。",
+                CandidateKind::Sentence,
+                76.0,
+            ),
+            (SEED, CandidateKind::Literal, 55.0),
+        ]
+        .into_iter()
+        .map(|(text, kind, score)| candidate(text.into(), kind, score))
+        .collect()
+    }
+
+    fn completions() -> Vec<LlmCompletion> {
+        [
+            (MODEL_WORD, CandidateKind::Word),
+            (MODEL_SENTENCES[0], CandidateKind::Sentence),
+            (MODEL_SENTENCES[1], CandidateKind::Sentence),
+        ]
+        .into_iter()
+        .map(|(text, kind)| LlmCompletion {
+            text: text.into(),
+            kind: Some(kind),
+            score_bias: 1.0,
+        })
+        .collect()
+    }
+
+    fn check_final_page(pool: &[Candidate], primary: &Candidate) {
+        assert_eq!(&pool[0], primary);
+        assert_eq!(pool.len(), 12);
+        assert!(pool.iter().any(|c| {
+            c.text == SEED && c.kind == CandidateKind::Literal && c.source == CandidateSource::Local
+        }));
+        let page = &pool[..PAGE_SIZE];
+        assert!(
+            page.iter()
+                .filter(|c| c.kind == CandidateKind::Word)
+                .count()
+                >= 2
+        );
+        assert!(
+            page[1..]
+                .iter()
+                .filter(|c| c.kind == CandidateKind::Sentence)
+                .count()
+                >= 2
+        );
+        let word = page.iter().find(|c| c.text == MODEL_WORD).unwrap();
+        assert_eq!(word.kind, CandidateKind::Word);
+        assert_eq!(word.source, CandidateSource::Model);
+        assert_eq!(word.score.to_bits(), 96.0_f32.to_bits());
+        for text in MODEL_SENTENCES {
+            let sentence = page.iter().find(|c| c.text == text).unwrap();
+            assert_eq!(sentence.kind, CandidateKind::Sentence);
+            assert_eq!(sentence.source, CandidateSource::Model);
+            assert_eq!(sentence.score.to_bits(), 88.0_f32.to_bits());
+        }
+    }
+
+    #[test]
+    fn unbounded_model_merge_defers_the_twelve_row_limit_until_word_personalization() {
+        let local = fixture();
+        assert_eq!(local.len(), 10);
+        let primary = local[0].clone();
+        let replies = completions();
+        assert!(
+            replies
+                .iter()
+                .all(|reply| local.iter().all(|c| c.text != reply.text))
+        );
+        assert_eq!(local.len() + replies.len(), 13);
+        // The engine deliberately retains this complete intermediate pool.
+        let (merged, accepted) =
+            merge_model("ja", SEED, local.clone(), replies.clone(), usize::MAX);
+        assert!(accepted);
+        assert_eq!(merged.len(), 13);
+        assert!(local.iter().all(|item| merged.contains(item)));
+        for freeze_anchors in [false, true] {
+            let learned = personalize("ja", SEED, merged.clone(), freeze_anchors, 12, |c| {
+                if c.text == "洗顔料" { 0.5 } else { 0.0 }
+            });
+            assert_eq!(
+                learned
+                    .iter()
+                    .find(|c| c.text == "洗顔料")
+                    .unwrap()
+                    .score
+                    .to_bits(),
+                91.0_f32.to_bits(),
+                "exercise positive-preference balancing, not its unchanged fast path"
+            );
+            check_final_page(&learned, &primary);
+        }
+
+        // Diagnostic control only: an explicit early cap can discard the
+        // second author needed as provenance. This is not the engine sequence
+        // and does not promise equivalent subsequent balancing of that pool.
+        let (early, accepted) = merge_model("ja", SEED, local, replies, 12);
+        assert!(accepted);
+        assert_eq!(early.len(), 12);
+        assert!(
+            !early
+                .iter()
+                .any(|c| c.text == "洗顔料の予備はまだあります。")
+        );
+        let early_learned = personalize("ja", SEED, early, true, 12, |c| {
+            if c.text == "洗顔料" { 0.5 } else { 0.0 }
+        });
+        assert_eq!(early_learned.len(), 12);
+        assert_eq!(early_learned[0], primary);
+        assert!(early_learned.iter().any(|c| c.text == SEED));
+    }
+
+    struct ThreeReplies(Arc<AtomicUsize>);
+
+    impl LlmCompletionProvider for ThreeReplies {
+        fn provider_id(&self) -> &str {
+            "japanese-repeat-balance-test"
+        }
+
+        fn generate(&self, request: &LlmCompletionRequest) -> Vec<LlmCompletion> {
+            assert_eq!(request.language_id, "ja");
+            assert_eq!(request.seed_text, SEED);
+            assert_eq!(request.normalized_phrase, "洗顔りょ");
+            self.0.fetch_add(1, Ordering::SeqCst);
+            completions()
+        }
+    }
+
+    #[test]
+    fn engine_applies_learned_word_once_after_the_complete_worker_reply_pool() {
+        let mut engine = XRTabletImeEngine::new(EngineConfig {
+            default_language: "ja".into(),
+            ..Default::default()
+        });
+        engine.enable_ibus_candidate_mix();
+        engine.seed(SEED);
+        let primary = engine.candidates()[0].clone();
+        let word_index = engine
+            .candidates()
+            .iter()
+            .position(|c| c.text == "洗顔料" && c.kind == CandidateKind::Word)
+            .unwrap();
+        engine.select_candidate(word_index);
+        assert!(engine.commit(CommitOptions { force: true }).ok);
+        assert_eq!(engine.preference_count(), 1);
+        engine.clear_session_context();
+
+        let calls = Arc::new(AtomicUsize::new(0));
+        engine.configure_prediction(Some(Arc::new(ThreeReplies(calls.clone()))));
+        engine.seed(SEED);
+        let learned_local = engine
+            .candidates()
+            .iter()
+            .find(|c| c.text == "洗顔料")
+            .unwrap();
+        assert!(learned_local.score > 90.5, "exercise a real RAM Word bonus");
+        let deadline = Instant::now() + Duration::from_secs(2);
+        while engine.prediction_pending() && Instant::now() < deadline {
+            engine.poll_prediction();
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        assert_eq!(engine.prediction_status(), PredictionStatus::Ready);
+        assert_eq!(calls.load(Ordering::SeqCst), 1);
+        assert_eq!(engine.preference_count(), 1);
+        check_final_page(engine.candidates(), &primary);
+        let learned = engine
+            .candidates()
+            .iter()
+            .find(|c| c.text == "洗顔料")
+            .unwrap();
+        assert_eq!(learned.kind, CandidateKind::Word);
+        assert_eq!(learned.source, CandidateSource::Local);
+        assert!(learned.score > 90.5 && learned.score <= 93.5);
+        let snapshot = engine.snapshot();
+        assert_eq!(snapshot.seed_text, SEED);
+        assert!(snapshot.committed_text.is_empty());
+        let pool = engine.candidates().to_vec();
+        for _ in 0..3 {
+            assert!(!engine.poll_prediction());
+            assert_eq!(engine.snapshot(), snapshot);
+            assert_eq!(engine.candidates(), pool);
+        }
+        assert_eq!(calls.load(Ordering::SeqCst), 1);
     }
 }

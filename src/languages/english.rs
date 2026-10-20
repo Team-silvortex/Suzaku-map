@@ -1,7 +1,10 @@
 use super::ranked_candidates;
 use crate::ime::{Candidate, LanguagePlugin};
 use crate::lexicon::{Lexicon, WordLayer};
-use std::{collections::HashSet, sync::OnceLock};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::OnceLock,
+};
 
 fn vocabulary() -> &'static Lexicon {
     crate::lexicon::active("en").expect("English vocabulary is registered")
@@ -294,14 +297,47 @@ fn next_word_contexts() -> &'static [WordContext] {
     CONTEXTS.get_or_init(|| index_contexts(vocabulary().next_words()))
 }
 
+type ContextBuckets<'a> = HashMap<&'a str, Vec<&'a WordContext>>;
+
+fn context_tail(context: &str) -> &str {
+    context.rsplit_once(' ').map_or(context, |(_, tail)| tail)
+}
+
+fn index_context_buckets(contexts: &[WordContext]) -> ContextBuckets<'_> {
+    let mut buckets = HashMap::<_, Vec<_>>::new();
+    for entry in contexts {
+        // A matching suffix must have this exact final segment. Borrow keys
+        // from the immutable context table and preserve its order in each bin.
+        buckets
+            .entry(context_tail(&entry.prefix))
+            .or_default()
+            .push(entry);
+    }
+    buckets
+}
+
+fn next_word_context_buckets() -> &'static ContextBuckets<'static> {
+    static BUCKETS: OnceLock<ContextBuckets<'static>> = OnceLock::new();
+    BUCKETS.get_or_init(|| index_context_buckets(next_word_contexts()))
+}
+
 fn phrase_ending_contexts() -> &'static [WordContext] {
     static CONTEXTS: OnceLock<Vec<WordContext>> = OnceLock::new();
     CONTEXTS.get_or_init(|| index_contexts(vocabulary().phrase_endings()))
 }
 
 fn context_word_match(context: &str) -> (usize, &'static [String]) {
+    context_word_match_in_buckets(context, next_word_context_buckets())
+}
+
+fn context_word_match_in_buckets(
+    context: &str,
+    buckets: &ContextBuckets<'_>,
+) -> (usize, &'static [String]) {
     let normalized = canonical_context(current_clause(context));
-    next_word_contexts()
+    buckets
+        .get(context_tail(&normalized))
+        .map_or(&[][..], Vec::as_slice)
         .iter()
         .filter(|entry| {
             normalized == entry.prefix
@@ -686,6 +722,208 @@ pub(crate) fn word_from_continuation<'a>(seed: &str, text: &'a str) -> Option<&'
 mod tests {
     use super::*;
 
+    // Keep the original full-table scan independent of the bucket lookup.
+    fn linear_context_word_match(
+        context: &str,
+        contexts: &[WordContext],
+    ) -> (usize, &'static [String]) {
+        let normalized = canonical_context(current_clause(context));
+        contexts
+            .iter()
+            .filter(|entry| {
+                normalized == entry.prefix
+                    || normalized
+                        .strip_suffix(&entry.prefix)
+                        .is_some_and(|left| left.ends_with(' '))
+            })
+            .max_by_key(|entry| entry.strength)
+            .map_or((0, &[]), |entry| (entry.strength, entry.words))
+    }
+
+    #[test]
+    fn bucketed_context_match_equals_linear_for_every_authored_context() {
+        let contexts = next_word_contexts();
+        assert_eq!(contexts.len(), 827);
+        for (context, _) in vocabulary().next_words() {
+            for query in [
+                context.to_owned(),
+                context.to_ascii_uppercase().replace('\'', "’"),
+                format!("Earlier words {context}"),
+                format!("({context})"),
+                format!("unknownprefix{context}"),
+            ] {
+                let actual = context_word_match(&query);
+                let expected = linear_context_word_match(&query, contexts);
+                assert_eq!(actual, expected, "{query:?}");
+                assert!(std::ptr::eq(actual.1, expected.1), "{query:?}");
+            }
+        }
+    }
+
+    #[test]
+    fn bucketed_context_match_keeps_protection_and_unicode_boundaries() {
+        let mut queries = vec![
+            String::new(),
+            "   ".into(),
+            "unknowncontext".into(),
+            "前文 we've nearly finished".into(),
+            "we're nearly out o".into(),
+            "PLEASE let me KNOW the".into(),
+            "I’ve taken photos of the".into(),
+            "we're nearly out of ()".into(),
+            "we're () nearly out of".into(),
+            "() we're nearly out of".into(),
+            "hello—please let me know the".into(),
+            "前文。please let me know the".into(),
+            "https://example.invalid/we're.nearly.out.of".into(),
+            "path/we're_nearly_out_of".into(),
+            "identifier_please_let_me_know_the".into(),
+            "name@please.let.me.know.the".into(),
+            format!("{}we're nearly out of", "前文😀。  ".repeat(100)),
+        ];
+        for gap in [" ", "  ", "\t", "\u{a0}", "\u{3000}", "\u{202f}"] {
+            queries.push(format!(
+                "{gap}{}{gap}",
+                "we’re nearly out of".replace(' ', gap)
+            ));
+            queries.push(format!("{} ()", "please let me know the".replace(' ', gap)));
+        }
+        for separator in [
+            "\n", "\r", "\u{b}", "\u{c}", "\u{85}", "\u{2028}", "\u{2029}",
+        ] {
+            queries.push(format!("we're nearly{separator}out of"));
+            queries.push(format!("Earlier context{separator}we're nearly out of"));
+        }
+        for query in queries {
+            let actual = context_word_match(&query);
+            let expected = linear_context_word_match(&query, next_word_contexts());
+            assert_eq!(actual, expected, "{query:?}");
+            assert!(std::ptr::eq(actual.1, expected.1), "{query:?}");
+        }
+        for protected in [
+            "https://example.invalid/we're.nearly.out.of",
+            "path/we're_nearly_out_of",
+            "identifier_please_let_me_know_the",
+            "name@please.let.me.know.the",
+        ] {
+            assert_eq!(context_word_match(protected), (0, &[][..]));
+        }
+    }
+
+    #[test]
+    fn context_buckets_preserve_first_canonical_source_and_empty_tail_segments() {
+        static RAW: OnceLock<Vec<(&str, Vec<String>)>> = OnceLock::new();
+        let raw = RAW.get_or_init(|| {
+            [
+                ("Hello World", "first"),
+                ("hello\tworld", "later"),
+                ("I’m ready", "early"),
+                ("i'm ready", "later"),
+                ("world", "shorter"),
+                ("() ()", "empty-parts"),
+                ("word ()", "empty-tail"),
+                ("() word", "empty-first"),
+                ("汉字 café", "unicode"),
+                ("café", "single"),
+                ("()", "ignored"),
+            ]
+            .into_iter()
+            .map(|(context, word)| (context, vec![word.to_owned()]))
+            .collect()
+        });
+        let contexts = index_contexts(
+            raw.iter()
+                .map(|(context, words)| (*context, words.as_slice())),
+        );
+        let buckets = index_context_buckets(&contexts);
+        assert_eq!(contexts.len(), 8);
+        assert_eq!(buckets[""].len(), 2);
+        for query in [
+            "hello world",
+            "Earlier HELLO WORLD",
+            "world",
+            "I’m ready",
+            "i'm ready",
+            "() ()",
+            "word ()",
+            "Earlier word ()",
+            "() word",
+            "word",
+            "汉字 café",
+            "Earlier 汉字 café",
+            "café",
+            "()",
+            "",
+            "unknown",
+        ] {
+            let actual = context_word_match_in_buckets(query, &buckets);
+            let expected = linear_context_word_match(query, &contexts);
+            assert_eq!(actual, expected, "{query:?}");
+            assert!(std::ptr::eq(actual.1, expected.1), "{query:?}");
+        }
+        assert_eq!(
+            context_word_match_in_buckets("hello world", &buckets).1,
+            ["first"]
+        );
+        assert_eq!(
+            context_word_match_in_buckets("i'm ready", &buckets).1,
+            ["early"]
+        );
+        assert_eq!(
+            context_word_match_in_buckets("() ()", &buckets).1,
+            ["empty-parts"]
+        );
+        assert_eq!(
+            context_word_match_in_buckets("word ()", &buckets).1,
+            ["empty-tail"]
+        );
+    }
+
+    #[test]
+    fn context_buckets_borrow_each_authored_entry_once_and_reuse_the_same_index() {
+        let contexts = next_word_contexts();
+        let buckets = next_word_context_buckets();
+        assert!(buckets.len() <= contexts.len());
+        assert_eq!(
+            buckets.values().map(Vec::len).sum::<usize>(),
+            contexts.len()
+        );
+        let mut seen = HashSet::new();
+        for (tail, entries) in buckets {
+            assert!(!entries.is_empty());
+            // Both keys and entries point into the existing immutable table.
+            assert!(std::ptr::eq(*tail, context_tail(&entries[0].prefix)));
+            let original: Vec<_> = contexts
+                .iter()
+                .filter(|entry| context_tail(&entry.prefix) == *tail)
+                .map(std::ptr::from_ref)
+                .collect();
+            assert_eq!(
+                entries
+                    .iter()
+                    .map(|entry| std::ptr::from_ref(*entry))
+                    .collect::<Vec<_>>(),
+                original
+            );
+            for entry in entries {
+                assert!(seen.insert(std::ptr::from_ref(*entry)));
+            }
+        }
+        assert_eq!(seen.len(), contexts.len());
+        for entry in contexts {
+            assert!(seen.contains(&std::ptr::from_ref(entry)));
+        }
+        for index in 0..64 {
+            let query = format!("private synthetic draft {index} unknowncontext");
+            assert_eq!(context_word_match(&query), (0, &[][..]));
+        }
+        assert!(std::ptr::eq(buckets, next_word_context_buckets()));
+        assert_eq!(
+            buckets.values().map(Vec::len).sum::<usize>(),
+            contexts.len()
+        );
+    }
+
     // The pre-optimization loop remains an independent ordered-output oracle.
     // It deliberately renders all remainders, including those beyond six choices.
     fn linear_mixed_candidates(
@@ -887,7 +1125,7 @@ mod tests {
     }
 
     // Current total, independent of the immutable per-layer historical baselines.
-    const EXPECTED_DICTIONARY_WORDS: usize = 6143;
+    const EXPECTED_DICTIONARY_WORDS: usize = 6151;
 
     fn layer_words(id: &str) -> impl Iterator<Item = &'static str> {
         vocabulary()
@@ -1394,7 +1632,7 @@ mod tests {
     #[test]
     fn vocabulary_is_bounded_indexed_and_covers_every_prefix() {
         assert!(dictionary().len() >= 5900, "{}", dictionary().len());
-        assert!(dictionary().len() < 6144, "{}", dictionary().len());
+        assert_eq!(dictionary().len(), EXPECTED_DICTIONARY_WORDS);
         for pair in dictionary().windows(2) {
             assert!(pair[0].text < pair[1].text);
         }
@@ -2197,8 +2435,8 @@ mod tests {
                 "unreachable sentence: {sentence}"
             );
         }
-        assert_eq!(keys.len(), 795);
-        assert_eq!(sentences.len(), 1554);
+        assert_eq!(keys.len(), 827);
+        assert_eq!(sentences.len(), 1618);
     }
 
     #[test]

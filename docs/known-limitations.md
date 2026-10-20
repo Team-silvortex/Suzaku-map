@@ -1,12 +1,25 @@
 # Alpha limitations and support
 
-0.9.2 targets Ubuntu 24.04 amd64, IBus and X11 / GNOME XWayland. Cross-platform architecture
-does not imply cross-platform stability. Keep another input method available.
+The published release is **0.9.2 / build 42 Linux Alpha prerelease**, targeting Ubuntu 24.04
+amd64, IBus and X11 / GNOME XWayland. **0.9.3 / build 43 is a source candidate**, not a
+published package or personal-installation update. Cross-platform architecture does not imply
+cross-platform stability. Keep another input method available.
 
-- **0.9.2 preparation and finite vocabulary:** local 0.9.2/build-42 validation passes
-  2,313 Rust checks, 19 private UI gates and strict Clippy; exact-commit remote
-  CI/package acceptance is still pending;
-  these notes are not a release or installation receipt. The three message,
+- **0.9.3 finite source scope and pending acceptance:** five everyday batches add eight
+  English forms, 122 CJK readings and 188 authored sentences, not unrestricted generation.
+  Immutable catalog indexes do not cache typed input; earlier warm timings do not qualify
+  final-build latency, cold start, UI/native input or real models. Narrow Japanese sentence-slot
+  proofs do not change the greedy conversion, raise the twelve-item limit or hard-pin local
+  authors above models/preferences. New vocabulary can change weights and displace tail choices.
+  Final versioned local checks pass 2,456 Rust tests, with 32 existing explicit ignores and
+  zero filtering, plus 19 isolated UI checks and strict Clippy. These are not remote acceptance;
+  the preceding 1,872 scoped checks are not counted again. This exact new commit's required CI and accepted-package checks must pass before
+  publication. See [0.9.3 preparation and release gates](releases/0.9.3.md).
+
+- **Historical 0.9.2 preparation and finite vocabulary:** local 0.9.2/build-42 validation passed
+  2,313 Rust checks, 19 private UI gates and strict Clippy. Remote CI/package acceptance was
+  still pending at that preparation stage, before the separately accepted 0.9.2 publication;
+  these historical totals are not 0.9.3 acceptance or a personal-installation receipt. The three message,
   appointment/queue and aftercare/packaging batches add 100 CJK readings and 122
   trilingual authored sentences/continuations, not unrestricted generation. English's
   6,143 indexed forms and their first-occurrence order are unchanged; Chinese/Japanese

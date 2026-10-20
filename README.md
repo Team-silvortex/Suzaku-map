@@ -3,9 +3,18 @@
 A local-first, continuous-writing input method with word and sentence candidates,
 optional language models, and a compact floating companion panel.
 
-**0.9.2 · Linux / IBus Alpha preview source candidate.** Current validation targets **Ubuntu 24.04,
+**[0.9.2 · Linux / IBus Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.2), not latest stable.** Current validation targets **Ubuntu 24.04,
 amd64, IBus, X11 or GNOME with XWayland**. Keep your usual input method available
 as a fallback. Other platforms remain experimental.
+
+**Source candidate: 0.9.3 / build 43.** It prepares five everyday-vocabulary batches,
+immutable-catalog query indexes and Japanese sentence-slot repairs. The current
+download above remains 0.9.2 until the new commit's CI and package acceptance finish.
+Local source checks pass: **2,456 Rust tests**, **19 isolated UI checks** and strict
+all-target/all-feature Clippy. These are not remote CI or installation acceptance.
+See [0.9.3 preparation and release gates](docs/releases/0.9.3.md). Earlier
+"uncommitted/unreleased" paragraphs below retain their development-time scope;
+those follow-ups are now included in this source candidate, not the published 0.9.2 assets.
 
 朱雀是以 Linux 为核心的连续写作输入法：用字母、拼音或罗马音起笔，同时获得词与句子候选。
 这是供试用和反馈的 Alpha，并非已覆盖所有桌面和应用的稳定版。
@@ -34,16 +43,107 @@ as a fallback. Other platforms remain experimental.
   these are **not** eight native input dictionaries.
 - Linux configuration backup and preview-first restore. Packages do not collect personal data.
 
-The 0.9.2 source candidate includes the messaging, appointment/walk-in and aftercare/packaging
+The latest **uncommitted basic washcare-and-paper vocabulary** adds eight English forms
+(`paper`, `soap`, `shampoo`, `toothpaste`, `tissue`, `tissues`, `conditioner`, `mouthwash`),
+eight Chinese Word readings, six Japanese Word readings and **36 authored sentences**.
+Current totals: **6,151 English forms / 827 contexts / 1,618 sentences (48 layers)**;
+**3,330 Chinese readings / 821 contexts / 1,640 sentences**;
+**592 Japanese readings / 309 contexts / 617 continuations**.
+It also fixes first-page sentence slots for a verified unique Japanese long-vowel completion
+such as `senganryo` → `洗顔料`, without altering its greedy conversion or Word weights.
+The scoped rerun passes **1,872 tests, zero failures, five existing explicit ignores**;
+26 new tests are included, not added again. This is not full-repository, native/UI, real-model,
+installation or performance-timing acceptance. The 25 optional packs/SDK, model contract,
+old reading order and first 6,143 English ranks remain unchanged. Not committed or installed;
+see the [current vocabulary and validation record](DEVELOPMENT.md).
+
+An **uncommitted Japanese sentence-slot repair** keeps both authored continuations on the first
+page when a verified conversion is still in progress, including `汚れ ga`. The conversion stays
+first at its original score; existing Words, literal text, model competition and 0–12 limits are
+preserved. At six slots, literal text no longer displaces the second continuation. Frozen new
+regressions and the unchanged old cleaning target pass. The expanded rerun records **1,846 passes,
+zero failures and five existing explicit ignores**, plus strict Clippy; not a native/UI/install run.
+See the [current repair record](DEVELOPMENT.md). Not committed, published or installed.
+
+The preceding **uncommitted candidate-computation follow-up** replaces repeated English context scans,
+Chinese continuation scans and Japanese written-form conversions with immutable startup-catalog
+indexes. Five paired warm release replays improve mean candidate time by about **20% English,
+83% Chinese, 29% Japanese and 40% Japanese with nine packs**; English has substantial run-to-run
+variation. All **419 complete before/after candidate vectors** remain identical, with unchanged
+vocabulary, ranking, budgets and model contracts. This is not a UI, native-keyboard, cold-start or
+real-model speed claim. See [method, limits and current validation](DEVELOPMENT.md).
+These changes are not in the published packages or the personal installation.
+Broader scoped regression records **1,837 passes, one pre-existing Japanese first-page failure,
+and five existing explicit ignores**; the saved before library reproduces the same failure.
+That performance-only pass left the issue unfixed; the subsequent sentence-slot repair above addresses
+it. Its failed result is retained, not rewritten as all-green. Strict Clippy passed for that snapshot;
+the timing percentages precede the ranking repair, not a new measurement of current UI/model latency.
+
+The earlier **uncommitted household-restocking vocabulary follow-up** adds **18 Chinese and 6 Japanese
+Word readings, plus 36 trilingual authored sentences** for remaining supplies, refill packs,
+checking spares and shopping-list reminders. Its working-tree totals at the time were
+**6,143 English forms / 821 contexts / 1,606 sentences (47 layers)**,
+**3,322 Chinese readings / 815 contexts / 1,628 sentences**, and
+**586 Japanese readings / 303 contexts / 605 continuations**. These finite authored phrases
+reuse existing English tokens such as `detergent`; the 6,143 indexed forms and their first-occurrence
+order, model-independent fallback, 25 optional packs and SDK are unchanged. Basic English index
+gaps remained at that point for `paper`, `soap`, `shampoo`, `toothpaste`, `tissue` and `tissues`; this does not complete
+the household-supplies dictionary. The phrases do not track inventory, update a shopping list
+or buy anything. Version/build remains **0.9.2/42**; this batch is uncommitted and not included
+in the four published 0.9.2 assets or the personal installation. This batch's scoped regression
+passes **1,027 checks / zero failures / two pre-existing opt-in model ignores**, plus strict Clippy;
+this is not full-repository, native-keyboard, real-model or installation acceptance.
+See the [lexicon record](data/lexicons/README.md).
+
+The preceding **uncommitted storage-and-moving vocabulary follow-up** adds **18 Chinese and 6 Japanese
+Word readings, plus 36 trilingual authored sentences** for making room, keeping things separate,
+moving objects and returning them to their place. That batch's totals were
+**6,143 English forms / 815 contexts / 1,594 sentences (46 layers)**,
+**3,304 Chinese readings / 809 contexts / 1,616 sentences**, and
+**580 Japanese readings / 297 contexts / 593 continuations**. This finite local fallback remains
+model-independent; the English indexed forms and their first-occurrence order, 25 optional packs
+and SDK are unchanged. These are input suggestions, not actions on objects or files. The new
+data is not in the published 0.9.2 packages or the existing personal installation. Local scoped
+regression passes **1,004 checks / zero failures / two pre-existing opt-in model ignores**, plus strict
+Clippy; this is not full-repository, native-keyboard or installation acceptance. See the
+[lexicon record](data/lexicons/README.md) for the exact scope and reviewed candidate changes.
+
+The preceding **uncommitted call-recovery vocabulary follow-up** adds 24 Chinese/Japanese Word readings
+and 36 trilingual authored sentences for frozen video, audio/video delay, changing headphones
+and rejoining a call. These are input suggestions, not call/device controls. That batch's totals were
+**6,143 English forms / 809 contexts / 1,582 sentences (45 layers)**,
+**3,286 Chinese readings / 803 contexts / 1,604 sentences**, and
+**574 Japanese readings / 291 contexts / 581 continuations**. See the
+[lexicon record](data/lexicons/README.md) and actual scoped acceptance in
+[development notes](DEVELOPMENT.md). Packages and the personal installation are unchanged.
+
+The preceding **uncommitted route-coordination follow-up after 0.9.2's locked source** adds
+**36 Chinese/Japanese Word readings and 44 trilingual authored sentences**. It covers
+journey updates, the other entrance/exit, meeting positions and changed routes, not GPS or
+live navigation. That batch's totals were **6,143 English forms / 803 contexts /
+1,570 sentences (44 layers)**, **3,268 Chinese readings / 797 contexts / 1,592 sentences**,
+and **568 Japanese readings / 285 contexts / 569 continuations**. All 23 frozen new checks
+pass unchanged, including 25 complete old candidate-vector controls and a private nine-pack
+Japanese fixture. Broader local acceptance is recorded separately in [development notes](DEVELOPMENT.md).
+This batch does not change the locked 0.9.2 CI commit or its packages; an existing installation
+still needs a later rebuild/upgrade. Earlier batch totals below retain their historical scope.
+
+The released 0.9.2 source `4108bc0` includes the messaging, appointment/walk-in and aftercare/packaging
 follow-ups below: **100 Chinese/Japanese Word readings and 122 authored sentences/continuations**
 over 0.9.1, with the same 6,143 English indexed forms. It also includes the measured English/Japanese
 candidate-computation optimizations. Historical “unreleased” batch records below describe their
-development-time status, not separate current releases. Publication requires this exact new commit's
-CI and package acceptance; the currently published packages remain 0.9.1 until that completes.
-See [0.9.2 release notes](docs/releases/0.9.2.md).
-Final local preparation passes **2,313 Rust checks / zero failures / 32 explicit ignores**,
+development-time status, not separate current releases. Exact commit
+`4108bc0deb8d08d9c421cfbd9c47cd8ed45e3883` passed all eight required gates in
+[CI 39084362121](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/39084362121).
+Its accepted `.deb`, `.tar.gz` and both checksum files passed package acceptance and
+post-upload download verification. They are published as the
+[0.9.2 Linux Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.2),
+not latest stable. The [release notes](docs/releases/0.9.2.md) retain their source-preparation record;
+the later publication result is recorded here. Subsequent route, call, storage and restocking data is not included.
+Historical local preparation of that exact 0.9.2 source passed **2,313 Rust checks / zero failures / 32 explicit ignores**,
 the separate **19/19 private UI gates**, strict Clippy and formatting. Those local results
-do not replace the new commit's remote CI, clean-container installation or accepted-package checks.
+did not replace remote CI, clean-container installation or accepted-package checks, and do not
+accept the current uncommitted vocabulary follow-ups.
 
 Six configurable input shortcuts are available in **Settings → Shortcuts**:
 previous/next candidate, previous/next page, adoption and English/Chinese switching.
@@ -77,10 +177,10 @@ with zero failures and three existing explicit ignores; strict all-target/all-fe
 This is scoped engine acceptance, not a complete native-input or release run, and does not change
 vocabulary or the installed app.
 
-The latest **aftercare and packaging development batch** adds six English contexts / twelve
+The historical **aftercare and packaging development batch** adds six English contexts / twelve
 sentences, eighteen Chinese Word readings / six contexts / twelve sentences, and ten Japanese
 Word readings / five contexts / ten continuations: **28 CJK readings and 34 authored sentences**.
-Latest working-tree totals are **6,143 English indexed forms / 795 contexts / 1,554 sentences**
+That batch's totals were **6,143 English indexed forms / 795 contexts / 1,554 sentences**
 (43 ordered layers), **3,244 Chinese readings / 789 contexts / 1,576 sentences**, and
 **556 Japanese readings / 279 contexts / 557 continuation records**. Examples include
 `i still have the receipt`, `bao'zhuang` → `包装`, `gou mai ping zheng zen me ti gon` →
@@ -101,12 +201,12 @@ full-repository, native-input or installation run. Strict all-target/all-feature
 [execution record](DEVELOPMENT.md) gives their exact scope.
 At that batch's acceptance, all three follow-ups were uncommitted and
 unreleased at **0.9.1 / build 41**, with unchanged algorithms, model contracts, optional packs and
-actual installation. They are now included in the **0.9.2 / build 42 source candidate**; only the
+actual installation. They are now included in the published **0.9.2 / build 42**; only the
 separately described English/Japanese hot-path work changes production algorithms.
 The two earlier batch descriptions below retain their own historical totals
 and scoped acceptance records; they are not the latest totals or this batch's acceptance.
 
-An **unreleased messaging follow-up**, still version **0.9.1 / build 41**, adds missed-message,
+The messaging follow-up was still **unreleased at its 0.9.1 / build 41 checkpoint**, adding missed-message,
 reply and arrangement-confirmation examples: eight English contexts / sixteen sentences,
 24 Chinese Word readings / eight contexts / sixteen sentences, and twelve Japanese Word readings /
 six contexts / twelve continuations. That batch reached **6,143 English indexed forms /
@@ -123,10 +223,10 @@ addition intentionally enriches an old second page and lowers four existing sent
 No conversion algorithm, provider contract, new indexed English form or installed package is changed.
 This follow-up is **not included in the published 0.9.1 packages**.
 
-The next **unreleased appointment and walk-in follow-up** adds eight English contexts / sixteen
+The subsequent historical **appointment and walk-in follow-up** adds eight English contexts / sixteen
 sentences, 24 Chinese Word readings / eight contexts / sixteen sentences, and twelve Japanese Word
 readings / six contexts / twelve continuations: **36 CJK readings and 44 authored sentences**.
-Current working-tree totals are **6,143 English indexed forms / 789 contexts / 1,542 sentences**
+That batch's totals were **6,143 English indexed forms / 789 contexts / 1,542 sentences**
 (42 ordered layers), **3,226 Chinese readings / 783 contexts / 1,564 sentences**, and
 **546 Japanese readings / 274 contexts / 547 continuation records**. Records include
 `qu'hao` → `取号`, `do i need to book ahead`, and `yoyakuhenkou` → `予約変更`.
@@ -173,16 +273,17 @@ broader Japanese morphology and non-Linux native behavior remain outside current
 
 ## Install the Linux preview
 
-Get the matching `.deb` and `.sha256` from [Releases](https://github.com/chiharu-kiryu/Suzaku-map/releases).
+Get the matching `.deb` and `.sha256` from the
+[0.9.2 Linux Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.2).
 For 0.7.x, source tags can precede downloadable packages; use a release with attached packages or
 build from source. Starting with **0.8.0**, downloadable Linux packages and checksums are a
 [release requirement](docs/linux-packaging-data.md#从-080-开始的发布要求).
-Use the published 0.9.1 Release assets in the download directory on Ubuntu 24.04 amd64;
-the 0.9.2 source candidate above is not yet an accepted package upgrade:
+Use the verified 0.9.2 assets in the download directory on Ubuntu 24.04 amd64;
+the later uncommitted vocabulary follow-ups are not included in these packages:
 
 ```bash
-sha256sum -c suzaku_0.9.1_amd64.deb.sha256
-sudo apt install ./suzaku_0.9.1_amd64.deb
+sha256sum -c suzaku_0.9.2_amd64.deb.sha256
+sudo apt install ./suzaku_0.9.2_amd64.deb
 ```
 
 Installation alone does not activate an input method or start a user service. Register once

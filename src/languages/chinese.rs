@@ -5,7 +5,10 @@ use super::ranked_typed_candidates;
 use crate::ime::candidate_mix::CandidateKind;
 use crate::ime::{Candidate, LanguagePlugin};
 use crate::lexicon::{EntryKind, Lexicon};
-use std::{collections::HashSet, sync::OnceLock};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::OnceLock,
+};
 
 #[derive(Default)]
 pub struct ChineseLanguagePlugin;
@@ -379,12 +382,72 @@ fn authored_sentence_suffix<'a>(
     (consumed < sentence.len()).then_some(&sentence[consumed..])
 }
 
+// Only immutable catalog references and authored positions enter this index.
+// Its buckets are lookup aids, never candidate or continuation priority order.
+struct ContinuationIndex<'a> {
+    contexts: Vec<(&'a str, &'a [String])>,
+    by_initial: HashMap<char, Vec<usize>>,
+}
+
+impl<'a> ContinuationIndex<'a> {
+    fn new(contexts: impl IntoIterator<Item = (&'a str, &'a [String])>) -> Self {
+        let contexts: Vec<_> = contexts.into_iter().collect();
+        let mut by_initial: HashMap<char, Vec<usize>> = HashMap::new();
+        for (index, (phrase, _)) in contexts.iter().enumerate() {
+            // Validated catalog contexts are nonempty and need not start in Han.
+            if let Some(initial) = phrase.chars().next() {
+                by_initial.entry(initial).or_default().push(index);
+            }
+        }
+        Self {
+            contexts,
+            by_initial,
+        }
+    }
+
+    fn possible_contexts(&self, window: &str) -> Vec<usize> {
+        debug_assert!(window.chars().count() <= super::draft::LOCAL_TAIL_CHARS);
+        // The caller already supplies the old 256-scalar tail. Keep this local
+        // work bound explicit; no draft text is retained after the query.
+        let mut initials: Vec<_> = window
+            .chars()
+            .take(super::draft::LOCAL_TAIL_CHARS)
+            .collect();
+        initials.sort_unstable();
+        initials.dedup();
+        let mut possible = Vec::new();
+        for initial in initials {
+            if let Some(bucket) = self.by_initial.get(&initial) {
+                possible.extend_from_slice(bucket);
+            }
+        }
+        // Every context has one initial, and every initial is queried once.
+        // Temporary positions are therefore bounded by the active catalog.
+        debug_assert!(possible.len() <= self.contexts.len());
+        possible.sort_unstable();
+        possible
+    }
+}
+
+fn continuation_index() -> &'static ContinuationIndex<'static> {
+    static INDEX: OnceLock<ContinuationIndex<'static>> = OnceLock::new();
+    INDEX.get_or_init(|| ContinuationIndex::new(vocabulary().continuations()))
+}
+
 /// Prefer the longest matching sentence progress, not merely the last word.
 /// Both converted text and raw long-draft routing search the same bounded tail.
 fn authored_continuation(
     seed: &str,
     allow_reading_tail: bool,
 ) -> Option<(&str, &'static [String])> {
+    authored_continuation_from_index(seed, allow_reading_tail, continuation_index())
+}
+
+fn authored_continuation_from_index<'seed, 'catalog>(
+    seed: &'seed str,
+    allow_reading_tail: bool,
+    index: &ContinuationIndex<'catalog>,
+) -> Option<(&'seed str, &'catalog [String])> {
     let window_start = seed
         .char_indices()
         .rev()
@@ -392,7 +455,8 @@ fn authored_continuation(
         .map_or(0, |(index, _)| index);
     let mut best = None;
     let mut best_key = (0, 0);
-    for (phrase, values) in vocabulary().continuations() {
+    for context_index in index.possible_contexts(&seed[window_start..]) {
+        let (phrase, values) = index.contexts[context_index];
         for (offset, _) in seed[window_start..].match_indices(phrase) {
             let start = window_start + offset;
             let tail = &seed[start..];
@@ -730,6 +794,245 @@ fn decode_pinyin_choices(seed: &str) -> DecodedPinyin {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn linear_authored_continuation<'seed, 'catalog>(
+        seed: &'seed str,
+        allow_reading_tail: bool,
+        contexts: impl IntoIterator<Item = (&'catalog str, &'catalog [String])>,
+    ) -> Option<(&'seed str, &'catalog [String])> {
+        let window_start = seed
+            .char_indices()
+            .rev()
+            .nth(super::super::draft::LOCAL_TAIL_CHARS - 1)
+            .map_or(0, |(index, _)| index);
+        let mut best = None;
+        let mut best_key = (0, 0);
+        for (phrase, values) in contexts {
+            for (offset, _) in seed[window_start..].match_indices(phrase) {
+                let start = window_start + offset;
+                let tail = &seed[start..];
+                let key = (tail.len(), phrase.len());
+                if key <= best_key {
+                    continue;
+                }
+                let token = seed[..start]
+                    .rsplit(char::is_whitespace)
+                    .next()
+                    .unwrap_or("");
+                if token.contains(['/', '\\', '_', '@']) {
+                    continue;
+                }
+                if values
+                    .iter()
+                    .any(|text| authored_sentence_suffix(tail, text, allow_reading_tail).is_some())
+                {
+                    best_key = key;
+                    best = Some((tail, values));
+                }
+            }
+        }
+        best
+    }
+
+    fn assert_continuation_index_reference(seed: &str, index: &ContinuationIndex<'_>) {
+        for allow_reading_tail in [false, true] {
+            assert_eq!(
+                authored_continuation_from_index(seed, allow_reading_tail, index),
+                linear_authored_continuation(
+                    seed,
+                    allow_reading_tail,
+                    index.contexts.iter().copied(),
+                ),
+                "seed={seed:?}, allow_reading_tail={allow_reading_tail}",
+            );
+        }
+    }
+
+    #[test]
+    fn continuation_index_matches_linear_reference_for_all_contexts_and_authored_sentences() {
+        let index = continuation_index();
+        for (phrase, values) in vocabulary().continuations() {
+            assert_continuation_index_reference(phrase, index);
+            for sentence in values {
+                let ends: Vec<_> = sentence
+                    .char_indices()
+                    .map(|(offset, ch)| offset + ch.len_utf8())
+                    .collect();
+                let mut prefix_ends = vec![
+                    sentence.len(),
+                    ends[ends.len() / 2],
+                    sentence.char_indices().next_back().unwrap().0,
+                ];
+                if let Some(&end) = ends.iter().find(|&&end| end > phrase.len()) {
+                    prefix_ends.push(end);
+                }
+                prefix_ends.sort_unstable();
+                prefix_ends.dedup();
+                for end in prefix_ends {
+                    assert_continuation_index_reference(&sentence[..end], index);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn continuation_index_preserves_padding_lines_tokens_repeated_occurrences_and_raw_text() {
+        let index = continuation_index();
+        for phrase in [
+            "你好",
+            "还没睡",
+            "我这边看不到画面",
+            "纸巾只剩一包了",
+            "先腾点地方出来",
+        ] {
+            for gap in [" ", "\t", "\u{a0}", "\u{2007}", "\u{202f}", "\u{3000}"] {
+                for seed in [
+                    format!("{phrase}{gap}"),
+                    format!("{gap}{phrase}{gap}"),
+                    format!("{phrase}{gap}，wo"),
+                    format!("前文 café 😀。{gap}{phrase}{gap}，wo"),
+                ] {
+                    assert_continuation_index_reference(&seed, index);
+                }
+            }
+            for boundary in [
+                "\n", "\r", "\u{b}", "\u{c}", "\u{85}", "\u{2028}", "\u{2029}",
+            ] {
+                assert_continuation_index_reference(&format!("{phrase}{boundary}，我"), index);
+                assert_continuation_index_reference(&format!("{phrase}{boundary}{phrase}"), index);
+            }
+            for prefix in [
+                "https://",
+                "dir\\",
+                "user_",
+                "person@",
+                "literal'",
+                "literal\"",
+            ] {
+                assert_continuation_index_reference(&format!("{prefix}{phrase}"), index);
+            }
+            assert_continuation_index_reference(&format!("{phrase}，{phrase}"), index);
+            assert_continuation_index_reference(&format!("{phrase}{phrase}"), index);
+        }
+        for seed in [
+            "",
+            "zzqvjy",
+            "API",
+            "café",
+            "αБ😀",
+            "你好'",
+            "你好3.5",
+            "你好3:30",
+            "我想学习zhongw",
+            "发音 ke y",
+            "登录失败后可以 ZAI SHI YI",
+            "你那边有回声",
+        ] {
+            assert_continuation_index_reference(seed, index);
+        }
+        for length in [255, 256, 257, 1024] {
+            let seed = format!("{}你好", "前".repeat(length - 2));
+            assert_eq!(seed.chars().count(), length);
+            assert_continuation_index_reference(&seed, index);
+        }
+        assert_continuation_index_reference(
+            &format!("{}纸巾只剩一包了，gui zi", "前文 café 😀。  ".repeat(40)),
+            index,
+        );
+    }
+
+    #[test]
+    fn continuation_index_supports_non_han_initials_and_retains_original_tie_order() {
+        // Duplicate synthetic contexts exercise the old <= tie rule directly;
+        // they do not authorize loading a duplicate context in a real pack.
+        let contexts = [
+            ("API", vec!["API 已确认。".to_owned()]),
+            ("café", vec!["café 可以继续。".to_owned()]),
+            ("😀", vec!["😀 我先看看。".to_owned()]),
+            ("α", vec!["α 保留原文。".to_owned()]),
+            ("Ａ", vec!["Ａ 全角字母。".to_owned()]),
+            ("甲", vec!["甲先选。".to_owned(), "甲 甲继续。".to_owned()]),
+            ("甲", vec!["甲后选。".to_owned()]),
+            ("甲乙", vec!["甲乙继续。".to_owned()]),
+        ];
+        let index = ContinuationIndex::new(
+            contexts
+                .iter()
+                .map(|(phrase, values)| (*phrase, values.as_slice())),
+        );
+        for (phrase, values) in &contexts {
+            assert_continuation_index_reference(phrase, &index);
+            for sentence in values {
+                assert_continuation_index_reference(sentence, &index);
+            }
+        }
+        for seed in [
+            "API ",
+            "API 已",
+            "café 可",
+            "😀 我",
+            "α 保",
+            "Ａ 全",
+            "甲",
+            "甲乙",
+            "甲 甲",
+            "https://API",
+            "name@café",
+            "dir_😀",
+            "α\n保",
+            "😀\u{3000}我",
+        ] {
+            assert_continuation_index_reference(seed, &index);
+        }
+        assert_eq!(index.possible_contexts("甲乙"), vec![5, 6, 7]);
+        let (_, values) = authored_continuation_from_index("甲", false, &index).unwrap();
+        assert_eq!(values, contexts[5].1.as_slice());
+        assert!(std::ptr::eq(values.as_ptr(), contexts[5].1.as_ptr()));
+    }
+
+    #[test]
+    fn continuation_index_reuses_catalog_references_and_bounds_ordered_query_work() {
+        let index = continuation_index();
+        assert!(std::ptr::eq(index, continuation_index()));
+        assert_eq!(index.contexts.len(), vocabulary().continuations().count());
+        let mut positions = Vec::new();
+        for (initial, bucket) in &index.by_initial {
+            assert!(bucket.windows(2).all(|pair| pair[0] < pair[1]));
+            for &position in bucket {
+                assert_eq!(index.contexts[position].0.chars().next(), Some(*initial));
+                positions.push(position);
+            }
+        }
+        positions.sort_unstable();
+        assert_eq!(positions, (0..index.contexts.len()).collect::<Vec<_>>());
+        for (actual, expected) in index.contexts.iter().zip(vocabulary().continuations()) {
+            assert!(std::ptr::eq(actual.0.as_ptr(), expected.0.as_ptr()));
+            assert!(std::ptr::eq(actual.1.as_ptr(), expected.1.as_ptr()));
+        }
+        for window in [
+            "你好".to_owned(),
+            "收纳".to_owned(),
+            "我".repeat(256),
+            "z".repeat(256),
+        ] {
+            let actual = index.possible_contexts(&window);
+            let expected: Vec<_> = index
+                .contexts
+                .iter()
+                .enumerate()
+                .filter_map(|(position, (phrase, _))| {
+                    window
+                        .contains(phrase.chars().next().unwrap())
+                        .then_some(position)
+                })
+                .collect();
+            assert_eq!(actual, expected);
+            assert!(actual.len() <= index.contexts.len());
+            assert!(actual.windows(2).all(|pair| pair[0] < pair[1]));
+        }
+        assert!(index.possible_contexts("").is_empty());
+        assert!(index.possible_contexts("你好").len() < index.contexts.len());
+    }
 
     #[test]
     fn displaced_branch_sources_require_finished_sentence_provenance_and_visible_word() {
@@ -1108,7 +1411,7 @@ mod tests {
 
     #[test]
     fn authored_continuations_are_unique_complete_and_preserve_padding() {
-        assert_eq!(pinyin().len(), 3244);
+        assert_eq!(pinyin().len(), 3330);
         let mut phrases = std::collections::HashSet::new();
         let mut sentences = std::collections::HashSet::new();
         for (phrase, values) in vocabulary().continuations() {

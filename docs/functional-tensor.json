@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "date": "2026-10-18",
-    "head": "da7dc6d0f2a265c37b365e994b58cf9183182a84",
+    "date": "2026-10-20",
+    "head": "4108bc0deb8d08d9c421cfbd9c47cd8ed45e3883",
     "dirty": true,
-    "source_sha256": "7323d4de2864afb9a01006df302f367be8f395818886bd8d921197fab958fa2e",
-    "note": "2026-10-18本版本完整本地收口2313过/零失败/32显式忽略，213唯一结果组零筛除；完整日语terminal-n七项及release-tail八项过，另行私有UI19/19和严格Clippy43.48秒、格式及83项Python守卫/250源码链接过。子进程不重复计数，不借旧1417/2237。准确提交的远端八门与accepted包验收仍须独立通过，不宣称用户实体键盘、实模、其他平台或已发布安装。全部旧评分/证据不改。当前0.9.2/build42源码候选纳入三批日常词库和保留的EN/JA热路径，相对已发布0.9.1增加100条中日Word读音与122条三语作者句；英文6143索引顺序、25包SDK、路由与全部成熟度评分不变。仅同步版本和发布文档；准确新提交的远端八门禁及accepted四资产验收仍须独立通过，实际安装不变。本次完整本地结果以DEVELOPMENT的0.9.2收口记录为准，不用历史定向测试替代。以下保留发布准备之前的历史开发阶段记录：2026-10-16当前为已发布0.9.1 da7dc6d之后的dirty三批词库与本地候选热路径优化，版本/build仍0.9.1/41，非已发布包。E-input-hotpath-performance只保留EN生成6个unique句子后停及本次prefix复用、JA从active一次建Word text/reading/Kata精确成员索引；不改查找顺序、转换、权重、候选配额、模型协议或用户数据。中文offset memo初测mean仅约2%、p95约1%且增临时内存，已完整撤回至本轮before快照，不能宣称中文加速。冻结419组真实before候选，含builtin EN130/ZH107/JA91与九JA包91，text/label/kind/source/scorebits/order全同；四项测试先真实链接保存before release库通过。warm正式构建五交替pair同一合成corpus，最终计时与相关验收见E-input-hotpath-performance和DEVELOPMENT；不能用中间缓存试验或前批1408替代。未测GUI/IBus/native、模型时延/质量、冷启动、物理键盘或跨平台性能。英文6143/795/1554(43层)、中文3244/789/1576、日文556/279/557；全部词库/25包SDK/201旧tests含14fixtures字节不变。原69功能49实现79关联及评分保持；复用F16/F17/F19，无新增功能节点。无提交推送/发布/安装或个人服务配置操作；既有release八门禁和四资产仅历史验收，跟进仍暂停。旧长中文满池/里那和广泛日语形态限制保留；digest只覆盖implementation paths/tests。"
+    "source_sha256": "35b22b29c30d2821be4f5aeed0df4f985bdc7f7b8c5f927f99d57bd5c573d965",
+    "note": "0.9.3/build43源码候选收口，纳入route/call/storage/restock/hygiene五批，相对4108bc0新增8EN forms、122CJK读音、188三语作者句；三语总量6151/827/1618(48层)、3330/821/1640、592/309/617。25包SDK/模型协议/成熟度旧评分保持。新增2项模型+RAM偏好实际管线回归；最初提前限12诊断非实际Engine路径，原失败保留，不改production来满足错误oracle。首次versioned全量发现新hygiene whether泛语境挤出既有privatepack首页，红日志保留；只改新作者if同义语境和两新fixture精确常量，六语境12分支/旧edge断言/生产配额原样，13项修复回归过；独立full后发现catalog新增hygiene精确tuple遗漏3处同步，第二失败同样保留；四文件共13处literal改词精确逆回，历史hash/oracle不变，再从头完整验证。最终独立完整all-feature2456过0失败32原有ignore，240唯一顶层结果组含Doc-tests全零筛除，含fulln7/releasetail8及两套四golden；另私有UI19/19、严格全target全featureClippy49.76秒、83Python/250源码链接/格式/五版本一致性/严格保持审计过。560releasebefore内543其它字节同；17预期差异、229Rusttests226字节同加3处新hygiene证明文字可逆；126旧evidence/cells/成熟度/25包SDK保持。第一full边界失败和第二full 2455过1失败目录tuple不同于最终全量，日志都保留，不组合重试充零失败。远端新提交CI与accepted四资产仍待独立完成，不计旧1872 scoped、focused13、父调child或0.9.2结果为新增通过；用户授权新提交全部CI及accepted四资产验收后发布LinuxAlpha prerelease非latest，个人安装不改。以下为先前研发阶段的原始摘要：当前未提交E-daily-hygiene：追加8EN forms、8ZH/6JA Word读音、36三语作者句，EN6151/827/1618(48层)、ZH3330/821/1640、JA592/309/617。旧47层/6143rank/flags/25packsSDK原样；数据模型宿主解耦。先冻20词库/pack测试，before EN1/5 ZH2/4 JA2/4和pack0/2，after19/1保留senganryo真实index8失败。新3集成0/3、新3mix unit1/2之后独立窄修：唯一offset0整Word末长元音补全、strict同根、真实旧转换和首Word、双distinct作者及actual LocalWord/2LocalSentence，>=6复用rawreserve；旧root/progress helpers/分数/Word序/模型偏好竞争/6/12/4/256/16包保持。新26原样过，完整同范围重跑1872过0失败5旧ignore/188唯一组，605lib+187集成1267全部无筛除；含fulln7/releasetail8/oldcleaning10/旧两套四golden。before源b099a2e0556a54415894f1aa3583d5bd0accd50b11bb074c6beb698f98025319含555文件224旧Rusttests，非HEAD安装；3JSONraw、36计数与历史epoch维护、2prod叶子/catalog投影可逆，507其它文件字节同。实际before与data-only419vectors全同，最终旧goldens另原样通过；不可称所有新短前缀池无变。仍0.9.2/42、未提交发布安装，不碰个人服务；无新性能/native/UI/实模声明。全部旧评分/证据/路由不改。 历史阶段原始记录保留在下方全部旧evidence对象，snapshot.note只摘要本轮。"
   },
   "architectures": [
     {
@@ -241,6 +241,8 @@
         "src/ime/companion.rs"
       ],
       "tests": [
+        "tests/japanese_vowel_completion_slots.rs",
+        "tests/japanese_progress_sentence_slots.rs",
         "tests/input_edge_audit_budget.rs",
         "tests/japanese_completion_backfill.rs",
         "tests/long_draft_budget.rs",
@@ -367,6 +369,9 @@
         "data/lexicons/en.json"
       ],
       "tests": [
+        "tests/daily_hygiene_english.rs",
+        "tests/daily_hygiene_packs.rs",
+        "tests/input_catalog_index_equivalence.rs",
         "tests/english_completion_quality.rs",
         "tests/english_protected_context.rs",
         "tests/english_prediction_spacing.rs",
@@ -404,7 +409,15 @@
         "tests/daily_aftercare_english.rs",
         "tests/input_hotpath_equivalence.rs",
         "examples/input_hotpath_bench.rs",
-        "tests/daily_aftercare_compatibility.rs"
+        "tests/daily_aftercare_compatibility.rs",
+        "tests/daily_restock_english.rs",
+        "tests/daily_restock_compatibility.rs",
+        "tests/daily_storage_english.rs",
+        "tests/daily_storage_compatibility.rs",
+        "tests/daily_call_english.rs",
+        "tests/daily_call_compatibility.rs",
+        "tests/daily_route_english.rs",
+        "tests/daily_route_compatibility.rs"
       ]
     },
     {
@@ -417,6 +430,9 @@
         "data/lexicons/zh-Hans.json"
       ],
       "tests": [
+        "tests/daily_hygiene_chinese.rs",
+        "tests/daily_hygiene_packs.rs",
+        "tests/input_catalog_index_equivalence.rs",
         "tests/chinese_completion_quality.rs",
         "tests/input_edge_audit_chinese.rs",
         "tests/chinese_sentence_continuation.rs",
@@ -451,6 +467,14 @@
         "tests/daily_appointments_chinese.rs",
         "tests/daily_aftercare_chinese.rs",
         "tests/daily_aftercare_compatibility.rs",
+        "tests/daily_restock_chinese.rs",
+        "tests/daily_restock_compatibility.rs",
+        "tests/daily_storage_chinese.rs",
+        "tests/daily_storage_compatibility.rs",
+        "tests/daily_call_chinese.rs",
+        "tests/daily_call_compatibility.rs",
+        "tests/daily_route_chinese.rs",
+        "tests/daily_route_compatibility.rs",
         "tests/daily_appointments_compatibility.rs",
         "tests/chinese_lending_characters.rs",
         "tests/chinese_giving_characters.rs",
@@ -478,6 +502,11 @@
         "data/lexicons/ja.json"
       ],
       "tests": [
+        "tests/daily_hygiene_japanese.rs",
+        "tests/daily_hygiene_packs.rs",
+        "tests/japanese_vowel_completion_slots.rs",
+        "tests/japanese_progress_sentence_slots.rs",
+        "tests/input_catalog_index_equivalence.rs",
         "src/languages/japanese.rs",
         "tests/lexicon_resources.rs",
         "tests/daily_japanese_vocabulary.rs",
@@ -513,6 +542,18 @@
         "examples/input_hotpath_bench.rs",
         "tests/daily_aftercare_compatibility.rs",
         "tests/daily_aftercare_packs.rs",
+        "tests/daily_restock_japanese.rs",
+        "tests/daily_restock_compatibility.rs",
+        "tests/daily_restock_packs.rs",
+        "tests/daily_storage_japanese.rs",
+        "tests/daily_storage_compatibility.rs",
+        "tests/daily_storage_packs.rs",
+        "tests/daily_call_japanese.rs",
+        "tests/daily_call_compatibility.rs",
+        "tests/daily_call_packs.rs",
+        "tests/daily_route_japanese.rs",
+        "tests/daily_route_compatibility.rs",
+        "tests/daily_route_packs.rs",
         "tests/daily_appointments_compatibility.rs",
         "tests/daily_appointments_packs.rs",
         "tests/japanese_cleaning_coexistence.rs",
@@ -824,7 +865,7 @@
         "src/bin/panel/input.rs",
         "src/ime/gpu/panel_scene.rs"
       ],
-    "tests": [
+      "tests": [
         "tests/x11_button_coordinates.rs",
         "scripts/test-linux-native-candidates.py",
         "src/bin/panel/candidates_native_test.rs",
@@ -1516,109 +1557,297 @@
   ],
   "evidence": [
     {
+      "id": "E-daily-hygiene",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_hygiene_english.rs",
+        "tests/daily_hygiene_chinese.rs",
+        "tests/daily_hygiene_japanese.rs",
+        "tests/daily_hygiene_packs.rs",
+        "tests/japanese_vowel_completion_slots.rs",
+        "src/ime/candidate_mix.rs",
+        "src/languages/japanese.rs",
+        "tests/japanese_internet_catalog.rs"
+      ],
+      "scope": "2026-10-18未提交基础洗护/纸品fallback与日语长元音句位窄修；非安装/原生/UI/实模/时延验收",
+      "note": "当前未提交E-daily-hygiene：追加8EN forms、8ZH/6JA Word读音、36三语作者句，EN6151/827/1618(48层)、ZH3330/821/1640、JA592/309/617。旧47层/6143rank/flags/25packsSDK原样；数据模型宿主解耦。先冻20词库/pack测试，before EN1/5 ZH2/4 JA2/4和pack0/2，after19/1保留senganryo真实index8失败。新3集成0/3、新3mix unit1/2之后独立窄修：唯一offset0整Word末长元音补全、strict同根、真实旧转换和首Word、双distinct作者及actual LocalWord/2LocalSentence，>=6复用rawreserve；旧root/progress helpers/分数/Word序/模型偏好竞争/6/12/4/256/16包保持。新26原样过，完整同范围重跑1872过0失败5旧ignore/188唯一组，605lib+187集成1267全部无筛除；含fulln7/releasetail8/oldcleaning10/旧两套四golden。before源b099a2e0556a54415894f1aa3583d5bd0accd50b11bb074c6beb698f98025319含555文件224旧Rusttests，非HEAD安装；3JSONraw、36计数与历史epoch维护、2prod叶子/catalog投影可逆，507其它文件字节同。实际before与data-only419vectors全同，最终旧goldens另原样通过；不可称所有新短前缀池无变。仍0.9.2/42、未提交发布安装，不碰个人服务；无新性能/native/UI/实模声明。全部旧评分/证据/路由不改。"
+    },
+    {
       "id": "E-panel-held-rewind",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/known-limitations.md", "src/panel_support.rs", "src/bin/panel.rs", "src/bin/panel/controller.rs", "src/bin/panel/native_sync.rs", "src/bin/panel/candidates_native_test.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/known-limitations.md",
+        "src/panel_support.rs",
+        "src/bin/panel.rs",
+        "src/bin/panel/controller.rs",
+        "src/bin/panel/native_sync.rs",
+        "src/bin/panel/candidates_native_test.rs"
+      ],
       "scope": "2026-10-13独立Back按压绑定历史版本、草稿与语言，拒绝重绘后新采用与ABA误撤回",
       "note": "红测hello world被旧Back退成hello；增加实例内历史revision（有效apply/undo/非空clear）及HeldRewind，原生视图进入取消旧按压但不丢本地history。保留普通刷新/noop、32容量、键盘撤回；14英文鼠标/触摸子情景真实呈现后同点release并保留原时限，两项unit覆盖ABA/noop/满容量。旧断言不删改，具体执行范围见开发记录；非实体设备/安装/真实IBus/native Wayland/远端CI验收，评分不变。"
     },
     {
       "id": "E-panel-suspended-adoption-history",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/known-limitations.md", "src/bin/panel.rs", "src/bin/panel/functional_network_audit_test.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/known-limitations.md",
+        "src/bin/panel.rs",
+        "src/bin/panel/functional_network_audit_test.rs"
+      ],
       "scope": "2026-10-13原生视图期间确认配置变化清理暂停的独立采用历史",
       "note": "先红测复现EN切JA恢复旧历史，再最小修改现有配置分支；保留native手动编辑guard、普通进出与相同/仅快捷键设置历史。60子情景覆盖三语默认词采用、两个apply入口与十种转换，断言保稿/光标/抽屉/host frame/精确撤回及无host请求；原provider-context断言不变。具体执行见开发记录；直接入口非完整异步写ACK、空队列非在途输入验证，不代表实体键盘/日常安装/native Wayland/远端CI，成熟度不提高。"
     },
     {
       "id": "E-panel-number-adoption-history",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/known-limitations.md", "src/bin/panel/composition.rs", "src/bin/panel/candidates_native_test.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/known-limitations.md",
+        "src/bin/panel/composition.rs",
+        "src/bin/panel/candidates_native_test.rs"
+      ],
       "scope": "2026-10-13独立面板数字采用复用准确草稿撤回历史，默认中英日与typed混合fixture",
       "note": "引擎源稿绑定，invalid/stale/no-op不清历史，手动编辑/普通Space/本地语言配置清理保持；默认三语词采用和独立mixed词句链有呈现Back命中、鼠标/触摸、重复release与精确撤回。既有异步手势和合成socket交付断言保留。红测及新fixture错误Literal标签失败保留，具体执行范围见开发记录。不改native Adopt、鼠标显式提交、词库或模型；不代表实体键盘、日常安装、native/local语言恢复或远端CI验收，成熟度不提高。"
     },
     {
       "id": "E-japanese-punctuation-progress",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/known-limitations.md", "src/languages/japanese.rs", "tests/japanese_punctuation_progress.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/known-limitations.md",
+        "src/languages/japanese.rs",
+        "tests/japanese_punctuation_progress.rs"
+      ],
       "scope": "2026-10-13已有作者语法尾在明确句尾标点前不退化为短名词",
       "note": "红测复现完了shita!与引用shita?变为下；仅比较时剪裁末尾标点白名单，输出和完整句查询保留全部标点，不跨未知/代码/行边界恢复句子。两项unit和七项私有builtin/九JA引擎测试；旧断言、词库、权重和预算不变。具体验证见开发记录，不代表实体键盘、native安装或远端CI验收；成熟度不提高。独立面板采用历史缺口仅源码定位，待另轮实测修复。"
     },
     {
       "id": "E-japanese-reading-token-progress",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/known-limitations.md", "src/languages/japanese.rs", "tests/japanese_romaji_token_boundaries.rs", "tests/japanese_terminal_n_progress.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/known-limitations.md",
+        "src/languages/japanese.rs",
+        "tests/japanese_romaji_token_boundaries.rs",
+        "tests/japanese_terminal_n_progress.rs"
+      ],
       "scope": "2026-10-13未完成日语音节不跨水平分隔，单raw n的作者句查询和编辑往返",
       "note": "原始ASCII末尾长度限制查询，修正引用s h跨分隔误恢复句子。单n/N可查询na/ni/no但不改主ん，nn/xn/n'/假名及完整词末尾不反拆；新增4＋7项私有builtin/九JA流程和两项unit，完整鼻音词的helper红测也保留。词库数据/模型接口、4句/12候选/256字/安装容量及旧断言不变，成熟度不提高。具体证据见开发记录；不代表物理退格、native桌面安装、任意句子、真实模型或远端CI验收。"
     },
     {
       "id": "E-japanese-romaji-progress",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/known-limitations.md", "src/languages/japanese.rs", "tests/japanese_romaji_aliases.rs", "tests/japanese_romaji_progress.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/known-limitations.md",
+        "src/languages/japanese.rs",
+        "tests/japanese_romaji_aliases.rs",
+        "tests/japanese_romaji_progress.rs"
+      ],
       "scope": "2026-10-13日语thi入口与已有作者句末尾未完成音节的连续候选",
       "note": "保留ti等旧映射；只在既有转换后追加最多五个末音节假名查询，不重新整句分词或推断汉字，不改词库、模型、256字/4句/12候选预算。私有单包/九JA组合与逐字seed测试不等于实体键盘、日常安装、任意长句或远端CI验收。原文/书写形式/主候选/旧分值保留，新增句会参与已有分页平衡。初次红测与新断言误伤合法复合词的失败记录保留，旧断言不变；成熟度不提高，执行范围见开发记录。"
     },
     {
       "id": "E-japanese-learning-packs",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/offline-packs/README.md", "data/offline-packs/ja-study.json", "data/offline-packs/ja-cooking.json", "data/offline-packs/ja-outdoors.json", "tests/study_pack_japanese.rs", "tests/cooking_pack_japanese.rs", "tests/outdoors_pack_japanese.rs", "tests/japanese_learning_catalog.rs", "tests/support/offline_pack_sets.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/offline-packs/README.md",
+        "data/offline-packs/ja-study.json",
+        "data/offline-packs/ja-cooking.json",
+        "data/offline-packs/ja-outdoors.json",
+        "tests/study_pack_japanese.rs",
+        "tests/cooking_pack_japanese.rs",
+        "tests/outdoors_pack_japanese.rs",
+        "tests/japanese_learning_catalog.rs",
+        "tests/support/offline_pack_sets.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-13日语学习写作、烹饪与观星可选包；每包32读音12语境24句，目录22→25",
       "note": "模型无关的有限作者词句，沿用原有罗马音/假名与输入窗口。新增三专项各用固定九JA组合；原六批兼容检查保留，再加旧14＋JA互联网＋一个新主题三批16包，九批联合25包，不突破16安装上限。独立预期先红测，旧22包字节及顺序、三语内置数据和所有容量不变；候选、续写、原文保护、精确提交撤回及typed/empty故障覆盖范围和执行证据见开发记录。主题齐全不代表词量/形态分析/任意长句能力相同；不含实时天象、专业指导或外部操作，不代表GTK/native实体键盘、安装、真实模型或远端CI验收，评分不变。"
     },
     {
       "id": "E-japanese-theme-packs",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/offline-packs/README.md", "data/offline-packs/ja-shopping.json", "data/offline-packs/ja-travel.json", "data/offline-packs/ja-work.json", "tests/shopping_pack_japanese.rs", "tests/travel_pack_japanese.rs", "tests/work_pack_japanese.rs", "tests/japanese_theme_catalog.rs", "tests/support/offline_pack_sets.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/offline-packs/README.md",
+        "data/offline-packs/ja-shopping.json",
+        "data/offline-packs/ja-travel.json",
+        "data/offline-packs/ja-work.json",
+        "tests/shopping_pack_japanese.rs",
+        "tests/travel_pack_japanese.rs",
+        "tests/work_pack_japanese.rs",
+        "tests/japanese_theme_catalog.rs",
+        "tests/support/offline_pack_sets.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-12日语购物、旅行住宿、工作协作可选包；每包32读音12语境24句，目录19→22",
       "note": "模型无关的有限作者词句；三包专项各用固定六JA组合，旧共享质量断言全文再加原14＋JA互联网＋一个新主题三组16包，共六组联合22包但不突破16安装上限。固定独立预期先红测，旧19包字节和顺序、三语内置数据、全部容量与候选上限不变；读音/假名/词句候选、选定前缀、采纳续写、原文和精确提交撤回及typed/empty失败覆盖范围与日志见开发记录。不包含完整形态分析、任意长句、真实模型或GTK/native实体键盘验收，不代表安装/发布/远端CI通过，成熟度评分不变。"
     },
     {
       "id": "E-japanese-internet-pack",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/offline-packs/README.md", "data/offline-packs/ja-internet.json", "tests/internet_pack_japanese.rs", "tests/japanese_internet_catalog.rs", "tests/support/offline_pack_sets.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/offline-packs/README.md",
+        "data/offline-packs/ja-internet.json",
+        "tests/internet_pack_japanese.rs",
+        "tests/japanese_internet_catalog.rs",
+        "tests/support/offline_pack_sets.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-12日语互联网可选包；48读音20语境40句、目录18→19且安装上限16不变",
       "note": "浏览搜索、收藏传输、登录状态和投稿媒体的有限作者词句，独立预期先红测；罗马音大小写/长音/小假名、假名、选定半截输入、已采用表记续句及精确提交撤回，typed/empty模型故障与URL等原文边界。新增JA专项只装JA三包与EN/ZH互联网共五包，旧中英11包不改；原质量断言全文再加旧14＋EN/JA互联网第三组16包，三组联合19而非同时装19。旧18包与内置文件字节、既有同音词顺序和容量保留；具体执行及失败证据见开发记录。未扩大日语256字窗口或形态分析能力，未执行真实联网/账号操作，未安装提交推送发布，不冒称GTK/native/实体键盘/真实模型或远端CI验收，评分不变。"
     },
     {
       "id": "E-internet-packs",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/offline-packs/README.md", "data/offline-packs/en-internet.json", "data/offline-packs/zh-Hans-internet.json", "tests/internet_pack_catalog.rs", "tests/internet_pack_english.rs", "tests/internet_pack_chinese.rs", "tests/support/offline_pack_sets.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/offline-packs/README.md",
+        "data/offline-packs/en-internet.json",
+        "data/offline-packs/zh-Hans-internet.json",
+        "tests/internet_pack_catalog.rs",
+        "tests/internet_pack_english.rs",
+        "tests/internet_pack_chinese.rs",
+        "tests/support/offline_pack_sets.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-12可选中英互联网浏览搜索、传输状态与分享；目录16→18，安装上限仍16",
       "note": "英文64显式词形/20语境40句，中文48读音/20语境40句；保持旧十六包字节与顺序、三语内置数据、模型协议和全部限额。推荐目录不是安装集合，旧质量断言全文分别在历史16与旧14＋internet2两批独立进程运行，新语种工作流各用同语8＋异语internet1＋JA2共11包，并断言第17安装失败且注册表不变。固定预期先红测，实际候选/续写/原文保护/精确提交撤回/typed错误和最终验证范围见开发记录。新包只提供文字，不执行联网或账户操作；不是通用语言理解或真实模型基准。原GTK/native保持历史14覆盖，不外推新包原生/实体键盘/个人安装/发布/CI验收，成熟度评分不变。"
     },
     {
       "id": "E-shopping-packs",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/offline-packs/README.md", "data/offline-packs/en-shopping.json", "data/offline-packs/zh-Hans-shopping.json", "tests/shopping_pack_catalog.rs", "tests/shopping_pack_english.rs", "tests/shopping_pack_chinese.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/offline-packs/README.md",
+        "data/offline-packs/en-shopping.json",
+        "data/offline-packs/zh-Hans-shopping.json",
+        "tests/shopping_pack_catalog.rs",
+        "tests/shopping_pack_english.rs",
+        "tests/shopping_pack_chinese.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-12可选中英购物试穿、收据与换货询问；目录14→16",
       "note": "英文48显式词形/12语境24句，中文32读音/12语境24句；旧十四包SHA和catalog前缀固定，内置数据不动，扩展预算和安装上限16不放宽。目录/SDK/模型解耦，新增词包不自动启用。固定预期先红测；全包共存、部分拼写/分隔、原文、长稿续写、精确提交撤回及typed模型失败走隔离Rust快照。新测试误假定jiu→就已收录的实际失败保留；修正测试边界而非给旧排序插特例，细节见开发记录。不提高成熟度，未安装提交推送发布；原生/GTK仍为历史十四包子集，不将Rust结果外推新十六包原生验收。"
     },
     {
       "id": "E-model-legacy",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/model-providers.md", "src/model.rs", "src/model/legacy.rs", "src/model/legacy_tests.rs", "src/model/runtime.rs", "src/model/transport.rs", "src/model/translation.rs", "tests/model_module_compat.rs", "scripts/test-functional-tensor.py"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/model-providers.md",
+        "src/model.rs",
+        "src/model/legacy.rs",
+        "src/model/legacy_tests.rs",
+        "src/model/runtime.rs",
+        "src/model/transport.rs",
+        "src/model/translation.rs",
+        "tests/model_module_compat.rs",
+        "scripts/test-functional-tensor.py"
+      ],
       "scope": "2026-10-13私有旧模型桥与规范协议类型；保留旧/新入口的真实语义差异",
       "note": "以本次整理前八文件工作区为基线的19项投影通过：旧trait/两英文工厂原文搬移，生产仅canonical类型名与模块接线，六处旧测试仅显式imports，test_server/兼容集成原字节；不扩大可见性。三项有界私有loopback测试覆盖Ollama/OpenAI相同payload/完整候选/权重/typed错误和旧空回退、predict独有动态预算和预检、旧配置先于取消与新取消先于配置、双向取消真实socket关闭后跨入口复用库存。专项77通过/零失败/2实模ignored；库/所有bin/九集成919通过/零失败/25显式ignored含新三项及旧兼容五项；严格Clippy、29架构测试和源摘要通过，详细范围/调用失误保留见开发记录。新守卫仅检查四文件当前生产前缀，不冒称Rust AST；旧2035/916不算此次全量词库。旧路径/类型身份/排序/时限/请求不变，prompt/policy仍间接依赖语言，翻译契约仍属languages，不宣称独立crate/完全解耦或模型质量提升。未改个人安装/服务/配置，不代表native/实体键盘/真实模型/远端CI或发布验收，评分不变。"
     },
     {
       "id": "E-model-boundaries",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/model-providers.md", "src/lib.rs", "src/model.rs", "src/model/runtime.rs", "src/model/transport.rs", "src/model/translation.rs", "src/model/cancellation_tests.rs", "src/model/test_server.rs", "src/model/live.rs", "src/languages/model.rs", "src/languages/llama.rs", "tests/model_module_compat.rs", "scripts/test-functional-tensor.py"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/model-providers.md",
+        "src/lib.rs",
+        "src/model.rs",
+        "src/model/runtime.rs",
+        "src/model/transport.rs",
+        "src/model/translation.rs",
+        "src/model/cancellation_tests.rs",
+        "src/model/test_server.rs",
+        "src/model/live.rs",
+        "src/languages/model.rs",
+        "src/languages/llama.rs",
+        "tests/model_module_compat.rs",
+        "scripts/test-functional-tensor.py"
+      ],
       "scope": "2026-10-13模型适配器目录上移；旧路径共享同一实现，不改任务协议或传输行为",
       "note": "七文件逐字投影一致，仅translation测试修正私有test_server导入；不扩大可见性，76原测试和2显式ignored诊断保留。lib规范入口model，languages::model公开重导出；宿主/面板/设置/CLI导入新入口，llama别名保留。五个纯内存兼容测试覆盖真实类型身份、配置引用、三trait、runtime签名/常量与旧协议别名；不调用发现/预测/翻译/预热，不读个人配置。测试枚举确有76个model::条目，当前诊断指南更新避免旧筛选零匹配；历史证据链接修正而不改旧结果。库/全部bin/九项集成共916通过、零失败、25显式ignored，包含74模型通过/2诊断ignored及5新兼容通过；严格Clippy和27架构校验通过。首次汇总误计同名CLI测试已限定库范围，详见开发记录；不把上轮2035全量算作此次完整词库重验。仍依赖languages::llm、translation接口及英文策略，不宣称独立crate/彻底去语言依赖或模型效果提升。无个人安装/原生设备/实模/远端CI验收，评分不变。"
     },
     {
       "id": "E-pack-boundaries",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/functional-network.md", "src/lexicon/packs.rs", "src/lexicon/packs/format.rs", "src/lexicon/packs/catalog.rs", "src/lexicon/packs/store.rs", "src/lexicon/packs/runtime.rs", "tests/offline_pack_boundaries.rs", "scripts/test-functional-tensor.py"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/functional-network.md",
+        "src/lexicon/packs.rs",
+        "src/lexicon/packs/format.rs",
+        "src/lexicon/packs/catalog.rs",
+        "src/lexicon/packs/store.rs",
+        "src/lexicon/packs/runtime.rs",
+        "tests/offline_pack_boundaries.rs",
+        "scripts/test-functional-tensor.py"
+      ],
       "scope": "2026-10-13离线包私有职责分层；公开API和进程启动冻结契约保持",
       "note": "format纯解析/校验/统计、catalog纯内存合并、store文件事务、runtime单次启动；原recommended目录顺序/25包/16配额/错误/预算/锁/原子写/已发布资源不改，非新包格式或热加载。Catalog内部两处仅pub(super)，旧外部路径重导出；九项源码投影一致。新鲜进程测试先做纯操作/显式store读取，再initialize仍成功，临时目录/注册表字节保持；不宣称系统级无read调用。七项目标Rust回归46项、全量2035通过/零失败/32显式ignored；全量编译后新增的测试环境隔离和唯一完成标记再单独编译1/1通过，生产实现不变；严格Clippy通过。架构数量/两份路由/模块入摘要/包数量四新守卫与旧21项共25通过，Python3.12/C locale亦通过；守卫首轮缺失注册及TB/LR误计、投影脚本缩进误差见开发记录，未靠修改产品逻辑通过。更新当前图并保留历史证据和评分。非个人安装、实模/物理键盘/native Wayland、跨平台原生或远端发布验收。"
     },
     {
       "id": "E-pack-organization",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/offline-packs/README.md", "sdk/offline-packs/README.md", "docs/linux-packaging-data.md", "tests/offline_pack_inventory.rs", "tests/offline_pack_sdk.rs", "scripts/test-offline-pack-shipping.py"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/offline-packs/README.md",
+        "sdk/offline-packs/README.md",
+        "docs/linux-packaging-data.md",
+        "tests/offline_pack_inventory.rs",
+        "tests/offline_pack_sdk.rs",
+        "scripts/test-offline-pack-shipping.py"
+      ],
       "scope": "2026-10-12十四词包导航、只读统计/检查与SDK集合防误用",
       "note": "保持十四JSON字节、ID/版本/顺序和默认catalog结构，显式details/inspect只读统计原始声明记录，不读注册表/初始化运行词库；索引单元复用旧预算，不冒充唯一词数或兼容/许可证明。SDK拒绝文本充集合，保留生成器和顺序，权威校验/原子无覆盖发布不变。新增中英日手工统计、坏注册表隔离与参数/文件边界回归；目录逐项核对manifest与分发清单，两个README加入包和smoke断言。实跑范围和原始失败见开发记录，不提高成熟度；未实际打包安装/原生键盘/远端CI验收。"
+    },
+    {
+      "id": "E-japanese-progress-slots",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "README.md",
+        "data/lexicons/README.md",
+        "src/ime/candidate_mix.rs",
+        "src/languages/japanese.rs",
+        "tests/japanese_progress_sentence_slots.rs",
+        "tests/daily_cleaning_japanese.rs",
+        "tests/japanese_cleaning_coexistence.rs",
+        "tests/input_catalog_index_equivalence.rs",
+        "tests/input_hotpath_equivalence.rs"
+      ],
+      "scope": "2026-10-18日语真实转换进度的首页双句与六项原文槽；来源证明、模型和偏好竞争保持",
+      "note": "修复前轮1837/1/5里保留的真实日语首页失败，不删除call新词或放宽旧首页断言。汚れ ga的Local/Sentence100转换锚汚れが抵扣句配额，第四Word使第二作者落index6；新增JA专属证明：已知Word语境严格在progress之前、前两distinct作者均严格延伸完整progress、与原seed现有转换完全相等，且两条实际Local/Sentence在池；不足六项、pending ASCII、单支、未知/跨行、超256不触发。仅让转换锚不占作者两句名额，保原类型/score/source/Word序；模型句/偏好仍竞争，不硬pin本地作者。恰六项时先reserve raw，避免final rescue再替掉第二句；锚+双Word+双作者+raw可同时容纳。中文旧immediate-word、JA root纠正和英文锚点策略保持，6/12/4/256与16包/数据格式/模型协议不改，无typedcache。before源105036ba8da6d74bf5b70e7f822e6feb0e82e3687799d75fa3446d8911277639含554普通文件223旧Rusttests，含前轮性能dirty，不是HEAD或安装。新5集成冻c18868479986d7641e645cc856b19c66f87b9be9de1c81546d51a7a378cf080b，另3mix unit在prod前冻结；before旧cln9过1失败/newintegration1过4失败/newunit1过2失败，原始失败保留。after首轮26过=3unit+4集成23，新8已包含而非重加；旧cln10与两套四golden不改通过，未刷新指纹/新增投影。私有九包、7种written/romaji/case/kana、采纳reseed、四Word/双作者/raw单次commitundo、0..12及模型佐证/竞争/偏好都有回归。两源码明确逆回保所有旧unit和前轮性能索引，546其它snapshot文件含223旧test/3JSON/25packsSDK/模型UI/版本/benchmark字节同，六docs例外。本轮完整重跑同范围加新回归：1846过/0失败/5原有显式忽略，183唯一顶层结果组，完整库602加182集成目标1244，所有目标零筛除；旧清洁10与完整日语terminal-n7/release-tail8过。5ignore为库2自选实模诊断及family/internet/shopping英包各1父调用child入口；新8已包含，不加首26、before红测或子进程，不借历史1837/1/5。strict全feature全target Clippy 47.44s、格式/83独立Python守卫/250源码链接/精确字节保持过。首次文档guard因mmd新comment误置EOF而失败，移到header保旧route字节后原29检查过；独立审查另抓newref误附F16，已仅移至F19且核实F19/F20两格，124旧evidence/scores/limits/函数/路由均原样，不改守卫。新旧两套四golden回放原样过；不声称本轮额外原生/UI/实模/安装或新时延计时验收。复用F19/F20及69功能49实现79格316COO全部旧scores/limits/evidence不变，仍0.9.2/42及同三语词库总数；非全仓/native/UI/实模/安装验收，不外推前轮时延数字，不提交推送/发布/重装或碰个人服务。"
+    },
+    {
+      "id": "E-catalog-index-performance",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "README.md",
+        "data/lexicons/README.md",
+        "src/languages/english.rs",
+        "src/languages/chinese.rs",
+        "src/languages/japanese.rs",
+        "tests/input_catalog_index_equivalence.rs",
+        "tests/input_hotpath_equivalence.rs",
+        "tests/japanese_terminal_n_progress.rs",
+        "tests/release_japanese_tail.rs",
+        "examples/input_hotpath_bench.rs"
+      ],
+      "scope": "2026-10-18本机固定warm候选回放；三语不可变目录保序索引，非UI/native/模型/冷启动验收",
+      "note": "在dirty-restock之上只改EN末段语境分桶、ZH首Unicode字符筛选后恢复原位置序、JA Word文字/既有Katakana最长前缀精确索引；静态active目录不存用户输入，原匹配/同分/转换/权重/6格12项4句256窗/16包/模型协议不改。实际before-source快照d3607064267470bee3f2af21fd435a366c1d7fecaf8bea36dc2cc342f656ea75含553普通文件222旧Rusttests，非clean4108bc0或旧已装包。新raw4测试40fe5dd45d615e70ea72d5135d046134fb236fbc9dc06c2c510cb455d062ffb7先链接真实before release库4过，后完整419原始向量EN130/ZH107/JA91/九包JA91逐字节相同，旧性能文件/四golden/helpers全部原字节无新投影。11新unit对原线性实现和源类型/Unicode/同分/保护/大小边界，首focused89包含8集成40加EN42/ZH4/JA3，后续主跑不重计。五AB/BA pair固定CPU15/30次每seed/warm Engine.seed，等样本run均值EN29.6476→23.7196us(-19.99%)、ZH178.9746→31.3080(-82.51%)、JA121.7154→86.7718(-28.71%)、九JA包176.8858→105.9666(-40.09%)；EN pair4.86..39.49%改善波动大/median14.40%，不保证稳定20%。全部pair正收益但不外推GUI/IBus/native/模型/冷启动/跨平台或任意custom/worstcase；固定索引有常驻内存/首次构造成本，无用户文本缓存。三源旧leaf与unit严格逆回，544其它snapshot文件含222旧test/3JSON/25packsSDK/benchmark/Cargo/平台版本/模型UI字节相同。本轮完整执行所选181集成目标与库，182唯一顶层结果组：1837过/1失败/5原有显式忽略，库599+集成1238通过，所有目标零筛除；完整日语词尾n7与release-tail8过。唯一失败daily_cleaning_japanese的汚れ ga第二作者句在index6而非首页，独立链接保存before库的原测试也exit101，前后完整9候选打印逐字相同SHA8dffc075c01873f927c1b30f017761f05c23c440511cc0f7c990044913199f57。是call新增第4个ga前缀Word与既有句配额的旧竞争，不是本次索引回归；仍未修复，不放宽首页断言或改排名，不称全绿。5ignore为库2自选实模诊断及family/internet/shopping英包各1父调用child入口；不重计子进程、focused89、before4或单独复现。strict all-feature/all-target Clippy 51.31s、83独立Python守卫/250源码链接/格式及精确保持审计通过。非全仓/native/UI/实模/安装验收，不借历史1027/2313/UI19。复用F16-F19/69功能49实现79格316COO全部评分和旧证据不改，0.9.2/42/三语总数保持；无提交推送/安装/发布或个人输入服务，不混入已发布4108bc0四资产。"
     },
     {
       "id": "E-input-hotpath-performance",
@@ -1633,6 +1862,87 @@
       ],
       "scope": "2026-10-16本机warm正式构建合成输入回放与保序局部性能优化；非UI/native/model/cold-start验收",
       "note": "before源为含三批词库dirty快照51eb09cedacfebcf771235a42ee9ff1c1be025ba57b4cb5e97db69c69fa4034c，非HEAD；精确逆回EN+JA后旧代码/旧unit/计数全文相同，中文完全原字节14bd1536。EN只省满6unique后的render/临时字符串及重复prefix，sentence_remainders仍全查；JA不可变active词典Word三种精确键有一次ownedstorage成本，不从set迭代排名、不新增归一/typedcache。419实际before完整vector：EN130/ZH107/JA91/九JA包91；golden4指纹c9b9b260/d58c7555/c088d205/c856096c，eq SHA8531802abcde493d889804c1103189ab8f08e89024ea4a966816e5646633ec8d，benchmark SHA7aae52845169413065713594dc1df00b2a544c43df9ee8fb51122132d9645256；old release rlib真实4/4过，cmp JSONL逐字一致。5交替pair每buildEN19500/ZH16050/JA13650/packJA13650warm seed samples，per-run摘要取中位，不作噪声敏感CI耗时断言。最终mean EN32.780→21.710us(-33.77%)、JA223.810→102.815(-54.06%)、九JA包326.877→138.413(-57.66%)；p95分别-61.53%/-39.75%/-50.14%。中文原字节控制mean151.248→156.844(+3.70%)、p95254.374→266.698(+4.84%)如实保留略慢观测，运行波动可能但不证明等性能或中文加速。最终114唯一结果组1417pass/0fail/3原有ignore：113集成829+完整lib588(59.72秒)；主112集成无过滤，另terminal_n builtin_3pass4其它filtered，未重跑full9packn/release_japanese_tail。lib2自选实模诊断与购物英文child入口1ignore，后者由父调用；新4eq+5unit已包含，不加oldbefore4/withmemo88/子进程。strict all-target/all-feature Clippy43.51秒及格式、29双解释器tensor/25分区/11分发/250链接守卫过。254snapshot下ENJA逆回全文、中文原字节、201旧test含14fixture/246其它路径/25packsSDK/Cargo保持；3平台version另对da7dc6d，不冒称在tar。中文per-call memo试验8新unit阶段语言88过，但only约2%mean/1%p95收益且增临时内存，已撤回其helper和3units，只保留EN2+JA3确定性旧oracle/次数/类型边界测试；原试验日志/报告保留，不充作最终版本数据。全部资源/25包SDK/201旧test含14词库fixture/Cargo及版本保持，candidate6/12/4/256和16包限制、模型接口/偏好不变；无实模/原生键盘或安装交付声明，不提高F16/F17/F19评分。"
+    },
+    {
+      "id": "E-daily-restock",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_restock_english.rs",
+        "tests/daily_restock_chinese.rs",
+        "tests/daily_restock_japanese.rs",
+        "tests/daily_restock_compatibility.rs",
+        "tests/daily_restock_packs.rs",
+        "tests/input_hotpath_equivalence.rs",
+        "tests/japanese_internet_catalog.rs"
+      ],
+      "scope": "2026-10-18 dirty-route+call+storage之后未提交日用品补货词库；仅有限输入表达，非安装/发布/实模/原生验收",
+      "note": "当前未提交E-daily-restock在dirty-route+call+storage追加24中日Word读音/36三语作者句：EN6143/821/1606(47层)、ZH3322/815/1628、JA586/303/605，仍0.9.2/42。有限日用品余量/补充装/备用/清单表达，不测库存或自动购物；英语paper/soap/shampoo/toothpaste/tissue(s)基础索引缺口仍在，原文可输不等于已有补全。before快照dd4ca4ab含265文件217旧Rusttests，非clean4108bc0或实际安装。三语before1过5缺口/1过5缺口/2过4缺口、compat3过、九包1旧过1缺口；首after本批23冻结原样过，含前storage23/性能4/catalog4/resources15合计69项13组。24采样旧完整池原样相同；另419实际原始热路向量全同于真实storage-before；历史语料/四goldens/旧投影及文件不改，无新例外。另yobi新增予備，yobidash贪心主项变予備だsh，呼び出し仍index2首页可提交、91降90.5，完整yobidashi旧池不动；不能说全部短前缀旧池无变。thisshu沿用既有thi/促音规则，前两词Katakana是canonical Literal且能续作者，另四Katakana仅保raw、不造别名。三资源raw/17数量维护/catalog可逆，238其它snapshot文件和6143首现序、25包SDK五版本不改。本轮定向1027过/零失败/2原有自选模型诊断忽略、66唯一组，库588加65集成439；主64无筛除，另builtin_n三过四非builtin明确筛除。严格Clippy1m19s、83独立Python守卫/250源码链接/格式digest过；非全仓/完整九包n/release-tail/原生/实模/安装验收，不借历史1004/981/2313或UI19。复用F16-F19全部评分不变，算法/候选配额/模型协议不改；非原生/实模/安装/时延验收，无提交推送/个人服务配置变更，四批新数据不在已发布4108bc0四资产。"
+    },
+    {
+      "id": "E-daily-storage",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_storage_english.rs",
+        "tests/daily_storage_chinese.rs",
+        "tests/daily_storage_japanese.rs",
+        "tests/daily_storage_compatibility.rs",
+        "tests/daily_storage_packs.rs",
+        "tests/input_hotpath_equivalence.rs",
+        "tests/japanese_internet_catalog.rs"
+      ],
+      "scope": "2026-10-18 dirty-route+call之后未提交收纳词库；仅有限输入表达，非安装/发布/实模/原生验收",
+      "note": "当前未提交E-daily-storage在dirty-route+call上追加24中日读音/36三语作者句：EN6143/815/1594(46层)、ZH3304/809/1616、JA580/297/593，仍0.9.2/42。before快照9df2e8bf含260文件212旧Rusttests，非clean4108bc0或实际安装。三语before1过5缺口/1过5缺口/2过4缺口、compat3过、九包1旧过1缺口；after18语言+2九包冻结原样过。保留首轮compat1及性能2失败；24采样23原样，shou na新增袋/箱、两旧句score各-1，旧选全保留；419热路417原样，仅nihongo w两mode尾选增加/替换，九包挤出末位ウェブページ，首页原样，不声称旧尾选全可达。先硬断言所有新tuple，再精确逆回原hash/四goldens，旧corpus及call/route投影不改；非盲刷golden或产品排序修复。16数量维护及catalog/performance两逆全文可逆；6143首现序、25包SDK、五版本不改。本轮定向1004过/零失败/2原有自选模型诊断忽略、61唯一组，库588加60集成416；主59无筛除，另builtin_n三过四非builtin明确筛除。严格Clippy2m00s、83独立Python守卫/250源码链接/格式digest过；Python3.10的AST序列化误报原样留，系统3.14原标准25过。非全仓/完整九包n/release-tail/原生/实模/安装验收，不借旧981/1440/2313或UI19。复用F16-F19全部评分不改；有限收纳表达，非物品控制、实模、原生、安装或性能计时验收。0.9.2准确4108bc0八CI/四资产已发布LinuxAlpha prerelease非latest，本批未提交不进入该包，个人安装未改。"
+    },
+    {
+      "id": "E-daily-call",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_call_english.rs",
+        "tests/daily_call_chinese.rs",
+        "tests/daily_call_japanese.rs",
+        "tests/daily_call_compatibility.rs",
+        "tests/daily_call_packs.rs",
+        "tests/input_hotpath_equivalence.rs",
+        "tests/japanese_internet_catalog.rs"
+      ],
+      "scope": "2026-10-18 dirty-route之后未提交通话恢复词库；仅输入表达，非设备控制或安装发布",
+      "note": "当前E-daily-call在dirty-route上追加24中日读音/36三语作者句：EN6143/809/1582(45层)、ZH3286/803/1604、JA574/291/581，仍0.9.2/42。before快照b38820fb含255文件207旧Rusttests，非clean4108bc0。语言before1过5缺口/1过5缺口/2过4缺口，compat3过，九包1旧过1新缺口；首after18语言+3compat原样过，24完整旧向量全同。原pack空格oracle失败/文件保留，仅改为既有canonical作者并增加raw空格精确提交，另4新fixture不改。419性能向量415原样相同，jyunbi g/ga两mode共4组正常尾选替换/降位/挤出；首页文字/序不变，但不能称旧尾选全可达。完整tuple硬断言后严格逆回，旧corpus/四golden/route helper保持。15数量维护及catalog/performance两逆全文可逆，229其它snapshot文件、6143首现序、25包SDK五版本不改。本轮定向整个命令重跑981过/零失败/2自选模型忽略，56唯一组，库588加55集成393；主54无筛除，builtin_n另3过/4非builtin明确筛除，非全仓/完整九包n/release-tail/原生/实模/安装验收；严格Clippy50.42秒、83独立Python守卫/250源码链接/格式digest通过，系统Python+C locale复跑29不另加，本批23只计一次，不借历史1440/2313/UI19，不重复计子进程/首focused。复用F16-F19全部评分不改；仅输入表达，不控制设备/音视频/摄像头/权限，非实模/原生或安装验收，不提交推送或混入锁定4108bc0产物。"
+    },
+    {
+      "id": "E-daily-route",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_route_english.rs",
+        "tests/daily_route_chinese.rs",
+        "tests/daily_route_japanese.rs",
+        "tests/daily_route_compatibility.rs",
+        "tests/daily_route_packs.rs",
+        "tests/lexicon_resources.rs",
+        "tests/japanese_internet_catalog.rs",
+        "tests/input_hotpath_equivalence.rs"
+      ],
+      "scope": "2026-10-18锁定4108bc0之后未提交的途中联络/会合位置fallback；非GPS、导航、自动发信或本轮安装发布",
+      "note": "追加EN8ctx16句零新索引、ZH24Word8ctx16句、JA12Word6ctx12句，共36读音44句。当前EN6143/803/1570(44层)、ZH3268/797/1592、JA568/285/569；原6143词形顺序及25包SDK/16限不改。真实clean4108bc0 beforetar873c319adfc579b888d93e22b6eb3025bdda16b61c6d86b522d5f6ffb377dece含250member/202旧Rusttests；三raw剥新增精确恢复32a45d06/3f09409d/f827bc88，14current-count全文逆、catalog和精确向量两历史投影保留全部原断言/历史golden，230其它snapshot文件及5版本保持。5fixture先冻结：ENfd0a95ec/ZH6fef8754/JA1fb168de/compat5341b755/packs3faadfb7；语言before1pass5gaps/1pass5gaps/2pass4gaps，九JA包1oldpass1newgap，compat3pass。首after全部23原样过，25实际旧完整vector(EN9/ZH8/JA8)text/label/type/source/scorebits/order全同，旧Word/作者句和literal单次commit/undo可达。补已有基础出行上的明确途中进度/出口纠偏/绕行，非首次支持所有文字；目的地旧有句内表达。完整与specific partial/case/撇号/6横空白/7行/unknown保护/Unicode前文/采用reseed/三合成模型失败完整pool；中文下车与等无独立reading，仅测其已写Han进度而不臆造Pinyin；JA新词句与九包只承诺12槽可达，Kata保留raw非新转Kanji。扩大首轮保留两JA性能golden失败；实际419vector仅builtin/九包nihongo wo be各一处正常新增日本語を別ルートWord89，旧两作者各降0.5且第二句/raw后移一项，无丢候选、首页文字/序不变，另417原样相同。先对准确seed硬断言全新十项metadata再逆一Word/两score，全419原向量及四原golden精确恢复，corpus和四golden不改，不泛化过滤或改生产算法。修正后整个定向命令重跑1440过/零失败/3原有忽略，119唯一结果组：库588加118集成目标852。主117集成无筛除；词尾n另builtin_3过/4非builtin明确筛除，不声称全仓/完整九包n/release-tail/原生桌面/实模/安装验收。严格Clippy44.52秒、83独立Python守卫及250源码链接/格式digest过；系统Python+C locale复跑29不另加，初23与子进程不重计。不借旧2313/19UI/1417或重复计子进程。算法、权重、6格12项4句256窗/模型协议不改，69功能49实现79格评分不动。版本仍0.9.2/42；不提交推送、不变更原发布验收SHA/资产或个人安装/输入服务。"
     },
     {
       "id": "E-daily-aftercare",
@@ -1658,490 +1968,928 @@
     {
       "id": "E-daily-appointments",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/en.json", "data/lexicons/zh-Hans.json", "data/lexicons/ja.json", "tests/daily_appointments_english.rs", "tests/daily_appointments_chinese.rs", "tests/daily_appointments_japanese.rs", "tests/daily_appointments_compatibility.rs", "tests/daily_appointments_packs.rs", "tests/lexicon_resources.rs", "tests/japanese_internet_catalog.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_appointments_english.rs",
+        "tests/daily_appointments_chinese.rs",
+        "tests/daily_appointments_japanese.rs",
+        "tests/daily_appointments_compatibility.rs",
+        "tests/daily_appointments_packs.rs",
+        "tests/lexicon_resources.rs",
+        "tests/japanese_internet_catalog.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-16未发布预约/到店/排队/服务时间fallback；基于上轮dirty消息词库，不是实际预约或实时营业信息",
       "note": "追加EN8ctx16句零新索引、ZH24Word8ctx16句(取号替预计等待时间)、JA12Word6ctx12句，当前6143/789/1542、3226/783/1564、546/274/547。before-source.tar SHA74cd212b295fef12084255a011695a2e4cd2dd34768aed06499b3ef022fd32f3含messaging非HEAD原文件；剥本批恢复EN873ed5d1/ZH46f2f684/JAb03caa46，旧数组flags顺序/历史hash不刷新。预约/排队和部分长Sentence组合早已有；qu hao旧主去好，新Word取号现首项。五fixture88f75b56/938cce64/46ff636a/b598a902/9c8c23b2先冻结，语言before1/5、1/5、2/4，九JA包1旧过1新缺口，compat3过，after新23不改过。17真实旧完整向量全等，预约Word序/两句首页及维修双句两页、日语予約/受付/受付番号anchor保持；新九包full/partial含整理券与family整理/预约确认竞争，只保证新词句12内可达，旧整理和travel予約番号/ホテル对句首页。原文/大小写撇号/6横空白7行/采用reseed/once提交撤回/有限Unicode前文及三synthetic模型失败均为engine范围，非实键盘/实模。最终103唯一结果组1348pass0fail2原自选模型诊断ignore：102集成765及完整lib583(55.97秒)；主run101集成不筛选，额外terminal-n builtin_3过4其他筛除，不冒称当前完整九包n矩阵或release_japanese_tail重验。首轮13目标74已包含，不重计focused/子进程，不借旧1729/2237。strict all-target Clippy48.45秒、格式/29双解释器tensor/25分区/11分发/250链接守卫过。逆校验抓3行metadata缩进附改后恢复原格式不放宽规则，最终三raw与14维护路径恢复，223其他snapshot路径/5新freeze/旧4messaging/25包SDK/5版本字节保持。69功能79格评分/16限额/0.9.1/41/转换与排序公式/6与12/模型协议不变；无提交推送/发布/安装/个人store/输入服务或本轮远端CI验收。"
     },
     {
       "id": "E-daily-messaging",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/en.json", "data/lexicons/zh-Hans.json", "data/lexicons/ja.json", "tests/daily_messaging_english.rs", "tests/daily_messaging_chinese.rs", "tests/daily_messaging_japanese.rs", "tests/daily_messaging_compatibility.rs", "tests/lexicon_resources.rs", "tests/japanese_internet_catalog.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_messaging_english.rs",
+        "tests/daily_messaging_chinese.rs",
+        "tests/daily_messaging_japanese.rs",
+        "tests/daily_messaging_compatibility.rs",
+        "tests/lexicon_resources.rs",
+        "tests/japanese_internet_catalog.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-16三语有限消息沟通fallback：漏看/稍后回复、确认安排与反馈；不含网络收发或个人消息采集",
       "note": "EN8context16句、ZH24Word/8context16句、JA12Word/6context12句；三旧JSON raw投影精确恢复da7dc6d，旧数组/kind/flags/顺序不改。EN原6143索引顺序不变；current EN6143/781/1526、ZH3202/775/1548、JA534/268/535。25包/SDK/16限额、conversion/模型协议/权重公式/6页格12候选4日语句256窗口不改，src只3条cfg-test总数。补词前EN1过5gap、ZH1过5gap、JA2过4gap，三语言fixture75dab625/95fdf00c/f702befe保持；追加后18过。39旧完整向量首轮renraku因連絡漏れindex6不全等，第二轮移词仍红，原mixed下标公式使四句各-0.5，原冻结和两红log保留。新compatibility e624bda3精确断言唯一LocalWord/label/90/index6/len10与四LocalSentence移词后positions4/5/6/7实际77.5/77/76.5/76，仅逆此项和四+.5恢复原bb39602e6bdd4216；38其他全向量不变、旧golden不刷新，原compat冻结6477a22a可逆全文恢复。完整/明确partial、case/撇号/拼音分隔/RomajiKana、6横空白7行、未知URL、Unicode前文、采用reseed、once提交撤回及三合成模型失败均为engine范围，非物理键盘/IBus/实模。最终156唯一结果组1729pass/0剩余fail/5原explicitignore：155集成1146及完整lib583(2自选诊断ignore)，另3英包子进程入口ignore由父测试调用。154目标首轮仅旧私有包数量3179对实际3203失败，保留父子log，只维护该total重验1pass，独立resources15pass；失败结果被最终同目标结果替换，不重计子进程/focused，不称首轮命令全绿或全仓验收。strict all-target Clippy41.75秒、格式/3raw与14维护路径inverse/29双解释器tensor/25词库分区/11分发/250链接守卫过；69功能79格全部评分保持。无提交/推送/版本/安装/本轮CI或发布更改，范围及全部失败见DEVELOPMENT。"
     },
     {
       "id": "E-chinese-compound-sources",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "src/languages/chinese.rs", "tests/chinese_compound_sources.rs", "tests/chinese_compound_boundaries.rs", "tests/chinese_continuation_provenance.rs", "tests/chinese_reference_characters.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "src/languages/chinese.rs",
+        "tests/chinese_compound_sources.rs",
+        "tests/chinese_compound_boundaries.rs",
+        "tests/chinese_continuation_provenance.rs",
+        "tests/chinese_reference_characters.rs"
+      ],
       "scope": "2026-10-15私有同音包复合输入下，已显示Prefix Word严格扩展真实已完成Sentence分支时保留其作者续句",
       "note": "私有na那包使na guo lai显示拿国来得及吗却丢原两句，原拿过来Word与自己两句仍在；不混同最终12裁剪。新增私有DecodedPinyin.finished_count在原finished去重take5后、Prefix extend前保存；公开Vec wrapper、旧搜索body/排序/限额/字面prefix恢复语义保持，前文只加到text不重算count。补源须primary dictionaryWord、skip5后已可见PrefixWord、strict扩展secondary真实finished Sentence；不取主Word/等值/子串/伪finished PrefixSentence/缺失或早位项。用现有authored(false)/suffix匹配，原mixed尾后追加去重，无硬编码新词/来源索引/typed缓存。可用来源有界扩充，最终6/12、beam24/completions64/权重公式/模型native协议不改。初新测试直接比较Lexicon无PartialEq编译错留档，只改serde比较；初6项3过3败含两来源fail及长na ben shu gei ni新branch在满12被裁，后者明确未修，不修改产品追它。缩小直接拼接为那本书/我要那本书/我那，另验显式选那/那本书后reseed续给你，保7横空白与短/长Unicode前文；不是全拼长branch修复或真实键盘/IBus采用实测。生产修改前最终6fixture3d153439b8ee0948130db231377817d1bb993b7f14bd2394c8ece746c69526b9冻结：4兼容过2缺口败，fix后6不改过；原5Words/6作者句/literal仍在12内可选并once提交撤回，原primary100/Word相对序保持但包新增后score/page可变，新增那分支不保证全显示。disabled13全向量及旧reference30不改，bare引号数值/坏split/保护token/7行/3合成模型前后pool保持；3新unit验证finished provenance与metadata恢复。审查后另加compound_boundaries独立fixture5e39895df5dd90d314f6dde0d035570d2554d879746e64505ce5efe6fd7981ea，直接测复合引号数值/URL标识/换行原文，不改最终6fixture。原三语JSON/外层mixer/12旧fixture/旧bare来源fixture/25包SDK逐字保持；可逆投影还原整个旧源，含搜索与旧断言。ZH仍3178/767/1532，内置那/里及长分支裁剪仍待处理。无安装/版本/发布/全仓/native/实模/物理键盘/跨平台/远端验收声明，不提高评分。"
     },
     {
       "id": "E-chinese-prefix-sources",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "src/languages/chinese.rs", "tests/chinese_continuation_provenance.rs", "tests/chinese_reference_characters.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "src/languages/chinese.rs",
+        "tests/chinese_continuation_provenance.rs",
+        "tests/chinese_reference_characters.rs"
+      ],
       "scope": "2026-10-15裸完整单作者读音、多同音Word时保留原四Prefix整词的作者句来源；不新增词库",
       "note": "同音Exact须有不同Word文本，只恢复原root Prefix前四中conversions第六项以后实际可见的Word；按整词context精确查询，在旧mixed全部结果后稳定追加去重。不重置四Prefix预算、不取第五extra/后来finished/紧凑多音节猜测。ta/hao/you已有太好了/好久不见/优先级对句恢复，旧primary/7Word相对序/label/source/scorebits及raw55保持；新Sentence占正常首页句位，affected完整帧/页位有意改变。七引擎fixture SHA256 6b435ad0f573c7bc855ad5c82b0b6fbc7839b6b8ce658af7e3fca5acde1f7c8b先冻结，真实before3兼容pass4缺口fail，fix后7不改pass。13真旧全向量含shijian/shi jian/na/na guo lai/haimeishu，前轮30也不改；case/tone/末尾横空白、选词重设、明确once提交撤回、原文、引号数字/七行/token及三合成模型失败覆盖。3新helper测试原2pass1新断言fail：把engine去重后输出误当raw mixed，留原日志，只修正新断言为旧5Word prefix，生产与7fixture不改后3pass。私有na那单行包enable/disable两新进程，原闹钟对句不丢且builtin未变；无个人store/服务/配置。未证明那复合输入，内置那未加，里/lian分段风险仍在。ZH3178/767/1532，三语数据/六旧char/六日用fixture/旧断言/25包SDK逐字保留；decoder/normalize/mixer/weight/beam/final6与12/model协议未改，来源可用性窄范围扩充。61结果组1042pass0fail2原自选模型诊断ignore：60相关集成462和完整lib580（55.44秒，另2ignore），新7+3已计其中。初Clippy只报新fixture复杂type，保留失败，仅提取SourceCase声明别名，全部输入/断言/旧向量/生产字节不改；反转此声明精确恢复冻结6b435ad0…，当前fixture92a957098500685c792fa6253133e910ae4ec9c1c45d537789685791ff4e6fd9。别名后同7项再过不重复计数，strict all-target Clippy28.79秒通过，格式/diff/raw保持/29双解释器tensor守卫/11shipping守卫/250links通过。独立只读复审无阻断，保留全部已知范围。无安装/版本/发布变化，非全仓/native/物理键盘/实模/跨平台/远端验收，不提高评分。"
     },
     {
       "id": "E-chinese-reference-chars",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/zh-Hans.json", "src/languages/chinese.rs", "tests/chinese_reference_characters.rs", "tests/chinese_arrival_characters.rs", "tests/chinese_result_characters.rs", "tests/chinese_action_characters.rs", "tests/chinese_giving_characters.rs", "tests/chinese_lending_characters.rs", "tests/lexicon_resources.rs", "tests/japanese_internet_catalog.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/zh-Hans.json",
+        "src/languages/chinese.rs",
+        "tests/chinese_reference_characters.rs",
+        "tests/chinese_arrival_characters.rs",
+        "tests/chinese_result_characters.rs",
+        "tests/chinese_action_characters.rs",
+        "tests/chinese_giving_characters.rs",
+        "tests/chinese_lending_characters.rs",
+        "tests/lexicon_resources.rs",
+        "tests/japanese_internet_catalog.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-15最终zhe这/ben本两独立Word；里/那方案未验收，未改分段",
       "note": "3178读音/767语境/1532作者句，无新增语境/模板句。最终组合这本书/我用这/我拿这本书/这本书给你/我有这本书为Sentence；旧这个/这边/在哪里/本周/本地模型等Word不是新增。初计划li里/zhe这/na那，源审核发现那将旧闹钟移出5路径作者来源窗，故暂缓。里/这冻结221557dc…before2过7缺口，append后8过1回归：lian变里安，另边界unit红测也留档。全局限制会改xian/nian/qian等旧分解及tone/包行为，因此未实现，实验unit不以忽略留在源码；恢复a829f6ae…旧原始数据和原decoder，只改为最终两词，未冒称解决里/那问题。最终新9fixture883952a3afd704129d6ebbcae57f60ac220e9f6dcb8f7aa5dd5752c098605c6a：真实新before采样、冻结后2兼容pass7缺口fail、最终append后9不改pass。30真实旧全向量含lian/xian/nian/qian/na/na guo lai及短prefix/前6字/分页，仍保原闹钟/本地模型对句、整词/同音序、decoder4和mixed第五旧词可选。采用重设、这本书续写、横空白/Unicode前文、混合汉字、once提交撤回、原文/case/tone/数字引号/坏拆分/保护token/七行边界/三合成失败均验，非物理键盘/实际模型。新raw前置投影恢复a829f6ae589bc865225513e4dc5c5ede957bbb39307e7a9432973f13b254ead0旧字节；五旧charfixture只total3176到3178，旧窗口/hash/断言保持，原九组16包加2flow不改旧cases/cohorts/配额。ENJA/六日用fixture/25包SDK/production算法/权重/预算/协议保持，Chinese源只unit总数。最终60结果组1032pass0fail2原自选模型诊断ignore：59相关集成455、完整lib577（66.59秒，另2ignore），最终新9不重复计，拒绝的里/分段unit红测不计验收；严格Clippy42.37秒、格式/字节保留/29双解释器守卫/11分发守卫/250链接通过。不借旧结果，不外推全仓/native/键盘/实模/跨平台/远端验收，不改安装/版本/发布跟进。"
     },
     {
       "id": "E-chinese-arrival-chars",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/zh-Hans.json", "src/languages/chinese.rs", "tests/chinese_arrival_characters.rs", "tests/chinese_result_characters.rs", "tests/chinese_action_characters.rs", "tests/chinese_giving_characters.rs", "tests/chinese_lending_characters.rs", "tests/lexicon_resources.rs", "tests/japanese_internet_catalog.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/zh-Hans.json",
+        "src/languages/chinese.rs",
+        "tests/chinese_arrival_characters.rs",
+        "tests/chinese_result_characters.rs",
+        "tests/chinese_action_characters.rs",
+        "tests/chinese_giving_characters.rs",
+        "tests/chinese_lending_characters.rs",
+        "tests/lexicon_resources.rs",
+        "tests/japanese_internet_catalog.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-15基础结果字后追加dao到/jia家两个独立Word；纯数据、非语义修复",
       "note": "3176读音/767语境/1532作者句，无新增context/模板句。找到/我找到/我找到书了/拿到书/我的家/你的家为新组合Sentence；旧到家/回家/到了/我家/家人Word主项，以及找到了/带到家/回到家/我到家了/我回家旧组合保持，不能冒充新增。新9tests SHA b9b55f2a8f307682df527ae5062a49199854d62d8d297c377c7b67a652642651先冻结：before2兼容pass7缺口fail，只追加2map和维护total后9原样过。16真旧全向量保更短prefix/前4字/hai mei zhao da/到家hou/旧歧义；原decoder4相对序和第五mixedextra全可选，旧拿倒水保留，不保新裸字/部分输入的旧主项/分数/页位。采用重设后到家/家人连续为Word，保字间横空白为Sentence；拿dao/回到jia/到jia的准确角色与到家原两句、Unicode冻结前文/once提交撤回/原文/大小写tone/数字引号/坏拆分/保护token/七行边界/三合成模型失败均验，非物理键盘或实际模型。无独立里/这里，非任意拼音/声调消歧。raw新前置投影恢复927b8940451a0e2d585ed35b8acd3634c8ea21d3e7162d0e06c79a4340c28ea4字节；四旧charfixture仅当前总数3174到3176，旧窗口/golden/行为不改，九组16包只另加2flow，原cohort/配额保持。EN/JA/六日用fixture/25包SDK/production算法/权重/预算/协议保持，Chinese源只unit总数。最终59结果组1023pass0fail2原自选模型诊断ignore：58相关集成446、完整lib577（57.54秒，另2ignore），新9不重复计；严格Clippy46.92秒、格式/字节保留/29双解释器守卫/11分发守卫/250链接通过。不借旧结果，不外推全仓/native/键盘/实模/跨平台/远端验收，不改安装/版本/发布跟进。"
     },
     {
       "id": "E-chinese-result-chars",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/zh-Hans.json", "src/languages/chinese.rs", "tests/chinese_result_characters.rs", "tests/chinese_action_characters.rs", "tests/chinese_giving_characters.rs", "tests/chinese_lending_characters.rs", "tests/lexicon_resources.rs", "tests/japanese_internet_catalog.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/zh-Hans.json",
+        "src/languages/chinese.rs",
+        "tests/chinese_result_characters.rs",
+        "tests/chinese_action_characters.rs",
+        "tests/chinese_giving_characters.rs",
+        "tests/chinese_lending_characters.rs",
+        "tests/lexicon_resources.rs",
+        "tests/japanese_internet_catalog.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-15基础动作后追加guo过/wan完/hui回/zhao找四Word映射；非声调或语义消歧",
       "note": "当前3174读音/767语境/1532作者句，无新语境/模板句；三个新独立读音加一同音，guo仍国优先，已知读音组合用完/我回去/我找书/我用过为Sentence，非任意字库。12真旧全向量、完整词/同音主项及decoder4相对序/旧extra可选保持。新9tests最初3a81…在新数据8/1：错误假设中间空格仍是整词及其作者对；精确恢复pre-data5e5bf325…并实际采样确认原Sentence角色和原尾部两句，纠正新fixture，失败证据保留。重新冻结4b7217019cafc0add8e3da73a95640ab7e81e11fe68d204714461b05f5f4309f，再before2兼容pass7缺口fail、append后9不改pass。采用重设/混合/空白/Unicode前文/once提交撤回/原文/数字引号/坏拆/七行边界/三合成失败均覆盖，非物理键盘/实模。原始投影前置恢复5e5bf…旧字节；旧三charfixture仅当前总数3170到3174，旧窗口/行为不改。九组16包另增四flow，原cohort/配额不变；EN/JA/六日用fixture/25包/SDK及算法/分值/容量/协议保持，Chinese源只unit总数。最终58结果组1014pass0fail2原自选模型诊断ignore：57相关集成437、完整lib577（55.99秒，另2ignore），新9不重复计；严格Clippy41.46秒、格式/字节保留/29双解释器守卫/11分发守卫/250链接通过。不借前轮结果，不外推全仓/native/键盘/实模/跨平台/远端验收，无安装/版本/发布跟进更改。"
     },
     {
       "id": "E-chinese-action-chars",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/zh-Hans.json", "src/languages/chinese.rs", "tests/chinese_action_characters.rs", "tests/chinese_giving_characters.rs", "tests/chinese_lending_characters.rs", "tests/lexicon_resources.rs", "tests/japanese_internet_catalog.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/zh-Hans.json",
+        "src/languages/chinese.rs",
+        "tests/chinese_action_characters.rs",
+        "tests/chinese_giving_characters.rs",
+        "tests/chinese_lending_characters.rs",
+        "tests/lexicon_resources.rs",
+        "tests/japanese_internet_catalog.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-15基础给书之后追加na拿/fang放/dai带/yong用4个独立Word读音",
       "note": "3170读音/767语境/1532作者句，无新context/模板句。组合我拿书/我放书/我带书/我用书、拿给你/用一下为Sentence；旧我防水/用一下就还Word仍可提交，采用重设/横空白/混合汉字复用旧词句/Unicode冻结前文/once提交撤销/正确tone容忍但非消歧/引号数字/坏拆分/URL/七跨行/三类合成模型失败均验。新9tests SHA8f0267a3a3ae68c2e11446868365d95b9d9a2a1b057c155780fcf884797260fa先冻结：pre-data2兼容pass7缺口fail、只append4map和total后9不改pass。10真旧全向量保护短前缀及huan ge/haimeishu；完整那边/哪天方便/哪个更好/放心/代码等主项及使用四同音序不动，旧decoder4相对序和mixed额外旧词全可选，不保裸动作/半截旧分值/页位。不是任意Pinyin/声调或语义修复，拿guo lai仍不承诺拿过来，未做物理键盘。新raw投影恢复旧96852c…原字节，旧全部reading/flag/context/六日用fixture/EN/JA/25包/SDK保持；两旧charfixture只current count3166到3170，旧窗口/行为不改；九组16包新增四flow，旧cohorts/断言/配额原封。Chinese代码只unit总数，前轮mix与来源/分页实现本轮字节不变。最终57结果组1005pass0fail2原自选诊断ignore：56受影响集成428、完整lib577（另2ignore），9新项不重复计；严格Clippy39.49秒、格式/字节/29双解释器守卫/11分发守卫/250链接过。范围见开发记录，不借996/484/524/1055，不外推全仓/native/实模/键盘/跨平台/性能/CI交付，无安装/版本/发布跟进更改。"
     },
     {
       "id": "E-chinese-giving-chars",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/zh-Hans.json", "src/languages/chinese.rs", "src/ime/candidate_mix.rs", "tests/chinese_giving_characters.rs", "tests/chinese_lending_characters.rs", "tests/lexicon_resources.rs", "tests/japanese_internet_catalog.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/zh-Hans.json",
+        "src/languages/chinese.rs",
+        "src/ime/candidate_mix.rs",
+        "tests/chinese_giving_characters.rs",
+        "tests/chinese_lending_characters.rs",
+        "tests/lexicon_resources.rs",
+        "tests/japanese_internet_catalog.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-15基础借还读音之后追加gei→给、shu→书两Word映射",
       "note": "仅gei给/shu书两Word，无新context/作者句。已知读音组合/采用续写/边界/长前文/once提交撤回及三类合成模型失败；旧同音/完整词/六向量/broad可选保持，不保mixed extra位置。暂缓ge个。新fixture首次89a0…误标蔬菜为decoder第四词而8/1，before/source证据纠正为水果并保五旧词；恢复49fd40d8…资源，重冻结bccc744c11aec6fa71cc2ea527091b3fb24358a91db5d96e72d64f1bca36fd2a，pre-data2pass7缺口fail、追加后9不改pass。55targets初418/1真回归：新还没书使还没睡第二句掉页；新unit先fail，原[Sentence,紧邻整词Word]且只末Unicode字不同/Word自身作者对限定句子竞争槽，四重排共用。旧carry两fail促收紧末字条件，其多字歧义/第二页与chumen等旧断言不改；134-target中断诊断不计验收。长稿另先红后绿，复用安全tail及精确prefix/gap，模型256不改；第三unit验证非空模型/句偏好竞争，非钉死本地句，限5原文优先。旧lending仅当前总数/SHA维护，所有旧行为断言/六日用fixture/EN/JA/25包/SDK保留，新raw投影前置、九组16包加两flow。生产只来源/条件分页，不改decoder/权重/容量/协议。最终56结果组996pass0fail2原自选诊断ignore：55受影响集成419、完整lib577（另2ignore），新9+3不重复计；严格Clippy40.80秒、格式/字节/29双解释器守卫/11分发守卫/250链接过。范围见开发记录，不借旧结果，不外推全仓/native/实模/键盘/跨平台/延迟/CI交付，无安装/版本/发布跟进更改。"
     },
     {
       "id": "E-chinese-lending-chars",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/zh-Hans.json", "src/languages/chinese.rs", "tests/chinese_lending_characters.rs", "tests/lexicon_resources.rs", "tests/japanese_internet_catalog.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/zh-Hans.json",
+        "src/languages/chinese.rs",
+        "tests/chinese_lending_characters.rs",
+        "tests/lexicon_resources.rs",
+        "tests/japanese_internet_catalog.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-15在未提交借还批次后补jie→借和huan→还基础Word读音",
       "note": "仅两条读音，无新context/作者句。先真实runtime采样，冻结9个完整候选向量指纹及9tests SHA cad6a0fe8b97b2ea15f23b2a5c496988824b64a8739d939ef4ccd66e258a6a49；pre-data2旧行为通过7缺口失败，追加后9项不改通过。新裸单字沿既有Exact优先于Prefix，旧broad词仍12项内可选，不保证原分数/全部首页；完整compound/同音结束先于借书、更短前缀和hai别名向量保持。wo jie ni保留我接你主项并提供我借你，已知读音可组合借还/我还你；采用、Space、重设、混合/长前文、一次提交撤回、三类合成失败及原文/数字/引号/错分/换行保护。不是任意字库或tone消歧，jie4shu1仍结束优先。新raw投影恢复原5856488e…，全部历史投影/旧两批fixture/EN/JA/25包/SDK保留；新增两字/两拼接span进入原九组16包共存。生产只同步一unit总数，算法/分值/beam/容量/协议不改。55顶层结果组484通过零失败零忽略：54中文核心/日用/主题包及共享资源/九组词包/回退/边界/长稿/保真/偏好targets410，语言库unit74（另502过滤），新9项不重复计数。严格Clippy39.91秒、格式/字节保留/29项双解释器守卫/11分发守卫/250链接过。准确范围另见开发记录，不借用此前结果或外推全仓/native/实模/键盘/跨平台/提交CI发布，不改安装或版本/发布跟进。"
     },
     {
       "id": "E-daily-borrowing",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/en.json", "data/lexicons/zh-Hans.json", "data/lexicons/ja.json", "tests/daily_borrowing_english.rs", "tests/daily_borrowing_chinese.rs", "tests/daily_borrowing_japanese.rs", "tests/lexicon_resources.rs", "tests/offline_pack_quality.rs", "tests/family_pack_japanese.rs", "tests/japanese_internet_catalog.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_borrowing_english.rs",
+        "tests/daily_borrowing_chinese.rs",
+        "tests/daily_borrowing_japanese.rs",
+        "tests/lexicon_resources.rs",
+        "tests/offline_pack_quality.rs",
+        "tests/family_pack_japanese.rs",
+        "tests/japanese_internet_catalog.rs"
+      ],
       "scope": "2026-10-15未提交belongings之后的三语借用/归还/临时保管fallback",
       "note": "新增EN8搭配16句，ZH24读音8语境16句，JA12读音6语境12句。借用期限、带来归还、放回地点、临时代管和返却期限/貸出期間/預け先。各六项测试先冻结，红测4旧词/边界通过14新内容缺口失败；完整/明确半截、三语词与英日句首页/中文句12项内可选、原文、大小写/假名/鼻音/水平空白、采用续写重设、once提交撤回、未知/URL/跨行及三种合成模型失败。新增词句对旧内置和对应语言包无精确重复。精确新增raw范围剥离后恢复上一轮资源SHA，旧物品寻找fixture/全部历史投影指纹/25包/SDK保持，英文6143索引不增长。每语两例追加原九组16包共存；生产语言代码只同步三个unit当前总数，不改算法/分值/容量/模型协议。65顶层结果分组524通过零失败零忽略：64受影响语言/日用/词包/资源/回退/边界/长稿/保真/偏好targets450、语言库unit74（另502过滤），不重复计子输出。18新测试冻结通过，terminal-n7项244.79秒、原九组16包均过；严格Clippy38.67秒，格式/字节/29项双解释器守卫/11分发守卫/250链接过。准确本轮范围见开发记录，不借用1055历史结果，不宣称全仓/原生GUI/实模/物理键盘/跨平台/性能/CI发布验收，无安装或版本/发布跟进更改。"
     },
     {
       "id": "E-daily-belongings",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/en.json", "data/lexicons/zh-Hans.json", "data/lexicons/ja.json", "tests/daily_belongings_english.rs", "tests/daily_belongings_chinese.rs", "tests/daily_belongings_japanese.rs", "tests/lexicon_resources.rs", "tests/offline_pack_quality.rs", "tests/family_pack_japanese.rs", "tests/japanese_internet_catalog.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_belongings_english.rs",
+        "tests/daily_belongings_chinese.rs",
+        "tests/daily_belongings_japanese.rs",
+        "tests/lexicon_resources.rs",
+        "tests/offline_pack_quality.rs",
+        "tests/family_pack_japanese.rs",
+        "tests/japanese_internet_catalog.rs"
+      ],
       "scope": "2026-10-15在ef0e920后的三语寻找物品/确认归属/保管取回fallback",
       "note": "EN8搭配16句，ZH24读音8语境16句，JA12读音6语境12句。各六项固定预期先红测，4旧词/边界通过、14新内容缺口失败；测试冻结不改。覆盖完整和选定半截、三语词及英日句首页/中文句12项内可选/准确原文、大小写/假名/鼻音/水平空白、采用续写与重设、精确一次提交撤销、旧短词与URL/未知/换行边界、三类合成模型失败。新内容与旧内置及对应语言包无精确重复。剥离精确新增窗恢复父提交资源原字节；全部旧标记/顺序/25包/SDK保持，英文6143索引不增。每语两例追加原九组16包兼容，不刷新旧投影SHA；生产代码只同步三条库unit总数，算法/排序/预算/模型接口不改。136顶层结果分组共1055通过零失败3原有子进程入口忽略：123语言/日用/资源/词包targets为878，12边界/长草稿/模型保真/偏好targets为103，语言库单元74（另502过滤）。十八新测试冻结通过，旧terminal-n7项251.52秒、九组16包共存均过；不重复计子输出。严格Clippy38.79秒、格式/字节保留/29项双解释器盘点守卫/11分发守卫/250链接均过。准确范围与证据见开发记录，非开放式质量、真人键盘、实模、全仓或CI/发布验收，不改日常安装或发布跟进。"
     },
     {
       "id": "E-daily-sharing",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/en.json", "data/lexicons/zh-Hans.json", "data/lexicons/ja.json", "src/languages/chinese.rs", "tests/daily_sharing_english.rs", "tests/daily_sharing_chinese.rs", "tests/daily_sharing_japanese.rs", "tests/chinese_prefix_priority.rs", "tests/lexicon_resources.rs", "tests/offline_pack_quality.rs", "tests/family_pack_japanese.rs", "tests/japanese_internet_catalog.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "src/languages/chinese.rs",
+        "tests/daily_sharing_english.rs",
+        "tests/daily_sharing_chinese.rs",
+        "tests/daily_sharing_japanese.rs",
+        "tests/chinese_prefix_priority.rs",
+        "tests/lexicon_resources.rs",
+        "tests/offline_pack_quality.rs",
+        "tests/family_pack_japanese.rs",
+        "tests/japanese_internet_catalog.rs"
+      ],
       "scope": "2026-10-13在0.9.0源码后的三语照片/附件/文件协作日用fallback",
       "note": "EN8搭配16句，ZH24读音8语境16句，JA12读音6语境12句。三份各六项测试先固定预期红测：3边界通过、15新内容缺口失败；保护完整/选定半截、词句原文、大小写/水平空白、采用续写及还原、精确一次提交撤回、未知/URL/跨行边界及Unavailable/Timeout/empty模型回退。日语复合词沿用既有Romaji规则，文件名等仅Word、解像度加入六个明确语境。全部旧资源和字节/顺序/标记、25包及SDK保留，英文6143索引不增；三条库unit当前总数与共享资源/family总数同步，旧历史投影SHA及行为断言不改。两例每语追加原九组16包共存。首轮全仓2113通过8失败32忽略：7个旧中文zheg首屏回归和1处漏同步当前总数。独立两项排序测试先1失败1通过；生产仅在全部作者查询/去重后稳定移后严格延伸原整体字典Word的额外Word，原文比较、不跨未知前缀；保留原解码器及Word次序、同音、精确/明确半截、类别、查询源、容量和外层公式，额外长词相对权重有意降低但仍可选择。修后12目标98项定向及183组全仓2123项通过、0失败、32原有忽略；严格Clippy、格式、资源/词包/文档守卫通过，准确范围和原始日志见开发记录。0.9.0原提交CI不能用于本轮工作区验收，不提高成熟度；无模型协议、个人安装、版本、提交推送或发布跟进更改，不宣称真人键盘或真实模型验收。"
     },
     {
       "id": "E-japanese-cleaning",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/ja.json", "src/languages/japanese.rs", "tests/daily_cleaning_japanese.rs", "tests/japanese_cleaning_coexistence.rs", "tests/lexicon_resources.rs", "tests/offline_pack_quality.rs", "tests/family_pack_japanese.rs", "tests/japanese_internet_catalog.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/ja.json",
+        "src/languages/japanese.rs",
+        "tests/daily_cleaning_japanese.rs",
+        "tests/japanese_cleaning_coexistence.rs",
+        "tests/lexicon_resources.rs",
+        "tests/offline_pack_quality.rs",
+        "tests/family_pack_japanese.rs",
+        "tests/japanese_internet_catalog.rs"
+      ],
       "scope": "2026-10-13日语居家清洁fallback及末尾音节恰好完成词的句子优先级修正",
       "note": "新增24读音12语境24句；此前462读音232语境463句的内容和字节、中英文、25个可选包不变。十项新测试冻结后先红测4通过6缺口失败。ほこり/ほうき保留自然假名，Romaji为Word、同文假名为唯一Literal。覆盖新词句、固定半截、空白/鼻音、采用续写、准确提交撤回、旧词竞争与typed/empty故障；掃除機/分別/換気进入原九组16包共存。原family回归发现souj时掃除機句子挤走掃除旧首页句；新增三项九包独立回归，保留四主行和原测试。首修53组989通过2失败2忽略：旧transit拒绝bas将バス越过場所，新共存fixture误把裸そうj的原文Literal期待为Unspecified。仅按既有同文分类校正此新期望，保留两版hash和失败证据；不改任何旧断言。最终修正限制为完整读音probe命中的词仅越过紧邻、读音严格以其开头的长词查询，遇到无关分支/已完成查询即停；同词面多读音也保序，转换查询仍第一、句尾探测仍最后。不生成新汉字，不改Word序/分值、完整假名/鼻音、backfill和预算，句子相对优先级有意调整。历史投影SHA不改。修后53组991通过0失败2忽略，覆盖全部45日语targets、lib及七共享targets；terminal-n七项213.13秒通过，原断言/时限不放宽。准确红测和最终运行见开发记录，不借用前轮978、不提高评分；不改模型协议/个人安装，不宣称地区规则、任意形态分析、实体键盘、实模、全仓或提交CI/发布验收。"
     },
     {
       "id": "E-japanese-weather",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/ja.json", "src/languages/japanese.rs", "tests/daily_weather_japanese.rs", "tests/japanese_authored_backfill.rs", "tests/japanese_romaji_progress.rs", "tests/lexicon_resources.rs", "tests/offline_pack_quality.rs", "tests/family_pack_japanese.rs", "tests/japanese_internet_catalog.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/ja.json",
+        "src/languages/japanese.rs",
+        "tests/daily_weather_japanese.rs",
+        "tests/japanese_authored_backfill.rs",
+        "tests/japanese_romaji_progress.rs",
+        "tests/lexicon_resources.rs",
+        "tests/offline_pack_quality.rs",
+        "tests/family_pack_japanese.rs",
+        "tests/japanese_internet_catalog.rs"
+      ],
       "scope": "2026-10-13日语天气/出门fallback及未完成音节的作者句分支补位修正",
       "note": "新增24读音12语境24句，旧438读音220语境439句全部字节保留，中英文、25包及设备/办事测试不动。十项新测试冻结后红测4通过6缺口失败；覆盖全读音、明确半截、词句/原文、六种水平分隔、采用后助词续写、准确提交撤回及12语境五类typed故障和empty回退。kion/kionn、hokan/hokann、促音和reinko-to沿用原规则。首轮50组972通过1失败2忽略：新湿度在九包下挤掉引用shit的旧长词。独立补位测试先红测3通过2失败，再限定为未转换ASCII尾音的空位排序，按整段作者句匹配的读音probe在同深度稳定优先；首批4、旧8项完整行、句子/原文权重、完整假名/鼻音顺序、深度防线和12容量不变，不按词/包硬排。三例追加到九组16包共存；旧资源投影SHA及断言不改。修后51组978通过0失败2忽略，包含全部43日语targets、lib及七共享targets；旧romaji进度4项与新补位5项全过，末尾n九包202.87秒通过。严格Clippy及资源/文档守卫通过，准确范围见开发记录，不借用前轮全仓2075结果，不提高评分。不改模型协议/个人安装，不声称任意形态变化、实体键盘、真实模型、精确提交CI或发布验收。"
     },
     {
       "id": "E-japanese-errands",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/ja.json", "tests/daily_errands_japanese.rs", "tests/lexicon_resources.rs", "tests/offline_pack_quality.rs", "tests/family_pack_japanese.rs", "tests/japanese_internet_catalog.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/ja.json",
+        "tests/daily_errands_japanese.rs",
+        "tests/lexicon_resources.rs",
+        "tests/offline_pack_quality.rs",
+        "tests/family_pack_japanese.rs",
+        "tests/japanese_internet_catalog.rs"
+      ],
       "scope": "2026-10-13日语来访、窗口办事、收寄件日用fallback；仅数据追加",
       "note": "追加24读音12语境24句；此前414读音208语境415句所有字节保留，中英文、25包及daily_devices三测试字节不变。十项独立测试冻结后先红测4通过6缺口失败，再追加资源；覆盖完整罗马音/假名、明确半截、六种水平分隔、采用后助词续写、精确提交撤回、原文边界和12语境五种typed/empty故障。小包使用既有kodutsumi→こづつみ规则，不新增kozutsumi别名。三例追加到九组16包共存；只更新当前总数，历史日语builtin以本批独立字节投影剥离再走旧投影，旧SHA/旧断言保留。专项40通过；本轮完整175组2075通过/0失败/32忽略，末尾n九包旧回归193.64秒通过，原断言和时限不变。准确运行范围见开发记录，不借用前轮结果。无生产算法、模型协议、容量、个人安装修改；不提高评分，不声称全日语形态分析、实体键盘、真实模型或精确提交CI/发布验收。"
     },
     {
       "id": "E-daily-devices",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "data/lexicons/en.json", "data/lexicons/zh-Hans.json", "data/lexicons/ja.json", "src/languages/english.rs", "src/languages/chinese.rs", "tests/daily_devices_english.rs", "tests/daily_devices_chinese.rs", "tests/daily_devices_japanese.rs", "tests/lexicon_resources.rs", "tests/offline_pack_quality.rs", "tests/family_pack_japanese.rs", "tests/japanese_internet_catalog.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "src/languages/english.rs",
+        "src/languages/chinese.rs",
+        "tests/daily_devices_english.rs",
+        "tests/daily_devices_chinese.rs",
+        "tests/daily_devices_japanese.rs",
+        "tests/lexicon_resources.rs",
+        "tests/offline_pack_quality.rs",
+        "tests/family_pack_japanese.rs",
+        "tests/japanese_internet_catalog.rs"
+      ],
       "scope": "2026-10-13中英日设备电量、充电、音量与屏幕日用fallback；纯数据追加",
       "note": "英文8搭配16句且6143索引/首位置不增，中文24读音8语境16句，日语12读音6语境12句；旧三语所有内容/顺序/标记及25词包字节保留。22新测试先冻结红测再追加资源，测试字节不变；完整/明确半截、词句原文、空白大小写、采用后续写、精确提交撤回及typed/empty故障回退，另加六例进入九组16包共存回归。专项38通过；首轮完整174组2061通过/4失败/32忽略，失败为中英unit旧总数、日语家庭包旧总数和互联网历史builtin文件指纹。保留原失败，仅同步当前计数；互联网守卫使用本批唯一追加窗口的原始字节投影，保留全部旧hash/词包顺序与预算。修后受影响八组618通过/0失败/2忽略，不冒充第二轮完整回归。详细执行范围见开发记录，不借用前轮结果。没有修改生产算法、模型协议、宿主/个人配置，不提高评分，不宣称真实模型/原生键盘/安装/精确提交CI或发布验收。"
     },
     {
       "id": "E-daily-laundry",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "tests/daily_laundry_english.rs", "tests/daily_laundry_chinese.rs", "tests/daily_laundry_japanese.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "tests/daily_laundry_english.rs",
+        "tests/daily_laundry_chinese.rs",
+        "tests/daily_laundry_japanese.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-12中英日洗衣晾晒和日常穿着；有限原创fallback",
       "note": "英文8搭配16句且6143索引不增，中文24读音8语境16句，日语12读音6语境12句。先固定预期红测，全部旧三语记录及英文首索引位置不变，十四包字节不变。完整/半截/宽前缀、双句原文、空白长稿、commit重复防护和undo、typed模型失效有定向覆盖；新sentakumon首屏双句预期过强，改为独立两页精确提交检查，旧断言未放宽，失败记录及实跑范围见开发记录。词库与模型宿主解耦；日语早截断修复单列E-japanese-backfill。不提高成熟度，未安装提交推送发布，非原生键盘或真实模型验收。"
     },
     {
       "id": "E-japanese-backfill",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "src/languages/japanese.rs", "src/ime/candidate_mix.rs", "tests/japanese_completion_backfill.rs", "tests/family_pack_japanese.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "src/languages/japanese.rs",
+        "src/ime/candidate_mix.rs",
+        "tests/japanese_completion_backfill.rs",
+        "tests/family_pack_japanese.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-12日语有界后续词填充空位，保留旧词句与权重",
       "note": "旧家庭包ま→窓因新增窓枠耗尽4项补全而消失；旧测试和新し宽前缀先红测。首版扩大主池失败保留：旧<=4契约与旧准备续句/新句排名受损。最终保持4项主补全/原混合分数，原balance之后才以低于现有项的分数追加有界12项池中未出现的Word，只填空位，最终IBus12/字节预算不变。新测试保留し旧10项完整Candidate前缀、全部旧句分数、limit1..10无回填、后页精确提交撤回；家庭包原分页/同音断言不改，仅更新陈旧当前总量。多一次有界日语扫描不是零性能成本；实跑见开发记录，不代表实体键盘/端到端延迟或远端CI，不提高评分。"
     },
     {
       "id": "E-daily-repairs",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "tests/daily_repairs_english.rs", "tests/daily_repairs_chinese.rs", "tests/daily_repairs_japanese.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "tests/daily_repairs_english.rs",
+        "tests/daily_repairs_chinese.rs",
+        "tests/daily_repairs_japanese.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-12中英日居家报修与预约；有限原创fallback",
       "note": "新增英文8搭配16句且6143索引不增，中文24读音8语境16句，日语12读音6语境12句。全部旧内容和英文首索引位置保留，包含前两轮未提交数据；固定独立预期先红测，另纠正新测试对旧保修/报修首选的误认，不改生产排序。完整/明确半截、词句原文、选词续写、提交撤回、typed模型失效及14包共存覆盖，准确实跑和失败记录见开发记录。语料只含故障描述/请检查/预约/进度，不调用设备或报修服务；不改模型宿主接口、算法、容量或推荐包，不提高旧成熟度。模拟provider与核心reseed不代表原生键盘/真实HTTP/实模质量；未安装提交推送发布，旧e416e86 CI不涵盖本轮。"
     },
     {
       "id": "E-daily-delivery",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "tests/daily_delivery_english.rs", "tests/daily_delivery_chinese.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "tests/daily_delivery_english.rs",
+        "tests/daily_delivery_chinese.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-12中英收件取件寄送；有限作者fallback",
       "note": "英文追加8搭配16句，不增加6143索引；中文追加24读音8语境16句。固定独立预期先红测：英文1pass6fail、中文3pass5fail，全14包组合缺新快递到了句子；旧33英文层/717搭配/1398句及所有首索引位置，中文2994读音/711语境/1420句完整指纹保留，包含上轮未提交数据。完整/明确半截、22明确中文partial及2宽歧义、原文保真、长稿续写、提交撤销、typed模型失效及14包共存均有用例，最终实跑范围见开发记录。不改候选/词库容量、语言模型宿主实现、日语或推荐包数据，不读取实际物流订单信息；e416e86已过CI不涵盖这轮未提交数据，旧成熟度评分不提高，未安装/提交/推送/发布。"
     },
     {
       "id": "E-daily-visits-ja-mealtime",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "tests/daily_visits_english.rs", "tests/daily_visits_chinese.rs", "tests/daily_mealtime_japanese.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "tests/daily_visits_english.rs",
+        "tests/daily_visits_chinese.rs",
+        "tests/daily_mealtime_japanese.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-12中英来访招待与日语餐桌；e416e86之后的未提交fallback数据",
       "note": "追加英文8搭配16句且6143索引不增，中文24读音8语境16句，日语12读音6语境12句；三语旧数据/标记/排序及英文所有首次位置指纹不变。补数据前独立固定预期RED保留，首轮新测试将bango首位、英文win原文候选类型和qingji歧义误判的证据与修正明确记录。所有完整读音、明确半截、旧宽前缀、原文、选词续写、精确提交撤回、typed模型失效及14包共存纳入验证，准确结果见开发记录。不改语言算法、容量、推荐包字节或模型宿主接口，不提高成熟度评分，不外推实体键盘/GTK/HTTP/实模质量；未安装/提交/推送/发布，旧CI不验收这些新数据。"
     },
     {
       "id": "E-daily-mealtime",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "tests/daily_mealtime_english.rs", "tests/daily_mealtime_chinese.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "tests/daily_mealtime_english.rs",
+        "tests/daily_mealtime_chinese.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-12中英用餐、餐具与打包；有限原创离线fallback",
       "note": "英文追加8搭配16句，复用既有6143索引词形；中文追加24读音8语境16句，盛饭读cheng、剩饭读sheng。保留旧31英文层/701搭配/1366句及全部首次索引位置，中文2946读音/695语境/1388句及标记顺序指纹不变。固定预期先运行RED：中文2pass5fail、英文1pass6fail，全14包组合缺rice短句另有失败记录。验证完整/半截拼写、采用后长稿与空白续写、字面/行边界保护、精确提交撤回及typed模型失败；准确最终实跑结果见开发记录。英文预算/候选容量、算法、模型接口、日语和推荐包数据不改，旧评分不提高；未安装/提交/推送，不外推实体键盘、原生GTK、HTTP或真实模型质量。"
     },
     {
       "id": "E-daily-household",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "tests/daily_household_english.rs", "tests/daily_household_chinese.rs", "tests/offline_pack_quality.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "tests/daily_household_english.rs",
+        "tests/daily_household_chinese.rs",
+        "tests/offline_pack_quality.rs"
+      ],
       "scope": "2026-10-12中英家务、清洁和日常整理；有限原创离线fallback",
       "note": "英文追加8搭配16句复用现有词形，6143索引及旧30层/693搭配/1350句和首次索引位置不变；中文追加24读音8语境16句，旧2922读音/687语境/1372句及标记顺序指纹不变。衣夹追加为yi'jia同音，原衣架仍首选。独立英文1pass6fail、中文2pass5fail及全包quality缺dishes的RED保留；补数据后7+7新项和全14包组合quality首次通过。旧回归首轮两个失败是function-word历史总量断言，不改历史指纹/候选行为，将历史检查限定原窗口，并精确更新全资源当前数量。未改语言算法、候选/模型预算、日语或推荐包字节，旧评分不提高；typed模型失败与引擎reseed不代表原生键盘/HTTP或实模验收。准确回归与严格检查结果见开发记录；未安装、提交、推送或发布。"
     },
     {
       "id": "E-preference-restart-fixture",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "scripts/test-preference-host.py", "scripts/test-preference-restart.py", "tests/preference_host.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "scripts/test-preference-host.py",
+        "scripts/test-preference-restart.py",
+        "tests/preference_host.rs"
+      ],
       "scope": "2026-10-12偏好测试重启就绪确认与失败诊断；未证实远端超时根因",
       "note": "6609502的CI38229734734首轮restart CreateEngine 2000ms超时，尚未进入学习/保存/清除；原本地九组通过，远端失败不改记通过。生产socket在注册完成后才绑定，不误判为注册先后错误。测试缺少新宿主响应ACK，用原单一5s预算等待socket加新host空白公开未聚焦帧，再单次创建引擎；旧身份/private/draft/进程退出/真实超时仍失败，原120s总时限不改。补齐临时目录删除前的阶段/进程/无正文元数据和最后三份各4096B日志，保留原异常；确定性红测及完整局部结果见开发记录。原shared fixture/生产/fsync/CI不改，不提高成熟度，不代表新远端验收或个人安装。"
     },
     {
       "id": "E-settings-focus-fixture",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "scripts/test-linux-native-candidates.py", "scripts/test-native-settings-focus.py", "tests/native_settings_focus.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "scripts/test-linux-native-candidates.py",
+        "scripts/test-native-settings-focus.py",
+        "tests/native_settings_focus.rs"
+      ],
       "scope": "2026-10-12设置布局夹具的异步焦点确认；非生产输入代码修复或远端验收",
       "note": "0d2236b的CI38224763030应用门禁失焦失败保留，发布暂停；原样本地auto42通过不等于复现或修复远端根因。可控延迟暴露旧快照提前放行；离开/返回原输入框需IBus上下文身份与同宿主新context/revision，设置中间fallback不能确认返回，稳定阶段仍核对原上下文。第一版误要求离开时focused=false的真实测试失败保留，明确fallback可聚焦后修正；15确定性用例保留临时草稿/插入、缺ACK/换宿主/private及迟到失焦失败，原4s/150ms/240s界限不变。完整执行范围见开发记录，不提高评分、不改个人安装或恢复自动发布。"
     },
     {
       "id": "E-preference-feedback",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/ibus-candidates.md", "docs/known-limitations.md", "src/bin/panel/tray.rs", "src/platform/linux_ime_control.rs", "src/ui/catalog.tsv"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/ibus-candidates.md",
+        "docs/known-limitations.md",
+        "src/bin/panel/tray.rs",
+        "src/platform/linux_ime_control.rs",
+        "src/ui/catalog.tsv"
+      ],
       "scope": "2026-10-12偏好清除超时后的托盘只读确认、状态反馈与八语言资源；源码和私有测试",
       "note": "保留原700ms预算和一次F，超时后保留已接受epoch/id；只读S解析严格clear状态，后续刷新仅匹配原凭据才确认成功，重启/替代/无效状态无假成功。托盘区分saving/clearing，显示有界数量、确认结果和独立失败原因，学习恢复后撤销旧成功提示；按需合并刷新不轮询，激活prepare不等刷新。新增31项八语言资源（含18文件错误）；14协议、19托盘、3本地化定向项及原九组真实私有IBus通过。未改存储策略、默认开关、原生夹具/期限或旧评分，未替换个人安装、打包、提交或推送，不代表桌面菜单视觉、实体键盘、Wayland或实际模型验收。"
     },
     {
       "id": "E-preference-lifecycle",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/ibus-candidates.md", "docs/known-limitations.md", "src/data/files.rs", "src/preferences/store.rs", "src/preferences/worker.rs", "tests/preference_persistence.rs", "scripts/test-preference-host.py", "tests/preference_host.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/ibus-candidates.md",
+        "docs/known-limitations.md",
+        "src/data/files.rs",
+        "src/preferences/store.rs",
+        "src/preferences/worker.rs",
+        "tests/preference_persistence.rs",
+        "scripts/test-preference-host.py",
+        "tests/preference_host.rs"
+      ],
       "scope": "2026-10-12Linux偏好保存中SIGTERM及有界退出后的专属临时文件恢复；隔离私有文件/总线",
       "note": "原八workflow/会话及700ms退出时限不改，新增真实held fsync退出：及时释放保存最新合并选择并恢复排名，超时准确警告未确认/正式文件保持；首轮重启遗留1敏感temp红测保留。独立.suzaku-preferences-pid-seq.tmp namespace，exclusive lease内128目录项/64temp上限、先全量private singlelink regular/no-follow预检后unlink+dir sync，启动及显式clear/reset不回放partial、不扫通用settings/backup temp，取消/链接/不安全/超限不删除。新4文件负例含5不安全类型及两budget；新namespace校验与bootstrap超时worker保lease/迟到cache丢弃单测，超时诊断不再假称另一writer。首558lib零失败2ignored、19持久化/13学习及9组native通过；首次全量1758零失败30显式ignored共129组、严格Clippy通过，新增精确接近8次频率断言后9组native再次通过；旧完整默认/inline门禁各含全部106HTTP失败/超时通过，原120s私有会话界限不变，9原源guard/21张量/18CI图通过；不提高旧评分，不代表安装/托盘视觉/实体键盘/Wayland/真实模型；强杀和退出超时仍可能丢最新未确认数据及暂留摘要到后续安全回收。"
     },
     {
       "id": "E-native-preference",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/ibus-candidates.md", "docs/known-limitations.md", "tests/preference_host.rs", "scripts/test-preference-host.py", "scripts/fixtures/preference-fsync.c"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/ibus-candidates.md",
+        "docs/known-limitations.md",
+        "tests/preference_host.rs",
+        "scripts/test-preference-host.py",
+        "scripts/fixtures/preference-fsync.c"
+      ],
       "scope": "2026-10-12Linux源码宿主默认持久化；私有总线、合成中英输入、实际文件同步及清除客户端",
       "note": "500ms输入循环前worker冷恢复、一个在途+最新save+优先clear，磁盘操作不持session/queue锁，clear/private/superseding拒旧staged写；SIGTERM主循环退出后700ms有界冲刷。普通state与显式配置namespace隔离，memory显式optout及原QA内存语义保留；新原生gate不设QA旧marker或mode，验证真实默认。F仅返回accepted，原700ms单deadline只S查询epoch+id exact complete才确认，空ACK/换宿主/替代/失败/超时无假成功且不重发F。9worker+4client+1policy专项及556lib零失败2ignored通过；首native六组断言完成但报告误期望7而失败保留，仅修新计数后六组通过，再追加state隔离/memory两组共8通过，正常all-feature Rust门禁不skip。首次最终全量1752零失败30显式ignored共129组；原C/nativefixture/runner/原slowsettings和deadline不改，九原source guard过。私有实际stage/目录fsync阻塞时输入响应、staged取消无temp/回写、700ms CLI未确认与后续durable receipt、EIO、private、坏文件显式重建均验证。强杀/OOM未确认保存仍可能丢失，不等于GUI标签/安装/实体键盘/Wayland/真实模型验收。"
     },
     {
       "id": "E-preference-persistence",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/ibus-candidates.md", "docs/known-limitations.md", "tests/preference_persistence.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/ibus-candidates.md",
+        "docs/known-limitations.md",
+        "tests/preference_persistence.rs"
+      ],
       "scope": "2026-10-12偏好持久化第一阶段：可移植编解码、Linux私有文件和引擎冷恢复API",
       "note": "目标默认开启可随时清除，但未接宿主后台保存/启动恢复/退出冲刷/托盘磁盘清除确认，当前native仅内存且个人安装不动。v1 HMAC-SHA256-128按域/字节长度区分语言querycandidate，32byte随机key同文件不等于匿名化/加密；512KiB/2048有界严格解析，24h半衰期覆盖停机/单调时钟，倒退不增加。私有owned目录/0600 regular singlelink/no-follow/nonblock，协作独占锁、临时fsync+rename+父目录sync，坏文件/检测外部编辑保留，非同UID恶意race CAS。清除后mutation revision及同revision tombstone拒绝旧保存；独立owner拒绝foreign snapshot/旧receipt。首27专项/1736全量通过后追加foreign receipt红测，owner修复后首全量1737零失败30显式ignored共128组；15新集成含两个实际进程/文件、late/private restore与live selection，熵故障单测保留RAM但拒export。不把这些当native/UI/慢I/O/安装/真实模型验收，不改旧断言/期限或旧成熟度。"
     },
     {
       "id": "E-native-core-sessions",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "scripts/test-linux-ci.sh", "scripts/test-native-sync.py", "scripts/fixtures/native_partition_projection.py", "scripts/test-native-core-partitions.py", "scripts/test-native-model-fixture.py", "scripts/test-held-language-coverage.py", "scripts/test-custom-language-coverage.py", "scripts/test-custom-boundary-coverage.py", "scripts/test-custom-continuation-coverage.py", "scripts/test-custom-long-coverage.py"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "scripts/test-linux-ci.sh",
+        "scripts/test-native-sync.py",
+        "scripts/fixtures/native_partition_projection.py",
+        "scripts/test-native-core-partitions.py",
+        "scripts/test-native-model-fixture.py",
+        "scripts/test-held-language-coverage.py",
+        "scripts/test-custom-language-coverage.py",
+        "scripts/test-custom-boundary-coverage.py",
+        "scripts/test-custom-continuation-coverage.py",
+        "scripts/test-custom-long-coverage.py"
+      ],
       "scope": "2026-10-15修复0.9.0准确CI的原生core累计120秒超时，不延时限的四会话完整门禁",
       "note": "04ddfcc/run38385254322/job115255326329 step24原core120.02秒exit124；密码cleanup PASS后只剩1.70秒，N44至少4.05秒固定窗口，聚合115265543056正确失败，旧证据保留且发布暂停。default顺序core-lifecycle/core-composition/recovery/fallback，各fresh私有总线/配置、原120秒+3秒kill、inline继承及失败即停；完整成功仅四区全过。24旧bus检查保序，context-a到b/模型/Tone/重启/两probe完整原块不拆；恢复复用旧focused入口，53样例各HTTP503/timeout均保留。88旧函数/类和全部物理断言原字节，六历史guard精确投影保留旧hash；新guard检查实际dispatch/选择器/漏区/时限/变异。先8项red failures14/errors1，再全绿；新增CI入口删改负例先8过1败再修，漏custom-long read适配失败保留后修；3.12指纹差异先8过1败，复用旧stable_ast_dump且原hash不变，两版本最终9绿。现有CI modelguard调用新guard，无YAML/总job预算变化。普通/inline完整8session均exit0、每种106受控回退；N44 4.782/4.779秒是单项而非整区时长。源守卫、ShellCheck、Bash和矩阵准确范围见开发记录。保留此前未提交词库；无生产输入、语料、安装、服务、版本、提交推送、远端重跑或发布更改，不提高评分，不宣称实体键盘/实模/新提交远端验收。"
     },
     {
       "id": "E-ci-vocabulary-sessions",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "scripts/test-linux-apps.sh", "scripts/test-linux-vocabulary.py", "scripts/test-vocabulary-partitions.py"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "CONTRIBUTING.md",
+        "scripts/test-linux-apps.sh",
+        "scripts/test-linux-vocabulary.py",
+        "scripts/test-vocabulary-partitions.py"
+      ],
       "scope": "2026-10-13精确0.8.9候选CI的240秒失败；完整167+6词库门禁六分区修复",
       "note": "d4196c7的CI38348392943/job115134985334第一分区56+6条，连续46条PASS后exit124，无该step断言错误；其余独立job成功，最终汇合115141641489正确拒绝失败，旧结果保留且自动发布暂停。改为6个顺序私有混语言会话，每区原240秒，28/28/28/28/28/27完整tuple及指纹不变，额外3中+2日+1分页仅首区；实际输入循环、分页断言、74tuple双分区pack gate、CI总时限不改。新25项source guard先红20失败再全通过，all/unset逐区42/124失败停止且不报全过；完整私有GTK实测六区173全过exit0约11分29秒，Python3.12/3.14五AST共88及13/18/21辅助checks全过，见开发记录及原始日志。不改生产代码/词库/安装/配置，未提交推送，不代表实体键盘、日常桌面、新提交远端验收或整个40min应用job预算确认，不提升评分。"
     },
     {
       "id": "E-ci-lanes",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", ".github/workflows/ci.yml", "scripts/test-ci-release-graph.py"],
+      "paths": [
+        "DEVELOPMENT.md",
+        ".github/workflows/ci.yml",
+        "scripts/test-ci-release-graph.py"
+      ],
       "scope": "2026-10-12完整原回归通过但40min聚合任务取消；不延长时限的并行CI及全门汇合",
       "note": "f0e2bc1的CI38157429301四非Linux job与Linux6–42原回归均通过；GitHub明确40min总任务超时，43release编译取消、44–47包/安装/上传全skip，artifact为0，旧结果不是发布验收。CI仅分成独立Ubuntu24原guard/Rust/native/UI、应用/数据、release/包/干净安装三路，各40min、原命令/env/用例/断言/会话时限不改；全门及format/secrets/双desktop成功后最终汇合才上传原accepted名字。1天unaccepted staging仅同run同SHA交接，非Release。新源图guard防漏门/放宽时限/跨SHA和条件旁路；静态通过不代替新精确CI全路验收。无生产代码、个人安装或评分变动。"
     },
     {
       "id": "E-python-ast-format",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "scripts/run-ast-guard.py", "scripts/test-ast-guard.py"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "scripts/run-ast-guard.py",
+        "scripts/test-ast-guard.py"
+      ],
       "scope": "2026-10-12五项冻结AST检查的Python3.12/3.14格式兼容与受限执行",
       "note": "0.8.7首轮CI38154577312两摘要失败，本机3.12首次精确复现而3.14旧值一致。仅新增白名单入口、固定历史compact格式；五原guard全文/SHA断言/期限不改。两版本各13格式/范围负例与原19+13+13+18+22检查通过，共196；None和literal保留，不修改AST，任意路径/选项拒绝、异常和退出码传播、进程状态恢复。另本机3.12 GI ABI导入失败保留，系统3.14独立6项信号检查通过；远端精确CI和Ubuntu打包安装仍独立门禁，无生产修复或成熟度上调。"
     },
     {
       "id": "E-shared-noop-controls",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "src/ime/core_engine.rs", "tests/ime_noop_controls.rs", "tests/prediction_edit_conflicts.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "src/ime/core_engine.rs",
+        "tests/ime_noop_controls.rs",
+        "tests/prediction_edit_conflicts.rs"
+      ],
       "scope": "2026-10-12共享引擎重复语言/信号控件；固定短长离线选择和中英受控预测",
       "note": "初次离线4/5与受控新增3/3失败记录保留；原11预测测试完整字节前缀不改。等值语言别名/已应用信号不rebuild，保留全文/池/明确选择和Pending token/Ready model/error；首次信号置信度仍初始化，实际切换/弱信号仍刷新，active plugin dirty保留惰性替换语义，inactive注册不扰动当前选择。新5离线测试每等值控件17固定EN/ZH/JA短长Word/Sentence组合，加首次/变化信号与plugin正例；3受控测试为EN/ZH×普通/IBus混排×Pending/Ready/error共12组合，原request正向接受、一次精确提交/undo及真正seed后新请求成功。首修19专项全过。非原生显示模式/HTTP socket/实体键盘/安装/Wayland/真实模型验收，不改settings worker/Native dispatch/词库/协议/时限，不提高评分；全量与Clippy结果见开发记录，已发布98ee576的CI成功不代表此工作区发布验收。"
     },
     {
       "id": "E-prediction-error-boundaries",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "tests/prediction_edit_conflicts.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "CONTRIBUTING.md",
+        "tests/prediction_edit_conflicts.rs"
+      ],
       "scope": "2026-10-11中英长稿迟到错误/Unavailable和Disabled撤回；独立两模式native HTTP回退",
       "note": "四新增测试28固定组合，原七测试28组合的508行21016字节SHA完整保留。16迟到429路径覆盖ABA/256→257→256/清context同稿/待完成history undo；同worker下一请求receipt排空旧错误而新provider仍blocked，fullframe/pool/Pending/errorNone负向与后续精确Model/Sentence正向。12诊断路径先正向接受当前404再选完整Local literal，有history仅清context/诊断并Idle，无history保留Unavailable/404/全文/选择，真正seed更新后新预测正常；providerNone仍Disabled、两undo结果、一次精确提交/拒绝重复/engine reset清history。92相关all-feature测试及default/inline各106loopback503/timeout回退初次通过，不改生产Rust/C/native runner/fixture/词库/时限、不提高评分。新28非provider panic或native键事件/transport验收，Disabled样本非禁用inflight；独立fallback非完整core/controlled saves/GTK/实体键盘/Wayland/真实模型验收。"
     },
     {
       "id": "E-prediction-edit-conflicts",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "tests/prediction_edit_conflicts.rs"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "CONTRIBUTING.md",
+        "tests/prediction_edit_conflicts.rs"
+      ],
       "scope": "2026-10-11中英长稿手工编辑与迟到回复；共享引擎普通/IBus混排策略",
       "note": "七测试×中英×两引擎策略共28固定组合，初次红灯两项确认成功history undo未取消旧context请求/Ready状态未失效，最小修复只在history pop成功后cancel且保留全文/候选/explicit选择，无history严格无操作。同稿ABA和256→257→256使用完全相同input排除文本拒绝掩盖generation问题；非协作provider释放后以同worker下一请求receipt证明旧结果处理完，整个snapshot/pool负向及精确Model/Sentence正向，ready选择一次准确提交。88相关+34host全feature测试及独立旧default/inline原生core partition通过见开发记录，非完整core+fallback或controlled saves/GTK重验；无GPU构建因已有17import错误未进入新测试，失败保留。不改共享native runner/helpers/词库/时限，不提高评分；新28组合本身非实体按键、原生显示模式、HTTP socket取消或真实模型质量验收。"
     },
     {
       "id": "E-custom-language-continuation",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "docs/shortcuts.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "CONTRIBUTING.md",
+        "docs/shortcuts.md"
+      ],
       "scope": "2026-10-11固定16长草稿自定义切语言保存期间词到句连续采用；default/inline私有IBus",
       "note": "两profile×中英双向×成功/真实fsync EIO×held句子/编辑x7。屏障在词采用之前开始，owned前文+逐键native尾输入，实际custom行导航/A38词采用/Space/句子采用/BS完整word_space撤回/匹配release再采用，逐阶段old context和language/进度/worker1/磁盘原bytes/无提交。成功保留最新全文且context退休/旧action拒绝，失败句子BS精确word_space而成功为sentence末scalar删除，固定oracle排除please sen与please send删字碰撞；编辑两分支依次删7/x/句末而不复活旧undo。A38/L46held身份、改键符/修饰/错误释放、夹边全freshframe、worker0/temp0、完整settings和JSON恢复、最终Space和选择exact local原文Enter仅一次并退休context。只追加一helper一相邻调用，完整旧native和四历史guards通过精确预编辑哈希投影保留，不改生产C/Rust/词库/worker/runner/时限，不提升评分。不是实模质量、实体键盘/Wayland、安装/远端CI或完整Rust/native矩阵；未验收ack时停在撤回后的word_space或其它自定义绑定组合。"
     },
     {
       "id": "E-custom-language-boundaries",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "docs/shortcuts.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "CONTRIBUTING.md",
+        "docs/shortcuts.md"
+      ],
       "scope": "2026-10-11固定28长草稿自定义切语言焦点/隐私/Compose边界；default/inline私有IBus",
       "note": "两profile×中英双向×FocusOut/直接另一引擎FocusIn/password/PIN/private hint/待完成和完成Compose。真实fsync屏障中取消保持worker1和P0 busy，原磁盘字节不变，新公开context中实际旧held码38/46字母可继续输入；旧引擎Reset/FocusOut/ContentType及键事件不改新owner完整fresh frame。password/PIN按键FALSE，hint本地a TRUE但全snapshot隐去文本，恢复公开再退休context。Compose不退休context，已注册组合及修饰键在匹配释放后透传且fullframe不变；待完成两次BS先取消再恢复完整raw，完成é后两次BS仅删é和已采用词末scalar。释放后worker0/temp0、原语言和完整settled frame不变，各case仅准确新owner提交一次。只追加一helper一相邻调用，完整旧native和三历史guards精确哈希投影还原，不改生产C/Rust/词库/worker/runner/时限，不提升评分；不是实模、实体键盘/Wayland、安装/远端CI或完整Rust/native矩阵验收。"
     },
     {
       "id": "E-custom-language-long",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "docs/shortcuts.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "CONTRIBUTING.md",
+        "docs/shortcuts.md"
+      ],
       "scope": "2026-10-11固定中英长草稿自定义切语言4普通＋16受控保存；default/inline私有IBus",
       "note": "标准/主键区×中英双向，固定EN长前文hel→hello及ZH长前文hui yi→会议，使成功ordinary-delete与失败完整raw undo明确不同。实际六项U绑定、owned revision-bound前文及逐键排空native尾键、custom38采纳与46切语言held身份/释放、首页边界全freshframe、成功持久化/context退休/旧动作拒绝/松键后复用、Space与精确显式提交。受控真实fsync屏障/EIO保留原磁盘字节与undo，Reset context增empty或明确选完整稿提交取消，旧任务释放前worker1＋P0 busy、取消后新context实际x继续输入，释放后worker0/temp0且不迟到切语言。仅追加两helper及三相邻调用；旧native与两历史guards通过预编辑SHA精确投影还原，旧26+12+4与慢27+4以及所有时限保持。未发现新生产缺陷，未改C/Rust/worker/runner/词库；不外推长草稿自定义Compose/隐私/焦点取消、成功pending时词到句编辑、实模、实体键盘/Wayland、安装或远端CI，不提升评分。"
     },
     {
       "id": "E-held-language-transitions",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "docs/shortcuts.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "CONTRIBUTING.md",
+        "docs/shortcuts.md"
+      ],
       "scope": "2026-10-11 Linux IBus 采纳键长按跨键盘切语言和候选翻页",
       "note": "实际RED确认语言成功提示首次被无效PageUp清除时完整render让revision增加，改为该唯一completed-feedback分支render_presentation，不重发companion版本或行内preedit。新增固定4普通+4受控保存组合检查两profile、采纳键物理identity/修改keyval和modifier/释放其它键、EN成功hell与失败hel撤回差异、ZH literal ShiftEnter跨EN真实分页、松键后新采用撤回、Space与一次精确提交。新fixture先纠正literal行固定首位假设，再使用按键前后的fresh主机全frame和跨流同步排除异步回调第二次发布的观察竞态；revision equality保留。旧native全文、11旧函数矩阵、worker及runner通过独立投影冻结，实际范围和失败日志见开发记录。非新增物理组合键盘/实体键盘/个人安装/实模或远端CI，77评分不提升。"
     },
     {
       "id": "E-keypad-navigation",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "docs/shortcuts.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "CONTRIBUTING.md",
+        "docs/shortcuts.md"
+      ],
       "scope": "2026-10-11 Linux IBus NumLock关闭时的六个小键盘导航别名",
       "note": "实际私有native RED确认KP_Up未接管已有草稿。仅在Compose处理之后扩展既有row/page条件为KP Up/Down/Left/Right/Prior/Next，复用原移动/缺页无副作用规则，不重写rawkeyval或物理code，不改KP数字/运算符/小键盘Enter与锁状态。新增24固定EN/ZH×profile×alias原生检查和4隔离GTK真实键码流程，旧49组/自定义7组/row-page-hold矩阵及数字处理区域通过独立哈希投影保留。实际执行与初失败见开发记录；静态afterCompose检查不是自定义KP Compose序列动态验收，GTK虚拟显示器不等于实体键盘/个人安装/原生Wayland/实模或远端CI。77评分不提升。"
     },
     {
       "id": "E-language-adoption-workflows",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "CONTRIBUTING.md"
+      ],
       "scope": "2026-10-11 私有 Linux IBus 切语言、词句采用及受控慢保存组合",
       "note": "实际受控RED确认保存仍进行时数字采用会清掉切语言提示；仅在无language_job时允许普通按键清feedback，不改变异步worker、1秒切换期限或按键语义。新12条成功工作流覆盖两profile、中英双向及API。nihao混合前缀的词/句数字采用、精确撤回、Space、Alt7、逐字删除和一次提交；新8条pending双向分支覆盖采用、撤回、编辑和保存失败。旧26切语言与19慢I/O case及共有输入/选词/peer AST冻结，仅追加两helper调用。准确执行日志见开发记录；非实体键盘、实模质量、安装/远端CI或已记录外部文件CAS窗口修复，77评分不变。"
     },
     {
       "id": "E-chinese-mixed-boundary",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/ibus-candidates.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/ibus-candidates.md"
+      ],
       "scope": "2026-10-11短中文草稿中的literal混合前文与关闭引号边界",
       "note": "已确认 API。nihao 的实际原始probe为短失败/长正对照通过；只在≤256 scalar且整段无非Literal转换时沿原Han/CJK边界恢复局部读音，rawprefix不规范化，共用原保护token/长稿边界而不引入递归hint。独立matrix首轮13/2：一项是新增fixture把gap放进exact authoredcontext却期待跨gap长句，校正为既有短语语境候选；另一项暴露老matcher吞掉音节边界的terminalquote，以生产Prefix门槛修复，不放松引号保护。十五guard含短长/255-257/词句Literal/原文/采用提交撤销/数字声调/内部分隔/保护token/七竖向边界；末quote扩到裸读音与长mixedprefix。字典、版本、英文算法、C/host/核心排序/搜索和模型预算不变，无自动语言识别或未知拼写猜测。准确实跑与保留初失败见开发记录；私有native既有中英文流程不等于新增混合案例的物理GTK/实体键盘覆盖，不冒称完整原生HTTP、实模、个人安装或远端CI。未安装/提交/推送，77评分不提升。"
     },
     {
       "id": "E-chinese-adopted-flow",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md", "docs/ibus-candidates.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "docs/ibus-candidates.md"
+      ],
       "scope": "2026-10-11中文基础连接字与物理拼音/数字构造的有限连续采用流程",
       "note": "仅追加hai→还、hou→后两Word；旧2920有序读音和全部687语境1372句独立指纹不变，裸读音首选明确改变，旧完整词首选保留，不承诺所有组合数组相同。没有huan别名、新句/语境或decoder/模型协议变更；首轮全Rust两失败均为旧2920总量断言，精确更新到2922而不改旧指纹/行为。新adopted-transition在私有GTK实际通过两拼音数字构造链×有无空格四变体，逐段撤回保留exactraw、Word/Sentence类型、字面输入、实际页内数字、面板焦点与一次Return精确buffer/file提交。尾部≤12不冒称必在第二页；原transition强制分页检查不变。独立22静态守护锁住旧共享helpers/raw流程、ALL167/PACK74、loop/paging与240s。准确实跑范围、初失败和日志见开发记录；不冒称完整builtin/all-pack/原生HTTP、实模型、实体键盘或个人安装验收，不读取历史，未安装/提交/推送，77评分不提升。"
     },
     {
       "id": "E-chinese-partial-progress",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/ibus-candidates.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/ibus-candidates.md"
+      ],
       "scope": "2026-10-11已采用汉字语境与半拼音的有限整句衔接，以及独立原生翻页诊断",
       "note": "现有登录失败后可以zaishiyi的Word已可达但固定句遗漏，实际probe RED为1通过1失败；优惠券还在youxi原本通过，仅作正对照。复用decoder已有前五及最多四个typed Word完成项，不增加读音、beam、分数、候选12/page6或模型预算；actual emission保留精准Word门槛和真实转换后缀验证，长稿hint只保留原语境。独立测试覆盖拼写/六水平空白/Unicode冻结前缀/255-257边界/不改写汉字/保护token/换行/采用提交撤销和世间旧首页。独立transition只检查zaishiyi与chumenqianshoushiyixi两raw组的真实GTK、面板焦点、页码/数字、Word及两句采用撤销、Space与保存提交，不冒称两Han语境的物理输入或完整builtin/all-pack/native HTTP门禁。旧ALL167/PACK74、tuple/loop/paging指纹与240s不变。词库和版本文件字节不变，不访问个人历史；准确实跑范围与保留失败日志见开发记录，未安装/提交/推送，77评分不提升。"
     },
     {
       "id": "E-daily-care",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md"
+      ],
       "scope": "2026-10-11中英日洗漱、整理和出门收尾；有限原创离线fallback及中文整词续句修复",
       "note": "英文仅补wash/hair/hands三词形及8搭配16句，6143严格小于6144且6140旧词首次位置不变；中文24读音8语境16句，日语12读音6语境12句。独立预期先实际RED，全部旧29英文层/685搭配/1334句、中文2896读音/679语境、日语354读音/178语境内容、标记、顺序及14包字节不变。修复中文已有whole-reading Word在decoder前五之外漏续句：首选尚未命中Word时，最多五个已验证Word在原输出后仅补自身exact语境，不改beam/评分/候选12/page6；完整回归发现的shijian旧世间首屏回退用生产门槛修复，不放松旧断言。新歧义保留原首选、同音词与明确第二页选择。六新GTK tuple加入builtin及all-pack门禁，原240s、旧tuple及物理断言不变。准确实跑范围、保留初失败与日志见开发记录。typed错误不冒充HTTP/实模；不读取个人历史、不提供医疗建议、不绑定模型。未安装/提交/推送/发布，不外推实体键盘/个人桌面/全原生矩阵/远端CI，77评分不提升。"
     },
     {
       "id": "E-daily-carry",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md"
+      ],
       "scope": "2026-10-11中英日穿着与出门随身准备；有限原创离线fallback",
       "note": "英文8搭配16句仅补glasses一词，当前6140严格小于6144，所有旧6139词首次位置不变；中文24读音8语境16句，日语12读音6语境12句。独立预期先实际RED，旧28英文层/677搭配/1318句、中文2872读音/671语境、日语342读音/172语境全文与标记/顺序指纹继续冻结，14推荐包字节不变。历史零增量断言限定各自追加窗口并另外保护全部旧词当前位置；新的中文同音/前缀歧义明确保留旧首屏词与后页句，不扩大候选容量。准确实跑范围、首轮失败和日志见开发记录。六新GTK tuple加入完整与pack门禁，原240s/物理断言/旧tuple不变。新typed模型失败不是HTTP/实模验收；不读取历史、随身物品或执行请求，不绑定模型或改变解码/预算。未安装/提交/推送/发布，不外推实体键盘/个人桌面/完整原生矩阵/远端CI，77评分不提升。"
     },
     {
       "id": "E-daily-requests",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md"
+      ],
       "scope": "2026-10-11中英日借用、寻物和日常小请求；有限原创离线fallback",
       "note": "英文8搭配16句且6139索引零增长，中文24读音8语境16句，日语12读音6语境12句；独立预期先真实RED，全部旧27英文层/669搭配/1302句与首次索引位置、中文2848读音/663语境、日语330读音/166语境的完整内容、类型、标记和序列锁定，所有历史指纹不替换。准确代码/隔离编辑器验证及保留失败见开发记录。新增六GTKtuple保留旧断言，pack全量守恒拆为两新私有会话，每片14包与真实panel、原240s不变，单片不冒充完整门禁。新模型失败为类型化合成错误，不冒充新HTTP/实模/实体键盘/个人桌面或远端CI验收；不读取历史或执行请求，不绑定模型或改解码/候选上限，未安装/提交/推送/发布，77评分不提升。"
     },
     {
       "id": "E-daily-routine",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md"
+      ],
       "scope": "2026-10-11中英日作息、休息及日常状态回应；有限原创离线fallback",
       "note": "英文12搭配24句且6139索引净增长零，中文32读音12语境24句，日语16读音8语境16句。固定预期先复现缺项，旧26层英文/657搭配/1278句、中文2816读音/651语境、日语314读音/158语境全文内容、标志、顺序及全部旧英文首次排名继续锁定。首轮修正新测试误写的旧英文late tonight句；日语kib短拼写与旧希望竞争，保持旧首屏及新気分句后页可选，明确kibu首屏，不修改旧数据、排名或容量。实际回归、隔离GTK和旧106受控HTTP范围及首轮失败见开发记录；新模型错误检查为类型化合成provider，不冒充实际HTTP或实模。无作息/输入历史读取，不做健康建议，不改变模型协议、解码规则、容量或6144索引上限。未升级个人安装、提交、推送或发布，不外推实体键盘/完整原生矩阵/远端CI，不提升77评分。"
     },
     {
       "id": "E-installed-custom-shortcuts",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/install-audit-0.8.6-2026-10-11.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/install-audit-0.8.6-2026-10-11.md"
+      ],
       "scope": "10-11有界六动作快捷键的0.8.6开发包安装、实际运行文件与私有应用复测",
       "note": "source_dirty=true、glibc2.43非新正式版本；独立包六组实际IBus、32条GTK3复合任务、七组物理组合及实际设置录入/宿主持久化ACK/清除通过。官方注册升级四程序且实际PID1549795可执行文件与包一致，Rime/配置/registry/启动器/服务偏好/sources/MRU未变；直接日常安装文件再次七组自定义、49组旧键盘、32条GTK3通过。首轮漏带报告和升级helper方括号比较失败保留并具体修复，非跳过安全检查或重试直到绿。只用私有Xvfb/IBus/配置和合成文档，无个人桌面按键注入，不验证ACK后标签视觉、GNOME/Wayland组合送达、实体LED、真实模型或全CI；未创建版本/提交/推送/发布，77评分不变。"
     },
     {
       "id": "E-custom-long-workflows",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "CONTRIBUTING.md", "docs/shortcuts.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "CONTRIBUTING.md",
+        "docs/shortcuts.md"
+      ],
       "scope": "2026-10-11十组中英长草稿自定义快捷键私有IBus组合；原六阶段完整保留",
       "note": "标准/主键区×中英×固定原创词句八组，另两组长英文hel实际多页与首末边界。私有revision-bound面板协议准备完整前文，实际IBus补尾、自定义逐项/翻页/采纳、物理键码held/错松键/正确松键、whole snapshot边界、完整原拼写撤回、Space后词到句续写与句撤回、Alt7字面输入、明确Enter完整且仅一次提交。首轮十组动作走完但新fixture清理误把language放窄U而失败；仅改新增helper为独立L后窄U，settings/磁盘全等恢复，最终整体通过。source-only guard按预编辑全文SHA精确投影移除新helper及相邻单行调用，旧fixture/预检/时限/runner均不改。无生产实现或词库更改，不外推长草稿自定义切语言/写失败/取消、真实长物理输入、实模、完整CI或安装升级；不提升评分。"
     },
     {
       "id": "E-custom-shortcuts",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/shortcuts.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/shortcuts.md"
+      ],
       "scope": "2026-10-11开发版有界六动作绑定、设置窗录入及私有IBus保存/按键链",
       "note": "逻辑字母/Space与Ctrl或Alt加可选Shift，不支持全局监听或任意键。核心配置/备份/窄补丁原子校验；实际私有IBus六键U持久化、原预设别名、采用/撤回/Space续写/单次提交、语言替换/恢复、held/release/focus、Compose/隐私/非法修饰和U1024/1025及旧控制127/128通过。旧快捷键与26项切语言专项通过；设置布局/真实winit录入和完整代码检查的准确结果及首轮失败记录见开发记录。该源码验收阶段不改个人配置、不安装、提交或推送，后续授权安装另记E-installed-custom-shortcuts；不外推实体键盘舒适度、桌面组合冲突、真实模型或完整原生/远端CI验收，不提升评分。"
     },
     {
       "id": "E-daily-contact",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md"
+      ],
       "scope": "2026-10-11中英日电话、网络状态与消息联系；有限原创离线fallback",
       "note": "英文12搭配24句且6139索引净增长零，中文32读音12语境24句，日语16读音8语境16句。独立固定期望先复现缺项，旧25层英文/645搭配/1254句、中文2784读音/639语境、日语298读音/150语境全文内容、标志和顺序及全部旧英文首次排名继续锁定。中文这个/这边/在哪里/neng首屏保留，日语bango保留旧晩ご飯在番号之前，旧kanji/kou/shit候选页序可达；不改模型协议、解码规则、候选容量或6144索引上限。实际回归与隔离GTK/受控HTTP范围见开发记录；不读取通讯录或消息记录，不拨号、发消息、探测或修改网络，不外推实模质量、个人安装、实体键盘或完整原生矩阵，不提升评分。"
     },
     {
       "id": "E-daily-transit",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md"
+      ],
       "scope": "2026-10-11中英日乘车、换乘、站台与车票；有限原创离线fallback",
       "note": "英文12搭配24句且6139索引净增长零，中文32读音12语境24句，日语16读音8语境16句。固定期望先复现缺项，旧24层英文/633搭配/1230句、中文2752读音/627语境、日语282读音/142语境全文顺序及全部旧英文首次排名继续锁定。歧义bas保留旧場所首屏，新バス句在第二页可选择并精确撤销；joushake保留乗車け默认和旧け补词，词与首句在第一页、次句在第二页，完整拼写两句仍在首屏。英文连续草稿测试使用宿主同类原文seed流程，不误将整词append接口当按键。不改模型协议、解码规则、候选容量或6144索引上限；实际回归和隔离GTK/受控HTTP范围见开发记录。不查询位置、线路、时刻表或票价，不购票，不外推实模质量、个人安装、实体键盘或完整原生矩阵，不提升评分。"
     },
     {
       "id": "E-daily-shopping",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md"
+      ],
       "scope": "2026-10-11中英日购物、价格、尺码、付款与退换货；有限原创离线fallback",
       "note": "英文12搭配24句且6139索引净增长零，中文32读音12语境24句，日语16读音8语境16句。独立固定期望先复现缺项，旧23层英文/621搭配/1206句、中文2720读音/615语境、日语266读音/134语境全文顺序及全部旧英文首次排名继续锁定。首次完整回归发现新这个前缀挤掉旧首屏词，仅将两条新表达改为自然的这件并先复现新期望缺失，旧测试/排序容量不放宽；歧义比较简拼显式验证后页选择。具体回归和隔离GTK/受控HTTP范围见开发记录；不改模型协议、解码规则、候选容量或6144索引上限。不查询实时价格、读取购买记录或执行支付，不外推实模质量、个人安装、实体键盘或完整原生矩阵，不提升评分。"
     },
     {
       "id": "E-daily-time",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md"
+      ],
       "scope": "2026-10-11中英日时间、等候、改约和时段；有限原创离线fallback",
       "note": "英文12搭配24句且6139索引净增长零，中文32读音12语境24句，日语16读音8语境16句。固定期望在追加前复现缺项，旧22层英文/609搭配/1182句、中文2688读音/603语境、日语250读音/126语境全文顺序及英文每个首次排名继续保护；具体回归与隔离GTK/受控HTTP范围见开发记录，不改模型协议、解码规则、候选容量或6144索引上限。不接入日历提醒，不外推实模质量、个人安装、实体键盘或完整原生矩阵，不提升成熟度评分。"
     },
     {
       "id": "E-daily-location",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md"
+      ],
       "scope": "2026-10-08中英日位置、方位、找路和碰面；数据与宿主/模型解耦的有限fallback",
       "note": "英文5高频词形16搭配32句，6134到6139仍守6144上限，所有旧词首次排名不变；中文48读音16语境32句，日语24读音12语境24句。旧21层英文/593搭配/1150句、中文2640读音/587语境、日语226读音/114语境全文顺序锁定。固定测试先复现缺口；courtesy断言限定原固定批次，不修改旧词句/排名/指纹/限额；日语kou旧词优先且交差点后页可达。新下/中央暴露旧句尾误切与重复拆词；共享完整作者句尾保护和深层重拆过滤保留新词及旧同音/页序，不是通用形态分析。所有实际执行与原失败日志见开发记录；不读取位置、不做真实导航，不外推实模质量、个人桌面、完整原生矩阵或安装验收，不提升评分。"
     },
     {
       "id": "E-daily-courtesy",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "data/lexicons/README.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md"
+      ],
       "scope": "2026-10-08中英日感谢、道歉、礼貌请求与回应；独立数据和固定fallback回归",
       "note": "英文16搭配32句，净新增索引零且全部6134首次词序保留；中文48读音16语境32句，日语24读音12语境24句。旧20层英文/577搭配/1118句、中文2592读音/571语境、日语202读音/102语境的完整内容顺序另加历史指纹。新增前固定期望并复现缺口；旧首屏、同音、翻页及6144预算不放宽，不改语言算法或模型协议。具体测试、私有GTK和受控HTTP故障执行范围见开发记录；不是实模质量、个人桌面或新安装包验收，不提升评分。"
     },
     {
       "id": "E-daily-clarification",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/functional-network.md", "data/lexicons/README.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/functional-network.md",
+        "data/lexicons/README.md"
+      ],
       "scope": "2026-10-07中英澄清确认与日语解释接续；固定数据期望与历史全量前缀保护、GTK全十四包共存",
       "note": "英文16搭配32句，净新增索引零；中文48读音16语境32句，日语24读音12语境24句。旧19层英文权重/561搭配/1086句、中文2544读音/555语境、日语178读音/90语境全量内容顺序保护；新词挤走zheg旧首屏回归仅通过更换新增表达修复，旧断言/排序/容量不变。不改语言算法、6144内置预算或模型协议。家庭包量词更正及日语同音大小写/假名补测；红绿日志与实际执行范围见开发记录。合成提供器非实模质量，隔离编辑器非个人桌面/实体键盘；不提升评分。"
     },
     {
       "id": "E-family-packs",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/functional-network.md", "data/lexicons/README.md", "docs/linux-packaging-data.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/functional-network.md",
+        "data/lexicons/README.md",
+        "docs/linux-packaging-data.md"
+      ],
       "scope": "2026-10-07中英日可选家庭生活包；十四包共存、固定数据测试和启停",
       "note": "EN60显式词形32句、ZH36读音32句、JA24读音24句；三个数据型v1集合family/home，原十一包原文/顺序及内置数据不变，不改预算或模型协议。独立红绿测试和确切执行范围见开发记录；合成错误非实模验收，发包清单非产物/容器验收；不自动安装、不热更新、不提升评分。"
     },
     {
       "id": "E-chinese-partial-spacing",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/functional-network.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/functional-network.md"
+      ],
       "scope": "2026-10-04未完成拼音尾水平空白与词句候选衔接",
       "note": "Chinese partial-reading spacing：七个独立集成测试先得五失败二通过，匹配视图只去除尾水平空白，Exact偏移和原文不变；汉字间距、内部音节、required_separator、引号及竖直边界仍保留。追加模型失败、全推荐包、原生Space/数字采用/撤回/单次提交；具体执行见开发记录，数据、容量、模型协议不变。不外推个人安装或完整原生门禁，不提升评分；偶发daemon崩溃按用户要求暂缓而非已修复。"
     },
     {
       "id": "E-japanese-alias-tail",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/releases/0.8.6.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/releases/0.8.6.md"
+      ],
       "scope": "2026-10-11日语已支持片假名Word表记的已采用/中段语法尾保护",
       "note": "八个独立固定测试先得三通过五失败，严格句子比较仅识别当前词库Word别名，沿用最长已知表记而不选择统一同音归一；保留实际采用写法、词句类型、原文、单次提交撤回及七类竖直边界。首轮定向GREEN及后续全量执行见开发记录；数据、排序、上限、模型协议和评分不变，不增加任意片假名反查、整句候选承诺或个人/真实模型/GTK验收。"
     },
     {
       "id": "E-japanese-boundaries",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/functional-network.md", "docs/ibus-candidates.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/functional-network.md",
+        "docs/ibus-candidates.md"
+      ],
       "scope": "2026-10-04日语未完成读音的尾部空白及已采用表记边界",
       "note": "Japanese reading boundaries：独立红测复现尾水平空白丢词句及同じkanji错误跨词转换；主转换/末词补全共享最长已知表记与读音选择，保留更长读音及同长原顺序。七类竖直边界不跨越，未知文本和原文精确保留。错误提供器、全推荐包、私有IBus及完整回归执行范围见开发记录；不扩词库、候选预算、模型协议、形态分析或内部跨空白音节重组，不外推个人装机/GTK，评分不变。"
     },
     {
       "id": "E-daily-leisure",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/functional-network.md", "data/lexicons/README.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/functional-network.md",
+        "data/lexicons/README.md"
+      ],
       "scope": "2026-10-07中英休闲兴趣/周末安排与日语休闲词句；独立fallback和旧序指纹",
       "note": "英文16搭配32句和五词形，中文48读音16语境32句，日语24读音12语境24句；追加前固定独立期望，锁定全部已有内容与权重。模型协议、语言算法、候选容量及6144索引预算不变；日语宽前缀保护旧词与后页选择。合成故障、全推荐包兼容和GTK的确切执行范围及失败记录见开发记录，不外推个人安装、实体键盘、完整日语形态分析或实模质量，评分不变。"
     },
     {
       "id": "E-daily-followup",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/functional-network.md", "data/lexicons/README.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/functional-network.md",
+        "data/lexicons/README.md"
+      ],
       "scope": "2026-10-07中英日常进度/接续与日语消息协作；独立词库、旧序指纹和有界候选分页",
       "note": "中英各24语境48句、中文64读音，英文仅having/stuck两索引；日语32读音16语境32句。独立期望先复现缺口，保留全部旧数据/排名指纹、候选容量和6144索引预算，不绑定模型或改解码排序。新日语测试两个歧义前缀的过强首屏前提由实际候选诊断纠正，完整读音仍首屏、宽前缀严格验证后页选择与旧优先级。模型失败仍是合成提供器；确切执行及失败日志见开发记录，不外推个人安装、实体键盘、通用日语形态分析或真实模型质量，评分不变。"
     },
     {
       "id": "E-japanese-choices",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/functional-network.md", "data/lexicons/README.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/functional-network.md",
+        "data/lexicons/README.md"
+      ],
       "scope": "2026-10-04日语比较、偏好、条件与替代方案；罗马音词句、采用后助词续写与IBus平假名起笔",
       "note": "Japanese choices fallback：追加独立日语数据，锁定原74条读音和38组语境，保留旧同音顺序；中英、模型接口、候选预算不变。原生回归补齐仅JA平假名字母起笔，并检查其他语言、非读音字符、快捷键、硬隐私用途及失焦透传；扩词挤走旧续句的红测促使仅降低日语次级基础Sentence转换权重，保留主转换、Word/Unspecified权重和原文。固定期望覆盖变体拼写、部分罗马音、词句候选、已采用表记与助词、原文及提交撤回；错误提供器、全包兼容与原生执行范围见开发记录，不外推完整形态分析、JIS布局、长稿、个人装机或真实模型质量，评分不变。"
     },
     {
       "id": "E-daily-choices",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/functional-network.md", "data/lexicons/README.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/functional-network.md",
+        "data/lexicons/README.md"
+      ],
       "scope": "2026-10-04中英比较、偏好、条件和替代方案；独立词库与离线输入回归",
       "note": "Daily choices bilingual fallback：独立固定期望先复现缺词句，只追加数据并锁定0.8.2旧词权重、读音及语境全文；6144索引预算、模型/语言算法、候选容量不变。确切新增数量、红绿测试、推荐包兼容及原生执行结果见开发记录；不外推个人安装、GTK/实体键盘或真实模型质量，不提高评分。"
     },
     {
       "id": "E-japanese-progress",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/functional-network.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/functional-network.md"
+      ],
       "scope": "2026-10-04日语完整草稿前缀续句与行边界",
       "note": "Japanese sentence progress：沿active词库续句匹配整个转换草稿，保留exact trigger顺序，不裁掉未知首尾；水平分隔契约不变，竖直行边界不再吞掉。全包回归发现并修复nn接辅音重复ん。独立固定进展/包/原生/GTK入口及红测执行记录见开发记录；不声称句子级读音推断、完整形态分析或个人装机验收，评分不变。"
     },
     {
       "id": "E-japanese-daily",
       "kind": "historical_run",
-      "paths": ["DEVELOPMENT.md", "docs/functional-network.md", "data/lexicons/README.md"],
+      "paths": [
+        "DEVELOPMENT.md",
+        "docs/functional-network.md",
+        "data/lexicons/README.md"
+      ],
       "scope": "2026-10-04渐进日语支持；日常独立词库、罗马音边界与已采用表记后续词",
       "note": "Gradual Japanese everyday input：48读音、24语境48句，仅追加且锁定旧数据；修复nn边界、n’、jya/jyu/jyo、非ASCII大小写及尾部同音/片假名前缀补全。新增源码/提供器错误/词库包/私有IBus与GTK入口；确切执行和初始红测见开发记录。单假名宽前缀和原文后页遵守现有候选契约；非完整形态分析、个人装机或真实模型质量验收，不提高评分。"
     },
@@ -2768,12 +3516,18 @@
       "i": "english",
       "m": [
         3,
-       3,
+        3,
         null,
         2
       ],
       "evidence": [
+        "E-daily-hygiene",
+        "E-catalog-index-performance",
         "E-input-hotpath-performance",
+        "E-daily-restock",
+        "E-daily-storage",
+        "E-daily-call",
+        "E-daily-route",
         "E-daily-aftercare",
         "E-daily-appointments",
         "E-daily-messaging",
@@ -2815,12 +3569,18 @@
       "i": "english",
       "m": [
         3,
-       3,
+        3,
         null,
         2
       ],
       "evidence": [
+        "E-daily-hygiene",
+        "E-catalog-index-performance",
         "E-input-hotpath-performance",
+        "E-daily-restock",
+        "E-daily-storage",
+        "E-daily-call",
+        "E-daily-route",
         "E-daily-aftercare",
         "E-daily-appointments",
         "E-daily-messaging",
@@ -2864,11 +3624,17 @@
       "i": "chinese",
       "m": [
         3,
-       3,
+        3,
         null,
         2
       ],
       "evidence": [
+        "E-daily-hygiene",
+        "E-catalog-index-performance",
+        "E-daily-restock",
+        "E-daily-storage",
+        "E-daily-call",
+        "E-daily-route",
         "E-daily-aftercare",
         "E-daily-appointments",
         "E-daily-messaging",
@@ -2919,15 +3685,22 @@
     {
       "a": "A03",
       "f": "F19",
-        "i": "japanese",
+      "i": "japanese",
       "m": [
         2,
-       2,
+        2,
         null,
         2
       ],
       "evidence": [
+        "E-daily-hygiene",
+        "E-japanese-progress-slots",
+        "E-catalog-index-performance",
         "E-input-hotpath-performance",
+        "E-daily-restock",
+        "E-daily-storage",
+        "E-daily-call",
+        "E-daily-route",
         "E-daily-aftercare",
         "E-daily-appointments",
         "E-daily-messaging",
@@ -2981,6 +3754,8 @@
         2
       ],
       "evidence": [
+        "E-daily-hygiene",
+        "E-japanese-progress-slots",
         "E-chinese-giving-chars",
         "E-japanese-backfill",
         "E-prediction-error-boundaries",
@@ -3828,7 +4603,7 @@
       "i": "lexicon",
       "m": [
         3,
-       2,
+        2,
         null,
         2
       ],

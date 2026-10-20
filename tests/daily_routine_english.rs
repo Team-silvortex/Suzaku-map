@@ -443,7 +443,7 @@ fn routine_preserves_every_old_layer_context_sentence_and_index_rank() {
             "old index rank changed: {word}"
         );
     }
-    assert!(after.len() <= 6144);
+    assert_eq!(after.len(), 6151);
 }
 #[test]
 fn routine_adds_twelve_fixed_contexts_and_twenty_four_sentences_without_index_growth() {

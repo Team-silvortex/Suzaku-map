@@ -3245,7 +3245,93 @@
     {"reading": "ji'hui'di'zhi", "text": "寄回地址", "kind": "word"},
     {"reading": "tui'jian'dan'hao", "text": "退件单号", "kind": "word"},
     {"reading": "chu'li'jin'du", "text": "处理进度", "kind": "word"},
-    {"reading": "bu'fa'pei'jian", "text": "补发配件", "kind": "word"}
+    {"reading": "bu'fa'pei'jian", "text": "补发配件", "kind": "word"},
+    {"reading": "wo'gang'shang'che", "text": "我刚上车", "kind": "word"},
+    {"reading": "wo'hai'you'yi'zhan", "text": "我还有一站", "kind": "word"},
+    {"reading": "wo'hai'you'ji'fen'zhong'jiu'dao", "text": "我还有几分钟就到", "kind": "word"},
+    {"reading": "ni'xian'zai'yuan'di'deng'wo", "text": "你先在原地等我", "kind": "word"},
+    {"reading": "wo'zai'ling'yi'ge'chu'kou", "text": "我在另一个出口", "kind": "word"},
+    {"reading": "wo'zai'ma'lu'dui'mian", "text": "我在马路对面", "kind": "word"},
+    {"reading": "qian'mian'feng'lu'le", "text": "前面封路了", "kind": "word"},
+    {"reading": "wo'huan'tiao'lu'guo'qu", "text": "我换条路过去", "kind": "word"},
+    {"reading": "hui'he", "text": "会合", "kind": "word"},
+    {"reading": "peng'tou", "text": "碰头", "kind": "word"},
+    {"reading": "yuan'di", "text": "原地", "kind": "word"},
+    {"reading": "ling'yi'ce", "text": "另一侧", "kind": "word"},
+    {"reading": "jiao'cha'kou", "text": "交叉口", "kind": "word"},
+    {"reading": "feng'lu", "text": "封路", "kind": "word"},
+    {"reading": "gai'dao", "text": "改道", "kind": "word"},
+    {"reading": "xing'ren'tong'dao", "text": "行人通道", "kind": "word"},
+    {"reading": "zhan'pai", "text": "站牌", "kind": "word"},
+    {"reading": "chu'zhan'kou", "text": "出站口", "kind": "word"},
+    {"reading": "ji'he'dian", "text": "集合点", "kind": "word"},
+    {"reading": "mu'di'di", "text": "目的地", "kind": "word"},
+    {"reading": "lu'biao", "text": "路标", "kind": "word"},
+    {"reading": "lu'kuang", "text": "路况", "kind": "word"},
+    {"reading": "lin'shi'ru'kou", "text": "临时入口", "kind": "word"},
+    {"reading": "lin'shi'chu'kou", "text": "临时出口", "kind": "word"},
+    {"reading": "ni'de'hua'mian'ka'zhu'le", "text": "你的画面卡住了", "kind": "word"},
+    {"reading": "wo'zhe'bian'kan'bu'dao'hua'mian", "text": "我这边看不到画面", "kind": "word"},
+    {"reading": "wo'huan'fu'er'ji'shi'shi", "text": "我换副耳机试试", "kind": "word"},
+    {"reading": "wo'tui'chu'chong'jin'yi'xia", "text": "我退出重进一下", "kind": "word"},
+    {"reading": "neng'da'kai'she'xiang'tou'ma", "text": "能打开摄像头吗", "kind": "word"},
+    {"reading": "xian'gai'yong'wen'zi'liao", "text": "先改用文字聊", "kind": "word"},
+    {"reading": "hua'mian", "text": "画面", "kind": "word"},
+    {"reading": "sheng'hua'bu'tong'bu", "text": "声画不同步", "kind": "word"},
+    {"reading": "hua'mian'yan'chi", "text": "画面延迟", "kind": "word"},
+    {"reading": "shi'pin'ka'dun", "text": "视频卡顿", "kind": "word"},
+    {"reading": "chong'xin'jia'ru", "text": "重新加入", "kind": "word"},
+    {"reading": "tui'chu'tong'hua", "text": "退出通话", "kind": "word"},
+    {"reading": "guan'bi'she'xiang'tou", "text": "关闭摄像头", "kind": "word"},
+    {"reading": "da'kai'she'xiang'tou", "text": "打开摄像头", "kind": "word"},
+    {"reading": "qie'huan'jing'tou", "text": "切换镜头", "kind": "word"},
+    {"reading": "mian'ti", "text": "免提", "kind": "word"},
+    {"reading": "ting'tong", "text": "听筒", "kind": "word"},
+    {"reading": "chong'bo", "text": "重拨", "kind": "word"},
+    {"reading": "xian'teng'dian'di'fang'chu'lai", "text": "先腾点地方出来", "kind": "word"},
+    {"reading": "zhe'ge'xiang'zi'zhuang'bu'xia'le", "text": "这个箱子装不下了", "kind": "word"},
+    {"reading": "chang'yong'de'fang'shou'bian", "text": "常用的放手边", "kind": "word"},
+    {"reading": "zhe'xie'xian'fen'kai'fang", "text": "这些先分开放", "kind": "word"},
+    {"reading": "bang'wo'nuo'dao'pang'bian", "text": "帮我挪到旁边", "kind": "word"},
+    {"reading": "shou'hao'yi'hou'tie'ge'biao'qian", "text": "收好以后贴个标签", "kind": "word"},
+    {"reading": "shou'na'dai", "text": "收纳袋", "kind": "word"},
+    {"reading": "shou'na'xiang", "text": "收纳箱", "kind": "word"},
+    {"reading": "kong'xiang'zi", "text": "空箱子", "kind": "word"},
+    {"reading": "zhi'wu'jia", "text": "置物架", "kind": "word"},
+    {"reading": "ge'ban", "text": "隔板", "kind": "word"},
+    {"reading": "fang'chen'dai", "text": "防尘袋", "kind": "word"},
+    {"reading": "fen'zhuang", "text": "分装", "kind": "word"},
+    {"reading": "die'fang", "text": "叠放", "kind": "word"},
+    {"reading": "yuan'wei", "text": "原位", "kind": "word"},
+    {"reading": "gui'wei", "text": "归位", "kind": "word"},
+    {"reading": "biao'qian'zhi", "text": "标签纸", "kind": "word"},
+    {"reading": "gua'gou", "text": "挂钩", "kind": "word"},
+    {"reading": "zhi'jin'zhi'sheng'yi'bao'le", "text": "纸巾只剩一包了", "kind": "word"},
+    {"reading": "xi'shou'ye'kuai'yong'wan'le", "text": "洗手液快用完了", "kind": "word"},
+    {"reading": "jia'li'hai'you'bei'yong'de'ma", "text": "家里还有备用的吗", "kind": "word"},
+    {"reading": "xian'ji'zai'bu'huo'qing'dan'shang", "text": "先记在补货清单上", "kind": "word"},
+    {"reading": "zhe'yi'ping'hai'neng'yong'ji'tian", "text": "这一瓶还能用几天", "kind": "word"},
+    {"reading": "ji'de'bu'yi'bao'la'ji'dai", "text": "记得补一包垃圾袋", "kind": "word"},
+    {"reading": "xi'shou'ye", "text": "洗手液", "kind": "word"},
+    {"reading": "wei'sheng'zhi", "text": "卫生纸", "kind": "word"},
+    {"reading": "juan'zhi", "text": "卷纸", "kind": "word"},
+    {"reading": "shi'jin", "text": "湿巾", "kind": "word"},
+    {"reading": "chu'fang'zhi", "text": "厨房纸", "kind": "word"},
+    {"reading": "bao'xian'mo", "text": "保鲜膜", "kind": "word"},
+    {"reading": "mi'feng'dai", "text": "密封袋", "kind": "word"},
+    {"reading": "bu'chong'zhuang", "text": "补充装", "kind": "word"},
+    {"reading": "bu'huo'qing'dan", "text": "补货清单", "kind": "word"},
+    {"reading": "bei'yong'dian'chi", "text": "备用电池", "kind": "word"},
+    {"reading": "zhi'jin'he", "text": "纸巾盒", "kind": "word"},
+    {"reading": "yu'liang", "text": "余量", "kind": "word"},
+    {"reading": "zhi'zhang", "text": "纸张", "kind": "word"},
+    {"reading": "hu'fa'su", "text": "护发素", "kind": "word"},
+    {"reading": "hu'shou'shuang", "text": "护手霜", "kind": "word"},
+    {"reading": "run'chun'gao", "text": "润唇膏", "kind": "word"},
+    {"reading": "mian'jin'zhi", "text": "面巾纸", "kind": "word"},
+    {"reading": "ca'shou'zhi", "text": "擦手纸", "kind": "word"},
+    {"reading": "fei'zao'he", "text": "肥皂盒", "kind": "word"},
+    {"reading": "ti'huan'shua'tou", "text": "替换刷头", "kind": "word"}
   ],
   "continuations": [
     [
@@ -8767,6 +8853,230 @@
       [
         "售后进度帮我查一下，我想确认现在到哪一步了。",
         "售后进度帮我查一下，有结果再告诉我就好。"
+      ]
+    ],
+    [
+      "我刚上车",
+      [
+        "我刚上车，等坐稳了再回你消息。",
+        "我刚上车，下车前再跟你联系。"
+      ]
+    ],
+    [
+      "我还有一站",
+      [
+        "我还有一站，下车后就往你那边走。",
+        "我还有一站，你先不用出来等。"
+      ]
+    ],
+    [
+      "我还有几分钟就到",
+      [
+        "我还有几分钟就到，你先找个方便等的位置。",
+        "我还有几分钟就到，到了我会再发消息。"
+      ]
+    ],
+    [
+      "你先在原地等我",
+      [
+        "你先在原地等我，我过去找你。",
+        "你先在原地等我，别来回找了。"
+      ]
+    ],
+    [
+      "我在另一个出口",
+      [
+        "我在另一个出口，先把旁边的标志发给你。",
+        "我在另一个出口，我们确认一下再碰头。"
+      ]
+    ],
+    [
+      "我在马路对面",
+      [
+        "我在马路对面，你能看到那块招牌吗？",
+        "我在马路对面，等我们确认好位置再走。"
+      ]
+    ],
+    [
+      "前面封路了",
+      [
+        "前面封路了，我先看看有没有别的通道。",
+        "前面封路了，我可能要稍微晚一点。"
+      ]
+    ],
+    [
+      "我换条路过去",
+      [
+        "我换条路过去，到了再跟你说。",
+        "我换条路过去，可能会比刚才估计的慢一点。"
+      ]
+    ],
+    [
+      "你的画面卡住了",
+      [
+        "你的画面卡住了，但声音还听得见。",
+        "你的画面卡住了，我先等一会儿。"
+      ]
+    ],
+    [
+      "我这边看不到画面",
+      [
+        "我这边看不到画面，只能听到声音。",
+        "我这边看不到画面，你能看到我吗？"
+      ]
+    ],
+    [
+      "我换副耳机试试",
+      [
+        "我换副耳机试试，你先别挂。",
+        "我换副耳机试试，接好后再说。"
+      ]
+    ],
+    [
+      "我退出重进一下",
+      [
+        "我退出重进一下，你稍等一会儿。",
+        "我退出重进一下，回来后再继续聊。"
+      ]
+    ],
+    [
+      "能打开摄像头吗",
+      [
+        "能打开摄像头吗？我想确认一下画面。",
+        "能打开摄像头吗？不方便的话只用语音也可以。"
+      ]
+    ],
+    [
+      "先改用文字聊",
+      [
+        "先改用文字聊，刚才那句话我没听清。",
+        "先改用文字聊，等声音恢复了再继续。"
+      ]
+    ],
+    [
+      "先腾点地方出来",
+      [
+        "先腾点地方出来，等会儿这个箱子也要放进来。",
+        "先腾点地方出来，我把桌上的东西挪开。"
+      ]
+    ],
+    [
+      "这个箱子装不下了",
+      [
+        "这个箱子装不下了，剩下的再找个袋子装。",
+        "这个箱子装不下了，先别急着盖上。"
+      ]
+    ],
+    [
+      "常用的放手边",
+      [
+        "常用的放手边，拿起来会方便一些。",
+        "常用的放手边，暂时不用的再收起来。"
+      ]
+    ],
+    [
+      "这些先分开放",
+      [
+        "这些先分开放，等整理好了再放进柜子。",
+        "这些先分开放，免得下次又找不到。"
+      ]
+    ],
+    [
+      "帮我挪到旁边",
+      [
+        "帮我挪到旁边，我想先清理一下桌面。",
+        "帮我挪到旁边，别挡住抽屉。"
+      ]
+    ],
+    [
+      "收好以后贴个标签",
+      [
+        "收好以后贴个标签，写清楚里面装的是什么。",
+        "收好以后贴个标签，下次就不用每个盒子都打开了。"
+      ]
+    ],
+    [
+      "纸巾只剩一包了",
+      [
+        "纸巾只剩一包了，我先在清单上记一下。",
+        "纸巾只剩一包了，柜子里的已经用完了。"
+      ]
+    ],
+    [
+      "洗手液快用完了",
+      [
+        "洗手液快用完了，我看看还有没有补充装。",
+        "洗手液快用完了，先别把空瓶扔掉。"
+      ]
+    ],
+    [
+      "家里还有备用的吗",
+      [
+        "家里还有备用的吗？我想先确认一下。",
+        "家里还有备用的吗？有的话先拿出来。"
+      ]
+    ],
+    [
+      "先记在补货清单上",
+      [
+        "先记在补货清单上，我晚点再核对一遍。",
+        "先记在补货清单上，免得下次又忘了。"
+      ]
+    ],
+    [
+      "这一瓶还能用几天",
+      [
+        "这一瓶还能用几天？我想估计一下余量。",
+        "这一瓶还能用几天？不急的话先用着。"
+      ]
+    ],
+    [
+      "记得补一包垃圾袋",
+      [
+        "记得补一包垃圾袋，原来那包已经用完了。",
+        "记得补一包垃圾袋，我先在清单上做个记号。"
+      ]
+    ],
+    [
+      "纸张",
+      [
+        "纸张放在打印机旁边了。",
+        "纸张还有一些，我先拿几张过来。"
+      ]
+    ],
+    [
+      "香皂",
+      [
+        "香皂放在洗手台旁边。",
+        "香皂还有一块，先不用再找了。"
+      ]
+    ],
+    [
+      "洗发水",
+      [
+        "洗发水在浴室的架子上。",
+        "洗发水我已经放进洗漱包了。"
+      ]
+    ],
+    [
+      "护发素",
+      [
+        "护发素和洗发水分开放着。",
+        "护发素还有一瓶没开封。"
+      ]
+    ],
+    [
+      "牙膏",
+      [
+        "牙膏我放在牙刷旁边了。",
+        "牙膏快用完了，我先记在清单上。"
+      ]
+    ],
+    [
+      "牙刷",
+      [
+        "牙刷放在右边的杯子里。",
+        "牙刷我已经装进洗漱包了。"
       ]
     ]
   ]

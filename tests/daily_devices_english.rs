@@ -479,5 +479,5 @@ fn devices_append_fixed_data_preserving_all_old_layers_and_6143_positions() {
             "old index position changed: {word}"
         );
     }
-    assert!(after.len() < 6144);
+    assert_eq!(after.len(), 6151);
 }

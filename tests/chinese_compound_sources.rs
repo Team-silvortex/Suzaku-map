@@ -66,7 +66,7 @@ fn isolated(name: &str, enabled: bool) -> Option<PrivatePack> {
     std::fs::create_dir(&dir).unwrap();
     let guard = PrivatePack(dir);
     let before = lexicon::builtin("zh-Hans").unwrap();
-    assert_eq!(before.readings().len(), 3244);
+    assert_eq!(before.readings().len(), 3330);
     let before = serde_json::to_value(before).unwrap();
     let pack = OfflinePack::from_json(&serde_json::json!({
         "format_version":1,
@@ -88,7 +88,7 @@ fn isolated(name: &str, enabled: bool) -> Option<PrivatePack> {
     assert_eq!(report.loaded.len(), usize::from(enabled));
     assert_eq!(
         lexicon::active("zh-Hans").unwrap().readings().len(),
-        3244 + usize::from(enabled)
+        3330 + usize::from(enabled)
     );
     assert_eq!(
         serde_json::to_value(lexicon::builtin("zh-Hans").unwrap()).unwrap(),

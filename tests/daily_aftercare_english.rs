@@ -201,9 +201,9 @@ fn indexed_words(layers: &[WordLayer]) -> HashSet<String> {
 #[test]
 fn aftercare_layer_has_fixed_records_and_reuses_the_previous_index() {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 43);
-    assert_eq!(en.next_words().count(), 795);
-    assert_eq!(en.sentences().count(), 1554);
+    assert_eq!(en.word_layers().len(), 48);
+    assert_eq!(en.next_words().count(), 827);
+    assert_eq!(en.sentences().count(), 1618);
     let layer = en
         .word_layers()
         .get(42)
@@ -237,7 +237,8 @@ fn aftercare_layer_has_fixed_records_and_reuses_the_previous_index() {
     );
     let previous_words = indexed_words(&en.word_layers()[..42]);
     assert_eq!(previous_words.len(), 6143);
-    assert_eq!(indexed_words(en.word_layers()), previous_words);
+    assert_eq!(indexed_words(en.word_layers()).len(), 6151);
+    assert_eq!(indexed_words(&en.word_layers()[..47]), previous_words);
 }
 
 #[test]

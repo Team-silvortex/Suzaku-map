@@ -393,6 +393,123 @@ pub(crate) fn root_correction_continuations(seed: &str) -> Option<Vec<String>> {
     .then(|| values[..2].to_vec())
 }
 
+/// Verify a complete conversion that has progressed past a known Word context.
+/// The first two authored choices must both continue the entire converted span;
+/// a single compatible branch or an unfinished consonant is not a pair.
+pub(crate) fn authored_progress_continuations(
+    seed: &str,
+    progress: &str,
+) -> Option<&'static [String]> {
+    if seed.chars().count() > super::draft::LOCAL_TAIL_CHARS
+        || progress.chars().any(|ch| ch.is_ascii_alphabetic())
+    {
+        return None;
+    }
+    let (_, values) = vocabulary().continuations().find(|(context, values)| {
+        context.len() < progress.len()
+            && progress.starts_with(context)
+            && is_dictionary_word(context)
+            && values.len() >= 2
+            && values[0] != values[1]
+            && values[..2]
+                .iter()
+                .all(|text| text.len() > progress.len() && text.starts_with(progress))
+    })?;
+    // A caller's displayed row alone cannot establish conversion provenance.
+    // Keep unknown text, line boundaries and the original decoder semantics.
+    (convert_segments(&composition_kana(seed)) == progress).then_some(values)
+}
+
+/// A unique whole Word can finish a final long vowel without changing the
+/// preceding greedy conversion. This is separate from root correction and
+/// authored progress: neither older pagination policy is broadened.
+pub(crate) fn authored_vowel_completion(
+    seed: &str,
+    progress: &str,
+) -> Option<(&'static str, &'static [String])> {
+    use crate::ime::candidate_mix::CandidateKind;
+    if seed.chars().count() > super::draft::LOCAL_TAIL_CHARS || seed.chars().any(is_line_boundary) {
+        return None;
+    }
+    let kana = composition_kana(seed);
+    if kana.chars().any(|ch| ch.is_ascii_alphabetic()) {
+        return None;
+    }
+    let (consumed, stem) = conversion_prefix(&kana)?;
+    let rest = &kana[consumed..];
+    if rest.is_empty()
+        || !is_dictionary_word(stem)
+        || progress.strip_prefix(stem) != Some(rest)
+        || convert_segments(&kana) != progress
+    {
+        return None;
+    }
+    let last = kana.chars().next_back()?;
+    let mut roots = vocabulary().readings().iter().filter(|entry| {
+        entry.kind == EntryKind::Word && entry.reading != kana && entry.reading.starts_with(&kana)
+    });
+    let first = roots.next()?;
+    let word = first.text.as_str();
+    let mut lengthens = completes_long_vowel(last, first.reading.strip_prefix(&kana)?);
+    for entry in roots {
+        if entry.text != word {
+            return None;
+        }
+        lengthens |= completes_long_vowel(last, entry.reading.strip_prefix(&kana)?);
+    }
+    if !lengthens
+        || word.len() <= stem.len()
+        || !word.starts_with(stem)
+        || !word_completions(seed)
+            .first()
+            .is_some_and(|(text, kind)| text == word && *kind == CandidateKind::Word)
+    {
+        return None;
+    }
+    let (_, values) = vocabulary()
+        .continuations()
+        .find(|(context, _)| *context == word)?;
+    (values.len() >= 2
+        && values[0] != values[1]
+        && values[..2]
+            .iter()
+            .all(|text| text.len() > word.len() && text.starts_with(word)))
+    .then_some((word, values))
+}
+
+fn completes_long_vowel(last: char, suffix: &str) -> bool {
+    // Reuse the converter's vowel columns and single-Kana aliases. A nasal,
+    // sokuon or a newly introduced syllable is not a long-vowel completion.
+    let mut extra = suffix.chars();
+    let Some(extra_vowel) = extra.next() else {
+        return false;
+    };
+    if extra.next().is_some() || matches!(last, 'っ' | 'ん') {
+        return false;
+    }
+    let vowel = ROWS
+        .iter()
+        .find_map(|(_, row)| row.chars().position(|ch| ch == last))
+        .map(|column| b"aiueo"[column])
+        .or_else(|| {
+            SPECIAL.iter().find_map(|(romaji, kana)| {
+                kana.chars()
+                    .eq(std::iter::once(last))
+                    .then(|| romaji.as_bytes().last().copied())
+                    .flatten()
+                    .filter(|vowel| b"aiueo".contains(vowel))
+            })
+        });
+    matches!(
+        (vowel, extra_vowel),
+        (Some(b'a'), 'あ')
+            | (Some(b'i' | b'e'), 'い')
+            | (Some(b'u' | b'o'), 'う')
+            | (Some(b'e'), 'え')
+            | (Some(b'o'), 'お')
+    )
+}
+
 /// Additional words may fill unused mixed-list slots, without replacing the
 /// primary four completions or changing authored sentence weights.
 pub(crate) fn word_completion_backfill(
@@ -542,7 +659,50 @@ fn conversion_prefix(rest: &str) -> Option<(usize, &str)> {
 }
 
 fn known_written_prefix_len(text: &str) -> Option<usize> {
-    vocabulary()
+    written_prefix_index().longest_prefix_len(text)
+}
+
+struct WrittenPrefixIndex {
+    forms: HashSet<String>,
+    byte_lengths: Vec<usize>,
+}
+
+impl WrittenPrefixIndex {
+    fn from_lexicon(lexicon: &Lexicon) -> Self {
+        let forms: HashSet<String> = lexicon
+            .readings()
+            .iter()
+            .filter(|entry| entry.kind == EntryKind::Word)
+            .flat_map(|entry| [entry.text.clone(), hiragana_to_katakana(&entry.reading)])
+            .collect();
+        let mut byte_lengths: Vec<_> = forms.iter().map(String::len).collect();
+        byte_lengths.sort_unstable_by(|a, b| b.cmp(a));
+        byte_lengths.dedup();
+        Self {
+            forms,
+            byte_lengths,
+        }
+    }
+
+    fn longest_prefix_len(&self, text: &str) -> Option<usize> {
+        self.byte_lengths.iter().copied().find(|&length| {
+            text.get(..length)
+                .is_some_and(|prefix| self.forms.contains(prefix))
+        })
+    }
+}
+
+fn written_prefix_index() -> &'static WrittenPrefixIndex {
+    static INDEX: OnceLock<WrittenPrefixIndex> = OnceLock::new();
+    // Only immutable startup catalog forms enter this index, never typed text.
+    // Resolve active vocabulary here so optional packs obey the existing
+    // initialize-before-engine contract; do not freeze a builtin-only index.
+    INDEX.get_or_init(|| WrittenPrefixIndex::from_lexicon(vocabulary()))
+}
+
+#[cfg(test)]
+fn known_written_prefix_len_linear(lexicon: &Lexicon, text: &str) -> Option<usize> {
+    lexicon
         .readings()
         .iter()
         .filter(|entry| entry.kind == EntryKind::Word)
@@ -556,6 +716,186 @@ fn known_written_prefix_len(text: &str) -> Option<usize> {
         })
         .flatten()
         .max()
+}
+
+#[cfg(test)]
+mod written_prefix_index_tests {
+    use super::*;
+
+    fn check_active(lexicon: &Lexicon, text: &str) {
+        assert_eq!(
+            known_written_prefix_len(text),
+            known_written_prefix_len_linear(lexicon, text),
+            "written prefix for {text:?}"
+        );
+    }
+
+    #[test]
+    fn cached_prefix_matches_linear_for_active_forms_unicode_cuts_and_line_suffixes() {
+        let lexicon = vocabulary();
+        for entry in lexicon.readings() {
+            let katakana = hiragana_to_katakana(&entry.reading);
+            for text in [entry.text.as_str(), entry.reading.as_str(), &katakana] {
+                for end in text
+                    .char_indices()
+                    .map(|(offset, _)| offset)
+                    .chain([text.len()])
+                {
+                    check_active(lexicon, &text[..end]);
+                }
+                for suffix in [
+                    "wo", "が", "。", "🙂", "\n", "\r", "\u{b}", "\u{c}", "\u{85}", "\u{2028}",
+                    "\u{2029}",
+                ] {
+                    check_active(lexicon, &format!("{text}{suffix}"));
+                }
+            }
+        }
+        for text in [
+            "",
+            " ",
+            "\t",
+            "🙂仮名",
+            "ﾆﾎﾝｺﾞ",
+            "e\u{301}",
+            "Ωカナ",
+            "İ日本語",
+            "日本語\u{200b}",
+            "https://example.invalid/日本語",
+            "未登録\n日本語",
+            "\u{3040}カナ",
+            "\u{3097}カナ",
+        ] {
+            check_active(lexicon, text);
+        }
+    }
+
+    // The production conversion body stays unchanged. Feed either leaf into
+    // its existing strict-longer rule to check written/phonetic tie boundaries.
+    fn conversion_with_written<'a>(
+        lexicon: &'a Lexicon,
+        text: &'a str,
+        written: Option<usize>,
+    ) -> Option<(usize, &'a str)> {
+        let phonetic = lexicon
+            .readings()
+            .iter()
+            .rev()
+            .filter(|entry| text.starts_with(&entry.reading))
+            .max_by_key(|entry| entry.reading.len());
+        if let Some(length) = written
+            && phonetic.is_none_or(|entry| length > entry.reading.len())
+        {
+            return Some((length, &text[..length]));
+        }
+        phonetic.map(|entry| (entry.reading.len(), entry.text.as_str()))
+    }
+
+    #[test]
+    fn synthetic_word_forms_exclude_sentence_and_extra_hiragana_without_changing_ties() {
+        let lexicon = Lexicon::from_json(
+            r#"{
+                "format_version": 1,
+                "language": "ja",
+                "readings": [
+                    {"reading":"かな","text":"仮名","kind":"word"},
+                    {"reading":"かな","text":"佳名","kind":"word"},
+                    {"reading":"かなもの","text":"仮名物","kind":"word"},
+                    {"reading":"どうおん","text":"かな","kind":"word"},
+                    {"reading":"いれもの","text":"かなかた","kind":"word"},
+                    {"reading":"ひらがな","text":"漢字表記","kind":"word"},
+                    {"reading":"ぶんしょう","text":"文章です。","kind":"sentence"},
+                    {"reading":"かな","text":"文章かなです。","kind":"sentence"}
+                ]
+            }"#,
+        )
+        .unwrap();
+        let index = WrittenPrefixIndex::from_lexicon(&lexicon);
+        for entry in lexicon.readings() {
+            let katakana = hiragana_to_katakana(&entry.reading);
+            for text in [entry.text.as_str(), entry.reading.as_str(), &katakana] {
+                for suffix in ["", "が", "\n", "🙂"] {
+                    let query = format!("{text}{suffix}");
+                    assert_eq!(
+                        index.longest_prefix_len(&query),
+                        known_written_prefix_len_linear(&lexicon, &query),
+                        "{query:?}"
+                    );
+                }
+            }
+        }
+        assert!(index.forms.contains("仮名"));
+        assert!(index.forms.contains("佳名"));
+        assert!(index.forms.contains("カナ"));
+        // Hiragana is admitted only when it is itself a Word's written text.
+        assert!(index.forms.contains("かな"));
+        assert!(!index.forms.contains("ひらがな"));
+        assert_eq!(index.longest_prefix_len("ひらがな"), None);
+        for text in ["文章です。", "ぶんしょう", "ブンショウ", "文章かなです。"]
+        {
+            assert!(!index.forms.contains(text));
+            assert_eq!(index.longest_prefix_len(text), None);
+        }
+        for (text, expected) in [
+            ("かな", ("かな".len(), "仮名")),
+            ("かなもの", ("かなもの".len(), "仮名物")),
+            ("かなかた", ("かなかた".len(), "かなかた")),
+            ("仮名物が", ("仮名物".len(), "仮名物")),
+            ("カナモノが", ("カナモノ".len(), "カナモノ")),
+        ] {
+            let linear = conversion_with_written(
+                &lexicon,
+                text,
+                known_written_prefix_len_linear(&lexicon, text),
+            );
+            let cached = conversion_with_written(&lexicon, text, index.longest_prefix_len(text));
+            assert_eq!(cached, linear, "{text}");
+            assert_eq!(cached, Some(expected), "{text}");
+        }
+    }
+
+    #[test]
+    fn cached_index_is_reused_and_bounded_only_by_catalog_word_forms() {
+        let lexicon = vocabulary();
+        let index = written_prefix_index();
+        assert!(std::ptr::eq(index, written_prefix_index()));
+        let words: Vec<_> = lexicon
+            .readings()
+            .iter()
+            .filter(|entry| entry.kind == EntryKind::Word)
+            .collect();
+        assert!(index.forms.len() <= words.len() * 2);
+        let payload: usize = index.forms.iter().map(String::len).sum();
+        let catalog_bound: usize = words
+            .iter()
+            .map(|entry| entry.text.len() + entry.reading.len())
+            .sum();
+        assert!(payload <= catalog_bound);
+        assert!(index.byte_lengths.len() <= index.forms.len());
+        assert!(index.byte_lengths.windows(2).all(|pair| pair[0] > pair[1]));
+        for text in &index.forms {
+            assert!(words.iter().any(|entry| {
+                entry.text == *text || hiragana_to_katakana(&entry.reading) == *text
+            }));
+            assert!(index.byte_lengths.contains(&text.len()));
+        }
+        for &length in &index.byte_lengths {
+            assert!(index.forms.iter().any(|form| form.len() == length));
+        }
+        let before = (index.forms.len(), index.byte_lengths.len(), payload);
+        for text in ["not-a-catalog-key", "用户临时草稿🙂", "\n", "カタカナxyz"] {
+            check_active(lexicon, text);
+        }
+        assert_eq!(
+            before,
+            (
+                index.forms.len(),
+                index.byte_lengths.len(),
+                index.forms.iter().map(String::len).sum::<usize>(),
+            )
+        );
+        assert!(std::ptr::eq(index, written_prefix_index()));
+    }
 }
 
 #[cfg(test)]

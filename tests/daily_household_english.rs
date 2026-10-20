@@ -436,5 +436,5 @@ fn household_appends_fixed_data_preserving_every_legacy_record_and_all_6143_posi
             "old index position changed: {word}"
         );
     }
-    assert!(after.len() < 6144);
+    assert_eq!(after.len(), 6151);
 }

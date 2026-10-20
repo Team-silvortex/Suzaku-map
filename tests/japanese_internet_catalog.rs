@@ -256,6 +256,363 @@ fn remove_unique_append(source: &mut String, first: &str, after: &str) {
     source.replace_range(start..end, "");
 }
 
+fn builtin_before_daily_hygiene(language: &str, source: &str) -> String {
+    // Invert only the exact frozen hygiene append. All earlier raw-byte
+    // projections and independent hashes continue receiving their own epoch.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            assert_eq!(current["word_layers"].as_array().unwrap().len(), 48);
+            let expected: Value = serde_json::from_str(r#"[{"id":"daily_hygiene","words":["paper","soap","shampoo","toothpaste","tissue","tissues","conditioner","mouthwash"],"next_words":[["could you bring me some",["paper","tissues"]],["we've run out of",["soap","toothpaste"]],["i've left the",["shampoo","conditioner"]],["could you hand me a",["tissue","towel"]],["there's another bottle of",["shampoo","mouthwash"]],["please check if we need",["toothpaste","conditioner"]]],"sentences":["could you bring me some paper from the desk?","could you bring me some tissues from the bathroom?","we've run out of soap by the sink.","we've run out of toothpaste so i'll add it to the list.","i've left the shampoo on the bathroom shelf.","i've left the conditioner next to the shampoo.","could you hand me a tissue from that box?","could you hand me a towel from the shelf?","there's another bottle of shampoo in the cupboard.","there's another bottle of mouthwash on the bathroom shelf.","please check if we need toothpaste before you go out.","please check if we need conditioner before buying more."]}]"#).unwrap();
+            assert_eq!(
+                &current["word_layers"].as_array().unwrap()[47..],
+                expected.as_array().unwrap()
+            );
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_hygiene\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "a35baeabf35f5eebd793e01db0b40824bf2027a837af6c2a3cb560e8b156a8ad"
+        }
+        "zh-Hans" => {
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3330);
+            let expected: Value = serde_json::from_str(r#"[{"reading":"zhi'zhang","text":"纸张","kind":"word"},{"reading":"hu'fa'su","text":"护发素","kind":"word"},{"reading":"hu'shou'shuang","text":"护手霜","kind":"word"},{"reading":"run'chun'gao","text":"润唇膏","kind":"word"},{"reading":"mian'jin'zhi","text":"面巾纸","kind":"word"},{"reading":"ca'shou'zhi","text":"擦手纸","kind":"word"},{"reading":"fei'zao'he","text":"肥皂盒","kind":"word"},{"reading":"ti'huan'shua'tou","text":"替换刷头","kind":"word"}]"#).unwrap();
+            assert_eq!(
+                &current["readings"].as_array().unwrap()[3322..],
+                expected.as_array().unwrap()
+            );
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 821);
+            let expected: Value = serde_json::from_str(r#"[["纸张",["纸张放在打印机旁边了。","纸张还有一些，我先拿几张过来。"]],["香皂",["香皂放在洗手台旁边。","香皂还有一块，先不用再找了。"]],["洗发水",["洗发水在浴室的架子上。","洗发水我已经放进洗漱包了。"]],["护发素",["护发素和洗发水分开放着。","护发素还有一瓶没开封。"]],["牙膏",["牙膏我放在牙刷旁边了。","牙膏快用完了，我先记在清单上。"]],["牙刷",["牙刷放在右边的杯子里。","牙刷我已经装进洗漱包了。"]]]"#).unwrap();
+            assert_eq!(
+                &current["continuations"].as_array().unwrap()[815..],
+                expected.as_array().unwrap()
+            );
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"zhi'zhang\", \"text\": \"纸张\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, ",\n    [\n      \"纸张\",", "\n  ]\n}");
+            "bf387e09a3da44fefd21748856441154dcfe55f57aa5652b50707cf47c3eeff3"
+        }
+        "ja" => {
+            assert_eq!(current["readings"].as_array().unwrap().len(), 592);
+            let expected: Value = serde_json::from_str(r#"[{"reading":"しゃんぷー","text":"シャンプー","kind":"word"},{"reading":"りんす","text":"リンス","kind":"word"},{"reading":"はんどそーぷ","text":"ハンドソープ","kind":"word"},{"reading":"へあぶらし","text":"ヘアブラシ","kind":"word"},{"reading":"そーぷけーす","text":"ソープケース","kind":"word"},{"reading":"せんがんりょう","text":"洗顔料","kind":"word"}]"#).unwrap();
+            assert_eq!(
+                &current["readings"].as_array().unwrap()[586..],
+                expected.as_array().unwrap()
+            );
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 309);
+            let expected: Value = serde_json::from_str(r#"[["シャンプー",["シャンプーの詰め替えはありますか。","シャンプーが少なくなったので、買い物のメモに書いておきます。"]],["リンス",["リンスはどこに置きましたか。","リンスを買う前に、家にある分を確認します。"]],["ハンドソープ",["ハンドソープの残りを確認します。","ハンドソープは洗面台の横にあります。"]],["ヘアブラシ",["ヘアブラシはどこに置きましたか。","ヘアブラシを洗面所に戻しておきます。"]],["ソープケース",["ソープケースを洗っておきます。","ソープケースは棚の上にあります。"]],["洗顔料",["洗顔料を買い物のメモに追加します。","洗顔料の予備はまだあります。"]]]"#).unwrap();
+            assert_eq!(
+                &current["continuations"].as_array().unwrap()[303..],
+                expected.as_array().unwrap()
+            );
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"しゃんぷー\", \"text\": \"シャンプー\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, ",\n    [\n      \"シャンプー\",", "\n  ]\n}");
+            "45b217176c7c36f056c84e04a9f2419d2237c2c55ce5ef1deed6ab9b8f38f07b"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
+fn builtin_before_daily_restock(language: &str, source: &str) -> String {
+    // Project only this reviewed append back to the exact dirty-storage before-image. Keep every
+    // older raw-byte projection and its independent golden below unchanged.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            let layers = current["word_layers"].as_array().unwrap();
+            assert_eq!(layers.len(), 47);
+            assert_eq!(layers[46]["id"], "daily_restock");
+            assert!(layers[46]["words"].as_array().unwrap().is_empty());
+            assert_eq!(layers[46]["next_words"].as_array().unwrap().len(), 6);
+            assert_eq!(layers[46]["sentences"].as_array().unwrap().len(), 12);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_restock\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "31e3d7105a593e2d4c4c2b7dfe894e02660101822f98c30151d46abe9760b2a9"
+        }
+        "zh-Hans" | "ja" => {
+            let (readings, contexts, sentences, first_reading, first_context, sha) =
+                if language == "zh-Hans" {
+                    (
+                        3322,
+                        815,
+                        1628,
+                        "zhi'jin'zhi'sheng'yi'bao'le",
+                        "纸巾只剩一包了",
+                        "b589210dd52d35d8569aa6bc85461a1eb6919592665bab75c169b0366a4773c5",
+                    )
+                } else {
+                    (
+                        586,
+                        303,
+                        605,
+                        "てぃっしゅ",
+                        "ティッシュ",
+                        "5df031dfd68c605a6912a81557aaf915eda30b8793b52c1fb1b39beaed3f0855",
+                    )
+                };
+            assert_eq!(current["readings"].as_array().unwrap().len(), readings);
+            let values = current["continuations"].as_array().unwrap();
+            assert_eq!(values.len(), contexts);
+            assert_eq!(
+                values
+                    .iter()
+                    .map(|row| row[1].as_array().unwrap().len())
+                    .sum::<usize>(),
+                sentences,
+            );
+            remove_unique_append(
+                &mut previous,
+                &format!(
+                    ",\n    {{\"reading\": \"{first_reading}\", \"text\": \"{first_context}\", \"kind\": \"word\"}}"
+                ),
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(
+                &mut previous,
+                &format!(",\n    [\n      \"{first_context}\","),
+                "\n  ]\n}",
+            );
+            sha
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
+fn builtin_before_daily_storage(language: &str, source: &str) -> String {
+    // Project only this reviewed append back to the exact dirty-call before-image. Keep every
+    // older raw-byte projection and its independent golden below unchanged.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            let layers = current["word_layers"].as_array().unwrap();
+            assert_eq!(layers.len(), 46);
+            assert_eq!(layers[45]["id"], "daily_storage");
+            assert!(layers[45]["words"].as_array().unwrap().is_empty());
+            assert_eq!(layers[45]["next_words"].as_array().unwrap().len(), 6);
+            assert_eq!(layers[45]["sentences"].as_array().unwrap().len(), 12);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_storage\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "a6e83271b75ee86f79b022580bf7f0c627b8976a653ea4b6c278df4bd3eeaf77"
+        }
+        "zh-Hans" | "ja" => {
+            let (readings, contexts, sentences, first_reading, first_context, sha) =
+                if language == "zh-Hans" {
+                    (
+                        3304,
+                        809,
+                        1616,
+                        "xian'teng'dian'di'fang'chu'lai",
+                        "先腾点地方出来",
+                        "1d149fe0400e324216b289a490bd55d6bcb08679d68a52b85acd17db93f65949",
+                    )
+                } else {
+                    (
+                        580,
+                        297,
+                        593,
+                        "しゅうのう",
+                        "収納",
+                        "31b0c5646a7076124f73a411de5fc056b342d0177fea857d59ef2b3d9fd9f40d",
+                    )
+                };
+            assert_eq!(current["readings"].as_array().unwrap().len(), readings);
+            let values = current["continuations"].as_array().unwrap();
+            assert_eq!(values.len(), contexts);
+            assert_eq!(
+                values
+                    .iter()
+                    .map(|row| row[1].as_array().unwrap().len())
+                    .sum::<usize>(),
+                sentences,
+            );
+            remove_unique_append(
+                &mut previous,
+                &format!(
+                    ",\n    {{\"reading\": \"{first_reading}\", \"text\": \"{first_context}\", \"kind\": \"word\"}}"
+                ),
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(
+                &mut previous,
+                &format!(",\n    [\n      \"{first_context}\","),
+                "\n  ]\n}",
+            );
+            sha
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
+fn builtin_before_daily_call(language: &str, source: &str) -> String {
+    // Project only this reviewed append back to the exact dirty-route before-image. Keep every
+    // older raw-byte projection and its independent golden below unchanged.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            let layers = current["word_layers"].as_array().unwrap();
+            assert_eq!(layers.len(), 45);
+            assert_eq!(layers[44]["id"], "daily_call");
+            assert!(layers[44]["words"].as_array().unwrap().is_empty());
+            assert_eq!(layers[44]["next_words"].as_array().unwrap().len(), 6);
+            assert_eq!(layers[44]["sentences"].as_array().unwrap().len(), 12);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_call\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "b176189ecf8ac299e8b6bb506493ef234b87e260e773bfebfa8bd00ee57e72e5"
+        }
+        "zh-Hans" | "ja" => {
+            let (readings, contexts, sentences, first_reading, first_context, sha) =
+                if language == "zh-Hans" {
+                    (
+                        3286,
+                        803,
+                        1604,
+                        "ni'de'hua'mian'ka'zhu'le",
+                        "你的画面卡住了",
+                        "bde0584a65c2db839f96a5d29e0cca287eda256298d1a1eab5015de0811cc5d9",
+                    )
+                } else {
+                    (
+                        574,
+                        291,
+                        581,
+                        "きこえにくい",
+                        "聞こえにくい",
+                        "ddb75d90d6b83309f54ee3ebdb8cc49496f91dcd89a8c27776efd7cacb19a431",
+                    )
+                };
+            assert_eq!(current["readings"].as_array().unwrap().len(), readings);
+            let values = current["continuations"].as_array().unwrap();
+            assert_eq!(values.len(), contexts);
+            assert_eq!(
+                values
+                    .iter()
+                    .map(|row| row[1].as_array().unwrap().len())
+                    .sum::<usize>(),
+                sentences,
+            );
+            remove_unique_append(
+                &mut previous,
+                &format!(
+                    ",\n    {{\"reading\": \"{first_reading}\", \"text\": \"{first_context}\", \"kind\": \"word\"}}"
+                ),
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(
+                &mut previous,
+                &format!(",\n    [\n      \"{first_context}\","),
+                "\n  ]\n}",
+            );
+            sha
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
+fn builtin_before_daily_route(language: &str, source: &str) -> String {
+    // Project only this reviewed append back to clean 4108bc0. Keep every
+    // older raw-byte projection and its independent golden below unchanged.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            let layers = current["word_layers"].as_array().unwrap();
+            assert_eq!(layers.len(), 44);
+            assert_eq!(layers[43]["id"], "daily_route");
+            assert!(layers[43]["words"].as_array().unwrap().is_empty());
+            assert_eq!(layers[43]["next_words"].as_array().unwrap().len(), 8);
+            assert_eq!(layers[43]["sentences"].as_array().unwrap().len(), 16);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_route\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "32a45d063e3ca3e4cb9a5c27501d14771329a3a3d1ab338218c1a88dd9b02597"
+        }
+        "zh-Hans" | "ja" => {
+            let (readings, contexts, sentences, first_reading, first_context, sha) =
+                if language == "zh-Hans" {
+                    (
+                        3268,
+                        797,
+                        1592,
+                        "wo'gang'shang'che",
+                        "我刚上车",
+                        "3f09409d89c99b773c5ff8fb746aa5efd7e0bc5942cb9e6e62db5c43923da988",
+                    )
+                } else {
+                    (
+                        568,
+                        285,
+                        569,
+                        "まちあわせばしょ",
+                        "待ち合わせ場所",
+                        "f827bc88bccd03509696a728ff369c4530dd602f593091308276135a3e742b56",
+                    )
+                };
+            assert_eq!(current["readings"].as_array().unwrap().len(), readings);
+            let values = current["continuations"].as_array().unwrap();
+            assert_eq!(values.len(), contexts);
+            assert_eq!(
+                values
+                    .iter()
+                    .map(|row| row[1].as_array().unwrap().len())
+                    .sum::<usize>(),
+                sentences,
+            );
+            remove_unique_append(
+                &mut previous,
+                &format!(
+                    ",\n    {{\"reading\": \"{first_reading}\", \"text\": \"{first_context}\", \"kind\": \"word\"}}"
+                ),
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(
+                &mut previous,
+                &format!(",\n    [\n      \"{first_context}\","),
+                "\n  ]\n}",
+            );
+            sha
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
 fn builtin_before_daily_aftercare(language: &str, source: &str) -> String {
     // Restore the exact prior working-tree resources, including messaging and appointments,
     // before entering the unchanged historical raw-byte projection chain.
@@ -1193,7 +1550,12 @@ fn japanese_internet_preserves_all_eighteen_source_bytes_and_catalog_positions()
         );
     }
     for (language, source, expected) in BUILTIN {
-        let before_aftercare = builtin_before_daily_aftercare(language, source);
+        let before_hygiene = builtin_before_daily_hygiene(language, source);
+        let before_restock = builtin_before_daily_restock(language, &before_hygiene);
+        let before_storage = builtin_before_daily_storage(language, &before_restock);
+        let before_call = builtin_before_daily_call(language, &before_storage);
+        let before_route = builtin_before_daily_route(language, &before_call);
+        let before_aftercare = builtin_before_daily_aftercare(language, &before_route);
         let before_appointments = builtin_before_daily_appointments(language, &before_aftercare);
         let before_messaging = builtin_before_daily_messaging(language, &before_appointments);
         let before_references = builtin_before_reference_characters(language, &before_messaging);
