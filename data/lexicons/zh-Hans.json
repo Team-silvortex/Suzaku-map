@@ -3331,7 +3331,67 @@
     {"reading": "mian'jin'zhi", "text": "面巾纸", "kind": "word"},
     {"reading": "ca'shou'zhi", "text": "擦手纸", "kind": "word"},
     {"reading": "fei'zao'he", "text": "肥皂盒", "kind": "word"},
-    {"reading": "ti'huan'shua'tou", "text": "替换刷头", "kind": "word"}
+    {"reading": "ti'huan'shua'tou", "text": "替换刷头", "kind": "word"},
+    {"reading": "la'lian'ka'zhu'le", "text": "拉链卡住了", "kind": "word"},
+    {"reading": "niu'kou'diao'le", "text": "纽扣掉了", "kind": "word"},
+    {"reading": "xiu'zi'you'dian'duan", "text": "袖子有点短", "kind": "word"},
+    {"reading": "xie'dai'you'song'le", "text": "鞋带又松了", "kind": "word"},
+    {"reading": "ku'yao'you'dian'jin", "text": "裤腰有点紧", "kind": "word"},
+    {"reading": "ling'kou'you'dian'da", "text": "领口有点大", "kind": "word"},
+    {"reading": "ku'yao", "text": "裤腰", "kind": "word"},
+    {"reading": "ling'kou", "text": "领口", "kind": "word"},
+    {"reading": "yao'dai", "text": "腰带", "kind": "word"},
+    {"reading": "song'jin'dai", "text": "松紧带", "kind": "word"},
+    {"reading": "yi'jiao", "text": "衣角", "kind": "word"},
+    {"reading": "xiu'chang", "text": "袖长", "kind": "word"},
+    {"reading": "fang'jian'you'dian'men", "text": "房间有点闷", "kind": "word"},
+    {"reading": "kai'chuang'tong'tong'feng", "text": "开窗通通风", "kind": "word"},
+    {"reading": "ba'chuang'lian'la'kai", "text": "把窗帘拉开", "kind": "word"},
+    {"reading": "deng'guang'you'dian'ci'yan", "text": "灯光有点刺眼", "kind": "word"},
+    {"reading": "feng'shan'tiao'xiao'yi'dian", "text": "风扇调小一点", "kind": "word"},
+    {"reading": "kong'tiao'wen'du'tiao'gao'yi'dian", "text": "空调温度调高一点", "kind": "word"},
+    {"reading": "guang'xian", "text": "光线", "kind": "word"},
+    {"reading": "tong'feng", "text": "通风", "kind": "word"},
+    {"reading": "tai'deng", "text": "台灯", "kind": "word"},
+    {"reading": "feng'shan", "text": "风扇", "kind": "word"},
+    {"reading": "kong'tiao", "text": "空调", "kind": "word"},
+    {"reading": "wen'du", "text": "温度", "kind": "word"},
+    {"reading": "qian'bi'you'dian'dun'le", "text": "铅笔有点钝了", "kind": "word"},
+    {"reading": "zhe'ge'zi'xie'cuo'le", "text": "这个字写错了", "kind": "word"},
+    {"reading": "bang'wo'hua'yi'tiao'xian", "text": "帮我画一条线", "kind": "word"},
+    {"reading": "xian'na'zhang'cao'gao'zhi", "text": "先拿张草稿纸", "kind": "word"},
+    {"reading": "bi'mao'ji'de'gai'hao", "text": "笔帽记得盖好", "kind": "word"},
+    {"reading": "zhe'ji'zhang'zhi'ding'yi'xia", "text": "这几张纸订一下", "kind": "word"},
+    {"reading": "qian'bi", "text": "铅笔", "kind": "word"},
+    {"reading": "chi'zi", "text": "尺子", "kind": "word"},
+    {"reading": "jiao'dai", "text": "胶带", "kind": "word"},
+    {"reading": "bian'qian", "text": "便签", "kind": "word"},
+    {"reading": "cao'gao'zhi", "text": "草稿纸", "kind": "word"},
+    {"reading": "yuan'zhu'bi", "text": "圆珠笔", "kind": "word"},
+    {"reading": "wo'du'dao'zhe'yi'ye'le", "text": "我读到这一页了", "kind": "word"},
+    {"reading": "shu'qian'jia'zai'zhe'ye", "text": "书签夹在这页", "kind": "word"},
+    {"reading": "zhe'ye'hai'mei'kan'wan", "text": "这页还没看完", "kind": "word"},
+    {"reading": "xian'fan'dao'xia'yi'ye", "text": "先翻到下一页", "kind": "word"},
+    {"reading": "zhe'duan'wo'zai'du'yi'bian", "text": "这段我再读一遍", "kind": "word"},
+    {"reading": "zhe'ben'shu'xian'bie'shou'qi'lai", "text": "这本书先别收起来", "kind": "word"},
+    {"reading": "shu'qian", "text": "书签", "kind": "word"},
+    {"reading": "shu'ye", "text": "书页", "kind": "word"},
+    {"reading": "fan'ye", "text": "翻页", "kind": "word"},
+    {"reading": "zhang'jie", "text": "章节", "kind": "word"},
+    {"reading": "du'shu", "text": "读书", "kind": "word"},
+    {"reading": "kan'shu", "text": "看书", "kind": "word"},
+    {"reading": "zhe'pen'hua'xian'fang'chuang'bian", "text": "这盆花先放窗边", "kind": "word"},
+    {"reading": "hua'pen'di'xia'you'dian'shui", "text": "花盆底下有点水", "kind": "word"},
+    {"reading": "zhe'pian'ye'zi'diao'xia'lai'le", "text": "这片叶子掉下来了", "kind": "word"},
+    {"reading": "bang'wo'na'yi'xia'pen'hu", "text": "帮我拿一下喷壶", "kind": "word"},
+    {"reading": "yang'tai'de'hua'wo'lai'jiao", "text": "阳台的花我来浇", "kind": "word"},
+    {"reading": "xian'bie'nuo'zhe'ge'hua'pen", "text": "先别挪这个花盆", "kind": "word"},
+    {"reading": "zhi'wu", "text": "植物", "kind": "word"},
+    {"reading": "hua'pen", "text": "花盆", "kind": "word"},
+    {"reading": "pen'zai", "text": "盆栽", "kind": "word"},
+    {"reading": "ye'zi", "text": "叶子", "kind": "word"},
+    {"reading": "pen'hu", "text": "喷壶", "kind": "word"},
+    {"reading": "chuang'tai", "text": "窗台", "kind": "word"}
   ],
   "continuations": [
     [
@@ -9077,6 +9137,216 @@
       [
         "牙刷放在右边的杯子里。",
         "牙刷我已经装进洗漱包了。"
+      ]
+    ],
+    [
+      "拉链卡住了",
+      [
+        "拉链卡住了，我先看看有没有夹到衣角。",
+        "拉链卡住了，先别用力拉。"
+      ]
+    ],
+    [
+      "纽扣掉了",
+      [
+        "纽扣掉了，我先把它收好。",
+        "纽扣掉了，这件衣服先放一边。"
+      ]
+    ],
+    [
+      "袖子有点短",
+      [
+        "袖子有点短，我再换一件试试。",
+        "袖子有点短，抬手的时候不太方便。"
+      ]
+    ],
+    [
+      "鞋带又松了",
+      [
+        "鞋带又松了，我先重新系一下。",
+        "鞋带又松了，等我一下再走。"
+      ]
+    ],
+    [
+      "裤腰有点紧",
+      [
+        "裤腰有点紧，我想换一条试试。",
+        "裤腰有点紧，坐下来不太舒服。"
+      ]
+    ],
+    [
+      "领口有点大",
+      [
+        "领口有点大，我换一件比较一下。",
+        "领口有点大，这件先放回去吧。"
+      ]
+    ],
+    [
+      "房间有点闷",
+      [
+        "房间有点闷，我想开一会儿窗。",
+        "房间有点闷，我们换个位置坐吧。"
+      ]
+    ],
+    [
+      "开窗通通风",
+      [
+        "开窗通通风，我先把桌上的纸压好。",
+        "开窗通通风，等会儿再关上。"
+      ]
+    ],
+    [
+      "把窗帘拉开",
+      [
+        "把窗帘拉开，我想让房间亮一点。",
+        "把窗帘拉开，看看外面的天气。"
+      ]
+    ],
+    [
+      "灯光有点刺眼",
+      [
+        "灯光有点刺眼，我想换个位置坐。",
+        "灯光有点刺眼，能不能调暗一点？"
+      ]
+    ],
+    [
+      "风扇调小一点",
+      [
+        "风扇调小一点，我这边风有点大。",
+        "风扇调小一点，别对着桌上的纸吹。"
+      ]
+    ],
+    [
+      "空调温度调高一点",
+      [
+        "空调温度调高一点，我觉得有点冷。",
+        "空调温度调高一点，先这样试一会儿吧。"
+      ]
+    ],
+    [
+      "铅笔有点钝了",
+      [
+        "铅笔有点钝了，我先削一下再写。",
+        "铅笔有点钝了，换一支尖一点的吧。"
+      ]
+    ],
+    [
+      "这个字写错了",
+      [
+        "这个字写错了，我先擦掉再重写。",
+        "这个字写错了，在旁边改一下就好。"
+      ]
+    ],
+    [
+      "帮我画一条线",
+      [
+        "帮我画一条线，我想把这两段分开。",
+        "帮我画一条线，用尺子画会整齐一点。"
+      ]
+    ],
+    [
+      "先拿张草稿纸",
+      [
+        "先拿张草稿纸，我想算一下这道题。",
+        "先拿张草稿纸，这张先别放进文件夹。"
+      ]
+    ],
+    [
+      "笔帽记得盖好",
+      [
+        "笔帽记得盖好，我先收一下桌面。",
+        "笔帽记得盖好，用完就收回笔袋吧。"
+      ]
+    ],
+    [
+      "这几张纸订一下",
+      [
+        "这几张纸订一下，我想把它们放在一起。",
+        "这几张纸订一下，订好后放进文件夹吧。"
+      ]
+    ],
+    [
+      "我读到这一页了",
+      [
+        "我读到这一页了，我先做个记号。",
+        "我读到这一页了，明天从这里接着看。"
+      ]
+    ],
+    [
+      "书签夹在这页",
+      [
+        "书签夹在这页，我下次就能找到。",
+        "书签夹在这页，先别把它拿出来。"
+      ]
+    ],
+    [
+      "这页还没看完",
+      [
+        "这页还没看完，我想再看一会儿。",
+        "这页还没看完，先不要翻过去。"
+      ]
+    ],
+    [
+      "先翻到下一页",
+      [
+        "先翻到下一页，我想看看后面的图。",
+        "先翻到下一页，这里等会儿再看。"
+      ]
+    ],
+    [
+      "这段我再读一遍",
+      [
+        "这段我再读一遍，我刚才没看明白。",
+        "这段我再读一遍，你先别往下翻。"
+      ]
+    ],
+    [
+      "这本书先别收起来",
+      [
+        "这本书先别收起来，我还要看一会儿。",
+        "这本书先别收起来，先放在桌边吧。"
+      ]
+    ],
+    [
+      "这盆花先放窗边",
+      [
+        "这盆花先放窗边，我腾个位置出来。",
+        "这盆花先放窗边，等会儿再搬到阳台。"
+      ]
+    ],
+    [
+      "花盆底下有点水",
+      [
+        "花盆底下有点水，我拿块布擦一下。",
+        "花盆底下有点水，先把桌面擦干吧。"
+      ]
+    ],
+    [
+      "这片叶子掉下来了",
+      [
+        "这片叶子掉下来了，我先捡起来。",
+        "这片叶子掉下来了，放进垃圾袋里吧。"
+      ]
+    ],
+    [
+      "帮我拿一下喷壶",
+      [
+        "帮我拿一下喷壶，我把它放到花盆旁边。",
+        "帮我拿一下喷壶，用完我就放回去。"
+      ]
+    ],
+    [
+      "阳台的花我来浇",
+      [
+        "阳台的花我来浇，我先去拿水壶。",
+        "阳台的花我来浇，你先收一下桌面吧。"
+      ]
+    ],
+    [
+      "先别挪这个花盆",
+      [
+        "先别挪这个花盆，我来腾一下位置。",
+        "先别挪这个花盆，旁边的东西还没收好。"
       ]
     ]
   ]

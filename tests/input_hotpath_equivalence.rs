@@ -1,5 +1,8 @@
 //! Actual pre-optimization release replay: all metadata, score bits and order.
 //! Public synthetic drafts only; no native keys, user store or model requests.
+#[path = "support/daily_reading_replay.rs"]
+mod daily_reading_replay;
+
 fn corpus(language: &str) -> Vec<String> {
     let phrases: &[&str] = match language {
         "en" => &[
@@ -241,6 +244,53 @@ fn before_daily_storage(
     before
 }
 
+// Room-comfort data fills one formerly unused twelfth backfill slot.
+// Assert every field before removing that one new Word for the historical
+// optimization replay. No existing row, score, corpus or golden is rewritten;
+// the nine-pack pool was already full and remains byte-for-byte unchanged.
+fn before_daily_room_comfort(
+    language: &str,
+    seed: &str,
+    current: &[Candidate],
+    with_packs: bool,
+) -> Vec<Candidate> {
+    if language != "ja" || seed != "nihongo wo benkyou shit" || with_packs {
+        return current.to_vec();
+    }
+    let expected = [
+        ("日本語を勉強しt", "unknown", 1120403456),
+        ("にほんごをべんきょうしt", "unknown", 1119354880),
+        ("日本語を勉強失礼します", "word", 1119158272),
+        ("日本語を勉強質問", "word", 1119092736),
+        ("日本語を勉強したいです。", "sentence", 1117323264),
+        ("日本語を勉強しています。", "sentence", 1117257728),
+        ("ニホンゴヲベンキョウシt", "unknown", 1119092736),
+        ("日本語を勉強失礼しました", "word", 1119027200),
+        ("日本語を勉強試着", "word", 1118961664),
+        ("nihongo wo benkyou shit", "literal", 1113325568),
+        ("日本語を勉強湿度", "word", 1113194496),
+        ("日本語を勉強室温", "word", 1113063424),
+    ];
+    assert_eq!(
+        current
+            .iter()
+            .map(|c| (
+                c.text.as_str(),
+                c.label.as_str(),
+                c.kind.id(),
+                c.source.id(),
+                c.score.to_bits(),
+            ))
+            .collect::<Vec<_>>(),
+        expected
+            .iter()
+            .map(|&(text, kind, bits)| (text, text, kind, "local", bits))
+            .collect::<Vec<_>>(),
+        "the only accepted daily_room_comfort delta must match in full"
+    );
+    current[..11].to_vec()
+}
+
 fn fingerprint(
     language: &str,
     ime: &mut XRTabletImeEngine,
@@ -253,7 +303,14 @@ fn fingerprint(
         for byte in seed.bytes().chain([0]) {
             hash = (hash ^ u64::from(byte)).wrapping_mul(0x100000001b3);
         }
-        let before_storage = before_daily_storage(language, seed, ime.candidates(), with_packs);
+        let before_reading = daily_reading_replay::before_daily_reading(
+            language,
+            seed,
+            ime.candidates(),
+            with_packs,
+        );
+        let before_room = before_daily_room_comfort(language, seed, &before_reading, with_packs);
+        let before_storage = before_daily_storage(language, seed, &before_room, with_packs);
         let before_call = before_daily_call(language, seed, &before_storage, with_packs);
         let before_route = before_daily_route(language, seed, &before_call);
         for candidate in &before_route {

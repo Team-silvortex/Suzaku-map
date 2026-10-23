@@ -162,9 +162,9 @@ fn indexed_forms(layers: &[WordLayer]) -> Vec<String> {
 #[test]
 fn restock_layer_has_fixed_records_without_new_or_reordered_index_forms() {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 48);
-    assert_eq!(en.next_words().count(), 827);
-    assert_eq!(en.sentences().count(), 1618);
+    assert_eq!(en.word_layers().len(), 53);
+    assert_eq!(en.next_words().count(), 857);
+    assert_eq!(en.sentences().count(), 1678);
     let previous = &en.word_layers()[..46];
     assert_eq!(
         previous.iter().map(|l| l.next_words.len()).sum::<usize>(),
@@ -207,7 +207,7 @@ fn restock_layer_has_fixed_records_without_new_or_reordered_index_forms() {
     let old = indexed_forms(previous);
     assert_eq!(old.len(), 6143);
     let current = indexed_forms(en.word_layers());
-    assert_eq!(current.len(), 6151);
+    assert_eq!(current.len(), 6179);
     assert_eq!(&current[..6143], old.as_slice());
 }
 

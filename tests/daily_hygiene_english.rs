@@ -212,9 +212,9 @@ fn hygiene_preserves_all_47_prior_layers_first_seen_ranks_and_phrase_endings() {
 #[test]
 fn hygiene_fixed_layer_adds_exactly_eight_forms_and_recognizes_complete_words() {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 48);
-    assert_eq!(en.next_words().count(), 827);
-    assert_eq!(en.sentences().count(), 1618);
+    assert_eq!(en.word_layers().len(), 53);
+    assert_eq!(en.next_words().count(), 857);
+    assert_eq!(en.sentences().count(), 1678);
     let layer = &en.word_layers()[47];
     assert_eq!(layer.id, "daily_hygiene");
     assert_eq!(
@@ -238,7 +238,7 @@ fn hygiene_fixed_layer_adds_exactly_eight_forms_and_recognizes_complete_words() 
         SENTENCES.into_iter().flatten().collect::<Vec<_>>()
     );
     let old = indexed_occurrences(&en.word_layers()[..47]);
-    let all = indexed_occurrences(en.word_layers());
+    let all = indexed_occurrences(&en.word_layers()[..48]);
     assert_eq!(all.len(), 6151);
     assert_eq!(&all[..6143], old.as_slice());
     assert_eq!(

@@ -10,6 +10,7 @@ use std::collections::HashSet;
 use std::sync::OnceLock;
 
 const MAX_RESOURCE_BYTES: usize = 2 * 1024 * 1024;
+const MAX_SOURCE_WORD_LAYERS: usize = 64;
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -102,6 +103,12 @@ impl Lexicon {
     }
 
     fn validate(&self) -> Result<(), String> {
+        self.validate_with_layer_limit(MAX_SOURCE_WORD_LAYERS)
+    }
+
+    // A parsed source always uses the original limit above. Only the bounded
+    // catalog merge may validate a larger, already-source-validated aggregate.
+    fn validate_with_layer_limit(&self, layer_limit: usize) -> Result<(), String> {
         if self.format_version != 1 {
             return Err("unsupported lexicon format_version".into());
         }
@@ -114,7 +121,7 @@ impl Lexicon {
         {
             return Err("invalid lexicon language identifier".into());
         }
-        if self.word_layers.len() > 64 {
+        if self.word_layers.len() > layer_limit {
             return Err("too many vocabulary layers".into());
         }
         let mut ids = HashSet::new();

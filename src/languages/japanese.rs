@@ -510,12 +510,149 @@ fn completes_long_vowel(last: char, suffix: &str) -> bool {
     )
 }
 
+/// Reserve sentence capacity for one unique whole Word missing only final ん.
+/// This does not reinterpret a typed nasal or alter the greedy conversion;
+/// root correction, authored progress and long-vowel proofs remain separate.
+/// An independent authored pair for the stem establishes its context family.
+pub(crate) fn authored_nasal_completion(
+    seed: &str,
+    progress: &str,
+) -> Option<(&'static str, &'static [String])> {
+    use crate::ime::candidate_mix::CandidateKind;
+    if seed.chars().count() > super::draft::LOCAL_TAIL_CHARS || seed.chars().any(is_line_boundary) {
+        return None;
+    }
+    let kana = composition_kana(seed);
+    if kana.chars().any(|ch| ch.is_ascii_alphabetic())
+        || kana.ends_with('ん')
+        || kana.ends_with('っ')
+    {
+        return None;
+    }
+    let (consumed, stem) = conversion_prefix(&kana)?;
+    let rest = &kana[consumed..];
+    if rest.is_empty()
+        || !is_dictionary_word(stem)
+        || progress.strip_prefix(stem) != Some(rest)
+        || convert_segments(&kana) != progress
+    {
+        return None;
+    }
+    // A dictionary stem alone cannot establish an authored continuation family.
+    // Retain its older pagination without two real stem continuations.
+    let (_, stem_values) = vocabulary()
+        .continuations()
+        .find(|(context, _)| *context == stem)?;
+    if stem_values.len() < 2
+        || stem_values[0] == stem_values[1]
+        || !stem_values[..2]
+            .iter()
+            .all(|text| text.len() > stem.len() && text.starts_with(stem))
+    {
+        return None;
+    }
+    let mut roots = vocabulary().readings().iter().filter(|entry| {
+        entry.kind == EntryKind::Word && entry.reading != kana && entry.reading.starts_with(&kana)
+    });
+    let first = roots.next()?;
+    let word = first.text.as_str();
+    if first.reading.strip_prefix(&kana) != Some("ん")
+        || roots.any(|entry| entry.text != word || entry.reading.strip_prefix(&kana) != Some("ん"))
+        || word.len() <= stem.len()
+        || !word.starts_with(stem)
+        || !word_completions(seed)
+            .first()
+            .is_some_and(|(text, kind)| text == word && *kind == CandidateKind::Word)
+    {
+        return None;
+    }
+    let (_, values) = vocabulary()
+        .continuations()
+        .find(|(context, _)| *context == word)?;
+    (values.len() >= 2
+        && values[0] != values[1]
+        && values[..2]
+            .iter()
+            .all(|text| text.len() > word.len() && text.starts_with(word)))
+    .then_some((word, values))
+}
+
 /// Additional words may fill unused mixed-list slots, without replacing the
 /// primary four completions or changing authored sentence weights.
 pub(crate) fn word_completion_backfill(
     seed: &str,
 ) -> Vec<(String, crate::ime::candidate_mix::CandidateKind)> {
     word_completions_with_limit(seed, crate::ime::candidate_mix::PAGE_SIZE * 2, true)
+}
+
+/// Retain a unique two-Kana parent Word in the final spare completion slot.
+/// This only compares an already supplied compound; it creates no new query,
+/// conversion, authored sentence, score or primary completion.
+pub(crate) fn short_word_backfill(seed: &str, last_word: &str) -> Option<&'static str> {
+    short_word_backfill_in(vocabulary(), seed, last_word)
+}
+
+fn short_word_backfill_in<'a>(
+    lexicon: &'a Lexicon,
+    seed: &str,
+    last_word: &str,
+) -> Option<&'a str> {
+    if seed.is_empty()
+        || !seed.chars().all(|ch| {
+            ch.is_ascii_alphabetic() || ('ぁ'..='ゖ').contains(&ch) || ('ァ'..='ヶ').contains(&ch)
+        })
+    {
+        return None;
+    }
+    let composed = composition_kana(seed);
+    let mut chars = composed.chars();
+    let first = chars.next()?;
+    if chars.next().is_some() {
+        return None;
+    }
+    // Compare a single existing Katakana alias without altering the converter
+    // or manufacturing any backfill candidates for that spelling.
+    let first = if ('ァ'..='ヶ').contains(&first) {
+        char::from_u32(first as u32 - 0x60)?
+    } else {
+        first
+    };
+    if !('ぁ'..='ゖ').contains(&first) {
+        return None;
+    }
+    let prefix = first.to_string();
+    let mut parents = Vec::new();
+    let mut compound_heads = Vec::new();
+    // One bounded catalog scan, not a user-input cache. Only this same-reading
+    // family is retained; a pair of aliases for one text is not an ambiguity.
+    for entry in lexicon.readings() {
+        if entry.kind != EntryKind::Word
+            || !entry.reading.starts_with(&prefix)
+            || !entry.reading.chars().all(|ch| ('ぁ'..='ゖ').contains(&ch))
+        {
+            continue;
+        }
+        if entry.text == last_word {
+            if let Some((third, _)) = entry.reading.char_indices().nth(2) {
+                compound_heads.push(&entry.reading[..third]);
+            }
+        } else if entry.reading.chars().count() == 2
+            && entry.text.len() < last_word.len()
+            && last_word.starts_with(&entry.text)
+        {
+            parents.push((entry.reading.as_str(), entry.text.as_str()));
+        }
+    }
+    let mut selected = None;
+    for (reading, text) in parents {
+        if compound_heads.contains(&reading) {
+            if selected.is_some_and(|previous| previous != text) {
+                return None;
+            }
+            selected = Some(text);
+        }
+    }
+    selected
 }
 
 fn word_completions_with_limit(
@@ -1593,5 +1730,115 @@ mod tests {
         let candidates = JapaneseLanguagePlugin.build_candidates(&[], "nihongo", 1.0);
         let texts: Vec<_> = candidates.iter().map(|item| item.text.as_str()).collect();
         assert_eq!(texts, ["日本語", "にほんご", "ニホンゴ", "nihongo"]);
+    }
+}
+
+#[cfg(test)]
+mod short_word_backfill_tests {
+    use super::*;
+
+    #[test]
+    fn unique_parent_requires_a_complete_single_kana_and_real_double_prefix() {
+        let lexicon = Lexicon::from_json(
+            r#"{
+                "format_version":1,"language":"ja",
+                "readings":[
+                    {"reading":"きしべ","text":"岸辺","kind":"word"},
+                    {"reading":"きし","text":"岸","kind":"word"},
+                    {"reading":"きせ","text":"岸","kind":"word"},
+                    {"reading":"きせべ","text":"岸辺","kind":"word"},
+                    {"reading":"きかわ","text":"木川","kind":"word"}
+                ]
+            }"#,
+        )
+        .unwrap();
+        for seed in ["ki", "KI", "き", "キ"] {
+            assert_eq!(
+                short_word_backfill_in(&lexicon, seed, "岸辺"),
+                Some("岸"),
+                "{seed:?}"
+            );
+        }
+        for compound in ["岸", "岸側", "木川", "unknown"] {
+            assert_eq!(
+                short_word_backfill_in(&lexicon, "き", compound),
+                None,
+                "{compound:?}"
+            );
+        }
+        for seed in [
+            "",
+            "k",
+            "K",
+            "ky",
+            "kya",
+            "きし",
+            "ki ",
+            " ki",
+            "き\t",
+            "き\u{a0}",
+            "き\u{3000}",
+            "き\u{202f}",
+            "https://ki",
+            "prefix_ki",
+            "前文き",
+            "🙂き",
+            "き\n",
+            "き\r",
+            "き\u{b}",
+            "き\u{c}",
+            "き\u{85}",
+            "き\u{2028}",
+            "き\u{2029}",
+        ] {
+            assert_eq!(
+                short_word_backfill_in(&lexicon, seed, "岸辺"),
+                None,
+                "{seed:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn distinct_parent_ambiguity_and_nonword_metadata_never_rescue() {
+        let ambiguous = Lexicon::from_json(
+            r#"{
+                "format_version":1,"language":"ja",
+                "readings":[
+                    {"reading":"きし","text":"岸","kind":"word"},
+                    {"reading":"きせ","text":"岸辺","kind":"word"},
+                    {"reading":"きしべ","text":"岸辺側","kind":"word"},
+                    {"reading":"きせべ","text":"岸辺側","kind":"word"}
+                ]
+            }"#,
+        )
+        .unwrap();
+        assert_eq!(short_word_backfill_in(&ambiguous, "ki", "岸辺側"), None);
+        for source in [
+            r#"{
+                "format_version":1,"language":"ja",
+                "readings":[
+                    {"reading":"きし","text":"岸","kind":"sentence"},
+                    {"reading":"きしべ","text":"岸辺","kind":"word"}
+                ]
+            }"#,
+            r#"{
+                "format_version":1,"language":"ja",
+                "readings":[
+                    {"reading":"きし","text":"岸","kind":"word"},
+                    {"reading":"きしべ","text":"岸辺","kind":"sentence"}
+                ]
+            }"#,
+            r#"{
+                "format_version":1,"language":"ja",
+                "readings":[
+                    {"reading":"きした","text":"岸","kind":"word"},
+                    {"reading":"きしたべ","text":"岸辺","kind":"word"}
+                ]
+            }"#,
+        ] {
+            let lexicon = Lexicon::from_json(source).unwrap();
+            assert_eq!(short_word_backfill_in(&lexicon, "き", "岸辺"), None);
+        }
     }
 }

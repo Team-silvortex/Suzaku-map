@@ -1,7 +1,7 @@
 //! In-memory pack merging and ordered load reports; no filesystem access.
-use super::super::{Lexicon, builtin};
-use super::MAX_LANGUAGE_UNITS;
+use super::super::{Lexicon, MAX_SOURCE_WORD_LAYERS, builtin};
 use super::format::{InstalledPack, OfflinePack};
+use super::{MAX_LANGUAGE_UNITS, MAX_PACKS};
 use serde::Serialize;
 use std::collections::{BTreeMap, HashSet};
 
@@ -37,7 +37,16 @@ impl Catalog {
         let mut catalog = Self::default();
         let mut ids = HashSet::new();
         let mut budgets = BTreeMap::<String, usize>::new();
-        for entry in entries {
+        for (index, entry) in entries.into_iter().enumerate() {
+            // Disabled and malformed entries still occupy installed slots.
+            // Stop at the first excess entry, including for direct API callers.
+            if index >= MAX_PACKS {
+                catalog
+                    .report
+                    .errors
+                    .push("at most 16 packs may be installed".into());
+                break;
+            }
             let result = entry.and_then(|entry| {
                 let pack = entry.package;
                 let id = &pack.manifest.id;
@@ -98,7 +107,10 @@ fn append(target: &mut Lexicon, pack: &OfflinePack) -> Result<(), String> {
         target.phrase_endings(),
         &pack.lexicon.phrase_endings,
     )?);
-    target.validate()
+    // Each pack was separately validated to at most eight layers. The runtime
+    // aggregate is bounded by one <=64-layer source plus <=16 such packs, not
+    // by the single-source cap (which must not erode pack capacity as it grows).
+    target.validate_with_layer_limit(MAX_SOURCE_WORD_LAYERS + MAX_PACKS * 8)
 }
 
 fn novel_pairs(

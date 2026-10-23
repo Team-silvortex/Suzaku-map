@@ -256,6 +256,452 @@ fn remove_unique_append(source: &mut String, first: &str, after: &str) {
     source.replace_range(start..end, "");
 }
 
+fn builtin_before_daily_plants(language: &str, source: &str) -> String {
+    // Restore only this plant append before the immutable reading and older epochs.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "3102776d198a40a6ae64829666c8ba74e457ef2c4fd57e134c9ac7c3b76705cc"
+            );
+            assert_eq!(current["word_layers"].as_array().unwrap().len(), 53);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_plants\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "898583b85564981168cd53f86e3ec67e7b9a5befc312948edb5ae69eb66d7601"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "1023a1295cd0180296ee0ff281f113b7e11ff5bfa9c52370152802de46988044"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3390);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 851);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"zhe'pen'hua'xian'fang'chuang'bian\", \"text\": \"这盆花先放窗边\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(
+                &mut previous,
+                ",\n    [\n      \"这盆花先放窗边\",",
+                "\n  ]\n}",
+            );
+            "0a0cbbbb4054f0a87e225ecbfdd483c094931fbf9d25a69efd09fa7f6ad7f960"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "6b41345d2866fc199b5430e9a6776c6dc3ca4b2633597bcd7c0114745e106419"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 614);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 339);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"うえきばち\", \"text\": \"植木鉢\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, ",\n    [\n      \"植物\",", "\n  ]\n}");
+            "ca50999a51fd3565733856502501c8399e86a144f5e8abed0ee5e0a2a1603b72"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
+fn builtin_before_daily_reading(language: &str, source: &str) -> String {
+    // Restore the exact stationery epoch before every unchanged older golden.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "898583b85564981168cd53f86e3ec67e7b9a5befc312948edb5ae69eb66d7601"
+            );
+            assert_eq!(current["word_layers"].as_array().unwrap().len(), 52);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_reading\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "b17162a23be3e3ccb51aeddf35badf7f1935c24900c83b505e8373b547193f22"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "0a0cbbbb4054f0a87e225ecbfdd483c094931fbf9d25a69efd09fa7f6ad7f960"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3378);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 845);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"wo'du'dao'zhe'yi'ye'le\", \"text\": \"我读到这一页了\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(
+                &mut previous,
+                ",\n    [\n      \"我读到这一页了\",",
+                "\n  ]\n}",
+            );
+            "86276e05eecb1c6c9c3966812ed9efd33c113e801c3d21fd8bc9678463c9f863"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "ca50999a51fd3565733856502501c8399e86a144f5e8abed0ee5e0a2a1603b72"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 609);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 333);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"しおり\", \"text\": \"栞\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, ",\n    [\n      \"栞\",", "\n  ]\n}");
+            "98aaa74789eac7f5af52ea3fda659a2c2d59489c61f39ce295572fd6bbc629b8"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
+fn builtin_before_daily_stationery(language: &str, source: &str) -> String {
+    // Validate only the finite stationery append, then restore the exact
+    // actual dirty room baseline for every older helper and historical golden.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "b17162a23be3e3ccb51aeddf35badf7f1935c24900c83b505e8373b547193f22"
+            );
+            let layers = current["word_layers"].as_array().unwrap();
+            assert_eq!(layers.len(), 51);
+            assert_eq!(
+                layers
+                    .iter()
+                    .map(|layer| layer["next_words"].as_array().map_or(0, Vec::len))
+                    .sum::<usize>(),
+                845
+            );
+            assert_eq!(
+                layers
+                    .iter()
+                    .map(|layer| layer["sentences"].as_array().map_or(0, Vec::len))
+                    .sum::<usize>(),
+                1654
+            );
+            // Count canonical index forms, including sentence tokens; the raw
+            // words-array occurrence count is not the English index length.
+            let mut forms = BTreeSet::new();
+            let mut insert = |word: &str| {
+                forms.insert(word.replace('’', "'").to_ascii_lowercase());
+            };
+            for layer in layers {
+                for word in layer["words"].as_array().into_iter().flatten() {
+                    insert(word.as_str().unwrap());
+                }
+                for row in layer["next_words"].as_array().into_iter().flatten() {
+                    for word in row[1].as_array().unwrap() {
+                        insert(word.as_str().unwrap());
+                    }
+                }
+                for sentence in layer["sentences"].as_array().into_iter().flatten() {
+                    for word in sentence
+                        .as_str()
+                        .unwrap()
+                        .split(|ch: char| !(ch.is_ascii_alphabetic() || matches!(ch, '\'' | '’')))
+                        .filter(|word| !word.is_empty())
+                    {
+                        insert(word);
+                    }
+                }
+            }
+            assert_eq!(forms.len(), 6167);
+            let expected: Value = serde_json::from_str(r#"[{"id":"daily_stationery","words":["pen","pens","pencil","pencils","eraser","ruler","sticky","ink"],"next_words":[["inside my pencil case i keep",["pens","pencils"]],["drawing a straight line is easier with a",["ruler","pencil"]],["the ink in this pen has",["run","left"]],["the sticky note next to my keyboard is",["for","from"]],["the eraser next to my notebook is",["small","clean"]],["once i've finished writing i'll put the",["pen","ruler"]]],"sentences":["inside my pencil case i keep pens for taking notes.","inside my pencil case i keep pencils for drawing small maps.","drawing a straight line is easier with a ruler on the paper.","drawing a straight line is easier with a pencil than with this pen.","the ink in this pen has run out, so i'll use a pencil.","the ink in this pen has left a mark on my notebook.","the sticky note next to my keyboard is for the shopping list.","the sticky note next to my keyboard is from our meeting this morning.","the eraser next to my notebook is small enough to fit in my pencil case.","the eraser next to my notebook is clean, so it won't leave a mark on the paper.","once i've finished writing i'll put the pen back in the drawer.","once i've finished writing i'll put the ruler next to my notebook."]}]"#).unwrap();
+            assert_eq!(&layers[50..], expected.as_array().unwrap());
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_stationery\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "aead36583e5654d2bae6690ed3568beb9321b947d5d38b2df6e195acf4e7360d"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "86276e05eecb1c6c9c3966812ed9efd33c113e801c3d21fd8bc9678463c9f863"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3366);
+            let expected: Value = serde_json::from_str(r#"[{"reading":"qian'bi'you'dian'dun'le","text":"铅笔有点钝了","kind":"word"},{"reading":"zhe'ge'zi'xie'cuo'le","text":"这个字写错了","kind":"word"},{"reading":"bang'wo'hua'yi'tiao'xian","text":"帮我画一条线","kind":"word"},{"reading":"xian'na'zhang'cao'gao'zhi","text":"先拿张草稿纸","kind":"word"},{"reading":"bi'mao'ji'de'gai'hao","text":"笔帽记得盖好","kind":"word"},{"reading":"zhe'ji'zhang'zhi'ding'yi'xia","text":"这几张纸订一下","kind":"word"},{"reading":"qian'bi","text":"铅笔","kind":"word"},{"reading":"chi'zi","text":"尺子","kind":"word"},{"reading":"jiao'dai","text":"胶带","kind":"word"},{"reading":"bian'qian","text":"便签","kind":"word"},{"reading":"cao'gao'zhi","text":"草稿纸","kind":"word"},{"reading":"yuan'zhu'bi","text":"圆珠笔","kind":"word"}]"#).unwrap();
+            assert_eq!(
+                &current["readings"].as_array().unwrap()[3354..],
+                expected.as_array().unwrap()
+            );
+            let contexts = current["continuations"].as_array().unwrap();
+            assert_eq!(contexts.len(), 839);
+            assert_eq!(
+                contexts
+                    .iter()
+                    .map(|row| row[1].as_array().unwrap().len())
+                    .sum::<usize>(),
+                1676
+            );
+            let expected: Value = serde_json::from_str(r#"[["铅笔有点钝了",["铅笔有点钝了，我先削一下再写。","铅笔有点钝了，换一支尖一点的吧。"]],["这个字写错了",["这个字写错了，我先擦掉再重写。","这个字写错了，在旁边改一下就好。"]],["帮我画一条线",["帮我画一条线，我想把这两段分开。","帮我画一条线，用尺子画会整齐一点。"]],["先拿张草稿纸",["先拿张草稿纸，我想算一下这道题。","先拿张草稿纸，这张先别放进文件夹。"]],["笔帽记得盖好",["笔帽记得盖好，我先收一下桌面。","笔帽记得盖好，用完就收回笔袋吧。"]],["这几张纸订一下",["这几张纸订一下，我想把它们放在一起。","这几张纸订一下，订好后放进文件夹吧。"]]]"#).unwrap();
+            assert_eq!(&contexts[833..], expected.as_array().unwrap());
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"qian'bi'you'dian'dun'le\", \"text\": \"铅笔有点钝了\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(
+                &mut previous,
+                ",\n    [\n      \"铅笔有点钝了\",",
+                "\n  ]\n}",
+            );
+            "d326f03db824f8261be30db48613d2427157da39375ce968ea3e5e6559bb08f6"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "98aaa74789eac7f5af52ea3fda659a2c2d59489c61f39ce295572fd6bbc629b8"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 605);
+            let expected: Value = serde_json::from_str(r#"[{"reading":"ふせん","text":"付箋","kind":"word"},{"reading":"じょうぎ","text":"定規","kind":"word"},{"reading":"ふでばこ","text":"筆箱","kind":"word"},{"reading":"ほちきす","text":"ホチキス","kind":"word"}]"#).unwrap();
+            assert_eq!(
+                &current["readings"].as_array().unwrap()[601..],
+                expected.as_array().unwrap()
+            );
+            let contexts = current["continuations"].as_array().unwrap();
+            assert_eq!(contexts.len(), 327);
+            assert_eq!(
+                contexts
+                    .iter()
+                    .map(|row| row[1].as_array().unwrap().len())
+                    .sum::<usize>(),
+                653
+            );
+            let expected: Value = serde_json::from_str(r#"[["鉛筆",["鉛筆を一本貸してもらえますか。","鉛筆で下書きをしてから、ペンで書きます。"]],["消しゴム",["消しゴムでこの線を消してもいいですか。","消しゴムのかすを集めて捨てます。"]],["付箋",["付箋に書いて、机の端に貼っておきます。","付箋の色を変えて、目印にします。"]],["定規",["定規でまっすぐな線を引きます。","定規を使ったら、筆箱に戻します。"]],["筆箱",["筆箱に鉛筆と消しゴムを入れます。","筆箱を開けて、必要なものを取り出します。"]],["ホチキス",["ホチキスでこの紙を留めてもいいですか。","ホチキスの針がなくなったので、補充します。"]]]"#).unwrap();
+            assert_eq!(&contexts[321..], expected.as_array().unwrap());
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"ふせん\", \"text\": \"付箋\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, ",\n    [\n      \"鉛筆\",", "\n  ]\n}");
+            "b35c0c25d97566e64fc49de92f1fef77368409ce1714b686bc69386da9e81c54"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
+fn builtin_before_daily_room_comfort(language: &str, source: &str) -> String {
+    // Undo only this finite append into the actual dirty dressing baseline;
+    // every older projection and golden continues to receive its own epoch.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "aead36583e5654d2bae6690ed3568beb9321b947d5d38b2df6e195acf4e7360d"
+            );
+            let layers = current["word_layers"].as_array().unwrap();
+            assert_eq!(layers.len(), 50);
+            assert_eq!(
+                layers
+                    .iter()
+                    .map(|layer| layer["next_words"].as_array().map_or(0, Vec::len))
+                    .sum::<usize>(),
+                839
+            );
+            assert_eq!(
+                layers
+                    .iter()
+                    .map(|layer| layer["sentences"].as_array().map_or(0, Vec::len))
+                    .sum::<usize>(),
+                1642
+            );
+            let expected: Value = serde_json::from_str(r#"[{"id":"daily_room_comfort","words":["curtains","lamp","lamps","fan","fans","sunlight","lighting","stuffy"],"next_words":[["the curtains by my desk are",["open","closed"]],["the glare on my screen makes",["reading","work"]],["the air in this room feels",["fresh","stuffy"]],["this part of the room feels",["warm","cool"]],["without more light i can't",["read","see"]],["the lighting near my chair is",["bright","dim"]]],"sentences":["the curtains by my desk are open to let the sunlight in.","the curtains by my desk are closed to keep the room cool.","the glare on my screen makes reading difficult at this desk.","the glare on my screen makes work difficult in the afternoon.","the air in this room feels fresh with the window open.","the air in this room feels stuffy, so i'll open the window for a while.","this part of the room feels warm even with the fan on.","this part of the room feels cool enough to sit here for a while.","without more light i can't read the small print under this lamp.","without more light i can't see where i put my keys.","the lighting near my chair is bright enough for reading.","the lighting near my chair is dim, so i'll sit next to the window."]}]"#).unwrap();
+            assert_eq!(&layers[49..], expected.as_array().unwrap());
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_room_comfort\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "5aea3238d903d97f16a85d8faa8c4ec4d803dbf539e0cd660c1fd008527be900"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "d326f03db824f8261be30db48613d2427157da39375ce968ea3e5e6559bb08f6"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3354);
+            let expected: Value = serde_json::from_str(r#"[{"reading":"fang'jian'you'dian'men","text":"房间有点闷","kind":"word"},{"reading":"kai'chuang'tong'tong'feng","text":"开窗通通风","kind":"word"},{"reading":"ba'chuang'lian'la'kai","text":"把窗帘拉开","kind":"word"},{"reading":"deng'guang'you'dian'ci'yan","text":"灯光有点刺眼","kind":"word"},{"reading":"feng'shan'tiao'xiao'yi'dian","text":"风扇调小一点","kind":"word"},{"reading":"kong'tiao'wen'du'tiao'gao'yi'dian","text":"空调温度调高一点","kind":"word"},{"reading":"guang'xian","text":"光线","kind":"word"},{"reading":"tong'feng","text":"通风","kind":"word"},{"reading":"tai'deng","text":"台灯","kind":"word"},{"reading":"feng'shan","text":"风扇","kind":"word"},{"reading":"kong'tiao","text":"空调","kind":"word"},{"reading":"wen'du","text":"温度","kind":"word"}]"#).unwrap();
+            assert_eq!(
+                &current["readings"].as_array().unwrap()[3342..],
+                expected.as_array().unwrap()
+            );
+            let contexts = current["continuations"].as_array().unwrap();
+            assert_eq!(contexts.len(), 833);
+            assert_eq!(
+                contexts
+                    .iter()
+                    .map(|row| row[1].as_array().unwrap().len())
+                    .sum::<usize>(),
+                1664
+            );
+            let expected: Value = serde_json::from_str(r#"[["房间有点闷",["房间有点闷，我想开一会儿窗。","房间有点闷，我们换个位置坐吧。"]],["开窗通通风",["开窗通通风，我先把桌上的纸压好。","开窗通通风，等会儿再关上。"]],["把窗帘拉开",["把窗帘拉开，我想让房间亮一点。","把窗帘拉开，看看外面的天气。"]],["灯光有点刺眼",["灯光有点刺眼，我想换个位置坐。","灯光有点刺眼，能不能调暗一点？"]],["风扇调小一点",["风扇调小一点，我这边风有点大。","风扇调小一点，别对着桌上的纸吹。"]],["空调温度调高一点",["空调温度调高一点，我觉得有点冷。","空调温度调高一点，先这样试一会儿吧。"]]]"#).unwrap();
+            assert_eq!(&contexts[827..], expected.as_array().unwrap());
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"fang'jian'you'dian'men\", \"text\": \"房间有点闷\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, ",\n    [\n      \"房间有点闷\",", "\n  ]\n}");
+            "93c98ed1543cde1fe141c2c7c53e712ff464398672b892a77913a6beed74c369"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "b35c0c25d97566e64fc49de92f1fef77368409ce1714b686bc69386da9e81c54"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 601);
+            let expected: Value = serde_json::from_str(r#"[{"reading":"しょうめい","text":"照明","kind":"word"},{"reading":"かーてん","text":"カーテン","kind":"word"},{"reading":"かぜとおし","text":"風通し","kind":"word"},{"reading":"しつおん","text":"室温","kind":"word"},{"reading":"えあこん","text":"エアコン","kind":"word"}]"#).unwrap();
+            assert_eq!(
+                &current["readings"].as_array().unwrap()[596..],
+                expected.as_array().unwrap()
+            );
+            let contexts = current["continuations"].as_array().unwrap();
+            assert_eq!(contexts.len(), 321);
+            assert_eq!(
+                contexts
+                    .iter()
+                    .map(|row| row[1].as_array().unwrap().len())
+                    .sum::<usize>(),
+                641
+            );
+            let expected: Value = serde_json::from_str(r#"[["照明",["照明を少し暗くしてもいいですか。","照明をつけると、手元がよく見えます。"]],["カーテン",["カーテンを開けると、部屋が明るくなります。","カーテンを閉めてから着替えます。"]],["風通し",["風通しをよくするために、窓を少し開けます。","風通しがよくて、気持ちがいいですね。"]],["室温",["室温を確かめてから、エアコンを調節します。","室温がちょうどよくて、過ごしやすいです。"]],["エアコン",["エアコンの風が直接当たらない席に移ります。","エアコンを少し弱くしてもいいですか。"]],["換気扇",["換気扇を回して、こもった空気を外に出します。","換気扇を止めてから部屋を出ます。"]]]"#).unwrap();
+            assert_eq!(&contexts[315..], expected.as_array().unwrap());
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"しょうめい\", \"text\": \"照明\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, ",\n    [\n      \"照明\",", "\n  ]\n}");
+            "5152ebc14bec074c52a9428617cca4b2b29966a0c7943b05f4f49a8d1cd1f4bf"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
+fn builtin_before_daily_dressing(language: &str, source: &str) -> String {
+    // Validate this finite append before returning the exact 6edfa3e resource
+    // bytes to the unchanged hygiene and older raw-byte projection chain.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            let layers = current["word_layers"].as_array().unwrap();
+            assert_eq!(layers.len(), 49);
+            assert_eq!(
+                layers
+                    .iter()
+                    .map(|layer| layer["next_words"].as_array().map_or(0, Vec::len))
+                    .sum::<usize>(),
+                833
+            );
+            assert_eq!(
+                layers
+                    .iter()
+                    .map(|layer| layer["sentences"].as_array().map_or(0, Vec::len))
+                    .sum::<usize>(),
+                1630
+            );
+            let expected: Value = serde_json::from_str(r#"[{"id":"daily_dressing","words":[],"next_words":[["my shirt feels",["tight","loose"]],["the sleeves on this shirt are",["long","short"]],["the zipper on my jacket is",["stuck","open"]],["before leaving i'll adjust my",["belt","scarf"]],["my glasses are inside the",["case","bag"]],["i'll change into a",["shirt","sweater"]]],"sentences":["my shirt feels tight when i sit down.","my shirt feels loose, so i'll try a smaller one.","the sleeves on this shirt are long, so i'll fold them back.","the sleeves on this shirt are short, so i'll wear a jacket over it.","the zipper on my jacket is stuck near the bottom.","the zipper on my jacket is open, so i'll close it before we leave.","before leaving i'll adjust my belt so it fits better.","before leaving i'll adjust my scarf to keep it in place.","my glasses are inside the case on the shelf.","my glasses are inside the bag next to my notebook.","i'll change into a shirt before we go out.","i'll change into a sweater because it's cold outside."]}]"#).unwrap();
+            assert_eq!(&layers[48..], expected.as_array().unwrap());
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_dressing\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "a9d60a7fa10d505c28485555e580c9d6996b6007ea8db3aa71d020d645265ed4"
+        }
+        "zh-Hans" => {
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3342);
+            let expected: Value = serde_json::from_str(r#"[{"reading":"la'lian'ka'zhu'le","text":"拉链卡住了","kind":"word"},{"reading":"niu'kou'diao'le","text":"纽扣掉了","kind":"word"},{"reading":"xiu'zi'you'dian'duan","text":"袖子有点短","kind":"word"},{"reading":"xie'dai'you'song'le","text":"鞋带又松了","kind":"word"},{"reading":"ku'yao'you'dian'jin","text":"裤腰有点紧","kind":"word"},{"reading":"ling'kou'you'dian'da","text":"领口有点大","kind":"word"},{"reading":"ku'yao","text":"裤腰","kind":"word"},{"reading":"ling'kou","text":"领口","kind":"word"},{"reading":"yao'dai","text":"腰带","kind":"word"},{"reading":"song'jin'dai","text":"松紧带","kind":"word"},{"reading":"yi'jiao","text":"衣角","kind":"word"},{"reading":"xiu'chang","text":"袖长","kind":"word"}]"#).unwrap();
+            assert_eq!(
+                &current["readings"].as_array().unwrap()[3330..],
+                expected.as_array().unwrap()
+            );
+            let contexts = current["continuations"].as_array().unwrap();
+            assert_eq!(contexts.len(), 827);
+            assert_eq!(
+                contexts
+                    .iter()
+                    .map(|row| row[1].as_array().unwrap().len())
+                    .sum::<usize>(),
+                1652
+            );
+            let expected: Value = serde_json::from_str(r#"[["拉链卡住了",["拉链卡住了，我先看看有没有夹到衣角。","拉链卡住了，先别用力拉。"]],["纽扣掉了",["纽扣掉了，我先把它收好。","纽扣掉了，这件衣服先放一边。"]],["袖子有点短",["袖子有点短，我再换一件试试。","袖子有点短，抬手的时候不太方便。"]],["鞋带又松了",["鞋带又松了，我先重新系一下。","鞋带又松了，等我一下再走。"]],["裤腰有点紧",["裤腰有点紧，我想换一条试试。","裤腰有点紧，坐下来不太舒服。"]],["领口有点大",["领口有点大，我换一件比较一下。","领口有点大，这件先放回去吧。"]]]"#).unwrap();
+            assert_eq!(&contexts[821..], expected.as_array().unwrap());
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"la'lian'ka'zhu'le\", \"text\": \"拉链卡住了\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, ",\n    [\n      \"拉链卡住了\",", "\n  ]\n}");
+            "bf58670c119b6fac15095a2fc07623d87069e67d6f26e7bb3a84ef3cb0c06bab"
+        }
+        "ja" => {
+            assert_eq!(current["readings"].as_array().unwrap().len(), 596);
+            let expected: Value = serde_json::from_str(r#"[{"reading":"ふぁすなー","text":"ファスナー","kind":"word"},{"reading":"ぼたん","text":"ボタン","kind":"word"},{"reading":"くつひも","text":"靴ひも","kind":"word"},{"reading":"きつい","text":"きつい","kind":"word"}]"#).unwrap();
+            assert_eq!(
+                &current["readings"].as_array().unwrap()[592..],
+                expected.as_array().unwrap()
+            );
+            let contexts = current["continuations"].as_array().unwrap();
+            assert_eq!(contexts.len(), 315);
+            assert_eq!(
+                contexts
+                    .iter()
+                    .map(|row| row[1].as_array().unwrap().len())
+                    .sum::<usize>(),
+                629
+            );
+            let expected: Value = serde_json::from_str(r#"[["ファスナー",["ファスナーを最後まで閉めます。","ファスナーが引っかかったので、ゆっくり動かします。"]],["ボタン",["ボタンを留めてから出かけます。","ボタンが一つ取れてしまいました。"]],["袖",["袖を少しまくってから洗い物をします。","袖が長いので、少し折り返します。"]],["靴ひも",["靴ひもを結び直してから歩きます。","靴ひもがほどけたので、少し待ってください。"]],["ポケット",["ポケットに鍵を入れておきます。","ポケットの中を確認してから洗濯します。"]],["きつい",["きつい服は動きにくいです。","きついので、一つ大きいサイズを試します。"]]]"#).unwrap();
+            assert_eq!(&contexts[309..], expected.as_array().unwrap());
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"ふぁすなー\", \"text\": \"ファスナー\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, ",\n    [\n      \"ファスナー\",", "\n  ]\n}");
+            "6ce3c061e37c5f0d34fafd90c28639599cf8e2e474492eeb83107b16e6167f28"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
 fn builtin_before_daily_hygiene(language: &str, source: &str) -> String {
     // Invert only the exact frozen hygiene append. All earlier raw-byte
     // projections and independent hashes continue receiving their own epoch.
@@ -1550,7 +1996,12 @@ fn japanese_internet_preserves_all_eighteen_source_bytes_and_catalog_positions()
         );
     }
     for (language, source, expected) in BUILTIN {
-        let before_hygiene = builtin_before_daily_hygiene(language, source);
+        let before_plants = builtin_before_daily_plants(language, source);
+        let before_reading = builtin_before_daily_reading(language, &before_plants);
+        let before_stationery = builtin_before_daily_stationery(language, &before_reading);
+        let before_room = builtin_before_daily_room_comfort(language, &before_stationery);
+        let before_dressing = builtin_before_daily_dressing(language, &before_room);
+        let before_hygiene = builtin_before_daily_hygiene(language, &before_dressing);
         let before_restock = builtin_before_daily_restock(language, &before_hygiene);
         let before_storage = builtin_before_daily_storage(language, &before_restock);
         let before_call = builtin_before_daily_call(language, &before_storage);

@@ -1,5 +1,8 @@
 //! Actual dirty-restock before-index replay: all metadata, score bits and order.
 //! Public synthetic drafts only; no native keys, user store or model requests.
+#[path = "support/daily_reading_replay.rs"]
+mod daily_reading_replay;
+
 fn corpus(language: &str) -> Vec<String> {
     let phrases: &[&str] = match language {
         "en" => &[
@@ -50,14 +53,73 @@ fn corpus(language: &str) -> Vec<String> {
     seeds
 }
 
-fn fingerprint(ime: &mut XRTabletImeEngine, seeds: &[String]) -> u64 {
+// Room-comfort data fills one formerly unused twelfth backfill slot.
+// Assert every field before removing that one new Word for the historical
+// optimization replay. No existing row, score, corpus or golden is rewritten;
+// the nine-pack pool was already full and remains byte-for-byte unchanged.
+fn before_daily_room_comfort(
+    language: &str,
+    seed: &str,
+    current: &[Candidate],
+    with_packs: bool,
+) -> Vec<Candidate> {
+    if language != "ja" || seed != "nihongo wo benkyou shit" || with_packs {
+        return current.to_vec();
+    }
+    let expected = [
+        ("日本語を勉強しt", "unknown", 1120403456),
+        ("にほんごをべんきょうしt", "unknown", 1119354880),
+        ("日本語を勉強失礼します", "word", 1119158272),
+        ("日本語を勉強質問", "word", 1119092736),
+        ("日本語を勉強したいです。", "sentence", 1117323264),
+        ("日本語を勉強しています。", "sentence", 1117257728),
+        ("ニホンゴヲベンキョウシt", "unknown", 1119092736),
+        ("日本語を勉強失礼しました", "word", 1119027200),
+        ("日本語を勉強試着", "word", 1118961664),
+        ("nihongo wo benkyou shit", "literal", 1113325568),
+        ("日本語を勉強湿度", "word", 1113194496),
+        ("日本語を勉強室温", "word", 1113063424),
+    ];
+    assert_eq!(
+        current
+            .iter()
+            .map(|c| (
+                c.text.as_str(),
+                c.label.as_str(),
+                c.kind.id(),
+                c.source.id(),
+                c.score.to_bits(),
+            ))
+            .collect::<Vec<_>>(),
+        expected
+            .iter()
+            .map(|&(text, kind, bits)| (text, text, kind, "local", bits))
+            .collect::<Vec<_>>(),
+        "the only accepted daily_room_comfort delta must match in full"
+    );
+    current[..11].to_vec()
+}
+
+fn fingerprint(
+    language: &str,
+    ime: &mut XRTabletImeEngine,
+    seeds: &[String],
+    with_packs: bool,
+) -> u64 {
     let mut hash = 0xcbf29ce484222325_u64;
     for seed in seeds {
         ime.seed(seed);
         for byte in seed.bytes().chain([0]) {
             hash = (hash ^ u64::from(byte)).wrapping_mul(0x100000001b3);
         }
-        for candidate in ime.candidates() {
+        let before_reading = daily_reading_replay::before_daily_reading(
+            language,
+            seed,
+            ime.candidates(),
+            with_packs,
+        );
+        let before_room = before_daily_room_comfort(language, seed, &before_reading, with_packs);
+        for candidate in &before_room {
             for byte in candidate
                 .text
                 .bytes()
@@ -78,7 +140,7 @@ fn fingerprint(ime: &mut XRTabletImeEngine, seeds: &[String]) -> u64 {
 }
 use std::{collections::HashSet, fs, path::PathBuf, process::Command};
 use suzaku_map::{
-    ime::{EngineConfig, XRTabletImeEngine},
+    ime::{Candidate, EngineConfig, XRTabletImeEngine},
     lexicon::packs::{self, PackStore},
 };
 
@@ -91,7 +153,7 @@ fn engine(language: &str) -> XRTabletImeEngine {
     ime
 }
 
-fn replay(language: &str, count: usize, expected: u64) {
+fn replay(language: &str, count: usize, expected: u64, with_packs: bool) {
     let seeds = corpus(language);
     assert_eq!(seeds.len(), count);
     let mut ime = engine(language);
@@ -110,7 +172,7 @@ fn replay(language: &str, count: usize, expected: u64) {
         );
     }
     assert_eq!(
-        fingerprint(&mut ime, &seeds),
+        fingerprint(language, &mut ime, &seeds, with_packs),
         expected,
         "{language} complete replay changed"
     );
@@ -118,15 +180,15 @@ fn replay(language: &str, count: usize, expected: u64) {
 
 #[test]
 fn catalog_index_english_preserves_130_actual_before_vectors() {
-    replay("en", 130, 0xc9b9b260b8fc9d84);
+    replay("en", 130, 0xc9b9b260b8fc9d84, false);
 }
 #[test]
 fn catalog_index_chinese_preserves_107_actual_before_vectors() {
-    replay("zh-Hans", 107, 0xd58c7555c30542b0);
+    replay("zh-Hans", 107, 0xd58c7555c30542b0, false);
 }
 #[test]
 fn catalog_index_japanese_preserves_91_actual_before_vectors() {
-    replay("ja", 91, 0x2a50212ca577d9e9);
+    replay("ja", 91, 0x2a50212ca577d9e9, false);
 }
 
 struct Fixture(PathBuf);
@@ -196,5 +258,5 @@ fn catalog_index_japanese_with_nine_packs_preserves_91_actual_before_vectors() {
     for id in ids {
         assert!(report.loaded.iter().any(|loaded| loaded == id));
     }
-    replay("ja", 91, 0x737eeb6ed7b4da16);
+    replay("ja", 91, 0x737eeb6ed7b4da16, true);
 }

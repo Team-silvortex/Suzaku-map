@@ -12468,6 +12468,168 @@
         "please check if we need toothpaste before you go out.",
         "please check if we need conditioner before buying more."
       ]
+    },
+    {
+      "id": "daily_dressing",
+      "words": [],
+      "next_words": [
+        ["my shirt feels",["tight","loose"]],
+        ["the sleeves on this shirt are",["long","short"]],
+        ["the zipper on my jacket is",["stuck","open"]],
+        ["before leaving i'll adjust my",["belt","scarf"]],
+        ["my glasses are inside the",["case","bag"]],
+        ["i'll change into a",["shirt","sweater"]]
+      ],
+      "sentences": [
+        "my shirt feels tight when i sit down.",
+        "my shirt feels loose, so i'll try a smaller one.",
+        "the sleeves on this shirt are long, so i'll fold them back.",
+        "the sleeves on this shirt are short, so i'll wear a jacket over it.",
+        "the zipper on my jacket is stuck near the bottom.",
+        "the zipper on my jacket is open, so i'll close it before we leave.",
+        "before leaving i'll adjust my belt so it fits better.",
+        "before leaving i'll adjust my scarf to keep it in place.",
+        "my glasses are inside the case on the shelf.",
+        "my glasses are inside the bag next to my notebook.",
+        "i'll change into a shirt before we go out.",
+        "i'll change into a sweater because it's cold outside."
+      ]
+    },
+    {
+      "id": "daily_room_comfort",
+      "words": [
+        "curtains",
+        "lamp",
+        "lamps",
+        "fan",
+        "fans",
+        "sunlight",
+        "lighting",
+        "stuffy"
+      ],
+      "next_words": [
+        ["the curtains by my desk are",["open","closed"]],
+        ["the glare on my screen makes",["reading","work"]],
+        ["the air in this room feels",["fresh","stuffy"]],
+        ["this part of the room feels",["warm","cool"]],
+        ["without more light i can't",["read","see"]],
+        ["the lighting near my chair is",["bright","dim"]]
+      ],
+      "sentences": [
+        "the curtains by my desk are open to let the sunlight in.",
+        "the curtains by my desk are closed to keep the room cool.",
+        "the glare on my screen makes reading difficult at this desk.",
+        "the glare on my screen makes work difficult in the afternoon.",
+        "the air in this room feels fresh with the window open.",
+        "the air in this room feels stuffy, so i'll open the window for a while.",
+        "this part of the room feels warm even with the fan on.",
+        "this part of the room feels cool enough to sit here for a while.",
+        "without more light i can't read the small print under this lamp.",
+        "without more light i can't see where i put my keys.",
+        "the lighting near my chair is bright enough for reading.",
+        "the lighting near my chair is dim, so i'll sit next to the window."
+      ]
+    },
+    {
+      "id": "daily_stationery",
+      "words": [
+        "pen",
+        "pens",
+        "pencil",
+        "pencils",
+        "eraser",
+        "ruler",
+        "sticky",
+        "ink"
+      ],
+      "next_words": [
+        ["inside my pencil case i keep",["pens","pencils"]],
+        ["drawing a straight line is easier with a",["ruler","pencil"]],
+        ["the ink in this pen has",["run","left"]],
+        ["the sticky note next to my keyboard is",["for","from"]],
+        ["the eraser next to my notebook is",["small","clean"]],
+        ["once i've finished writing i'll put the",["pen","ruler"]]
+      ],
+      "sentences": [
+        "inside my pencil case i keep pens for taking notes.",
+        "inside my pencil case i keep pencils for drawing small maps.",
+        "drawing a straight line is easier with a ruler on the paper.",
+        "drawing a straight line is easier with a pencil than with this pen.",
+        "the ink in this pen has run out, so i'll use a pencil.",
+        "the ink in this pen has left a mark on my notebook.",
+        "the sticky note next to my keyboard is for the shopping list.",
+        "the sticky note next to my keyboard is from our meeting this morning.",
+        "the eraser next to my notebook is small enough to fit in my pencil case.",
+        "the eraser next to my notebook is clean, so it won't leave a mark on the paper.",
+        "once i've finished writing i'll put the pen back in the drawer.",
+        "once i've finished writing i'll put the ruler next to my notebook."
+      ]
+    },
+    {
+      "id": "daily_reading",
+      "words": [
+        "bookmark",
+        "pages",
+        "paperback",
+        "hardcover"
+      ],
+      "next_words": [
+        ["this bookmark will help me find the",["page","chapter"]],
+        ["these pages are hard to",["read","turn"]],
+        ["before closing this book i'll finish the",["page","chapter"]],
+        ["the paperback on my desk is",["open","closed"]],
+        ["the hardcover on this shelf is",["mine","yours"]],
+        ["after reading these pages i'll",["put","take"]]
+      ],
+      "sentences": [
+        "this bookmark will help me find the page where i stopped.",
+        "this bookmark will help me find the chapter i want to read again.",
+        "these pages are hard to read in this light.",
+        "these pages are hard to turn with one hand.",
+        "before closing this book i'll finish the page i'm reading.",
+        "before closing this book i'll finish the chapter and leave a bookmark.",
+        "the paperback on my desk is open at the page i need.",
+        "the paperback on my desk is closed with a bookmark inside.",
+        "the hardcover on this shelf is mine and you can borrow it.",
+        "the hardcover on this shelf is yours and i'll bring it back tomorrow.",
+        "after reading these pages i'll put the book back on the shelf.",
+        "after reading these pages i'll take a break before the next chapter."
+      ]
+    },
+    {
+      "id": "daily_plants",
+      "words": [
+        "plant",
+        "soil",
+        "leaf",
+        "flower",
+        "flowers",
+        "pots",
+        "watering",
+        "watered"
+      ],
+      "next_words": [
+        ["the soil in this pot feels",["dry","wet"]],
+        ["this plant on the balcony has",["new","small"]],
+        ["before watering these plants i'll",["check","move"]],
+        ["the flower in this pot is",["white","yellow"]],
+        ["the leaf on this plant looks",["green","dry"]],
+        ["while you were out i watered the",["plants","flowers"]]
+      ],
+      "sentences": [
+        "the soil in this pot feels dry after the warm afternoon.",
+        "the soil in this pot feels wet after watering this morning.",
+        "this plant on the balcony has new leaves near the top.",
+        "this plant on the balcony has small flowers by the window.",
+        "before watering these plants i'll check the soil in each pot.",
+        "before watering these plants i'll move my notebook away from the water.",
+        "the flower in this pot is white with a yellow center.",
+        "the flower in this pot is yellow and easy to see from the door.",
+        "the leaf on this plant looks green in the sunlight.",
+        "the leaf on this plant looks dry along the edge.",
+        "while you were out i watered the plants on the balcony.",
+        "while you were out i watered the flowers in the small pots."
+      ]
     }
   ],
   "phrase_endings": [

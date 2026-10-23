@@ -2,10 +2,10 @@
   "schema_version": 1,
   "snapshot": {
     "date": "2026-10-20",
-    "head": "4108bc0deb8d08d9c421cfbd9c47cd8ed45e3883",
+    "head": "6edfa3e65b7542644e98543cfd3177f0348ff55b",
     "dirty": true,
-    "source_sha256": "35b22b29c30d2821be4f5aeed0df4f985bdc7f7b8c5f927f99d57bd5c573d965",
-    "note": "0.9.3/build43源码候选收口，纳入route/call/storage/restock/hygiene五批，相对4108bc0新增8EN forms、122CJK读音、188三语作者句；三语总量6151/827/1618(48层)、3330/821/1640、592/309/617。25包SDK/模型协议/成熟度旧评分保持。新增2项模型+RAM偏好实际管线回归；最初提前限12诊断非实际Engine路径，原失败保留，不改production来满足错误oracle。首次versioned全量发现新hygiene whether泛语境挤出既有privatepack首页，红日志保留；只改新作者if同义语境和两新fixture精确常量，六语境12分支/旧edge断言/生产配额原样，13项修复回归过；独立full后发现catalog新增hygiene精确tuple遗漏3处同步，第二失败同样保留；四文件共13处literal改词精确逆回，历史hash/oracle不变，再从头完整验证。最终独立完整all-feature2456过0失败32原有ignore，240唯一顶层结果组含Doc-tests全零筛除，含fulln7/releasetail8及两套四golden；另私有UI19/19、严格全target全featureClippy49.76秒、83Python/250源码链接/格式/五版本一致性/严格保持审计过。560releasebefore内543其它字节同；17预期差异、229Rusttests226字节同加3处新hygiene证明文字可逆；126旧evidence/cells/成熟度/25包SDK保持。第一full边界失败和第二full 2455过1失败目录tuple不同于最终全量，日志都保留，不组合重试充零失败。远端新提交CI与accepted四资产仍待独立完成，不计旧1872 scoped、focused13、父调child或0.9.2结果为新增通过；用户授权新提交全部CI及accepted四资产验收后发布LinuxAlpha prerelease非latest，个人安装不改。以下为先前研发阶段的原始摘要：当前未提交E-daily-hygiene：追加8EN forms、8ZH/6JA Word读音、36三语作者句，EN6151/827/1618(48层)、ZH3330/821/1640、JA592/309/617。旧47层/6143rank/flags/25packsSDK原样；数据模型宿主解耦。先冻20词库/pack测试，before EN1/5 ZH2/4 JA2/4和pack0/2，after19/1保留senganryo真实index8失败。新3集成0/3、新3mix unit1/2之后独立窄修：唯一offset0整Word末长元音补全、strict同根、真实旧转换和首Word、双distinct作者及actual LocalWord/2LocalSentence，>=6复用rawreserve；旧root/progress helpers/分数/Word序/模型偏好竞争/6/12/4/256/16包保持。新26原样过，完整同范围重跑1872过0失败5旧ignore/188唯一组，605lib+187集成1267全部无筛除；含fulln7/releasetail8/oldcleaning10/旧两套四golden。before源b099a2e0556a54415894f1aa3583d5bd0accd50b11bb074c6beb698f98025319含555文件224旧Rusttests，非HEAD安装；3JSONraw、36计数与历史epoch维护、2prod叶子/catalog投影可逆，507其它文件字节同。实际before与data-only419vectors全同，最终旧goldens另原样通过；不可称所有新短前缀池无变。仍0.9.2/42、未提交发布安装，不碰个人服务；无新性能/native/UI/实模声明。全部旧评分/证据/路由不改。 历史阶段原始记录保留在下方全部旧evidence对象，snapshot.note只摘要本轮。"
+    "source_sha256": "556f2503019c0da0fcf4940bc44b6fd0cb9685683c50750a9254e1ace14e1d48",
+    "note": "0.9.4/build44源码准备：收录6edfa3e后dressing/room/stationery/reading/plants五批，新增28ENforms/60ZH22JA Word读音/90语境180作者句，当前EN6179/857/1678(53层)、ZH3390/851/1700、JA614/339/677；有界日语nasal进度与default12末槽父词、单源和合并catalog层数修正，25包SDK/模型协议/默认预算保持。实际951文件升版前归档9002c03d…；五权威metadata八值精确同步，其余939文件、257Rustfixtures、原131E/cells/impl/评分/axes/完整旧note后缀保持。新版完整工具exit0：267组含Doc-tests/2585过0失败32原ignore0filter；原进程2026-10-23恢复确认退出，全roster及ignore身份同，SHA33ea888ce546a622936f0b548233280a578fe5e67bcfa8182c9b050f8b505725。独立隔离UI19/19、严格Clippy51.90秒工具exit0，83Python/250links/fmt/source/保真过，不将UI/child/旧2585或51.34秒加成新版结果，无实模/新时延/个人安装验收。用户授权准确新commit八CI与accepted四产物验收全部通过后发布LinuxAlpha prerelease非latest，远端仍待验，不先打tag/发布/安装，不碰个人服务配置。以下均保留原研发快照：当前未提交E-daily-plants，actual946文件reading脏基线ef8eb346e21755292bb2d1c34b4522ae673183d597bc65431872b1bfca944435；新增8builtinENforms/12ZH5JA Word读音/18语境36作者句，EN6179/857/1678(53层)、ZH3390/851/1700、JA614/339/677。初data-only完整2578过2失败/266组及首wide-repair53过1失败保留；旧mad仅精确扩充逆投影保旧hash，family+railま基础Word不可达由generic仅默认12的spare末槽父词保留修复，0..11/>12旧行为保持，不改旧family断言/早前rows/raw/槽metadata/配额。最终独立full-fixed工具exit0：267唯一组含Doc-tests/2585过0失败32原ignore0filter；新22集成+2cfg已含一次，不加focused54/child/失败轮。旧262test/status与32ignore身份同，strict全target/allfeatureClippy51.34秒/fmt/83Python/250links/source/53inverse887bytes6docs5freeze保真过；native-core静态9另列非原生输入。真7812db…库hash-match、同冻结probe重采419/419实际全cmp0，stale旧probe不计，419不代替两故障专项；最终42邻域同data-only，原before16/42同26变化仍披露。仅本新E/F16-F20五refs/EN2ZH2JA2mix1七索引，130旧E/成熟度/axes/limits/routes与完整旧note后缀不变。有限植物交流非科学指导/传感/控水，无UI/native/实模/时延/安装验收；仍0.9.3/43未commit/install，不在发布资产内。此前reading及更早历史摘要原文：当前未提交E-daily-reading，基于含stationery实际941文件脏快照3c9d8b5c69059d3affcc0739d82c15765bcdb9dac1c9a9fc6ca0f99c7e064be5；新增4ENforms/12ZH4JA Word读音/18语境36作者句，EN6171/851/1666(52层)、ZH3378/845/1688、JA609/333/665。有限阅读/书页/书签表达，非书籍检索/书签管理/阅读进度跟踪；旧英文首现rank/读音flags/作者数据顺序/25包SDK/模型协议/配额及runtime算法不变。四tests-first的真实before、新oracle复核和最终after/full/Clippy独立记DEVELOPMENT，不借stationery2542/49.91s或旧UI/native/实模/timing。仅新本证据、F16-F19四refs及EN2/ZH3/JA1测试索引，129旧evidence/成熟度/路由保持；仍0.9.3/43未commit/install、不在发布资产内。固定source独立完整full-regression工具exit0：262唯一顶层组含Doc-tests/2561过0失败32原有ignore0filter，新4targets19已含不加focused38/旧golden8/child，独立逐项旧258group/test/status与32ignoreidentity同。strict全target/allfeatureClippy-Dwarnings实际exit0/50.58秒，fmt工具0、83Python/250links/source-schema/postfull保真过；不借旧UI/native/实模/安装/timing。此前stationery及更早历史摘要原文：当前未提交E-daily-stationery，含room实际dirty936文件c3e3377fbb51df1a65ac0cb7db7c546c16049b50cc26e26684f4aee7c48cc1f9基线；新增8ENforms/12ZH4JA Word读音/18语境/36作者句，EN6167/845/1654(51层)、ZH3366/839/1676、JA605/327/653。旧6159rank/flags/作者顺序/25包SDK/模型协议及配额保持，纯数据不改runtime转换/混排。五新fixture真实before EN1过5缺/ZH2过4缺/JA2过4缺/compat4过/packs0过2缺；EN9cc…误认optional-onlybeside为builtin，留原spec/log后批准next to同义替换，faf1…重冻/before同1过5缺。首after23过1失败为新ENadoptoracle假定out后空格，真实作者out, so…；只修row2 following=', '、其它' '，保ou/out/完整comma作者/adoptcommitundo，2e6e976ca4fe83e8bd248851ded2c329cbaab050ba6cec980fddd724176d06a3重冻/再before同1过5缺，非prod故障，原失败与其它23原spec通过留存。修后英target对afterlib独立6过0ignore0filter/exit0，同spec before仍1过5缺exit101，不拼首23/1为24单命令全绿。实际固定raw419/419全tuple同(328+91)，58邻接仅31同/27扩充；zheji原这继续Word/两拼接句75.5/75及xianna原先闹钟Word/两拼接句79/78.5(首句原首页index5)因同take4被新整词分支替换，非作者源记录删改，不能称全部旧作者候选/首页项保留。固定final5targets后独立完整full-regression.log工具exit0：2542过0失败32旧ignore/258唯一顶层组含Doc-tests/0filter，24新已含一次，不加初23/1+英6/child或旧room2518；strict全target/allfeatureClippy-Dwarnings工具exit0/49.91秒、fmt工具exit0，当前120ef45f…source摘要/schema/83Python(29+11+25+18)/250links/diff已过，不预报24firstgreen，不借旧room2518/32/UI19/历史timing。仅新1stationery证据、F16-F19四refs、ENZHJA九test索引；128旧evidence/评分/运行路由不动。0.9.3/43不变，未commit/install、不在已发布0.9.3包内。此前room及更早完整历史摘要原文：当前未提交E-daily-room-comfort，实际dirty928文件dressing基线ab91737d6bc77c97b9457f9605b9c28bfbfd367fe3dab1094347fa60363943cd；新增8ENforms/12ZH5JA Word读音/18语境/36作者句，EN6159/839/1642(50层)、ZH3354/833/1664、JA601/321/641。五新fixture24项首after23过1失败kankise第二作者index8；广末拨音方案完整full2509过2失败32旧ignore/252组，保留旧transit第二页回归及merged误用单source64拒有效包的失败，非最终结果。广方案seirikepositive新fixture/顺序inverse撤回，日志和redgreen实验保留；最终stem须已有双distinct作者，守旧joushake/seirike12tuple/六槽策略，4新boundary，旧family仅limit6以77.5第二作者替Unknown，其余0..5/7..12tuple同。单source64/单pack8层2048units/lang4096/16installed不扩；运行aggregate64+16*8=192，directCatalog也计disabled/invalid16；新4packtests真实red1过3失败→4过。narrowfocused15targets93过0失败0ignore0filter，不与独立full/Clippy重复累计；最终独立完整full-narrow-regression.log工具exit0，2518过0失败32旧ignore/253唯一顶层组含Doc-tests/零筛除，38新(room24+nasal3+boundary4+layer4+cfg3)已含，不加focused93/redgreen/撤positive/child；旧两fail/fulln7/releasetail8/两4golden通过，strict全target/allfeature Clippy-Dwarnings49.21秒实际exit0无warning/error，fmt/diff/83Python(29+11+25+18)/250auditlinks/最终source摘要过。窄raw before418/419全字段同、dataonly419/419同，adj before21/38/dataonly38/38，17真实扩充；fangjian原take4使放键盘退场，三旧Word既有权重各-2，不说所有旧候选可达/分数不变。原6151rank/旧资源/25包SDK/模型协议/6-12-256候选窗/127旧evidence/评分/路由保持；50inverse/872其它bytes/6doc/8新freeze且928typesmodes同，83静态与250链接已过。仅本证据扩F16-F20/F57/F58/F67及实现索引；版本0.9.3/43不变，已发布0.9.3排除dirtydressing+room，不操作安装/个人服务，不借旧2480/2456/UI19/性能时间。以下完整保留此前dressing与发布准备历史摘要：当前未提交E-daily-dressing，位于准确6edfa3e之后；新增12ZH/4JA Word读音、18语境、36三语作者句、零EN词形；EN6151/833/1630(49层)、ZH3342/827/1652、JA596/315/629。旧48层/6151rank/读音flags/25packsSDK/模型协议/配额/成熟度/路由保持。新24已含在独立完整all-feature2480过0失败32原有ignore/245唯一顶层组/零筛除内，含fulln7/releasetail8/两套旧4golden；不加focused或capturedchild计数。首次full2479过1失败仅遗漏旧privatecompound总数3331→3343，原失败保留，仅该数值同步；20维护路径58literal精确逆回。早先专项23过1失败为root同文JA要求Word的错误oracle，仅按既有Literal原文规则纠正identity-spelling，不改production/限额；3语言+compat冻结原字节。419实际旧池全同，独立邻接24中21全同，三根新增仍保留旧选项，旧靴双句首页分各-0.5是旧indexweight。923baseline中893其它bytes/modes相同，3raw追加/catalog新inverse/20metadata/6docs以外保持；127evidence保留126旧，仅新4ref/9testindex。仍0.9.3/43，未提交安装，不替换已锁定验收SHA，无借旧2456/UI19或新native/UI/实模/性能/发布声明。严格全target/allfeature Clippy-Dwarnings46.05秒、83Python守卫/250源码审计链接/格式diff/源码digest/精确保真审计通过。此前源码准备摘要原文：0.9.3/build43源码候选收口，纳入route/call/storage/restock/hygiene五批，相对4108bc0新增8EN forms、122CJK读音、188三语作者句；三语总量6151/827/1618(48层)、3330/821/1640、592/309/617。25包SDK/模型协议/成熟度旧评分保持。新增2项模型+RAM偏好实际管线回归；最初提前限12诊断非实际Engine路径，原失败保留，不改production来满足错误oracle。首次versioned全量发现新hygiene whether泛语境挤出既有privatepack首页，红日志保留；只改新作者if同义语境和两新fixture精确常量，六语境12分支/旧edge断言/生产配额原样，13项修复回归过；独立full后发现catalog新增hygiene精确tuple遗漏3处同步，第二失败同样保留；四文件共13处literal改词精确逆回，历史hash/oracle不变，再从头完整验证。最终独立完整all-feature2456过0失败32原有ignore，240唯一顶层结果组含Doc-tests全零筛除，含fulln7/releasetail8及两套四golden；另私有UI19/19、严格全target全featureClippy49.76秒、83Python/250源码链接/格式/五版本一致性/严格保持审计过。560releasebefore内543其它字节同；17预期差异、229Rusttests226字节同加3处新hygiene证明文字可逆；126旧evidence/cells/成熟度/25包SDK保持。第一full边界失败和第二full 2455过1失败目录tuple不同于最终全量，日志都保留，不组合重试充零失败。远端新提交CI与accepted四资产仍待独立完成，不计旧1872 scoped、focused13、父调child或0.9.2结果为新增通过；用户授权新提交全部CI及accepted四资产验收后发布LinuxAlpha prerelease非latest，个人安装不改。以下为先前研发阶段的原始摘要：当前未提交E-daily-hygiene：追加8EN forms、8ZH/6JA Word读音、36三语作者句，EN6151/827/1618(48层)、ZH3330/821/1640、JA592/309/617。旧47层/6143rank/flags/25packsSDK原样；数据模型宿主解耦。先冻20词库/pack测试，before EN1/5 ZH2/4 JA2/4和pack0/2，after19/1保留senganryo真实index8失败。新3集成0/3、新3mix unit1/2之后独立窄修：唯一offset0整Word末长元音补全、strict同根、真实旧转换和首Word、双distinct作者及actual LocalWord/2LocalSentence，>=6复用rawreserve；旧root/progress helpers/分数/Word序/模型偏好竞争/6/12/4/256/16包保持。新26原样过，完整同范围重跑1872过0失败5旧ignore/188唯一组，605lib+187集成1267全部无筛除；含fulln7/releasetail8/oldcleaning10/旧两套四golden。before源b099a2e0556a54415894f1aa3583d5bd0accd50b11bb074c6beb698f98025319含555文件224旧Rusttests，非HEAD安装；3JSONraw、36计数与历史epoch维护、2prod叶子/catalog投影可逆，507其它文件字节同。实际before与data-only419vectors全同，最终旧goldens另原样通过；不可称所有新短前缀池无变。仍0.9.2/42、未提交发布安装，不碰个人服务；无新性能/native/UI/实模声明。全部旧评分/证据/路由不改。 历史阶段原始记录保留在下方全部旧evidence对象，snapshot.note只摘要本轮。"
   },
   "architectures": [
     {
@@ -241,6 +241,9 @@
         "src/ime/companion.rs"
       ],
       "tests": [
+        "tests/japanese_spare_parent_words.rs",
+        "tests/japanese_nasal_stem_boundaries.rs",
+        "tests/japanese_nasal_completion_slots.rs",
         "tests/japanese_vowel_completion_slots.rs",
         "tests/japanese_progress_sentence_slots.rs",
         "tests/input_edge_audit_budget.rs",
@@ -369,6 +372,19 @@
         "data/lexicons/en.json"
       ],
       "tests": [
+        "tests/daily_plants_english.rs",
+        "tests/daily_plants_packs.rs",
+        "tests/daily_reading_english.rs",
+        "tests/daily_reading_packs.rs",
+        "tests/daily_stationery_english.rs",
+        "tests/daily_stationery_compatibility.rs",
+        "tests/daily_stationery_packs.rs",
+        "tests/daily_room_comfort_english.rs",
+        "tests/daily_room_comfort_compatibility.rs",
+        "tests/daily_room_comfort_packs.rs",
+        "tests/daily_dressing_english.rs",
+        "tests/daily_dressing_compatibility.rs",
+        "tests/daily_dressing_packs.rs",
         "tests/daily_hygiene_english.rs",
         "tests/daily_hygiene_packs.rs",
         "tests/input_catalog_index_equivalence.rs",
@@ -430,6 +446,20 @@
         "data/lexicons/zh-Hans.json"
       ],
       "tests": [
+        "tests/daily_plants_chinese.rs",
+        "tests/daily_plants_packs.rs",
+        "tests/daily_reading_chinese.rs",
+        "tests/daily_reading_packs.rs",
+        "tests/support/daily_reading_replay.rs",
+        "tests/daily_stationery_chinese.rs",
+        "tests/daily_stationery_compatibility.rs",
+        "tests/daily_stationery_packs.rs",
+        "tests/daily_room_comfort_chinese.rs",
+        "tests/daily_room_comfort_compatibility.rs",
+        "tests/daily_room_comfort_packs.rs",
+        "tests/daily_dressing_chinese.rs",
+        "tests/daily_dressing_compatibility.rs",
+        "tests/daily_dressing_packs.rs",
         "tests/daily_hygiene_chinese.rs",
         "tests/daily_hygiene_packs.rs",
         "tests/input_catalog_index_equivalence.rs",
@@ -502,6 +532,20 @@
         "data/lexicons/ja.json"
       ],
       "tests": [
+        "tests/daily_plants_japanese.rs",
+        "tests/japanese_spare_parent_words.rs",
+        "tests/daily_reading_japanese.rs",
+        "tests/daily_stationery_japanese.rs",
+        "tests/daily_stationery_compatibility.rs",
+        "tests/daily_stationery_packs.rs",
+        "tests/japanese_nasal_stem_boundaries.rs",
+        "tests/daily_room_comfort_japanese.rs",
+        "tests/daily_room_comfort_compatibility.rs",
+        "tests/daily_room_comfort_packs.rs",
+        "tests/japanese_nasal_completion_slots.rs",
+        "tests/daily_dressing_japanese.rs",
+        "tests/daily_dressing_compatibility.rs",
+        "tests/daily_dressing_packs.rs",
         "tests/daily_hygiene_japanese.rs",
         "tests/daily_hygiene_packs.rs",
         "tests/japanese_vowel_completion_slots.rs",
@@ -585,6 +629,7 @@
         "data/lexicons/ja.json"
       ],
       "tests": [
+        "tests/offline_pack_layer_budgets.rs",
         "tests/lexicon_resources.rs",
         "tests/offline_vocabulary_quality.rs",
         "tests/fallback_vocabulary.rs",
@@ -605,6 +650,7 @@
         "src/bin/suzaku_tool/pack.rs"
       ],
       "tests": [
+        "tests/offline_pack_layer_budgets.rs",
         "tests/offline_pack_boundaries.rs",
         "tests/offline_packs.rs",
         "tests/offline_pack_inventory.rs",
@@ -1556,6 +1602,111 @@
     }
   ],
   "evidence": [
+    {
+      "id": "E-daily-plants",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_plants_english.rs",
+        "tests/daily_plants_chinese.rs",
+        "tests/daily_plants_japanese.rs",
+        "tests/daily_plants_packs.rs",
+        "tests/japanese_internet_catalog.rs",
+        "src/ime/candidate_mix.rs",
+        "src/languages/japanese.rs",
+        "tests/daily_messaging_compatibility.rs",
+        "tests/japanese_spare_parent_words.rs"
+      ],
+      "scope": "2026-10-20未提交阳台植物/植物相关日常交流有限fallback追加与受限日语spare父词保留修复；非科学种植指导/监测/自动控水/UI/原生/实模/性能/安装/发布验收",
+      "note": "实际含reading脏946文件基线ef8eb346e21755292bb2d1c34b4522ae673183d597bc65431872b1bfca944435，非HEAD或安装。新增8builtinENforms、12ZH5JA Word读音、18语境36作者句；总EN6179/857/1678(53层)、ZH3390/851/1700、JA614/339/677，旧浇水/阳台与JA植物不重复计。四原fixture真实before EN1/5、ZH2/4、JA2/4、private16包0/1且旧controls先过；16是包数非controls数。初data-only完整266组2578过2失败32原ignore0filter(first-full-data-only-failed.log)保留：旧mad新增窓辺Word/双句属数据扩充，严格10池逆3行/恢复2分数后原hash/renraku不变；实际family+rail两包ま的旧窓不可达是真缺陷，旧family断言原样。新parent3冻c866…实际oldbefore3/0、dataonly2/1；first-wide-limit-failed.log53过1失败为limit9误换窓口，冻结负例不改。最终仅limit==PAGE_SIZE*2默认12满池、本次spare-fill最后index>=6 LocalWord可换唯一2Kana同reading且written同为真prefix的父Word，仅text/label变，早前rows/primary/首页/raw及槽kind/source/score不变；0..11/>12沿旧，不是窓/ま特判或所有API cap12。最终独立full-fixed-regression工具exit0，267唯一组含Doc-tests/2585过0失败32旧ignore0filter；新22integration+2cfg已含一次，旧262逐test/status与32ignore身份同，不加focused54/单unit2/child/失败run。两旧failtarget、parent3、terminal7/release8/两4goldens均过；strict全target/allfeatureClippy工具0/51.34秒、fmt/83Python(29+11+25+18)/250links/source-schema/保真53inverse887bytes6docs5freeze过，native-core静态dispatch9另列不并83/不作原生输入验收。完整log SHA d14530143887a36268c6ac4a71fe8038e1467fbc5d9e8b9050ed24661580141c，详见DEVELOPMENT及full-results-report.json。正确focused结束后库copy-match7812db868b4fda678a0509f6ed777f20f426e95844775688998de6da2cd9ec30，postfull仍同；冻结同probe分别link实际before/final，fresh328/91流与原before全cmp0=419/419，stale f83/early输出不作最终证据。419不覆盖两故障，专项另验；family1/2各75仅ま12 offline/engine末槽恢复窓、前11同，plants0/9各67同data-only；大offline限额40/40旧行为同。最终邻域42全同data-only、对原before16/42同26变，JA ueki旧低尾Word退场/部分权重与页面变化如实披露，不泛称全部旧池恒定。旧资源flags/order/英文rank、25包SDK/模型协议/schema/配额保持；仅2runtime叶子受限修复。source摘要924b3682c5aded8321dbe3d27c4551b242771b1bdaff9b061c5c5aca1b91859f；本新E/F16-F20五refs及EN2ZH2JA2mix1七索引以外130旧E/成熟度/axes/limits/routes保持，仍0.9.3/43未commit/install、不在发布包内，非科学种植/控水/UI/原生/实模/性能验收。"
+    },
+    {
+      "id": "E-daily-reading",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_reading_english.rs",
+        "tests/daily_reading_chinese.rs",
+        "tests/daily_reading_japanese.rs",
+        "tests/daily_reading_packs.rs",
+        "tests/support/daily_reading_replay.rs",
+        "tests/japanese_internet_catalog.rs"
+      ],
+      "scope": "2026-10-20未提交阅读/书页/书签有限fallback纯数据追加；非书籍检索/状态管理/UI/原生/实模/性能/安装/发布验收",
+      "note": "实际dirty941文件stationery基线3c9d8b5c69059d3affcc0739d82c15765bcdb9dac1c9a9fc6ca0f99c7e064be5，非HEAD或安装。新增4builtin ENforms、12ZH4JA Word读音、18语境36作者句；EN6171/851/1666(52层)、ZH3378/845/1688、JA609/333/665。bookmark原en-internet包已有；日语复用既読/未読，中文原阅读/目录/页码/书签栏/借还图书不重复新增。四fixture真实before EN1过5缺/ZH2过4缺/JA2过4缺/packs0过1缺且16包目录中的旧controls先过；新pack编译preflight及JA hondan负例修正保留原证据，最终规格重新实跑before，详细只记DEVELOPMENT。实际focused6targets38过0失败含新4targets19项一次；raw412/419全tuple同，7个ZH这本短根因新整词和双句改变，旧golden dataafter6过2失败保留，test-side七完整池断言与精确历史逆投影已冻结cca9…(before45/after56五字段rows)，旧两target独立8/8工具exit0，不改旧golden/corpus/projectionchain/runtime/data/配额，不将重试计入focused/full。邻接34池24同10扩充，5英文旧leisure/notebook池全同；不泛称旧Word/生成句/首页选择均留或分数恒定，原作者资源未删。固定source独立完整full-regression.log工具exit0，262唯一顶层组含Doc-tests/2561过0失败32原ignore0filter，新4targets19已含不加focused38/旧golden8/child；独立old258group/test/status roster和32ignoreidentity全同stationery。strict全target/allfeatureClippy-Dwarnings实际exit0/50.58秒，fmt工具0、83Python/250links/source-schema/postfull保真过；完整证据见DEVELOPMENT，不借stationery2542/49.91秒或旧UI/native/实模/安装/timing。旧资源顺序/flags/英文rank、25包SDK/模型协议/schema/配额/转换排序算法不改；中文测有限full/partial/tone-tolerant/原文/采用续写和模型失败整个pool，非任意前缀或tone-aware排名。仅本新证据、F16-F19四refs及EN2/ZH3/JA1六索引，含共享helper共五unique文件/四targets；129旧证据/成熟度/运行路由保持，仍0.9.3/43未commit/install、不在发布包内。"
+    },
+    {
+      "id": "E-daily-stationery",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_stationery_english.rs",
+        "tests/daily_stationery_chinese.rs",
+        "tests/daily_stationery_japanese.rs",
+        "tests/daily_stationery_compatibility.rs",
+        "tests/daily_stationery_packs.rs",
+        "tests/japanese_internet_catalog.rs"
+      ],
+      "scope": "2026-10-20未提交纸笔/桌面文具/书写有限fallback；纯数据，不是手写识别/自动写入/UI/原生/实模/性能/安装/发布验收",
+      "note": "基于含room实际dirty936文件快照c3e3377fbb51df1a65ac0cb7db7c546c16049b50cc26e26684f4aee7c48cc1f9，不是HEAD/安装；新增8ENforms、12ZH4JA Word读音、18语境36作者句，EN6167/845/1654(51层)、ZH3366/839/1676、JA605/327/653。旧6159ENrank/readingsflags/作者数据顺序/25包SDK/模型协议/安装工作候选配额不变，无runtime转换或混排算法修改。中文6明确phrase+6noun；日语新增4读音、复用鉛筆/消しゴム；既有文具/纸张/错误文字不伪称首次可输入。五fixture先冻结，before EN1过5缺/ZH2过4缺/JA2过4缺/compat4过/packs0过2缺，旧controls先验；EN初9cc…beside仅optional包存在，保存原fixture/log，批准同义next to后faf1…重冻、重新before同1过5缺，不当成decoder错误。首five-targetfocused真实23过1失败：新ENadoptoracle误假定out后空格，作者实际out, so…；只改newfixture row2 following=', '、其余' '并精确full_tail+following，ou/out/完整comma作者/adoptcommitundo保留。faf1原spec/23-1日志保留，newfreeze2e6e976ca4fe83e8bd248851ded2c329cbaab050ba6cec980fddd724176d06a3，重新before同1过5缺；数据/old断言不动，非production故障，其他23原spec通过。修后英target savedafterlib独立6过0ignore0filter/exit0，同before仍1过5缺/exit101，不与首23/1拼成24单命令全过。旧固定419全tuple同(328+91)，58邻接31exact/27扩充；zheji第四新整词挤出这继续Word/两prefix句75.5/75，xianna挤出先闹钟Word/两prefix句79/78.5(第一原首页index5)，作者源记录未动但同take4生成分支变化使旧句不在当前12池，不能声称全部旧作者候选/首页项/Word仍可达；final5targets固定后独立完整full-regression.log工具exit0，2542过0失败32旧ignore/258组含Doc-tests/0filter，24新已含一次，非23/1+英6或child拼数、非借旧room2518；strict全target/allfeatureClippy-Dwarnings工具exit0/49.91秒、fmt工具exit0，当前120ef45f…source摘要/schema/83Python(29+11+25+18)/250links/diff已过，不预报通过数或借旧room2518/32/UI19/历史timing。旧resource raw可逆，current-count-only维护不改旧prefix/take/hash/flags/行为断言，catalog新inverse前置且旧历史链保持。仅本新增证据+F16-F19四refs+三语言九test索引，128旧evidence/成熟度/运行路由原样。0.9.3/43不变、未commit/install，不进入已发布0.9.3资产。"
+    },
+    {
+      "id": "E-daily-room-comfort",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_room_comfort_english.rs",
+        "tests/daily_room_comfort_chinese.rs",
+        "tests/daily_room_comfort_japanese.rs",
+        "tests/daily_room_comfort_compatibility.rs",
+        "tests/daily_room_comfort_packs.rs",
+        "tests/japanese_nasal_completion_slots.rs",
+        "tests/japanese_nasal_stem_boundaries.rs",
+        "tests/offline_pack_layer_budgets.rs",
+        "src/lexicon.rs",
+        "src/lexicon/packs/catalog.rs",
+        "src/languages/japanese.rs",
+        "src/ime/candidate_mix.rs",
+        "tests/japanese_internet_catalog.rs"
+      ],
+      "scope": "2026-10-20未提交室内光线/通风/舒适度有限fallback、受限日语末拨音句位及有界合并校验；非传感/设备操作/建议/原生/UI/实模/时延/安装/发布验收",
+      "note": "实际dirty928文件dressing快照ab91737d6bc77c97b9457f9605b9c28bfbfd367fe3dab1094347fa60363943cd，不是HEAD/已安装包。新增8ENforms、12ZH5JA Word读音、18语境36句；EN6159/839/1642(50层)、ZH3354/833/1664、JA601/321/641，旧6151rank/readingsflags/作者顺序/25包SDK/模型协议/候选窗不变。冻结5fixture24项，before EN1过5缺/ZH2过4缺/JA2过4缺/compat4过/packs0过2缺；首after23过1失败kankise index8。独立新nasal3integration红0过3失败/3mixunit红1过2失败；广方案full2509过2失败32旧ignore/252组，旧transit分页及merged单source64误用均不改断言，广seirikepositive1/顺序inverse撤repo但/tmp历史保留。最终stem自身也须旧双作者，4stem-boundary在dataonly和广方案各2过2失败→窄修通过，保旧ticket12/六槽；既有family仅limit6用第二作者77.5替片假名Unknown，0..5/7..12tuple同。新4layer-budget真实红1过3失败→4过，source64、pack8层/2048units、lang4096、installed16不扩；已校验aggregate192=64+16*8，directAPI计disabled/invalid16。narrowfocused15targets93过0失败0ignore0filter，独立完整full-narrow-regression.log工具exit0，2518过0失败32旧ignore/253组含Doc-tests/零筛除，38新已含(room24+nasal3+boundary4+layer4+cfg3)，旧双失败/fulln7/releasetail8/两4golden全过；strict全target/allfeature Clippy-Dwarnings49.21秒工具exit0无warning/error，最终fmt/diff/83Python(29+11+25+18)/250auditlinks/source摘要全部通过，不加focused/redgreen/child/撤回positive通过数。最终窄raw before418/419同、dataonly419/419同，邻接21/38同/dataonly38/38同、17扩充；fangjian旧放键盘退场/另三Word权重各-2为原take4/index公式，不保证所有旧候选可达或分数恒定。50exactinverse/872原bytes/6docs/8新freeze与928filetypesmodes保持，83静态/250链接过。仅同一room证据及受影响F16-F20/F57/F58/F67和实现test索引新增，127旧证据/成熟度/运行图不动。已发布0.9.3LinuxAlpha排除dirtydressing+room，仍0.9.3/43且未安装，无新UI/native/实模/时延/发布验收声明。"
+    },
+    {
+      "id": "E-daily-dressing",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_dressing_english.rs",
+        "tests/daily_dressing_chinese.rs",
+        "tests/daily_dressing_japanese.rs",
+        "tests/daily_dressing_compatibility.rs",
+        "tests/daily_dressing_packs.rs",
+        "tests/japanese_internet_catalog.rs"
+      ],
+      "scope": "2026-10-20未提交穿衣松紧/小配件有限fallback；非原生/UI/实模/时延/安装/发布验收",
+      "note": "基于准确6edfa3e原字节快照，仅追加12ZH/4JA Word读音、18语境、36三语作者句；英文零新词形，旧48层/6151首次rank保持。总量EN6151/833/1630(49层)、ZH3342/827/1652、JA596/315/629。三语言预先冻结before EN1过5缺/ZH2过4缺/JA2过4缺；compat4过，私有9JA/16ENZH pack0过2缺。首次after23过1失败：canonical-JA同文原文既有Literal规则，不是缺Word的production缺陷；只改该oracle接受真实rawkind，所有异拼Word/双句/提交撤回/分页/配额断言保留，原失败与fixture保留；最终新24过/5唯一组/零筛除，3语言+compat冻结原字节。新双句覆盖full/case/kana/aliases/boundedpartial/progress/modelmissing-timeout-empty/protected/longcontext/commitundo。实际before/after固定419全字段池相同，独立邻接24池21相同，拉链/纽扣/靴三根合理新增，旧选项仍可选，旧靴两句首页index4/5各-0.5是既有indexweight，不承诺所有旧前缀池完全一致。三raw严格追加，旧test计数维护和catalog新增准确inverse，不刷新旧goldens。数据与模型/宿主解耦；25包SDK/16cap/6-12候选/256window/schema/modelprotocol与全部成熟度路由保持。未提交/推送/安装，仍0.9.3/43，不替换pin验收SHA或借旧全量/UI； 独立完整最终all-feature2480过0失败32原有显式ignore，245唯一顶层组含Doc-tests/零筛除，新24已含不重复计数。完整n7/releasetail8及两旧4golden原样过。首full2479过1失败保留，唯一privatecompound旧总数3331→3343同步，原边界/提交断言保持；按顶层组比较仅这一结果变化，不重复计captured子进程或组合重试。923baseline中893其它路径bytes/modes同，20维护路径58literal+3raw+新cataloginverse+6docs，126旧evidence/cells分数/限额/路由保持，仅新4ref/9testindex。 最终严格全target/allfeature Clippy-Dwarnings46.05秒过，83Python(29tensor/11pack/25AST/18CIgraph)、250source-links、格式diff/source摘要/精确保真过。一次一heavybuild，memoryhigh2G/max4G/swap0/jobs1/offline。无新UI/native/实模/时延/安装/个人服务或发布验收。"
+    },
     {
       "id": "E-daily-hygiene",
       "kind": "historical_run",
@@ -3521,6 +3672,11 @@
         2
       ],
       "evidence": [
+        "E-daily-plants",
+        "E-daily-reading",
+        "E-daily-stationery",
+        "E-daily-room-comfort",
+        "E-daily-dressing",
         "E-daily-hygiene",
         "E-catalog-index-performance",
         "E-input-hotpath-performance",
@@ -3574,6 +3730,11 @@
         2
       ],
       "evidence": [
+        "E-daily-plants",
+        "E-daily-reading",
+        "E-daily-stationery",
+        "E-daily-room-comfort",
+        "E-daily-dressing",
         "E-daily-hygiene",
         "E-catalog-index-performance",
         "E-input-hotpath-performance",
@@ -3629,6 +3790,11 @@
         2
       ],
       "evidence": [
+        "E-daily-plants",
+        "E-daily-reading",
+        "E-daily-stationery",
+        "E-daily-room-comfort",
+        "E-daily-dressing",
         "E-daily-hygiene",
         "E-catalog-index-performance",
         "E-daily-restock",
@@ -3693,6 +3859,11 @@
         2
       ],
       "evidence": [
+        "E-daily-plants",
+        "E-daily-reading",
+        "E-daily-stationery",
+        "E-daily-room-comfort",
+        "E-daily-dressing",
         "E-daily-hygiene",
         "E-japanese-progress-slots",
         "E-catalog-index-performance",
@@ -3754,6 +3925,8 @@
         2
       ],
       "evidence": [
+        "E-daily-plants",
+        "E-daily-room-comfort",
         "E-daily-hygiene",
         "E-japanese-progress-slots",
         "E-chinese-giving-chars",
@@ -4408,6 +4581,7 @@
         2
       ],
       "evidence": [
+        "E-daily-room-comfort",
         "E-pack-boundaries",
         "E-family-packs",
         "E-current",
@@ -4608,6 +4782,7 @@
         2
       ],
       "evidence": [
+        "E-daily-room-comfort",
         "E-chinese-adopted-flow",
         "E-japanese-alias-tail",
         "E-daily-care",
@@ -4784,6 +4959,7 @@
         2
       ],
       "evidence": [
+        "E-daily-room-comfort",
         "E-pack-boundaries",
         "E-japanese-learning-packs",
         "E-japanese-theme-packs",

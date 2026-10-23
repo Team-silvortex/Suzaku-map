@@ -3,18 +3,19 @@
 Historical implementation notes, including earlier behavior and experimental platforms.
 Start with the [README](README.md) and [known limitations](docs/known-limitations.md).
 
-Current source version: **0.9.3 / build 43 — Everyday essentials and catalog-query refinement**.
+Current source candidate: **0.9.4 / build 44 — Everyday spaces and candidate continuity**.
 
-Uncommitted route-coordination, call-recovery, storage and restocking vocabulary follow-ups,
+The route-coordination, call-recovery, storage and restocking vocabulary follow-ups,
 plus basic washcare/paper vocabulary, immutable-catalog indexes and Japanese authored-progress/long-vowel slot repairs, now follow released source `4108bc0`.
-They are now included in the 0.9.3 source candidate, not that older commit's CI, package acceptance
-or release assets. Current preparation and validation are recorded below, separately from historical
+They are now included in published 0.9.3, not that older commit's CI, package acceptance
+or release assets. Current follow-up validation is recorded below, separately from historical
 0.9.2 work. Earlier "uncommitted/unreleased" headings retain their development-time scope.
 Published/installed status must not be inferred from source version synchronization.
 
-The released baseline is **0.9.2 / build 42**, a [Linux Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.2), not latest.
-That exact commit's eight CI gates and four accepted/download-verified assets passed; these
-uncommitted follow-ups are not in those packages or the personal installation.
+The released baseline is **0.9.3 / build 43**, a [Linux Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.3), not latest.
+Its release and four Linux package/checksum assets are published. The dressing, room-comfort,
+stationery, reading and plants follow-ups are included in the 0.9.4 source candidate, outside
+those published 0.9.3 packages; the personal installation is unchanged.
 The historical **0.9.2 source preparation** includes the everyday-messaging,
 appointment/walk-in and aftercare/packaging follow-ups, plus the retained English/Japanese
 candidate hot-path work. Candidate version synchronization does not change published assets.
@@ -54,6 +55,543 @@ The paired [English](tests/english_completion_quality.rs) and
 [Chinese](tests/chinese_completion_quality.rs) regression suites provide a reproducible starting point,
 not a general language-quality score. The first follow-up fixes separated Pinyin within existing
 dictionary entries; see the [N47 audit](docs/bug-audit-bilingual-core-2026-09-24.md).
+
+## 0.9.4 source preparation — 2026 10 20
+
+This candidate includes the five dressing, room-comfort, stationery, reading and plants batches
+after released `6edfa3e` / 0.9.3. Compared with that release: **28 English forms, 60 Chinese
+and 22 Japanese Word readings, 90 contexts and 180 trilingual authored sentences**. Current
+totals are EN6,179/857/1,678 (53 layers), ZH3,390/851/1,700 and JA614/339/677.
+The narrow Japanese nasal-progress/short-parent repairs and the per-source versus merged-catalog
+layer correction are included; default candidates, model contracts,25 packs and SDK are not expanded.
+
+- Freeze the actual prepared working tree before changing versions, not clean HEAD:
+  `/tmp/suzaku-release-0.9.4.JQ2f91/before-version.tar`, SHA256
+  `9002c03d4db2f099d5dc72a26e28566368b8c0f8f2e98c243b05cc6b47570b5f`.
+  Five metadata files synchronize application version0.9.4/build44. Dependency versions,
+  vocabulary, tests, prior evidence and runtime code must remain byte-identical to this snapshot.
+- **Versioned local acceptance passed; remote acceptance pending:** the independent complete
+  locked/offline/all-feature run finishes with tool exit0: **2585pass /zero failures /32 original
+  ignores /267 unique groups including Doc-tests /zero filtered**. Its log is
+  `/tmp/suzaku-release-0.9.4.JQ2f91/full-regression.log`, SHA256
+  `33ea888ce546a622936f0b548233280a578fe5e67bcfa8182c9b050f8b505725`.
+  Resumed on2026-10-23, the original process exit and all267 test-name/status rosters plus32 ignore
+  identities were independently confirmed, not restarted or inferred from a partial tail.
+  Separate strict all-target/all-feature Clippy with `-D warnings` passes with tool exit0/51.90s;
+  all19 exact private Xvfb/D-Bus/XDG UI gates pass with tool exit0. Formatting,83 Python guards,
+  250 audit links, five version surfaces and source-schema checks pass. Preservation verifies
+  all951 prior file types/modes, five metadata files/eight exact operands,939 other immutable
+  files and all257 Rust fixtures unchanged; only seven documentation paths and one new release
+  note are allowed. The preceding plants2585/32 and Clippy51.34s remain pre-version history.
+  No focused, UI, child or earlier-run results are added to the complete2585 total.
+- User authorizes committing/pushing this version and automatically publishing Linux assets only
+  after this exact commit passes all eight required CI jobs and its accepted four-file artifact
+  passes independent validation. No local result or older run can replace that gate. Use a pinned
+  annotated tag, draft-first upload and downloaded-byte verification, then Alpha prerelease/not latest.
+  Until those steps finish, 0.9.4 is not a published download or installation receipt.
+  The personal installation, input-method services and configuration are unchanged.
+
+See [0.9.4 release scope and acceptance gates](docs/releases/0.9.4.md).
+All batch sections below retain their original development-time statuses and evidence.
+
+## Daily plants and balcony dialogue — 2026 10 20
+
+The initial finite data-only append follows the actual dirty reading snapshot, not clean HEAD
+or an installation; a subsequent narrowly bounded Japanese retention repair is recorded below.
+Baseline archive `/tmp/suzaku-plant-vocabulary.eGfXnF/before-source.tar` contains
+946 regular files, SHA256 `ef8eb346e21755292bb2d1c34b4522ae673183d597bc65431872b1bfca944435`.
+Version/build remains **0.9.3/43**; published0.9.3 assets and the personal installation are unchanged.
+
+- English adds **eight builtin forms** (plant/soil/leaf/flower/flowers/pots/watering/watered),
+  plus `daily_plants` with six contexts/twelve authored sentences. Existing plants/leaves/pot,
+  garden/balcony/sunlight and the earlier `could you water` authors are not new discoveries.
+  Chinese adds **12 Word readings**: 这盆花先放窗边、花盆底下有点水、这片叶子掉下来了、
+  帮我拿一下喷壶、阳台的花我来浇、先别挪这个花盆, each with two authors, plus 植物、花盆、盆栽、
+  叶子、喷壶、窗台. Japanese adds **five Word readings** (植木鉢/葉っぱ/水やり/じょうろ/窓辺),
+  reusing existing 植物 for six contexts/twelve authors. Combined growth: **eight English forms,
+  17 CJK readings,18 contexts,36 authored sentences**. Totals: **EN6,179/857/1,678 (53layers)**,
+  **ZH3,390/851/1,700**, **JA614/339/677**.
+- Existing 浇水/给花浇水 and their authored pairs, 阳台/托盘/晒太阳/晾在阳台上 remain prior coverage,
+  not duplicate readings. All old English first-seen ranks, reading flags/order and authored source
+  records remain. This does not promise identical short-root candidate pools, primary rows or weights:
+  new compound Words still compete under the existing bounded completion rules.
+  The data append itself changes no decoder/ranking/model/host/schema. The later candidate repair
+  is limited as described below; no third-party corpus,25 pack JSON/SDK change, new pack/work/
+  candidate budget or runtime route is introduced. The authored examples are everyday
+  observations and requests, not plant-care science, recommendations, diagnosis, sensors or water controls.
+- Freeze [English](tests/daily_plants_english.rs), [Chinese](tests/daily_plants_chinese.rs),
+  [Japanese, including isolated nine-pack checks](tests/daily_plants_japanese.rs) and
+  [English/Chinese private packs](tests/daily_plants_packs.rs) before the append.
+  Actual saved-before logs record **EN1pass/5missing, ZH2pass/4missing, JA2pass/4missing,
+  packs0pass/1missing**. The private sixteen-pack catalog emits its old-controls success marker
+  before failing the new-content assertion; sixteen is the number of installed packs, not controls.
+  These are four targets with **19 checks**, not separate counts for Japanese child catalogs or
+  captured private-pack subprocess output. Proposal probes do not substitute for those real runs.
+- The Chinese fixture fixes all3,378 old readings/flags,845 contexts/1,688 authors and raw bytes,
+  then tests the exact twelve-Word/six-context append, full/spaced/joined/case/tone-tolerant forms,
+  six declared near-completions, both authors in the default first page, literal input,
+  horizontal gaps, long Unicode prefixes, adoption of comma+wo/我, reseeding, one commit/undo,
+  seven line boundaries and complete local pools under synthetic missing/error/timeout/empty providers.
+  Japanese canonical text retains existing raw handling; explicitly smaller pools retain prior
+  pagination rather than introducing a universal dual-author guarantee. No arbitrary-prefix,
+  general-language, new UI/native/model-performance or installation acceptance is implied.
+- The first actual eight-target `after-focused.log` finishes with tool exit0 and **46pass /zero failures**:
+  all19 new checks, both unchanged four-golden targets (8), catalog4 and lexicon-resources15.
+  All four new fixtures keep their original frozen bytes; no new oracle correction is needed.
+  Earlier replay reported419/419 complete old tuples with both comparisons exit0. Its use as
+  current repair acceptance is withdrawn: library copying raced compilation and captured a stale
+  library. Early probe output is diagnostic, not final-source proof; repeat only after the final
+  focused run and a hash-matched library capture. No new reading projection or old golden rewrite
+  is introduced. Default twelve-row Japanese cases keep both authors on page one; at an
+  explicit six rows, `uekibach` in both catalogs and `madob` with nine packs retain only the
+  first author under prior pagination boundaries, not a new capacity or algorithm repair.
+  The separate adjacent sample is **16/42 exact,26 changed** (16EN/13ZH/13JA inputs). No old
+  English/Chinese text disappears in that sample, but kinds, primaries and scores can change.
+  Japanese `ueki` loses three low-tail generated Words (上共有/上休日/上金曜) from its twelve-row
+  pool; 上昨日/上休憩 move to page two and 上希望 changes89→54.5. `uekibachi` replaces the old
+  decomposed 上きばち primary with the new exact 植木鉢. The old `mizu`/`mado` authored sentences
+  remain with scores lower by0.5 and unchanged first-page positions. Source records remain intact;
+  this is not blanket old-candidate/score/page preservation. `compare-replays.py`,
+  `replay-comparison.json` and `replay-audit.txt` in the task directory retain the finite before/after
+  diagnostics. They do not establish unchanged final-repair pools; final isolated builtin/nine-pack
+  replay must bind to the completed build, not a mock proposal or a raced library copy.
+- Separate strict `cargo clippy --locked --offline --all-targets --all-features -- -D warnings`
+  finishes with tool exit0 in **50.26s** (`clippy.log`); all four original new-test freezes remain
+  unchanged. This initial data-only snapshot's source digest is
+  `d47ad941e740048af63208277b149c944c7de1c61f5c54ad8c9f2ccbb3c814c5`, not acceptance of a later repair.
+  Formatting returns tool exit0;83 Python guards (29tensor+11shipping+25partition+18CIgraph),
+  250 audit links, diff and source-schema checks pass. Independent preservation checks the actual
+  946-file snapshot:50 exact inverse paths,890 byte-identical files, six documentation exceptions
+  and four unchanged new-test freezes.
+- **Initial data-only complete run — failed:** tool exit101:
+  **266 top-level groups /2578pass /2fail /32 original ignores /zero filtered**. Preserve
+  `first-full-data-only-failed.log`, SHA256
+  `b06f777fb6c7d485ec7f07fdd4a0a2a4402817350d7ba033af2d751deae44b44`.
+  The family child0/1 is captured by its parent and is not an extra failure count.
+  One failure is the `daily_messaging_compatibility` Japanese `mad` full-pool hash guard.
+  Its after pool has ten rows, adding 窓辺 and two authored sentences; the old 窓口 pair remains
+  at first-page indices4/5 with scores lower by0.5. The new strict ten-row `mad` guard verifies
+  the full enrichment before removing just three new rows and restoring two old scores for the
+  unchanged historical hash; its first focused check passes. No old hash, renraku handling or
+  runtime rule is rewritten for that expected data expansion. Retain the original failure.
+  The second, `family_pack_japanese`, actually uses family+rail
+  packs and seed `ま`; a separate family-only control also reproduces it. The earlier shorthand
+  “family-only” was not the fixture's exact catalog. It loses the old selectable second-page
+  basic Word 窓 from its twelve-row pool
+  after adding 窓辺. That is a genuine reachability defect requiring a runtime repair, not an
+  acceptable data-only hash projection; the old family assertion remains unchanged.
+- **Narrow repair — current source:** the new
+  [spare-parent target](tests/japanese_spare_parent_words.rs) three checks are frozen c866…:
+  actual old-before3pass/0fail versus data-only2pass/1fail. A generic runtime repair and two
+  synthetic checks have been implemented. Only the
+  last Local/Word produced by the current Japanese spare-fill pass, at index6 or later, may yield
+  only when `limit == PAGE_SIZE * 2` and that default twelve-row pool is full. Limits0–11 and
+  above12 follow the old behavior. The replacement is one unique two-Kana parent whose reading
+  and written form are both
+  real prefixes of that existing compound. Only that row's text/label changes; every earlier row,
+  primary, page-one choice, raw anchor and the slot's kind/source/score stay fixed. This is not
+  a hard-coded `ま`/窓 exception or a wider quota. Two synthetic source-helper checks independently
+  pass2/2 with612 other tests explicitly filtered, not a complete library run. The old messaging
+  guard instead adds one strict `mad` ten-row inverse, preserving its old hash, renraku handling
+  and all other bytes. At that stage both runtime leaves, source digest, strict lint and complete
+  regression required fresh acceptance; the final narrow-source checks are recorded below.
+  The initial d47/50.26s remains historical, not that later result.
+- **First wide-limit repair — failed:** `first-wide-limit-failed.log` records **53pass/1fail**:
+  the old family and `mad` cases pass,
+  but the unchanged c866… limit-nine negative unexpectedly replaces 窓口 with 窓. Keep that failure;
+  the guard is now narrowed to exactly the default twelve-row limit instead of changing that
+  frozen smaller-quota assertion.
+- **Final narrow-source validation:** the independent corrected focused run finishes with tool
+  exit0, **11 groups /54pass /zero failures, ignores or filters**. Separate strict all-target/
+  all-feature Clippy with `-D warnings` finishes with tool exit0 in **51.34s**. Current source
+  digest is `924b3682c5aded8321dbe3d27c4551b242771b1bdaff9b061c5c5aca1b91859f`.
+  After the corrected focused Cargo run completed, the saved library was captured and hash-matched as
+  `7812db868b4fda678a0509f6ed777f20f426e95844775688998de6da2cd9ec30`.
+  One frozen probe source is freshly linked to both actual before and final libraries;
+  `final-replay-audit-report.json` verifies the newly generated328/91 streams against each other
+  and the original before files, with every comparison exit0:419/419 complete old pools match.
+  The stale f83e… copy and earlier replay are not counted as final evidence.
+  Independent family/family+rail probes each compare75 rows, with73 identical to data-only:
+  only `ま` at default12, offline and engine, replaces final 窓辺 with the old 窓; the earlier
+  eleven rows and other tested spellings/limits remain identical. Final plants builtin/nine-pack
+  probes each retain all67 data-only rows, including six partials/default12 dual authors and
+  the old explicit-six boundaries (`final-narrow-probe-report.json`). Separate explicit offline
+  limits13/18/24/256 retain all40 tested tuples/JSONL bytes (`large-quota-audit-report.json`):
+  the internal offline API already allows larger lists, not a newly imposed universal twelve-row cap.
+  These probes are not extra tests. Final formatting/diff,83 Python guards (29+11+25+18),250 audit
+  links and source-schema checks pass; the separate native-core source/dispatch guard passes9
+  and is not added to83 or counted as real native-input acceptance.
+- **Final complete acceptance — passed:** the independent fixed-source `full-fixed-regression.log`
+  finishes with tool exit0: **267 unique groups including Doc-tests /2585pass /zero failures
+  /32 original explicit ignores /zero filtered**, SHA256
+  `d14530143887a36268c6ac4a71fe8038e1467fbc5d9e8b9050ed24661580141c`.
+  Strict independent audit matches every old262 group/test/status roster and all32 ignore identities
+  (`full-results-report.json`). New22 integration checks plus two source checks are included once;
+  do not add focused54, helper subset2, captured children or either failed run. Both old failed
+  targets, parent3, terminal-n7, release-tail8 and both four-golden targets pass. Post-full library
+  SHA still matches saved7812db… exactly. Final hash-bound adjacent42 also matches data-only42/42;
+  the disclosed16/42 exact/26 changes versus original before remain. The fixed419 corpus does not
+  cover family `ま` or messaging `mad`, so their separate guards/probes are not replaced by419.
+  Final preservation reports53 exact inverses,887 other files byte-identical, six documentation
+  exceptions and five unchanged frozen targets. This is not new UI/native/real-model, latency or
+  installation acceptance.
+  Do not borrow reading2561/50.58s,
+  earlier UI/native/model checks or warm timings. Only add `E-daily-plants`, five references on
+  existing F16–F20 and seven implementation test-index entries (EN2/ZH2/JA2/mix1). All130 old evidence objects,
+  the entire old snapshot-note suffix, maturity scores, axes, limits and runtime routes stay fixed.
+
+## Daily reading, pages and bookmarks — 2026 10 20
+
+This finite data-only append follows the actual dirty stationery snapshot, not clean HEAD or
+an installation. Baseline archive `/tmp/suzaku-reading-vocabulary.DDsjWp/before-source.tar`
+contains941 regular files, SHA256 `3c9d8b5c69059d3affcc0739d82c15765bcdb9dac1c9a9fc6ca0f99c7e064be5`.
+Version/build remains **0.9.3/43**; published0.9.3 assets and the personal installation are unchanged.
+
+- English adds **four forms** (bookmark/pages/paperback/hardcover) and a `daily_reading` layer
+  with six contexts/twelve authored sentences. `bookmark` already exists in `en-internet` and is
+  new only to builtin; pages/paperback/hardcover are new across builtin plus eight English packs,
+  while builtin bookmarked/bookmarking/bookmarks predate this batch. Chinese adds **12 Word readings**: six phrases
+  我读到这一页了、书签夹在这页、这页还没看完、先翻到下一页、这段我再读一遍、这本书先别收起来,
+  each with two authors, plus 书签、书页、翻页、章节、读书、看书. Japanese adds **four readings**
+  栞、表紙、本棚、読みかけ and six contexts/twelve authors, reusing the existing 既読/未読 Words.
+  Combined growth: **four English forms,16 CJK readings,18 contexts,36 authored sentences**.
+  Totals: **EN6,171/851/1,666 (52layers)**, **ZH3,378/845/1,688**, **JA609/333/665**.
+- Existing 阅读/目录/页码/书、借书/还书/借书证 and 归还/续借图书 authors, browser 书签栏,
+  and optional study-pack expressions are prior coverage, not discoveries of this batch.
+  Explicit dictionary Words do not mean the same characters were previously impossible to enter.
+  All old reading flags/order and English first-seen ranks remain; bounded completion competition
+  can change short-root choices. No decoder, ranking, model protocol, data schema,25 pack JSONs/SDK,
+  installed-pack/work/candidate budget or runtime route changes. These suggestions do not retrieve
+  book text, save a bookmark, track reading progress or operate files.
+- Freeze [English](tests/daily_reading_english.rs), [Chinese](tests/daily_reading_chinese.rs),
+  [Japanese, including isolated nine-pack checks](tests/daily_reading_japanese.rs) and
+  [English/Chinese private packs](tests/daily_reading_packs.rs) before the append.
+  Saved-before runs record **EN1pass/5missing, ZH2pass/4missing, JA2pass/4missing,
+  packs0pass/1missing**;
+  old controls in the sixteen-pack catalog pass before its new-content marker. The initial pack-test
+  preflight had a Rust borrowed-value move error; preserve its compile log and correct only
+  iteration to `.iter().cloned()` before freezing61aea… and running the actual before test.
+  A compile preflight is not a runtime result. Preserve the initial Japanese e8e67… fixture and
+  its real2pass/4missing log: `hondan` converts to ほんだん, not the alias ほんだな, but can already
+  offer 本棚 through normal prefix completion. Change only that new no-author negative to
+  `hondax`, and explicitly protect `hondan` conversion and ordinary completion as positive controls.
+  The final f75e1fe5… fixture again records actual before2/4; its six after checks are included
+  in the focused result below. Mock proposal probes are feasibility evidence, not runtime passes.
+- The Chinese fixture preserves all3,366 old readings/flags,839 contexts/1,676 authors and raw JSON
+  bytes; it exercises twelve full Words, four spelling forms plus tolerant tone digits, six bounded
+  near-completions, dual authors, exact raw submission, adoption/reseed/undo, horizontal gaps,
+  long Unicode prefixes, seven line boundaries and entire pools during synthetic model failure.
+  This is not arbitrary short-prefix coverage or tone-aware ranking. Raw appends and count-only
+  maintenance are reversible; the catalog prepends this batch's exact inverse to the unchanged
+  earlier projection chain. Do not refresh old goldens to conceal data-driven differences.
+- The actual six-target focused run passes **38 checks /zero failures**, including all19 checks
+  in the four new targets once. Saved-library replay retains **412/419 complete old pools**
+  (321/328 builtin and91/91 nine-pack Japanese); seven Chinese short-root “这本…” pools are
+  enriched by the new 这本书先别收起来 Word and its two authored sentences. This is not419/419
+  identity. Before any new projection, the two unchanged old four-golden targets record
+  **6pass/2fail** after data, while both saved-before targets pass4/4. Preserve that failure log
+  (`old-replay-after-before-projection.log`). The frozen cca9… test-side historical projection
+  asserts the seven complete new pools first, then inverts only their explicit changes; its
+  five-field before45/after56 row sets are fixed. Both old targets independently pass **8/8**
+  with tool exit0 (`old-replay-after-exact-projection.log`). The old goldens/corpus/projection
+  chain and runtime/data/budgets remain unchanged; the earlier6/2 failure is not erased.
+  The unchanged upstream take4 replaces old ambiguous branches, not a final twelve-slot overflow:
+  这备份, 这本地模型, 这本设置 and 这本水果 lose six Word occurrences in these samples, and two seeds
+  lose four prefix-assembled 这本地模型 sentence rows. Retained 输入法 pairs have scores lower
+  by1.5, moving four old first-page rows to page two; both `zhe ben` spellings each lose one old
+  first-page sentence. Original author
+  source records remain untouched; this does not guarantee all old generated choices stay reachable.
+  Primaries also change for `zhe be`, `zhe ben s` and `zhe ben sh`; these are not merely tail appends.
+  `reading-replay-projection-report.json` and `reading-replay-audit.txt` retain all seven pools
+  and the original reading/context provenance in the task directory.
+  Adjacent probes retain **24/34 complete pools** (EN12/ZH11/JA11), with ten actual enrichments;
+  a separate five English leisure/notebook controls remain5/5 identical. These probes add no passes.
+  Neither replay failures/retries, the independent8/8 nor focused38 are added to the eventual
+  complete-run total.
+- The fixed-source independent complete all-features `full-regression.log` finishes with tool exit0:
+  **2561pass /zero failures /32 original explicit ignores**, **262 unique top-level groups including
+  Doc-tests**, zero filtered. All19 checks in the four new targets are already included once;
+  do not add focused38, the independent golden8, before runs or captured child results again.
+  The independent log audit matches all258 old group/test/status rosters and all32 ignore identities
+  against stationery, not merely their counts (`full-results-report.json`). Formatting,83 Python
+  guards,250 audit links, source-digest/schema checks and post-full preservation have passed for
+  this snapshot. Separate strict `cargo clippy --locked --offline --all-targets --all-features -- -D warnings`
+  finishes with tool exit0 in **50.58s** (`clippy.log`); `cargo fmt` also returns tool exit0.
+  HEAD remains6edfa3e; source digest is `edb7e4fccdd251a0b7443e685b412eb2ee9e7220d5fbabeaeac8d2b50b820a51`.
+  These are not new UI/native/real-model/installation or latency acceptance; do not borrow
+  stationery49.91s, room2518, earlier UI/model checks or warm timings for this batch.
+  Add only `E-daily-reading`, four references on existing F16–F19 and six language test-index
+  entries; all129 old evidence objects, maturity scores, limits and graph routes remain unchanged.
+  The five unique test files are four targets and the shared
+  [exact replay projection](tests/support/daily_reading_replay.rs), not five new test targets.
+
+## Daily stationery and writing — 2026 10 20
+
+This finite data-only append follows the actual dirty room-comfort snapshot, not clean HEAD or
+an installation. Baseline archive `/tmp/suzaku-stationery-vocabulary.oJWaWb/before-source.tar`
+contains936 regular files, SHA256 `c3e3377fbb51df1a65ac0cb7db7c546c16049b50cc26e26684f4aee7c48cc1f9`.
+Version/build stays **0.9.3/43**; the published0.9.3 assets and personal installation are unchanged.
+
+- English appends `daily_stationery`: **eight forms** (pen/pens/pencil/pencils/eraser/ruler/sticky/ink),
+  six next-word contexts and twelve authored sentences. Chinese appends **12 Word readings**:
+  铅笔有点钝了、这个字写错了、帮我画一条线、先拿张草稿纸、笔帽记得盖好、这几张纸订一下,
+  each with two authored sentences, plus 铅笔、尺子、胶带、便签、草稿纸、圆珠笔. Japanese appends
+  **four Word readings** (付箋、定規、筆箱、ホチキス), reusing existing 鉛筆/消しゴム for six
+  contexts/twelve continuations. Total growth: **eight English forms,16 CJK readings,18 contexts,
+  36 trilingual authored sentences**. Totals: **EN6,167/845/1,654 (51layers)**,
+  **ZH3,366/839/1,676**, **JA605/327/653** (forms/readings, contexts, sentences).
+- Existing 笔帽/橡皮/签字笔/订书机/便利贴/纸张/封箱胶带 and 借支笔 authors were already present;
+  existing Japanese pencil/eraser readings are not duplicated. Old6,159 English first-seen ranks,
+  reading flags/order and earlier authors remain. New explicit Words are not proof that these
+  characters could not previously be entered, or that every short-prefix candidate pool stays identical.
+  This batch changes no decoder/ranking/model/host behavior, data schema,25 pack JSONs/SDK,
+  installed-pack/work/candidate budgets, or runtime routes. It does not recognize handwriting,
+  write notes, edit files or operate stationery.
+- Freeze [English](tests/daily_stationery_english.rs), [Chinese](tests/daily_stationery_chinese.rs),
+  [Japanese](tests/daily_stationery_japanese.rs), [old-entry compatibility](tests/daily_stationery_compatibility.rs)
+  and [private pack collections](tests/daily_stationery_packs.rs) before the append.
+  Real before: **EN1pass/5missing, ZH2pass/4missing, JA2pass/4missing, compatibility4/4pass,
+  packs0pass/2missing**. Pack old controls are checked before the new-content marker fails.
+  The initial English9cc… fixture used `beside`, present only in an optional pack, as if it were
+  builtin. Preserve that fixture and before log; approve only the synonymous `next to` data/fixture
+  correction, freeze faf1… and rerun actual before with the same1pass/5missing. Do not call this
+  a decoder failure or use pack-enabled vocabulary to assert builtin membership.
+- First actual five-target after run: **23pass/1fail**, retained rather than reported as first-run
+  all-green. The English adoption oracle incorrectly assumes a space after full tail `out`, while
+  the fixed authored data continues `out, so…`. Correct only the new fixture's per-row following
+  separator (row2 `", "`, other rows `" "`), and compare the exact full tail plus that separator.
+  Partial`ou`/full`out`, the entire comma-containing author, adoption, commit and undo remain
+  required. Preserve faf1… and `after-focused` failure evidence; freeze the punctuation-corrected
+  fixture `2e6e976ca4fe83e8bd248851ded2c329cbaab050ba6cec980fddd724176d06a3`, rerun the
+  saved-before library and obtain the same1pass/5missing. Data and old assertions do not change;
+  the other23 after checks pass with their existing frozen specifications. This is a test-oracle
+  precondition correction, not a product candidate or punctuation fix.
+- The punctuation-corrected English target independently passes **6/6**,0ignored/0filtered,
+  exit0 against the saved after library (`english-after-punctuation-final.log`); the same frozen
+  target still produces1pass/5missing and exit101 against before. This is not a new single-command
+  24/24 focused result and is not combined with the preserved23/1 run into a full result.
+  Actual fixed replay samples keep **419/419 complete old pools identical** (328builtin+91nine-JA);
+  the58 adjacent samples have **31exact and27 vocabulary enrichments**. This does not imply
+  preservation of every short-root generated branch or score; the bounded replacements are explicit below.
+- Known adjacent replacements are explicit: at `zhe ji`, the new fourth whole-word completion
+  displaces old generated Word 这继续 and its two prefix-assembled Sentences (75.5/75). At
+  `xian na`, it displaces old Word 先闹钟 and its two prefix-assembled Sentences (79/78.5), the
+  first previously at first-page index5. The authored source records were not deleted or edited;
+  the unchanged decoder take4 now selects a new dictionary completion upstream, not a final
+  twelve-slot truncation, so that old branch no longer generates its previous rows. Not all old
+  generated sentences, old first-page choices or low Word alternatives remain reachable.
+  Do not change old assertions or the algorithm
+  to conceal these data-driven differences; any actual old fixed assertion failure requires investigation.
+  Separately, saved-library probes keep six full pools6/6 tuple-identical: `ji xu`, `nao zhong`,
+  `继续`, `闹钟`, `zhe ji xu`, `xian nao zhong` (`legacy-author-before/after.jsonl`). The normal
+  继续 authors remain first-page4/5, 闹钟1/2, and canonical text authors1/2; these preserved data/full
+  entries do not make the two displaced short-root combinations reachable again. Probes add no test passes.
+- The Chinese suite freezes all3,354 old readings/flags,833 contexts/1,664 authors and exact old raw
+  bytes, then tests full/spaced/joined/case/tone forms, six finite near-completions, Word/dual-author
+  reachability, raw text, horizontal gaps, long Unicode context, adoption/reseed/commit/undo,
+  seven line boundaries and complete pools during synthetic missing/error/timeout/empty prediction.
+  These are bounded examples, not arbitrary-prefix or general-language acceptance.
+  Raw appends are reversible; count-only maintenance preserves all old windows/goldens and the
+  catalog projects this exact append before the unchanged room and older raw-byte inverses.
+- After fixing the final five new targets, the independent complete all-features
+  `full-regression.log` finishes with tool exit0: **2542pass /0fail /32 existing explicit ignores**,
+  **258 unique top-level groups including Doc-tests**, zero filtered. All24 new tests are already
+  included, once; this is not the earlier23/1 plus corrected English6 or captured child output.
+  It follows the final2e6e… English specification and the unchanged other four frozen fixtures.
+  The preceding room2518/253 result remains a separate historical run, not part of this total.
+  Independent log audit also matches all253 old groups and every named old test/status against
+  that prior run; the identities of all32 old ignores stay unchanged, not merely their count.
+  Separate strict `cargo clippy --locked --offline --all-targets --all-features -- -D warnings`
+  finishes with tool exit0 in **49.91s** (`clippy.log`); final `cargo fmt` also returns tool exit0.
+  Current source digest/schema,83 Python guards
+  (29tensor+11shipping+25partition+18CIgraph),250 audit links and diff checks have passed.
+  Do not borrow the room2518/32, prior UI19, warm timings or
+  published-source checks. Detailed before/freeze/raw-maintenance evidence stays in the task
+  directory above; no new UI/native/real-model/performance/release/installation claim.
+  Add only `E-daily-stationery`, references on existing F16–F19 and nine test-index entries on
+  the three language implementations. All128 old evidence objects, maturity scores and graph routes stay fixed.
+
+## Daily room comfort and terminal-nasal completion — 2026 10 20
+
+This uncommitted batch follows the actual dirty dressing snapshot, not clean HEAD or a released
+installation. Version/build stays **0.9.3/43**; published0.9.3 and its accepted assets are unchanged.
+The task archive is `/tmp/suzaku-room-vocabulary.c9qj2R/before-source.tar`, **928 regular files**,
+SHA256 `ab91737d6bc77c97b9457f9605b9c28bfbfd367fe3dab1094347fa60363943cd`.
+
+- Append `daily_room_comfort`: **eight English forms**, six next-word contexts and twelve authored
+  sentences. New forms are curtains/lamp/lamps/fan/fans/sunlight/lighting/stuffy; old6,151 forms and
+  their first-occurrence ranks remain. Contexts cover curtains, glare, room air, warmth/coolness,
+  available light and lighting near a chair.
+- Append **12 Chinese Word readings**, six contexts/twelve sentences: 房间有点闷、开窗通通风、
+  把窗帘拉开、灯光有点刺眼、风扇调小一点、空调温度调高一点, plus 光线、通风、台灯、风扇、
+  空调、温度. The compound uses tiao for 调; no isolated 把/里/那 or decoder rule is added.
+  Existing 房间/窗帘/窗户, 窗户关不上, 屏幕太亮了, 有点冷/有点热 and their authors remain controls:
+  the ability to type opening/closing windows or adjusting brightness is not newly invented here.
+- Append **five Japanese Word readings**: 照明、カーテン、風通し、室温、エアコン; reuse existing 換気扇
+  for six contexts/twelve continuations. Full and explicitly bounded partial spellings use existing
+  Romaji/Kana conversion; canonical text remains raw when it already equals the input.
+- Current totals: **EN6,159 forms /839 contexts /1,642 sentences (50layers)**;
+  **ZH3,354 readings /833 contexts /1,664 sentences**; **JA601 /321 /641**.
+  Combined growth is **eight English forms,17 CJK Word readings,18 contexts,36 authored sentences**.
+  These are finite input expressions, not ventilation/temperature advice, environmental sensing,
+  lighting/HVAC/window controls or automatic messages. Data/schema,25recommended packs/SDK,
+  16-installed-pack limit, model protocol and existing6/12/256 budgets are unchanged.
+- Freeze five new fixtures before data: [English](tests/daily_room_comfort_english.rs),
+  [Chinese](tests/daily_room_comfort_chinese.rs), [Japanese](tests/daily_room_comfort_japanese.rs),
+  [old-entry compatibility](tests/daily_room_comfort_compatibility.rs) and
+  [private nine-JA/sixteen-EN+ZH packs](tests/daily_room_comfort_packs.rs).
+  Actual before results: EN1pass/5missing, ZH2pass/4missing, JA2pass/4missing;
+  compatibility4/4pass, packs0/2missing. First data-after run has **23pass/1fail**, not all green.
+  Preserve `after-first-slot-failed.log`: `kankise` converts to 換気せ and offers 換気扇, but the
+  second author is index8. Do not alter the frozen Word/author/page-one/commit/undo assertions.
+- The independent terminal-nasal proof starts with frozen [three integration
+  tests](tests/japanese_nasal_completion_slots.rs) at0pass/3fail and three mix units at1pass/2fail.
+  The first broader proof fixes `kankise` and also moves old private-nine-JA `seirike` → 整理券
+  authors onto page one. `after-repair-focused.log` passes24 room tests, then stops at the old
+  private golden; the whole command is not all-green. The provisional 整理券 positive test has
+  its own0/1 red and1/0 green, but that test and its order inverse are later withdrawn from the
+  repository. Preserve all broad-proof source, fixture and logs under the task directory above;
+  its417/419 replay result is experimental history, not the final narrow result.
+- The first independent complete run is retained as `full-broad-nasal-failed.log`:
+  **2509pass /2fail /32existing explicit ignores**, **252 unique top-level groups**.
+  One old transit test deliberately keeps the second `joushake` → 乗車券 author on page two;
+  the broader proof incorrectly brings it forward. The second failure is the unchanged offline-pack
+  transaction test: builtin English now has50 layers, and merged catalogs incorrectly reuse the
+  single-source64-layer ceiling, rejecting valid installed packs. Never relax either old assertion.
+  That run includes the withdrawn one-case positive test and is not the final target set.
+- Narrow the nasal proof to a known stem which already has its own two distinct, strict authored
+  continuations. Keep the existing whole-reading/actual-conversion/unique-missing-final-ん proof,
+  Local Word/dual Sentence verification and competitive model/preference policy; older root,
+  progress and vowel helpers remain separate. The four frozen [stem-boundary
+  tests](tests/japanese_nasal_stem_boundaries.rs) record data-only2pass/2fail and broader-proof
+  2pass/2fail before the narrow repair. Old `joushake` and `seirike` twelve-row pools and six-slot
+  behavior now remain exact; existing-family 予定 (builtin/packs), 星座/作業 (packs) only replace
+  an unknown Katakana row by their second author at77.5 when limit6. Every tuple at limits0–5
+  and7–12 stays identical. Keep the first private-test nonce collision and the test-envelope-only
+  correction; it is not a product failure or a changed candidate oracle.
+- The [four frozen layer-budget tests](tests/offline_pack_layer_budgets.rs) link against the saved
+  data-only library and record1pass/3fail, then pass4/4 after the narrow merge repair. Keep standalone
+  source64, per-pack8 layers,2048 units/pack,4096 units/language and16 installed packs unchanged.
+  Only the validated runtime aggregate uses the proved **64 +16×8 =192** layer upper bound,
+  not an arbitrary larger source limit. Direct Catalog callers also stop at16 entries, counting
+  disabled or invalid entries. Prefix/order/metadata, context conflicts and registry transactionality
+  remain protected; no public protocol, schema or pack quota expands.
+- Final narrow replay samples are **418/419 complete pools identical** to the actual before library
+  (builtin327/328, private-nine-JA91/91); the only extra row is 室温 backfill. Narrow and data-only
+  match419/419. Separately, **21/38 adjacent pools** match before, with17 actual vocabulary
+  enrichments; narrow and data-only match38/38. In Chinese `fang jian`, 房间有点闷 and its two
+  authors enter the pool; unchanged take4 displaces old ambiguous Word 放键盘, and old insertion
+  weights lower 放健康/放建议/放检查 by2 each. 房间 stays100 and raw stays55. Old resource bytes,
+  English ranks and authored data remain, but not every old Word stays reachable or keeps its score.
+  These are sampled identity results, not a timing test or an all-input equivalence claim.
+- `narrow-repair-focused.log` independently passes **93 tests /0fail /0ignore /0filtered** across
+  15 targets, including the new pack4, room24, nasal3 and boundary4, old transit9/offline-packs19,
+  two four-golden targets and resource/catalog controls. Do not add it to the final full result.
+  Root deliberately stops `full-preflight-interrupted.log` during compilation; it has no test-result
+  groups and contributes neither passes nor test failures. Final independent
+  `cargo test --locked --offline --all-features --no-fail-fast -- --test-threads=1` completes
+  `full-narrow-regression.log` with tool exit0: **2518pass /0fail /32 existing explicit ignores**,
+  **253 unique top-level groups including Doc-tests**, zero filtered. All38 new checks are already
+  included: room24 + nasal3 + stem-boundary4 + layer-budget4 + cfg3; eight new integration targets
+  were fixed before the run. Both formerly failing old tests, full terminal-n7, release-tail8 and
+  the two old four-vector golden targets pass unchanged. This is a fresh complete run, not the
+  earlier broad2509/2 run plus selective repairs; focused93, red/green, withdrawn positive and
+  captured-child output are never added. Separate strict
+  `cargo clippy --locked --offline --all-targets --all-features -- -D warnings` completes with
+  tool exit0 in **49.21s**, no warnings/errors; `final-clippy.log` is the evidence.
+  Final formatting and diff checks also exit0. The83 Python guards (29tensor+11shipping+
+  25partition+18CIgraph),250 audit links and current source digest pass independently.
+- Current-count maintenance updates only current aggregate operands. All oldprefix/slices/flags,
+  historical hashes and behavior assertions stay fixed. The new catalog room inverse checks exact
+  appended tuples and restores dressing raw bytes before every old projection. The independent
+  `/tmp/suzaku-room-vocabulary.c9qj2R/maintenance-inverse.py` confirms14 count-maintenance files,
+  40 exact operands and the entire catalog inverse against the archived baseline; this limited
+  check is supplemented by the full928-file audit:50 exact inverses,872 other byte-identical
+  regular files and6 approved documentation paths, with all old file types/modes unchanged.
+  Eight new fixtures are frozen. All25 pack JSONs, SDK3, versions, model/host/UI code and older
+  candidate assertions/goldens remain protected outside the explicit repair leaves.
+- Reuse F16–F20 plus the affected lexicon/pack validation and transaction cells with one room
+  evidence object; do not change the127 historical evidence objects, maturity scores, limits or
+  runtime routes. The83 static Python guards and250 audit links have passed; final source digest
+  is maintained separately. Do not borrow the dressing2480, published
+  source2456/UI19 or historical warm timings as acceptance of this batch. No commit/push, version
+  bump, installation, service/configuration, native/UI/real-model or new timing run is included.
+
+## Daily dressing, fit and accessories — 2026 10 20
+
+This uncommitted data-only batch follows exact source `6edfa3e65b7542644e98543cfd3177f0348ff55b`.
+Version/build remains **0.9.3/43**. It does not replace that pinned release-acceptance source,
+its CI/artifacts, or the personal installation; no commit/push or input-service/config changes.
+
+- Append `daily_dressing`: six English next-word contexts and twelve authored sentences,
+  using existing words. All **6,151 first-occurrence forms/ranks** and the old48 layers remain.
+  Branches cover shirt fit, sleeve length, jacket zipper, belt/scarf, glasses case/bag and changing clothes.
+- Append **12 Chinese Word readings**, six contexts and twelve sentences: 拉链卡住了、纽扣掉了、
+  袖子有点短、鞋带又松了、裤腰有点紧、领口有点大 plus six independent clothing nouns.
+  Existing 拉链/纽扣/鞋带/口袋/试穿/尺码 and old clothing continuations are not new discoveries.
+- Append **four Japanese Word readings** (ファスナー、ボタン、靴ひも、きつい), reusing 袖/ポケット
+  for six contexts/twelve continuations. Romaji, case, Kana, supported aliases and bounded partials
+  use existing decoder rules; no arbitrary Katakana-to-Kanji lookup or new transliteration promise.
+- Current totals: **EN6,151 forms /833 contexts /1,630 sentences (49layers)**;
+  **ZH3,342 readings /827 contexts /1,652 sentences**; **JA596 /315 /629**.
+  Combined growth: **16 CJK Word readings /18 contexts /36 trilingual authored sentences**, zero English forms.
+  Data remains model/host independent, with no new protocol/schema, ranking rule, larger6/12/256 budget,
+  recommended-pack data, SDK or16-installed-pack limit. These are finite input examples, not fitting advice
+  or automated actions on clothing/objects.
+- Before changing data, freeze the three language suites and an independent old-pool compatibility suite.
+  Actual before: EN1pass/5missing, ZH2pass/4missing, JA2pass/4missing; compatibility4/4pass.
+  A separately frozen private9-JA/16-EN+ZH pack fixture has before0/2missing.
+  First data-after run: **23pass/1fail** across the five targets. The root-authored pack oracle incorrectly
+  demanded Word for canonical Japanese `seed == text`: existing classification preserves that exact text
+  as Literal (100), with the two author continuations, and suppresses a duplicate Word.
+  Correct only this identity-spelling oracle to accept the real raw kind; keep every spelling, both
+  continuations, first-page/12-row reachability, exact commit/undo and all other Word assertions.
+  Original failed fixture/log remain in `/tmp/suzaku-dressing-vocabulary.55blYA/`;
+  no production change or relaxed capacity/deadline. All three language fixtures and compatibility are
+  byte-identical to their frozen copies. Final focused rerun: **24pass/0fail/0ignore**, five unique
+  unfiltered result groups; parent-invoked child cases are not additional test counts.
+- Independently link unchanged replay code against saved actual before and new libraries:
+  **419/419 complete pools identical** (328builtin:EN130/ZH107/JA91;91private-nine-JA).
+  A separate24-pool clothing-adjacent sample has **21exact**, not24: `la lian` and `niu kou`
+  append the new phrase Word and two authors while retaining old Word/raw; `kutsu` adds 靴ひも/dual
+  authors and retains old rows/order. Old 靴 sentences remain first-page at indices4/5, each0.5 lower
+  under the existing insertion-index weights. No old golden/corpus is refreshed to conceal differences.
+  This is candidate-identity coverage, not a new performance measurement.
+- Source baseline archive SHA256: `8c9383fe37ed36cbcccb9b6bcf6c05aec782d7cebb2648c94875ed1517c592b2`.
+  Three resource inverses must recover exact baseline bytes; count-only maintenance in existing fixtures
+  and a new exact dressing inverse before the catalog's older hygiene inverse preserve historical hashes.
+  Maturity scores and runtime graph routes stay unchanged. No new UI/native/model/installation acceptance
+  is implied by focused tests or earlier0.9.3 source-preparation results.
+- First complete all-features run: **2479pass/1fail/32existing explicit ignores**, **245 unique top-level
+  groups including Doc-tests**, zero filtered. Only `chinese_compound_boundaries` fails: its private pack
+  still expects3,331 readings (old3,330+1), whereas new3,342+1=3,343. Preserve the complete failure as
+  `full-first-count-failed.log`; synchronize only this exact total operand, leaving every quotation,
+  number, token, line-boundary, raw commit/undo and twelve-row assertion unchanged. That is the58th
+  exact current-count literal maintenance across20 paths, not a production fix or relaxed oracle.
+  Do not add the captured child failure twice or combine separate runs into an all-green full result.
+- Independent preservation audit against all923 baseline tracked paths: **893 other paths byte/mode
+  identical**, including25pack JSONs, their README, SDK3, versions/lockfile, model/host/UI production and
+  both old replay corpora. Only3 raw resources,20 exact count-maintenance paths, the catalog's new
+  dressing inverse and6 documentation/index paths differ. All58 numeric replacements reverse exactly;
+  deleting only the new catalog helper/routing restores its entire old file and all60 historical SHA
+  constants. Four new frozen language/compat fixtures are unchanged; the pack fixture differs only in
+  the documented canonical-Japanese classification oracle. Runtime graph body and all126 old tensor
+  evidence objects, scores, limits and axes remain; add only dressing evidence, four F16–F19 references
+  and nine test-index entries across the existing three language implementations.
+- Final independent complete rerun of `cargo test --locked --offline --all-features --no-fail-fast
+  -- --test-threads=1`: **2480passed /0failed /32existing explicit ignores**, **245 unique top-level
+  result groups including Doc-tests**, zero filtered. All24 new tests are included, not added again;
+  two old four-vector golden targets, full Japanese terminal-n7 and release-tail8 all pass unchanged.
+  Compare each top-level result group to the first run: the only difference is the compound-boundary
+  parent changing0pass/1fail→1pass/0fail. Captured subprocess results are never counted again.
+  Both runs complete independently; the final exit code is0. Logs: `full-final.log` versus preserved
+  `full-first-count-failed.log` in the task directory above. Earlier2456/UI19 and separate focused24
+  runs are not additional passes or installed/native/UI/real-model acceptance of this snapshot.
+- Final strict `cargo clippy --locked --offline --all-targets --all-features -- -D warnings` exits0
+  in 46.05s; format/diff checks, **83 Python guards** (29tensor+11pack+25ASTpartition+18CIgraph),
+  250 source audit links, current source digest and the exact preservation audit pass independently.
+  Run one build at a time in a private user scope with MemoryHigh2G/MemoryMax4G/SwapMax0 and one Cargo
+  job, offline. No new timing benchmark, UI/native/real-model session, install, service or config changes.
 
 ## Release requirement starting with 0.8.0
 

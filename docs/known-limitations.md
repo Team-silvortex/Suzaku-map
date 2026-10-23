@@ -1,11 +1,21 @@
 # Alpha limitations and support
 
-The published release is **0.9.2 / build 42 Linux Alpha prerelease**, targeting Ubuntu 24.04
-amd64, IBus and X11 / GNOME XWayland. **0.9.3 / build 43 is a source candidate**, not a
+The published release is **0.9.3 / build 43 Linux Alpha prerelease**, targeting Ubuntu 24.04
+amd64, IBus and X11 / GNOME XWayland. **0.9.4 / build 44 is a source candidate**, not a
 published package or personal-installation update. Cross-platform architecture does not imply
 cross-platform stability. Keep another input method available.
 
-- **0.9.3 finite source scope and pending acceptance:** five everyday batches add eight
+- **0.9.4 finite scope and pending acceptance:** five further dressing/room/stationery/reading/plants
+  batches add28 English forms,82 CJK Word readings and180 authored sentences. New compound entries
+  can alter short-prefix conversions, score indices and tail choices; the narrow Japanese repairs
+  do not promise universal dual-author visibility at six rows or arbitrary prefix conversion.
+  Corrected merged-layer accounting does not raise individual-pack,16-installed-pack or candidate
+  budgets. Versioned local checks pass2,585 Rust tests with32 original ignores,19 isolated UI
+  checks and strict Clippy; these are separate from this exact commit's eight CI/accepted-package
+  gates, which must still complete before publication. No new real-model, UI/native latency or personal-installation
+  acceptance is implied. See [0.9.4 scope and release gates](releases/0.9.4.md).
+
+- **Historical 0.9.3 preparation:** five everyday batches add eight
   English forms, 122 CJK readings and 188 authored sentences, not unrestricted generation.
   Immutable catalog indexes do not cache typed input; earlier warm timings do not qualify
   final-build latency, cold start, UI/native input or real models. Narrow Japanese sentence-slot

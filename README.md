@@ -3,18 +3,126 @@
 A local-first, continuous-writing input method with word and sentence candidates,
 optional language models, and a compact floating companion panel.
 
-**[0.9.2 · Linux / IBus Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.2), not latest stable.** Current validation targets **Ubuntu 24.04,
+**[0.9.3 · Linux / IBus Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.3), not latest stable.** Current validation targets **Ubuntu 24.04,
 amd64, IBus, X11 or GNOME with XWayland**. Keep your usual input method available
 as a fallback. Other platforms remain experimental.
 
-**Source candidate: 0.9.3 / build 43.** It prepares five everyday-vocabulary batches,
-immutable-catalog query indexes and Japanese sentence-slot repairs. The current
-download above remains 0.9.2 until the new commit's CI and package acceptance finish.
-Local source checks pass: **2,456 Rust tests**, **19 isolated UI checks** and strict
-all-target/all-feature Clippy. These are not remote CI or installation acceptance.
+**Published baseline: 0.9.3 / build 43.** It includes five everyday-vocabulary batches,
+immutable-catalog query indexes and Japanese sentence-slot repairs. Its Linux release
+and four package/checksum assets are published; this does not update the personal installation.
+The **2,456 Rust tests**, **19 isolated UI checks** and strict Clippy recorded during
+preparation remain historical local evidence, separate from exact-commit release acceptance.
 See [0.9.3 preparation and release gates](docs/releases/0.9.3.md). Earlier
-"uncommitted/unreleased" paragraphs below retain their development-time scope;
-those follow-ups are now included in this source candidate, not the published 0.9.2 assets.
+"uncommitted/unreleased" paragraphs retain their development-time scope; those five
+follow-ups are now in 0.9.3. Its assets do not contain the newer batches below.
+
+**Current source candidate: 0.9.4 / build 44 — Everyday spaces and candidate continuity.**
+The dressing, room-comfort, stationery, reading and plants batches are now included in this
+candidate: **28 English forms, 82 CJK Word readings, 90 contexts and 180 authored sentences**.
+It also includes bounded Japanese nasal-progress/spare-word repairs and the offline catalog's
+per-source versus merged-layer budget correction. The 25 recommended packs, SDK, model contract,
+six-row page size and default twelve-row candidate list are unchanged.
+The versioned complete Rust run passes **2,585 tests /zero failures /32 original ignores**,
+across267 unfiltered groups. Separately, **19/19 isolated UI checks**, strict Clippy and source
+preservation checks pass. The exact new commit must still pass every required CI
+and accepted-package check before its four Linux assets can be published as a non-latest Alpha
+prerelease. There is no new 0.9.4 download or personal-installation update yet.
+See [0.9.4 scope and release gates](docs/releases/0.9.4.md).
+
+### Development-time batch snapshots included in 0.9.4
+
+The following “uncommitted” statuses and 0.9.3/43 checks retain their original snapshot scope;
+they are not versioned 0.9.4, remote CI, package or installation acceptance.
+
+**Current uncommitted follow-up: balcony plants and everyday plant-related dialogue.**
+Adds **eight builtin English forms, 12 Chinese and five Japanese Word readings, 18 contexts
+and 36 trilingual authored sentences**. Examples include “花盆／叶子／帮我拿一下喷壶” and
+“植木鉢／水やり／窓辺”. Current totals are **EN 6,179 / 857 / 1,678 (53 layers)**,
+**ZH 3,390 / 851 / 1,700**, **JA 614 / 339 / 677** (forms/readings, contexts, sentences).
+These are finite input expressions, not horticultural guidance, plant sensing or automatic watering.
+Existing watering/balcony words are retained, not counted again; new entries can change bounded
+short-prefix choices. The 25 packs/SDK, model contract and budgets are unchanged. A narrow Japanese
+default-twelve-row spare-slot rule restores a proven parent Word without changing earlier rows,
+raw input or slot metadata; smaller/larger limits retain their old behavior.
+Version/build remains 0.9.3/43, with no commit, installation or package change.
+The independent complete all-features rerun passes **2,585 tests /zero failures /32 original
+explicit ignores**, across267 unfiltered groups including Doc-tests; all24 new checks are included
+once. Strict all-target/all-feature Clippy passes (51.34s), as do formatting,83 Python guards,
+250 audit links and preservation checks. The two failed earlier runs remain recorded; this is not
+new native/UI/model-quality, latency or installation acceptance.
+See the [plants work record](DEVELOPMENT.md#daily-plants-and-balcony-dialogue--2026-10-20)
+for this batch's own validation; the reading/stationery results below retain their earlier scope.
+
+**Current uncommitted follow-up: reading, book pages and bookmarks.**
+Adds **four English forms, 12 Chinese and four Japanese Word readings, 18 contexts
+and 36 trilingual authored sentences**. Examples include `bookmark`, “书签／这页还没看完”
+and “栞／表紙／本棚”. Current totals are **EN 6,171 / 851 / 1,666 (52 layers)**,
+**ZH 3,378 / 845 / 1,688**, **JA 609 / 333 / 665** (forms/readings, contexts, sentences).
+This is finite fallback vocabulary, not book content, reading-state tracking or file actions.
+Old reading order/flags and English ranks, 25 packs/SDK, model contracts and budgets are unchanged;
+new compound entries can change bounded short-prefix choices. Version/build remains 0.9.3/43,
+without commit, installation or package changes. The independent complete all-features run passes
+**2,561 tests /zero failures /32 existing explicit ignores**, across262 unfiltered groups including
+Doc-tests; all19 new checks are included once. Strict all-target/all-feature Clippy passes
+with warnings denied (50.58s); formatting,83 Python guards,250 audit links and preservation checks pass.
+Detailed validation is recorded separately
+in the [reading work record](DEVELOPMENT.md#daily-reading-pages-and-bookmarks--2026-10-20);
+the completed stationery/room results below are historical, not this batch's acceptance.
+
+**Current uncommitted follow-up: paper, stationery and everyday writing.**
+Adds **eight English forms, 12 Chinese and four Japanese Word readings, 18 contexts
+and 36 trilingual authored sentences**. Examples include `inside my pencil case i keep`,
+“铅笔有点钝了／这个字写错了／先拿张草稿纸” and “付箋／定規／筆箱”.
+Current totals are **EN 6,167 / 845 / 1,654 (51 layers)**, **ZH 3,366 / 839 / 1,676**,
+**JA 605 / 327 / 653** (forms/readings, contexts, sentences). Existing pen, paper and writing
+entries are not counted as new; bounded short-prefix competition can replace old generated choices.
+This is finite fallback data, not handwriting recognition,
+open-ended composition or actions on notes/files. Model contracts,25 packs/SDK and all budgets
+are unchanged; version/build remains0.9.3/43, with no commit, release or installation change.
+After the documented new-test oracle corrections, an independent complete all-features run
+passes **2,542 tests / zero failures / 32 existing explicit ignores**, across258 unfiltered
+top-level groups including Doc-tests; all24 new checks are counted once. This is not the first
+23/1 focused run plus six English checks combined. Strict all-target/all-feature Clippy passes
+(49.91s), as do formatting,83 Python guards,250 audit links and source-schema checks; these are
+not new native/UI/model/performance/installation tests. Details are in the
+[stationery work record](DEVELOPMENT.md#daily-stationery-and-writing--2026-10-20).
+The room/dressing totals and results below retain their earlier snapshot scope, not this batch's acceptance.
+
+**Current uncommitted follow-up: indoor light, ventilation and room comfort.**
+After the dressing snapshot, it adds **eight English forms, 12 Chinese and five Japanese
+Word readings, 18 contexts and 36 trilingual authored sentences**. Examples include
+`the air in this room feels stuffy`, “开窗通通风／把窗帘拉开／灯光有点刺眼” and
+“照明／カーテン／風通し”. Totals are **EN 6,159 / 839 / 1,642 (50 layers)**,
+**ZH 3,354 / 833 / 1,664**, **JA 601 / 321 / 641** (forms/readings, contexts, sentences).
+These are finite input expressions, not ventilation advice, sensing or device controls.
+The original forms/readings, 25 optional packs/SDK, model contract and list budgets remain protected.
+The first five-target run records **23 passes and one actual Japanese first-page failure**:
+`kankise` reaches 換気扇, but its second authored sentence is at index eight. A narrow
+authored-stem proof fixes it while preserving older ticket pagination. A separate bounded
+merge fix retains all16 pack slots without raising single-source or per-pack limits.
+The independent complete all-features rerun passes **2,518 tests / zero failures / 32 existing
+explicit ignores**, across253 unfiltered top-level groups, including all38 new checks once.
+Both surfaced old regressions pass; focused93 and captured child output are not added again.
+Strict all-target/all-feature Clippy passes (49.21s), as do formatting,83 Python guards,
+250 source-audit links and exact preservation checks; these are not new native/UI/model/install tests.
+This data is not in published 0.9.3 or the personal installation. Version/build is unchanged;
+see the [current work and retained failure](DEVELOPMENT.md#daily-room-comfort-and-terminal-nasal-completion--2026-10-20).
+Earlier batch totals and test counts below describe their own snapshots, not this current batch.
+
+**Uncommitted follow-up after `6edfa3e`: daily dressing, fit and accessories.**
+Adds **12 Chinese and four Japanese Word readings, 18 contexts and 36 trilingual
+authored sentences**, reusing all 6,151 English forms without changing their ranks.
+Examples include `my shirt feels tight`, “拉链卡住了／鞋带又松了／裤腰有点紧” and
+`fasuna-` → “ファスナー”. Totals are now **EN 6,151 / 833 / 1,630 (49 layers)**,
+**ZH 3,342 / 827 / 1,652**, **JA 596 / 315 / 629** (forms/readings, contexts, sentences).
+These are finite input suggestions, not clothing recommendations or open-ended generation.
+The 25 optional packs/SDK, model contract and candidate budgets are unchanged.
+The new complete all-features regression passes **2,480 tests / zero failures / 32 existing
+explicit ignores**, across245 unfiltered top-level groups. This total includes the24 new tests.
+Strict all-target/all-feature Clippy, formatting and83 Python guards also pass; no new UI/native,
+real-model, installation or performance-timing acceptance is claimed.
+This data is not in the pinned 0.9.3 acceptance commit or the personal installation;
+see [current validation and limitations](DEVELOPMENT.md#daily-dressing-fit-and-accessories--2026-10-20).
 
 朱雀是以 Linux 为核心的连续写作输入法：用字母、拼音或罗马音起笔，同时获得词与句子候选。
 这是供试用和反馈的 Alpha，并非已覆盖所有桌面和应用的稳定版。
@@ -43,7 +151,7 @@ those follow-ups are now included in this source candidate, not the published 0.
   these are **not** eight native input dictionaries.
 - Linux configuration backup and preview-first restore. Packages do not collect personal data.
 
-The latest **uncommitted basic washcare-and-paper vocabulary** adds eight English forms
+The earlier **basic washcare-and-paper vocabulary** (now in the 0.9.3 source candidate) adds eight English forms
 (`paper`, `soap`, `shampoo`, `toothpaste`, `tissue`, `tissues`, `conditioner`, `mouthwash`),
 eight Chinese Word readings, six Japanese Word readings and **36 authored sentences**.
 Current totals: **6,151 English forms / 827 contexts / 1,618 sentences (48 layers)**;

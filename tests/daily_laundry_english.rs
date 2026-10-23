@@ -454,5 +454,5 @@ fn laundry_append_fixed_data_preserving_all_legacy_records_and_6143_positions() 
             "old index position changed: {word}"
         );
     }
-    assert_eq!(after.len(), 6151);
+    assert_eq!(after.len(), 6179);
 }

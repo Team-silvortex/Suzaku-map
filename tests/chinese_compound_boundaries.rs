@@ -58,7 +58,7 @@ fn optional_compound_sources_do_not_erase_quotes_numbers_tokens_or_lines() {
             .unwrap()
             .readings()
             .len(),
-        3331
+        3391
     );
     let mut seeds: Vec<String> = [
         "na guo lai'",
