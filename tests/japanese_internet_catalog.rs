@@ -256,6 +256,124 @@ fn remove_unique_append(source: &mut String, first: &str, after: &str) {
     source.replace_range(start..end, "");
 }
 
+fn builtin_before_daily_bedding(language: &str, source: &str) -> String {
+    // Restore the exact kitchen resource before every unchanged older inverse.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "7189fce8257ba5ca685f916483fd97b1b4fd4c745d2a17170878c3da64667e49"
+            );
+            assert_eq!(current["word_layers"].as_array().unwrap().len(), 55);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_bedding\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "b1ef05fa98967f14b2ccfecae03a19cf3f0fe33743638e9b8868793d11148de4"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "f8ea73423ac9040d14c946a7f09fd6e96e98c569737a266227a06f7572fad553"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3410);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 861);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"zhen'tou'fang'zai'chuang'tou\", \"text\": \"枕头放在床头\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(
+                &mut previous,
+                ",\n    [\n      \"枕头放在床头\",",
+                "\n  ]\n}",
+            );
+            "0fb23eb192fed8e96523ec1af10a71ff10d05a3b4a327ac191fadbc66a6231eb"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "8d4c2f1d8a48eddcf046ec271808bf12441744428c666a48b504b6fd02290dd5"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 622);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 349);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"しーつ\", \"text\": \"シーツ\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, ",\n    [\n      \"シーツ\",", "\n  ]\n}");
+            "d9775473653d87e7726b931b5bde0bb579c694e927f14f64074d5356741df87b"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
+fn builtin_before_daily_kitchen(language: &str, source: &str) -> String {
+    // Remove only this append, then run every unchanged historical inverse.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "b1ef05fa98967f14b2ccfecae03a19cf3f0fe33743638e9b8868793d11148de4"
+            );
+            assert_eq!(current["word_layers"].as_array().unwrap().len(), 54);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_kitchen\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "3102776d198a40a6ae64829666c8ba74e457ef2c4fd57e134c9ac7c3b76705cc"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "0fb23eb192fed8e96523ec1af10a71ff10d05a3b4a327ac191fadbc66a6231eb"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3402);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 857);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"wo'xian'ba'cai'xi'hao\", \"text\": \"我先把菜洗好\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(
+                &mut previous,
+                ",\n    [\n      \"我先把菜洗好\",",
+                "\n  ]\n}",
+            );
+            "1023a1295cd0180296ee0ff281f113b7e11ff5bfa9c52370152802de46988044"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "d9775473653d87e7726b931b5bde0bb579c694e927f14f64074d5356741df87b"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 619);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 345);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"すぷーん\", \"text\": \"スプーン\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, ",\n    [\n      \"箸\",", "\n  ]\n}");
+            "6b41345d2866fc199b5430e9a6776c6dc3ca4b2633597bcd7c0114745e106419"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
 fn builtin_before_daily_plants(language: &str, source: &str) -> String {
     // Restore only this plant append before the immutable reading and older epochs.
     let current: Value = serde_json::from_str(source).unwrap();
@@ -1996,7 +2114,9 @@ fn japanese_internet_preserves_all_eighteen_source_bytes_and_catalog_positions()
         );
     }
     for (language, source, expected) in BUILTIN {
-        let before_plants = builtin_before_daily_plants(language, source);
+        let before_bedding = builtin_before_daily_bedding(language, source);
+        let before_kitchen = builtin_before_daily_kitchen(language, &before_bedding);
+        let before_plants = builtin_before_daily_plants(language, &before_kitchen);
         let before_reading = builtin_before_daily_reading(language, &before_plants);
         let before_stationery = builtin_before_daily_stationery(language, &before_reading);
         let before_room = builtin_before_daily_room_comfort(language, &before_stationery);

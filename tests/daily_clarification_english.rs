@@ -469,5 +469,5 @@ fn clarification_preserves_all_nineteen_existing_layer_priorities_and_wording() 
         }
     }
     assert_eq!(hash, 0xefe0b415ade6b8b5);
-    assert_eq!(current_positions.len(), 6179);
+    assert_eq!(current_positions.len(), 6193);
 }

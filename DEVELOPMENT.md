@@ -3,7 +3,14 @@
 Historical implementation notes, including earlier behavior and experimental platforms.
 Start with the [README](README.md) and [known limitations](docs/known-limitations.md).
 
+**New source candidate:0.9.5 /build45 — Kitchen and bedtime fallback.** The release-preparation
+record below supersedes earlier current/uncommitted labels without rewriting their history.
+New versioned local and exact-commit package acceptance are required; no cancelled automation
+is resumed and the personal installation remains unchanged.
+
 Current source candidate: **0.9.4 / build 44 — Everyday spaces and candidate continuity**.
+The uncommitted kitchen-vocabulary follow-up below starts from clean `d2b0a1a` and does not
+resume the cancelled release automation, change versions or update the personal installation.
 
 The route-coordination, call-recovery, storage and restocking vocabulary follow-ups,
 plus basic washcare/paper vocabulary, immutable-catalog indexes and Japanese authored-progress/long-vowel slot repairs, now follow released source `4108bc0`.
@@ -55,6 +62,219 @@ The paired [English](tests/english_completion_quality.rs) and
 [Chinese](tests/chinese_completion_quality.rs) regression suites provide a reproducible starting point,
 not a general language-quality score. The first follow-up fixes separated Pinyin within existing
 dictionary entries; see the [N47 audit](docs/bug-audit-bilingual-core-2026-09-24.md).
+
+## 0.9.5 source preparation — 2026 10 23
+
+This version prepares the kitchen and bedding data-only batches after source baseline
+`d2b0a1a458a47054a94a2eb55afa23971da69a5e`/0.9.4, not a claim of published0.9.4 packages.
+Compared with that baseline, add14 builtin English forms,20 Chinese/eight Japanese Word
+readings,30 contexts and60 authored sentences. Current totals are EN6193/867/1698 (55layers),
+ZH3410/861/1720 and JA622/349/697. Earlier ranks, data order/flags,25 packs/SDK, runtime/model
+logic and budgets remain unchanged. Candidate pools can change under the same bounded rules;
+source-author preservation is not blanket short-root reachability or score equality.
+
+- Version0.9.5/build45 metadata synchronization is preparation, not runtime/vocabulary repair
+  or installation. Preserve the prior kitchen/bedding tests, raw data, histories and133 evidence
+  objects,49 implementation slices,79 cells/scores/routes; the snapshot note adds only a new
+  preparation prefix and preserves its complete previous suffix.
+- The actual pre-version archive is `/tmp/suzaku-release-0.9.5.hrSqXP/before-version.tar`,
+  SHA256 `8c8e2be2a00f57f8c75f9d2feb81cdb76d225c4d26908584d61a2c8d69f78fa9`, with961 regular
+  files. It already contains the pending release note and five prose/diagram preparation
+  summaries, before metadata synchronization. The seven allowed documentation paths are
+  `README.md`, `DEVELOPMENT.md`, `data/lexicons/README.md`, `docs/functional-network.md`,
+  `docs/functional-network.mmd`, `docs/functional-tensor.json` and `docs/releases/0.9.5.md`.
+  Five separate metadata files may change only their eight version operands;954 non-document
+  paths therefore include those five metadata files, not954 claimed immutable files. Final
+  preservation must account for those exceptions explicitly and retain dependencies, runtime,
+  vocabulary, tests and all historical evidence rather than infer them from file counts.
+- **Independent versioned full acceptance passed:** the locked/offline/all-feature invocation
+  finishes with actual tool exit0:275 unique groups including Doc-tests,2623passed/zero failures/
+  32 original ignores/zero filtered. The log is
+  `/tmp/suzaku-release-0.9.5.hrSqXP/final-full.log`, SHA256
+  `db479ff88ec6d36e04690515c4c653538b075b128c76357e6893e232a1a2ad09`.
+  Its actual terminal exit receipt and `audit-release-full` independently confirm all275 old
+  test-name order/status rosters and32 ignore identities. This new run is not the prior equal-count
+  bedding run relabeled, nor a sum of focused/probe/child or historical results. The83 Python
+  guards,250 audit links and release-preservation checks also pass. New strict locked/offline/
+  all-target/all-feature Clippy with `-D warnings` finishes with actual tool exit0
+  (`/tmp/suzaku-release-0.9.5.hrSqXP/clippy.log`,1m03s). Final pre-commit formatting and
+  preservation checks are separate from the exact-commit remote acceptance below. Earlier Clippy52.51s,
+  419-vector and dirty0.9.4/44 receipts retain their original scope, not new acceptance.
+- **Fresh versioned UI acceptance passed:** `ui-gates.log` finishes with actual tool exit0,
+  SHA256 `f161cc1f82467e8ff273b432fa377c8bf79c116151f7be6a84b57a25985a28ef`.
+  Its exit receipt and `audit-versioned-ui` verify19 exact gates:18 individually selected panel
+  cases (each1pass/270 explicitly filtered cases) and one launch case (1pass/zero filtered).
+  Unselected cases are not passes or ignores; these19 are separate from the complete2623.
+  The first temporary wrapper requested an uninstalled `1.95.0` rustup alias, triggering
+  repeated setup downloads with zero test results. Root interrupts only its own scope with
+  SIGINT/exit130 and retains `ui-first-version-alias.log` plus the original wrapper. Only the
+  temporary environment alias changes to installed `stable-x86_64-unknown-linux-gnu`; the
+  actual compiler remains rustc1.95.0. Repository runner/assertions, its90s gate deadlines,
+  private isolation and the user's default toolchain/IBus remain unchanged. This setup attempt
+  is not a product-test failure or a partial test run combined with the fresh19 gates.
+- The user authorizes commit/push and Linux publication only after the exact new commit passes
+  all required CI jobs and its accepted four-file artifact passes independent checksums,
+  complete inventories, source/version/target manifests and clean-container install/upgrade/
+  removal validation. Pin an immutable annotated tag only after acceptance; use a draft,
+  upload the four accepted0.9.5 files, re-download/compare actual bytes, then Alpha prerelease
+  rather than latest stable. Baseline is Ubuntu24.04 amd64/glibc2.39. No old/local/unaccepted
+  artifact can substitute, and no personal installation or cancelled automation is restarted.
+
+See [0.9.5 release scope and gates](docs/releases/0.9.5.md). All batch sections below preserve
+their development-time statuses and receipts rather than claiming new versioned acceptance.
+
+## Daily bedding and bedtime preparation — 2026 10 23
+
+This data-only batch starts from the actual956-file dirty snapshot containing the completed
+kitchen work, not clean HEAD or a personal installation. The unchanged source head is
+`d2b0a1a458a47054a94a2eb55afa23971da69a5e`, version0.9.4/build44. Before archive:
+`/tmp/suzaku-bedding-vocabulary.c06dD2/before-source.tar`, SHA256
+`9c6959fa3cfa79d163e674f65f1d0c39b08121599b875c48c1575dee0fd753f2`.
+
+- Add six builtin English forms (`sheet`, `sheets`, `pillows`, `bedside`, `slippers`, `pajamas`)
+  in the55th ordered layer, `daily_bedding`, with four contexts/eight authored sentences.
+- Add eight Chinese Word readings: four phrases (“枕头放在床头／被子先叠起来／床单换好了吗／
+  睡前把床铺好”) and four independent nouns (“枕头／被子／毯子／床垫”), with four contexts/eight
+  authors. Existing 床单/被套/枕套 and the family pack's 床单收纳 are not counted again. The
+  question uses its actual `？` boundary before the known 我/`wo` tail; do not silently replace
+  it with a comma. 铺好 uses the verb `pu1`, not a new character or tone-ranking policy.
+  Neighboring `bei z`/`chuang d`/`zhen t`/`tan` choices are not promised identical just because
+  the old full entries and source authors remain intact.
+- Add three Japanese readings for シーツ, 毛布 and パジャマ; reuse the existing 目覚まし Word.
+  Four contexts/eight authors cover everyday changing, folding and locating bedding or clothes.
+  `shi-tsu` keeps the existing explicit-long-mark convention; the finite aliases and partials
+  are not a complete morphology or arbitrary Katakana reverse-lookup contract.
+- Combined addition: six English forms,11 CJK Word readings,12 contexts and24 authored
+  sentences. Current totals are EN6193/867/1698 (55layers), ZH3410/861/1720 and JA622/349/697.
+  Old ranks, reading flags/order and source authors,25 recommended packs/SDK, model protocol,
+  runtime conversion/ranking logic, source/pack/candidate budgets and version remain unchanged.
+  This is finite input fallback, not medical advice, sleep-effect claims, alarm scheduling or
+  household-device control. No commit, CI query, installation or cancelled-release restart.
+- Four tests-first targets are frozen: [English](tests/daily_bedding_english.rs)`9efaae46…`,
+  [Chinese](tests/daily_bedding_chinese.rs)`49ead3b2…`,
+  [Japanese](tests/daily_bedding_japanese.rs)`74f3154a…` and
+  [private sixteen-pack](tests/daily_bedding_packs.rs)`dbd2f5be…`.
+  Actual saved-before runs record EN2pass/4missing, ZH2pass/4missing and JA2pass/4missing,
+  plus private-pack0pass/1missing after `BEDDING_OLD_CONTROLS_OK:16` passes. Sixteen is the
+  installed-package count, not the number of old controls. This batch has no child-filter
+  correction; the kitchen harness failure remains solely in its original historical section.
+  The audit directory retains each `*-before.log`, frozen copy and proposal data. The
+  compiled-before library is7edc691a…, not an injected mock or an older plants baseline.
+- Actual `focused-after.log` finishes with tool exit0: eight groups/46passes/zero failures,
+  ignores or filters (new19, old golden8, catalog4, resource15). Its compiled-after library is
+  copied only after Cargo finishes and double-hash checked as1b08f770…. All four frozen specs
+  remain unchanged. The independent `final-full.log` then finishes with actual tool exit0:
+  **275 unique groups including Doc-tests /2623passes /zero failures /32 original ignores /
+  zero filtered**. Its SHA256 is
+  `2bf69b6c5cd9b22ca927cdea99beb526efd1281ea0bbbfa9637bfa6d6d7e2d21`.
+  The terminal receipt and `final-full-audit-report.json` confirm all271 previous groups'
+  test-name order/status and32 ignore identities. New19 are included once, not added again
+  with focused46, child output,419 replay vectors or other probes.
+- Freshly compiled actual probes link saved-before7edc… and after1b08… without mock injection:
+  fixed419 historical vectors (328 builtin/91 nine-Japanese-pack) have identical complete
+  tuples and raw JSONL bytes. Each zero-/nine-pack Japanese catalog verifies20 full/specific
+  partial author pairs on page one,15 protected `ま` pools unchanged, and the four declared
+  partials' authors at3/4 for explicit6/9/12 limits. This is finite coverage, not arbitrary
+  prefix stability: per catalog,42 of82 neighboring pools are exact and40 change. The only
+  old text leaving these samples is the `mou` twelve-row generated tail Word, builtinも受付
+  or nine-packも受け取り; the original source Words/authors are not removed. Details are in
+  `actual-japanese-audit-report.json` (SHA256
+  `fff26d58ef311c2225c1ad7e3ecfbc71bc119da173e618f419cf86efda02fdd4`).
+- `preserve-source-report.json` independently restores50 exact whole-file maintenance changes,
+  three raw appends and the new catalog wrapper/route to the956-file baseline;896 other old
+  files keep exact bytes, modes and types. The25 packs/SDK, five version surfaces and four
+  new frozen specs remain unchanged; no extra file is added/deleted. The temporary source
+  auditor's initial incorrect macOS path lookup is retained and corrected to the two actual
+  `src/macos` plist paths, not treated as a product defect or resolved by changing a guard.
+  All83 Python checks (29+11+25+18),250 audit links, source-schema, formatting and diff checks
+  pass. `audit-bedding-docs.py` separately preserves all kitchen/older prose,132 old evidence
+  objects,49 implementations,79 cell scores/limits, axes/routes and the complete old-note suffix.
+- **Final strict Clippy passes** with actual tool exit0 for this fixed source
+  (`--locked --offline --all-targets --all-features -- -D warnings`, `final-clippy.log`,52.51s).
+  The complete-run audit report SHA256 is
+  `dd570acc35e153e5b394e0c86314e4c3ac3da5085cdeebff9e808e516385f74a`.
+  Final independent formatting,83 Python guards,250 audit links, source-preservation and
+  tensor/source-schema checks also pass. No new UI, native keyboard, real-model, installation
+  or performance-timing acceptance is claimed. Kitchen2604/271/50.42s,
+  versioned2585/UI19 and older timings remain historical; they do not supply this batch's result.
+  Version0.9.4/44, the personal installation and the cancelled publication automation stay unchanged.
+
+## Daily kitchen preparation, tableware and clearing up — 2026 10 23
+
+This finite data-only batch starts from clean `d2b0a1a458a47054a94a2eb55afa23971da69a5e`,
+0.9.4/build44, not a personal installation. The actual952-file before archive is
+`/tmp/suzaku-kitchen-vocabulary.9ihquk/before-source.tar`, SHA256
+`5a6e641d01a62696e993db367994372e910302fe85f5ea28968d770ef2926eb2`.
+
+- Add eight builtin English forms (`bowls`, `spoons`, `forks`, `apron`, `cutting`, `rack`,
+  `tray`, `lids`) in `daily_kitchen`, with six contexts/twelve sentences. `bowls` and `spoons`
+  already exist in the optional cooking pack: new to builtin does not mean new to every
+  catalog. The other six forms are absent from builtin plus its eight recommended packs.
+- Add12 Chinese Word readings, six contexts/twelve authors: six practical phrases such as
+  “我先把菜洗好／切好的菜放这边／吃完我来收桌子” and six independent nouns
+  “菜板／锅铲／盘子／碟子／饭碗／筷架”. Existing washing-up/mealtime Words and pairs are
+  controls, not new coverage. No isolated character mapping is added. `kuai ji` may gain
+  筷架 beside 快捷键; protect old selectable entries without asserting arbitrary prefix-pool
+  size, score or order equality.
+- Add five Japanese readings for スプーン, フライ返し, 穴あきお玉, エプロン and 水切りかご;
+  reuse the existing 箸 Word and add six contexts/twelve authors. `supu-n` uses the converter's
+  explicit long mark; `supuun` is not a new alias. Mock proposal feasibility is not after-data
+  acceptance. Default-twelve page-one tests do not expand the existing explicit-six `hash`
+  boundary, which retains one author and raw input.
+- Combined addition: eight English forms,17 CJK readings,18 contexts and36 authored sentences;
+  current totals after all three resource appends are
+  EN6187/863/1690 (54layers), ZH3402/857/1712, JA619/345/689. Old entry flags/order, English
+  ranks,25 recommended packs/SDK, model protocol, conversion/ranking logic and all budgets stay
+  fixed. These are everyday input expressions, not recipes, health advice, appliance control
+  or an open-ended model substitute. No commit, CI query, installation, version change or
+  restart of the cancelled publication automation is authorized by this vocabulary work.
+- Freeze the new [English](tests/daily_kitchen_english.rs),
+  [Chinese](tests/daily_kitchen_chinese.rs), [Japanese](tests/daily_kitchen_japanese.rs) and
+  [private sixteen-pack](tests/daily_kitchen_packs.rs) targets before data. Actual saved-before
+  library runs record EN1pass/5missing (`english-before.log`), ZH2pass/4missing
+  (`chinese-before.log`) and JA2pass/4missing (`japanese-before.log`). The private-pack harness
+  first selects a stale child-test name; its `running 1 test` guard catches the empty run.
+  Keep `frozen-packs-first-wrong-filter.rs` (`a47ae037…`) and
+  `packs-before-first-wrong-filter.log`; correct only that filter name, freeze `125e9943…`,
+  then run the actual child. Its old controls in the sixteen-pack catalog pass
+  (`KITCHEN_OLD_CONTROLS_OK:16`) before the expected new-Word failure (`packs-before.log`,0/1).
+  Sixteen is the installed-package count, not a count of old controls.
+- The language fixtures are frozen as EN`bc4a381f…`, ZH`4fcabb8c…`, JA`3f4afb2c…`.
+  Preserve the full before logs, fixtures and raw inverses in the same audit directory. New
+  complete/near-complete forms, adopted known tails, raw commit/undo, horizontal gaps, protected
+  tokens, seven line boundaries and pending/missing/error/timeout/empty model pools are finite
+  assertions, not a promise of every shorter prefix or real-model quality.
+- Actual `focused-after.log` finishes with tool exit0: eight top-level groups,46passes,
+  zero failures/ignores/filters (new19, old golden8, catalog4 and resource15 checks). All four
+  new fixtures retain their frozen bytes. The independent `final-full.log` then finishes with
+  tool exit0: **271 unique groups including Doc-tests /2604passes /zero failures /32 original
+  ignores /zero filtered**. Its SHA256 is
+  `494fd83077b5a6af2b94a303bf1bfd24136de2144993da2ff7599127184ef5f2`.
+  The exit receipt and independent `audit-final-full` confirm all267 old groups' test names,
+  order/status and ignore identities. New19 are included once, not added again with focused46,
+  captured children,419 replay vectors or other probes.
+- Fresh probes link the real saved-before0547… and compiled-after7edc… libraries, without mock
+  injection: all419 fixed vectors (328 builtin and91 nine-Japanese-pack) retain complete
+  candidate tuples and raw JSONL bytes. The separate actual Japanese audit verifies30 full or
+  specifically near-complete page-one author pairs per zero-/nine-pack catalog and15 protected
+  `ま` pools; explicit-six `hash` keeps `[4,None]`, the other five declared partials `[3,4]`.
+  These are finite checks, not blanket prefix stability. In the nine-pack short `fur` pool,
+  フライパン stays selectable but its two older authored candidates leave the pool after new
+  vocabulary. That pool has11 rows, so this is not final twelve-row truncation or deletion of
+  source authors. See `actual-japanese-audit-report.json` for full neighboring tuples and scope.
+- Preservation verifies48 exact whole-file maintenance inverses (18 shared/30 English), the
+  catalog's appended inverse wrapper/route, all three raw resource appends and894 other old
+  files byte-for-byte. `audit-kitchen-docs.py` separately restores five prose/diagram files
+  exactly and checks131 old evidence objects,49 implementation slices,79 cell scores/limits,
+  all axes/routes and the complete previous snapshot-note suffix. Source-schema and250 audit
+  links pass. Strict locked/offline/all-target/all-feature Clippy with `-D warnings` finishes
+  with actual tool exit0 (`final-clippy.log`,50.42s). The independent full audit is retained as
+  `final-full-audit-report.json`, SHA256
+  `2ce001c21c4f7c735ba2a981fe55277200ef1f166baf294d83d0bcbffe02d0c5`.
+  No new UI, native-keyboard, real-model, installation or performance-timing acceptance is
+  claimed. The32 ignored identities are the unchanged original set, not an enlarged skip list.
+  The older versioned2585, UI19, Clippy51.90s and timings remain historical, not this batch's
+  acceptance. No installation, commit or cancelled release automation is performed.
 
 ## 0.9.4 source preparation — 2026 10 20
 

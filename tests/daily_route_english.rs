@@ -175,9 +175,9 @@ fn indexed_words(layers: &[WordLayer]) -> HashSet<String> {
 #[test]
 fn route_layer_has_fixed_records_and_preserves_all_previous_index_forms() {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 53);
-    assert_eq!(en.next_words().count(), 857);
-    assert_eq!(en.sentences().count(), 1678);
+    assert_eq!(en.word_layers().len(), 55);
+    assert_eq!(en.next_words().count(), 867);
+    assert_eq!(en.sentences().count(), 1698);
     let layer = &en.word_layers()[43];
     assert_eq!(layer.id, "daily_route");
     assert!(layer.words.is_empty());
@@ -218,7 +218,7 @@ fn route_layer_has_fixed_records_and_preserves_all_previous_index_forms() {
     );
     let old = indexed_words(&en.word_layers()[..43]);
     assert_eq!(old.len(), 6143);
-    assert_eq!(indexed_words(en.word_layers()).len(), 6179);
+    assert_eq!(indexed_words(en.word_layers()).len(), 6193);
     assert_eq!(indexed_words(&en.word_layers()[..47]), old);
 }
 

@@ -205,9 +205,9 @@ fn plants_preserves_all_52_prior_layers_6171_first_seen_ranks_and_phrase_endings
 #[test]
 fn plants_fixed_layer_adds_only_eight_forms_in_exact_first_occurrence_order() {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 53);
-    assert_eq!(en.next_words().count(), 857);
-    assert_eq!(en.sentences().count(), 1678);
+    assert_eq!(en.word_layers().len(), 55);
+    assert_eq!(en.next_words().count(), 867);
+    assert_eq!(en.sentences().count(), 1698);
     let layer = &en.word_layers()[52];
     assert_eq!(layer.id, "daily_plants");
     assert_eq!(
@@ -231,7 +231,7 @@ fn plants_fixed_layer_adds_only_eight_forms_in_exact_first_occurrence_order() {
         SENTENCES.into_iter().flatten().collect::<Vec<_>>()
     );
     let old = indexed_occurrences(&en.word_layers()[..52]);
-    let all = indexed_occurrences(en.word_layers());
+    let all = indexed_occurrences(&en.word_layers()[..53]);
     assert_eq!(all.len(), 6179);
     assert_eq!(&all[..6171], old.as_slice());
     assert_eq!(

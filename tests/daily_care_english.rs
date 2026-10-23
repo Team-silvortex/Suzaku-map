@@ -454,7 +454,7 @@ fn care_preserves_every_old_layer_context_sentence_and_index_rank() {
         ["hair", "hands", "wash"]
     );
     assert_eq!(word_positions(&en.word_layers()[..30]).len(), 6143);
-    assert_eq!(after.len(), 6179);
+    assert_eq!(after.len(), 6193);
 }
 #[test]
 fn care_adds_three_words_eight_contexts_and_sixteen_fixed_sentences() {

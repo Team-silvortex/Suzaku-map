@@ -3391,7 +3391,27 @@
     {"reading": "pen'zai", "text": "盆栽", "kind": "word"},
     {"reading": "ye'zi", "text": "叶子", "kind": "word"},
     {"reading": "pen'hu", "text": "喷壶", "kind": "word"},
-    {"reading": "chuang'tai", "text": "窗台", "kind": "word"}
+    {"reading": "chuang'tai", "text": "窗台", "kind": "word"},
+    {"reading": "wo'xian'ba'cai'xi'hao", "text": "我先把菜洗好", "kind": "word"},
+    {"reading": "qie'hao'de'cai'fang'zhe'bian", "text": "切好的菜放这边", "kind": "word"},
+    {"reading": "bang'wo'na'yi'xia'cai'ban", "text": "帮我拿一下菜板", "kind": "word"},
+    {"reading": "pan'zi'zai'na'liang'ge", "text": "盘子再拿两个", "kind": "word"},
+    {"reading": "chi'wan'wo'lai'shou'zhuo'zi", "text": "吃完我来收桌子", "kind": "word"},
+    {"reading": "xi'hao'de'wan'fang'zhe'bian", "text": "洗好的碗放这边", "kind": "word"},
+    {"reading": "cai'ban", "text": "菜板", "kind": "word"},
+    {"reading": "guo'chan", "text": "锅铲", "kind": "word"},
+    {"reading": "pan'zi", "text": "盘子", "kind": "word"},
+    {"reading": "die'zi", "text": "碟子", "kind": "word"},
+    {"reading": "fan'wan", "text": "饭碗", "kind": "word"},
+    {"reading": "kuai'jia", "text": "筷架", "kind": "word"},
+    {"reading": "zhen'tou'fang'zai'chuang'tou", "text": "枕头放在床头", "kind": "word"},
+    {"reading": "bei'zi'xian'die'qi'lai", "text": "被子先叠起来", "kind": "word"},
+    {"reading": "chuang'dan'huan'hao'le'ma", "text": "床单换好了吗", "kind": "word"},
+    {"reading": "shui'qian'ba'chuang'pu'hao", "text": "睡前把床铺好", "kind": "word"},
+    {"reading": "zhen'tou", "text": "枕头", "kind": "word"},
+    {"reading": "bei'zi", "text": "被子", "kind": "word"},
+    {"reading": "tan'zi", "text": "毯子", "kind": "word"},
+    {"reading": "chuang'dian", "text": "床垫", "kind": "word"}
   ],
   "continuations": [
     [
@@ -9347,6 +9367,76 @@
       [
         "先别挪这个花盆，我来腾一下位置。",
         "先别挪这个花盆，旁边的东西还没收好。"
+      ]
+    ],
+    [
+      "我先把菜洗好",
+      [
+        "我先把菜洗好，你把盘子拿出来。",
+        "我先把菜洗好，洗完再叫你过来。"
+      ]
+    ],
+    [
+      "切好的菜放这边",
+      [
+        "切好的菜放这边，我等会儿来拿。",
+        "切好的菜放这边，空盘子放另一边。"
+      ]
+    ],
+    [
+      "帮我拿一下菜板",
+      [
+        "帮我拿一下菜板，我腾不出手。",
+        "帮我拿一下菜板，就在下面的柜子里。"
+      ]
+    ],
+    [
+      "盘子再拿两个",
+      [
+        "盘子再拿两个，还有两个人没拿到。",
+        "盘子再拿两个，我来摆好。"
+      ]
+    ],
+    [
+      "吃完我来收桌子",
+      [
+        "吃完我来收桌子，你先坐着休息。",
+        "吃完我来收桌子，碗筷留给我就好。"
+      ]
+    ],
+    [
+      "洗好的碗放这边",
+      [
+        "洗好的碗放这边，我来擦干。",
+        "洗好的碗放这边，柜子里还有空位。"
+      ]
+    ],
+    [
+      "枕头放在床头",
+      [
+        "枕头放在床头，我来整理被子。",
+        "枕头放在床头，别压住旁边的书。"
+      ]
+    ],
+    [
+      "被子先叠起来",
+      [
+        "被子先叠起来，我把床单拉平。",
+        "被子先叠起来，等会儿再放进柜子。"
+      ]
+    ],
+    [
+      "床单换好了吗",
+      [
+        "床单换好了吗？我把枕套拿过来。",
+        "床单换好了吗？旧的我来收起来。"
+      ]
+    ],
+    [
+      "睡前把床铺好",
+      [
+        "睡前把床铺好，我先去洗漱。",
+        "睡前把床铺好，衣服放到椅子上。"
       ]
     ]
   ]

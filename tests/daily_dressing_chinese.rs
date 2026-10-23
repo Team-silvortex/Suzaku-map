@@ -196,14 +196,14 @@ fn dressing_preserves_all_3330_readings_flags_and_821_contexts_in_original_order
 fn dressing_appends_only_twelve_words_and_six_exact_authored_contexts() {
     let vocabulary = lexicon::builtin("zh-Hans").unwrap();
     assert_eq!((WORDS.len(), PARTIALS.len(), SENTENCES.len()), (12, 6, 6));
-    assert_eq!(vocabulary.readings().len(), 3390);
-    assert_eq!(vocabulary.continuations().count(), 851);
+    assert_eq!(vocabulary.readings().len(), 3410);
+    assert_eq!(vocabulary.continuations().count(), 861);
     assert_eq!(
         vocabulary
             .continuations()
             .map(|(_, values)| values.len())
             .sum::<usize>(),
-        1700
+        1720
     );
     for (entry, &(reading, text)) in vocabulary.readings()[3330..3342].iter().zip(WORDS) {
         assert_eq!((&*entry.reading, &*entry.text), (reading, text));

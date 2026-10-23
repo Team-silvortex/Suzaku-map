@@ -12630,6 +12630,68 @@
         "while you were out i watered the plants on the balcony.",
         "while you were out i watered the flowers in the small pots."
       ]
+    },
+    {
+      "id": "daily_kitchen",
+      "words": [
+        "bowls",
+        "spoons",
+        "forks",
+        "apron",
+        "cutting",
+        "rack",
+        "tray",
+        "lids"
+      ],
+      "next_words": [
+        ["on the cutting board i've left the",["vegetables","bread"]],
+        ["the clean bowls are ready for",["soup","rice"]],
+        ["next to the plates i've put the",["spoons","forks"]],
+        ["my apron is hanging near the",["door","sink"]],
+        ["the drying rack still has the",["cups","bowls"]],
+        ["these lids belong to the",["containers","pots"]]
+      ],
+      "sentences": [
+        "on the cutting board i've left the vegetables you asked me to bring.",
+        "on the cutting board i've left the bread for our lunch.",
+        "the clean bowls are ready for soup when you bring it over.",
+        "the clean bowls are ready for rice and i'll carry them to the table.",
+        "next to the plates i've put the spoons for everyone.",
+        "next to the plates i've put the forks from the kitchen drawer.",
+        "my apron is hanging near the door where i can find it.",
+        "my apron is hanging near the sink with the clean towels.",
+        "the drying rack still has the cups we used at lunch.",
+        "the drying rack still has the bowls from our lunch.",
+        "these lids belong to the containers on the tray.",
+        "these lids belong to the pots in the cupboard."
+      ]
+    },
+    {
+      "id": "daily_bedding",
+      "words": [
+        "sheet",
+        "sheets",
+        "pillows",
+        "bedside",
+        "slippers",
+        "pajamas"
+      ],
+      "next_words": [
+        ["our spare bed still needs the",["sheet","pillows"]],
+        ["these sheets can go in the",["cupboard","basket"]],
+        ["my slippers and pajamas are ready",["upstairs","here"]],
+        ["the bedside lamp is on the",["table","shelf"]]
+      ],
+      "sentences": [
+        "our spare bed still needs the sheet from the clean laundry.",
+        "our spare bed still needs the pillows you left in the bedroom.",
+        "these sheets can go in the cupboard with the spare pillowcases.",
+        "these sheets can go in the basket until i put them away.",
+        "my slippers and pajamas are ready upstairs in the bedroom.",
+        "my slippers and pajamas are ready here on the chair.",
+        "the bedside lamp is on the table next to the book i'm reading.",
+        "the bedside lamp is on the shelf where i left my glasses."
+      ]
     }
   ],
   "phrase_endings": [

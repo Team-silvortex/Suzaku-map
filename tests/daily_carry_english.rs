@@ -404,7 +404,7 @@ fn carry_preserves_every_old_layer_context_sentence_and_index_rank() {
         ["glasses"]
     );
     assert_eq!(word_positions(&en.word_layers()[..29]).len(), 6140);
-    assert_eq!(after.len(), 6179);
+    assert_eq!(after.len(), 6193);
 }
 #[test]
 fn carry_adds_one_word_eight_contexts_and_sixteen_fixed_sentences() {

@@ -16,6 +16,23 @@ See [0.9.3 preparation and release gates](docs/releases/0.9.3.md). Earlier
 "uncommitted/unreleased" paragraphs retain their development-time scope; those five
 follow-ups are now in 0.9.3. Its assets do not contain the newer batches below.
 
+**New source candidate: 0.9.5 / build 45 — Kitchen and bedtime fallback.**
+It includes the two kitchen/bedding batches after the0.9.4 source baseline `d2b0a1a`:
+**14 builtin English forms,28 CJK Word readings,30 contexts and60 authored sentences**.
+Current totals are **EN6,193/867/1,698 (55 layers)**, **ZH3,410/861/1,720** and
+**JA622/349/697**. Runtime/model logic, earlier ranks/data,25 packs/SDK and all budgets
+are unchanged; bounded short-root candidate pools may still change as vocabulary grows.
+The new independent versioned full run passes **2,623 tests /zero failures /32 original ignores**,
+across275 unfiltered groups including Doc-tests;83 Python guards,250 links and preservation checks pass.
+Separately, **19 exact isolated UI gates** and strict all-target/all-feature Clippy
+(1m03s, warnings denied) pass. Exact-commit CI/accepted-four-package checks remain pending;
+the19 UI checks are not added to the full total.
+Only after acceptance may the four Linux assets be published as an Ubuntu24.04 amd64/glibc2.39
+Alpha prerelease, not latest. This does not restore the cancelled automation or update the
+personal installation. See [0.9.5 scope and gates](docs/releases/0.9.5.md).
+The source-candidate headings and uncommitted statuses below retain their historical scope;
+the earlier2623/52.51s/419 receipts are not this new version's acceptance.
+
 **Current source candidate: 0.9.4 / build 44 — Everyday spaces and candidate continuity.**
 The dressing, room-comfort, stationery, reading and plants batches are now included in this
 candidate: **28 English forms, 82 CJK Word readings, 90 contexts and 180 authored sentences**.
@@ -28,6 +45,40 @@ preservation checks pass. The exact new commit must still pass every required CI
 and accepted-package check before its four Linux assets can be published as a non-latest Alpha
 prerelease. There is no new 0.9.4 download or personal-installation update yet.
 See [0.9.4 scope and release gates](docs/releases/0.9.4.md).
+
+**Current uncommitted follow-up: bedding and bedtime preparation.**
+After the kitchen-inclusive working snapshot, this finite batch adds **six builtin English
+forms, eight Chinese and three Japanese Word readings, 12 contexts and 24 trilingual authored
+sentences**. Examples include `sheet / pillows / bedside`, “枕头／被子／床单换好了吗” and
+“シーツ／毛布／パジャマ”; the existing 目覚まし Word is reused, not counted again.
+Current totals are **EN 6,193 / 867 / 1,698 (55 layers)**, **ZH 3,410 / 861 / 1,720**,
+**JA 622 / 349 / 697** (forms/readings, contexts, sentences). This is everyday input vocabulary,
+not medical advice, sleep-effect guidance, alarm control or appliance actions. Version0.9.4/44,
+runtime logic, model contracts,25 packs/SDK and all budgets are unchanged. No commit, installation,
+CI query or resumed publication automation is part of this work. This batch's own tests-first
+evidence and validation are in the [bedding work record](DEVELOPMENT.md#daily-bedding-and-bedtime-preparation--2026-10-23),
+separate from the completed kitchen and earlier snapshots below.
+The independent complete all-features run passes **2,623 tests /zero failures /32 original
+ignores**, across275 unfiltered groups including Doc-tests; all19 new checks are included once.
+Strict all-target/all-feature Clippy passes with warnings denied (52.51s), alongside formatting,
+83 Python guards,250 audit links and preservation checks. This does not imply every short-prefix
+pool is unchanged or new UI/native/model/install/performance acceptance.
+
+**Uncommitted follow-up after `d2b0a1a`: kitchen preparation, tableware and clearing up.**
+The finite batch adds **eight builtin English forms, 12 Chinese and five Japanese Word
+readings, 18 contexts and 36 trilingual authored sentences**. Examples include `bowls`,
+`cutting`, “我先把菜洗好／菜板／筷架” and “スプーン／フライ返し／水切りかご”; existing
+筷子 and 箸 are retained, not counted again. Current totals are **EN 6,187 / 863 / 1,690
+(54 layers)**, **ZH 3,402 / 857 / 1,712**, **JA 619 / 345 / 689** (forms/readings,
+contexts, sentences). These are everyday input expressions, not recipes, health advice or
+actions on kitchen appliances. Version/build stays0.9.4/44; runtime logic, model contracts,
+25 packs/SDK and budgets are unchanged. No commit, installation or resumed release follow-up
+is part of this work. See the [kitchen work record](DEVELOPMENT.md#daily-kitchen-preparation-tableware-and-clearing-up--2026-10-23)
+for this batch's own tests-first evidence and validation, not the older results below.
+The independent complete all-features run passes **2,604 tests /zero failures /32 original
+ignores**, across271 unfiltered groups; all19 new checks are included once. Strict
+all-target/all-feature Clippy passes with warnings denied (50.42s). This is not new
+UI/native-keyboard, real-model, performance-timing or installation acceptance.
 
 ### Development-time batch snapshots included in 0.9.4
 
