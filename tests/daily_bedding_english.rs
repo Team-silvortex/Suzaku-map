@@ -211,9 +211,9 @@ fn bedding_preserves_all_54_prior_layers_6187_first_seen_ranks_endings_and_raw_b
 #[test]
 fn bedding_fixed_layer_adds_only_six_forms_in_exact_first_occurrence_order() {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 55);
-    assert_eq!(en.next_words().count(), 867);
-    assert_eq!(en.sentences().count(), 1698);
+    assert_eq!(en.word_layers().len(), 61);
+    assert_eq!(en.next_words().count(), 894);
+    assert_eq!(en.sentences().count(), 1752);
     let layer = &en.word_layers()[54];
     assert_eq!(layer.id, "daily_bedding");
     assert_eq!(
@@ -238,17 +238,17 @@ fn bedding_fixed_layer_adds_only_six_forms_in_exact_first_occurrence_order() {
     );
     let old = indexed_occurrences(&en.word_layers()[..54]);
     let all = indexed_occurrences(en.word_layers());
-    assert_eq!(all.len(), 6193);
+    assert_eq!(all.len(), 6213);
     assert_eq!(&all[..6187], old.as_slice());
     assert_eq!(
-        all[6187..]
+        all[6187..6193]
             .iter()
             .map(|(word, _)| word.as_str())
             .collect::<Vec<_>>(),
         NEW_FORMS
     );
     assert_eq!(
-        all[6187..]
+        all[6187..6193]
             .iter()
             .map(|(_, rank)| *rank)
             .collect::<Vec<_>>(),

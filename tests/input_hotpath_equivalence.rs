@@ -2,6 +2,8 @@
 //! Public synthetic drafts only; no native keys, user store or model requests.
 #[path = "support/daily_reading_replay.rs"]
 mod daily_reading_replay;
+#[path = "support/daily_recycling_replay.rs"]
+mod daily_recycling_replay;
 
 fn corpus(language: &str) -> Vec<String> {
     let phrases: &[&str] = match language {
@@ -303,10 +305,16 @@ fn fingerprint(
         for byte in seed.bytes().chain([0]) {
             hash = (hash ^ u64::from(byte)).wrapping_mul(0x100000001b3);
         }
-        let before_reading = daily_reading_replay::before_daily_reading(
+        let before_recycling = daily_recycling_replay::before_daily_recycling(
             language,
             seed,
             ime.candidates(),
+            with_packs,
+        );
+        let before_reading = daily_reading_replay::before_daily_reading(
+            language,
+            seed,
+            &before_recycling,
             with_packs,
         );
         let before_room = before_daily_room_comfort(language, seed, &before_reading, with_packs);

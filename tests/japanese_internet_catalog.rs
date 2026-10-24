@@ -256,6 +256,317 @@ fn remove_unique_append(source: &mut String, first: &str, after: &str) {
     source.replace_range(start..end, "");
 }
 
+fn builtin_before_daily_table_items(language: &str, source: &str) -> String {
+    // Validate this raw append before entering the unchanged historical chain.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "0093f628ea334d37d6649ab16cafaab4bc6041b310c4ab2785bd0481ccd5d640"
+            );
+            assert_eq!(current["word_layers"].as_array().unwrap().len(), 61);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_table_items\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "9731910e88a5a4d25f0d8b76b4387ceac9a26732a9c7dc4264c6e1b9c1eba16f"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "7e5e0e8cd2f223cd4bd8308399485477ca960980a1272c6fe2b31cec0fcaa490"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3441);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 888);
+            remove_unique_append(&mut previous, ",\n    [\n      \"保温杯\",", "\n  ]\n}");
+            "49706aca073e82be1c619c911a0177f9317050ffda8a7651ef63125c24e09592"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "5b46a3322bbb39aba7285793189c04d3945945e33ca0405dd22eb8f84ef2f875"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 638);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 376);
+            remove_unique_append(&mut previous, ",\n    [\n      \"水筒\",", "\n  ]\n}");
+            "119355914f5df3f2c73d2423f7e78c4ed833f81547b7ca09fcfafe7212a107ba"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected);
+    previous
+}
+
+fn builtin_before_daily_pocket_items(language: &str, source: &str) -> String {
+    // Validate the newest raw append before entering the unchanged historic chain.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "9731910e88a5a4d25f0d8b76b4387ceac9a26732a9c7dc4264c6e1b9c1eba16f"
+            );
+            assert_eq!(current["word_layers"].as_array().unwrap().len(), 60);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_pocket_items\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "cecf7b659558b2c0034a9031f75433d9452d43659a8cb73b07542784ffacbd4f"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "49706aca073e82be1c619c911a0177f9317050ffda8a7651ef63125c24e09592"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3441);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 885);
+            remove_unique_append(&mut previous, ",\n    [\n      \"钱包\",", "\n  ]\n}");
+            "bff559dfac7fe2ab2d4f1a00f0b79ef43c1e69ae8f418c6c552001a8964846b0"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "119355914f5df3f2c73d2423f7e78c4ed833f81547b7ca09fcfafe7212a107ba"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 638);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 373);
+            remove_unique_append(&mut previous, ",\n    [\n      \"財布\",", "\n  ]\n}");
+            "3d913e6ce519dc66781e990906028c549c8d8fac40258d2f3b62079cd41ac4fd"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected);
+    previous
+}
+
+fn builtin_before_daily_washroom(language: &str, source: &str) -> String {
+    // Exact newest raw append inverse; every historical hash/wrapper stays intact.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "cecf7b659558b2c0034a9031f75433d9452d43659a8cb73b07542784ffacbd4f"
+            );
+            assert_eq!(current["word_layers"].as_array().unwrap().len(), 59);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_washroom\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "643a76036fa82142288b188459efb70fd068bcb1bc4d738be2dae54ca789584a"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "bff559dfac7fe2ab2d4f1a00f0b79ef43c1e69ae8f418c6c552001a8964846b0"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3441);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 882);
+            remove_unique_append(&mut previous, ",\n    [\n      \"毛巾\",", "\n  ]\n}");
+            "3c27c55ce11194fe8a24f1e54b9b0affd6e2eb2bb3089dc2a529609ee9db8db6"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "3d913e6ce519dc66781e990906028c549c8d8fac40258d2f3b62079cd41ac4fd"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 638);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 370);
+            remove_unique_append(&mut previous, ",\n    [\n      \"歯ブラシ\",", "\n  ]\n}");
+            "77f1dc39cec5d0b959062bd04afc5656ac0d15c0864301345d4e9bd78ce54486"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected);
+    previous
+}
+
+fn builtin_before_daily_entryway(language: &str, source: &str) -> String {
+    // Verify this append, then replay the exact dirty pre-entryway bytes.
+    // Keep every older inverse and historical hash unchanged.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "643a76036fa82142288b188459efb70fd068bcb1bc4d738be2dae54ca789584a"
+            );
+            assert_eq!(current["word_layers"].as_array().unwrap().len(), 58);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_entryway\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "40392789063fa5e4e01ebe36291a9706623d10f4fc036d624186679119516ed0"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "3c27c55ce11194fe8a24f1e54b9b0affd6e2eb2bb3089dc2a529609ee9db8db6"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3441);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 879);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"xie'gui'li'hai'you'yi'shuang\", \"text\": \"鞋柜里还有一双\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(
+                &mut previous,
+                ",\n    [\n      \"鞋柜里还有一双\",",
+                "\n  ]\n}",
+            );
+            "23f481f15542d626f6dde4e1948f230e9f40c213200adc5a58c1e429932dd026"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "77f1dc39cec5d0b959062bd04afc5656ac0d15c0864301345d4e9bd78ce54486"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 638);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 367);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"くつばこ\", \"text\": \"靴箱\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, ",\n    [\n      \"靴箱\",", "\n  ]\n}");
+            "14ca791a3de16c9c404e380bdcf3769892ad08d51f29835747b06475f1f8791f"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
+fn builtin_before_daily_accessories(language: &str, source: &str) -> String {
+    // Verify this append, then replay the exact dirty pre-accessories bytes.
+    // Keep every older inverse and historical hash unchanged.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "40392789063fa5e4e01ebe36291a9706623d10f4fc036d624186679119516ed0"
+            );
+            assert_eq!(current["word_layers"].as_array().unwrap().len(), 57);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_accessories\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "9f144f170a3036ea97b95e7c3db56d28fbb1c56ca99ace2ed13024f04ac4e118"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "23f481f15542d626f6dde4e1948f230e9f40c213200adc5a58c1e429932dd026"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3432);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 873);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"cha'xian'ban'xian'fang'zhe'bian\", \"text\": \"插线板先放这边\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(
+                &mut previous,
+                ",\n    [\n      \"插线板先放这边\",",
+                "\n  ]\n}",
+            );
+            "95263b4549158cafedb2b625467195021bd6837692ec1267eb4e2a08a0f5fcf8"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "14ca791a3de16c9c404e380bdcf3769892ad08d51f29835747b06475f1f8791f"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 633);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 361);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"えんちょうこーど\", \"text\": \"延長コード\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, ",\n    [\n      \"延長コード\",", "\n  ]\n}");
+            "d18a5541b5a337a9d1eb685d07c9d1b073372233836ed16957d0806254544ab3"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
+fn builtin_before_daily_recycling(language: &str, source: &str) -> String {
+    // Verify the new append independently, then pass exact old bytes through
+    // every unchanged historical inverse. No historical hash is refreshed.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected_sha = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "9f144f170a3036ea97b95e7c3db56d28fbb1c56ca99ace2ed13024f04ac4e118"
+            );
+            assert_eq!(current["word_layers"].as_array().unwrap().len(), 56);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_recycling\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "7189fce8257ba5ca685f916483fd97b1b4fd4c745d2a17170878c3da64667e49"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "95263b4549158cafedb2b625467195021bd6837692ec1267eb4e2a08a0f5fcf8"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3422);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 867);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"zhi'xiang'xian'ya'ping\", \"text\": \"纸箱先压平\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, ",\n    [\n      \"纸箱先压平\",", "\n  ]\n}");
+            "f8ea73423ac9040d14c946a7f09fd6e96e98c569737a266227a06f7572fad553"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "d18a5541b5a337a9d1eb685d07c9d1b073372233836ed16957d0806254544ab3"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 628);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 355);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\"reading\": \"しゅうしゅうび\", \"text\": \"収集日\", \"kind\": \"word\"}",
+                "\n  ],\n  \"continuations\": [",
+            );
+            remove_unique_append(&mut previous, ",\n    [\n      \"収集日\",", "\n  ]\n}");
+            "8d4c2f1d8a48eddcf046ec271808bf12441744428c666a48b504b6fd02290dd5"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected_sha);
+    previous
+}
+
 fn builtin_before_daily_bedding(language: &str, source: &str) -> String {
     // Restore the exact kitchen resource before every unchanged older inverse.
     let current: Value = serde_json::from_str(source).unwrap();
@@ -2114,7 +2425,13 @@ fn japanese_internet_preserves_all_eighteen_source_bytes_and_catalog_positions()
         );
     }
     for (language, source, expected) in BUILTIN {
-        let before_bedding = builtin_before_daily_bedding(language, source);
+        let before_table_items = builtin_before_daily_table_items(language, source);
+        let before_pocket_items = builtin_before_daily_pocket_items(language, &before_table_items);
+        let before_washroom = builtin_before_daily_washroom(language, &before_pocket_items);
+        let before_entryway = builtin_before_daily_entryway(language, &before_washroom);
+        let before_accessories = builtin_before_daily_accessories(language, &before_entryway);
+        let before_recycling = builtin_before_daily_recycling(language, &before_accessories);
+        let before_bedding = builtin_before_daily_bedding(language, &before_recycling);
         let before_kitchen = builtin_before_daily_kitchen(language, &before_bedding);
         let before_plants = builtin_before_daily_plants(language, &before_kitchen);
         let before_reading = builtin_before_daily_reading(language, &before_plants);

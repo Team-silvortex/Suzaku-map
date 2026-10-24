@@ -455,7 +455,7 @@ fn location_keeps_all_twenty_one_earlier_layers_full_wording_and_every_old_rank(
         }
     }
     assert_eq!(hash, 0xefe0b415ade6b8b5);
-    assert_eq!(current.len(), 6193);
+    assert_eq!(current.len(), 6213);
 }
 
 #[test]

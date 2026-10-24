@@ -203,9 +203,9 @@ fn reading_preserves_all_51_prior_layers_6167_first_seen_ranks_and_phrase_ending
 #[test]
 fn reading_fixed_layer_adds_only_four_forms_in_exact_first_occurrence_order() {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 55);
-    assert_eq!(en.next_words().count(), 867);
-    assert_eq!(en.sentences().count(), 1698);
+    assert_eq!(en.word_layers().len(), 61);
+    assert_eq!(en.next_words().count(), 894);
+    assert_eq!(en.sentences().count(), 1752);
     let layer = &en.word_layers()[51];
     assert_eq!(layer.id, "daily_reading");
     assert_eq!(

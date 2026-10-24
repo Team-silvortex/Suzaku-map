@@ -577,6 +577,244 @@ pub(crate) fn authored_nasal_completion(
     .then_some((word, values))
 }
 
+/// One unconverted whole-reading root may retain a unique shorter Word's pair
+/// when a real, longer same-family compound competes for its existing slots.
+/// This does not complete arbitrary nasal fragments or manufacture candidates.
+pub(crate) fn authored_short_nasal_parent(
+    seed: &str,
+) -> Option<(&'static str, [String; 2], Vec<String>)> {
+    if seed.chars().count() > super::draft::LOCAL_TAIL_CHARS || seed.chars().any(is_line_boundary) {
+        return None;
+    }
+    let kana = composition_kana(seed);
+    if convert_segments(&kana) != kana {
+        return None;
+    }
+    let (word, values) = short_nasal_parent_in(vocabulary(), &kana, &word_completions(seed))?;
+    Some((word, [kana.clone(), hiragana_to_katakana(&kana)], values))
+}
+
+fn short_nasal_parent_in<'a>(
+    lexicon: &'a Lexicon,
+    kana: &str,
+    published: &[(String, crate::ime::candidate_mix::CandidateKind)],
+) -> Option<(&'a str, Vec<String>)> {
+    use crate::ime::candidate_mix::CandidateKind;
+    if kana.is_empty()
+        || kana.chars().count() > super::draft::LOCAL_TAIL_CHARS
+        || !kana.chars().all(|ch| ('ぁ'..='ゖ').contains(&ch))
+        || kana.ends_with(['ん', 'っ'])
+    {
+        return None;
+    }
+    let completed = format!("{kana}ん");
+    let mut parents = lexicon
+        .readings()
+        .iter()
+        .filter(|entry| entry.kind == EntryKind::Word && entry.reading == completed);
+    let parent = parents.next()?;
+    let word = parent.text.as_str();
+    if !word
+        .chars()
+        .all(|ch| matches!(ch, '\u{3400}'..='\u{4dbf}' | '\u{4e00}'..='\u{9fff}'))
+        || parents.any(|entry| entry.text != word)
+    {
+        return None;
+    }
+    let strict_compound = |entry: &crate::lexicon::Reading| {
+        entry.kind == EntryKind::Word
+            && entry.reading.len() > completed.len()
+            && entry.reading.starts_with(&completed)
+            && entry.text.len() > word.len()
+            && entry.text.starts_with(word)
+    };
+    let mut competing_compound = false;
+    for entry in lexicon
+        .readings()
+        .iter()
+        .filter(|entry| entry.kind == EntryKind::Word && entry.reading.starts_with(kana))
+    {
+        if entry.reading == completed && entry.text == word {
+            continue;
+        }
+        if !strict_compound(entry) {
+            return None;
+        }
+        competing_compound = true;
+    }
+    if !competing_compound {
+        return None;
+    }
+    // These must be the real primary Word completions, not an inferred or
+    // spare-slot/backfill Word that cannot fit the unchanged two-Word quota.
+    let mut words = published
+        .iter()
+        .filter(|(_, kind)| *kind == CandidateKind::Word);
+    let (first, _) = words.next()?;
+    let (second, _) = words.next()?;
+    if second != word
+        || !lexicon
+            .readings()
+            .iter()
+            .any(|entry| entry.text == *first && strict_compound(entry))
+    {
+        return None;
+    }
+    let (_, values) = lexicon
+        .continuations()
+        .find(|(context, _)| *context == word)?;
+    (values.len() >= 2
+        && values[0] != values[1]
+        && values[..2]
+            .iter()
+            .all(|text| text.len() > word.len() && text.starts_with(word)))
+    .then(|| (word, values[..2].to_vec()))
+}
+
+#[cfg(test)]
+mod short_nasal_parent_tests {
+    use super::*;
+    use crate::ime::candidate_mix::CandidateKind;
+
+    #[test]
+    fn short_nasal_parent_requires_unique_whole_source_real_compound_pair_and_first_two_words() {
+        let base = serde_json::json!({
+            "format_version": 1, "language": "ja",
+            "readings": [
+                {"reading":"げんかんまっと", "text":"玄関マット", "kind":"word"},
+                {"reading":"げんかん", "text":"玄関", "kind":"word"}
+            ],
+            "continuations": [["玄関", ["玄関で待っています。", "玄関の靴をそろえてください。"]]]
+        });
+        let published = vec![
+            ("玄関マット".into(), CandidateKind::Word),
+            ("玄関".into(), CandidateKind::Word),
+        ];
+        let source = |value: &serde_json::Value| Lexicon::from_json(&value.to_string()).unwrap();
+        let lexicon = source(&base);
+        assert_eq!(
+            short_nasal_parent_in(&lexicon, "げんか", &published),
+            Some((
+                "玄関",
+                vec![
+                    "玄関で待っています。".into(),
+                    "玄関の靴をそろえてください。".into()
+                ]
+            ))
+        );
+        for kana in [
+            "",
+            "げんかん",
+            "げんかっ",
+            "げんかんまっt",
+            "ゲンカ",
+            "げん\nか",
+            "https://げんか",
+        ] {
+            assert!(
+                short_nasal_parent_in(&lexicon, kana, &published).is_none(),
+                "{kana:?}"
+            );
+        }
+        let mut cases = Vec::new();
+        let mut ambiguous = base.clone();
+        ambiguous["readings"]
+            .as_array_mut()
+            .unwrap()
+            .push(serde_json::json!({
+                "reading":"げんかん", "text":"原刊", "kind":"word"
+            }));
+        cases.push(("two distinct complete parent Words", ambiguous));
+        let mut unrelated = base.clone();
+        unrelated["readings"]
+            .as_array_mut()
+            .unwrap()
+            .push(serde_json::json!({
+                "reading":"げんかく", "text":"幻覚", "kind":"word"
+            }));
+        cases.push(("different whole-root family", unrelated));
+        let mut false_compound = base.clone();
+        false_compound["readings"][0]["text"] = serde_json::json!("別のマット");
+        cases.push((
+            "reading extension without written extension",
+            false_compound,
+        ));
+        let mut false_reading = base.clone();
+        false_reading["readings"][0]["reading"] = serde_json::json!("げんかまっと");
+        cases.push((
+            "written extension without parent reading extension",
+            false_reading,
+        ));
+        let mut no_compound = base.clone();
+        no_compound["readings"].as_array_mut().unwrap().remove(0);
+        cases.push(("no competing compound", no_compound));
+        let mut no_word_parent = base.clone();
+        no_word_parent["readings"][1]["kind"] = serde_json::json!("sentence");
+        cases.push(("parent is not a Word source", no_word_parent));
+        let mut one_author = base.clone();
+        one_author["continuations"][0][1]
+            .as_array_mut()
+            .unwrap()
+            .pop();
+        cases.push(("only one own author", one_author));
+        let mut wrong_author = base.clone();
+        wrong_author["continuations"][0][1][1] = serde_json::json!("別の文です。");
+        // Such a source is rejected by the public schema before this proof.
+        assert!(Lexicon::from_json(&wrong_author.to_string()).is_err());
+        for (name, value) in cases {
+            assert!(
+                short_nasal_parent_in(&source(&value), "げんか", &published).is_none(),
+                "{name}"
+            );
+        }
+        // U+4DC0 is an I Ching symbol between the two Han ranges. Keep every
+        // other source/published field coherent so only the Han proof rejects it.
+        let mut non_han_parent = base.clone();
+        non_han_parent["readings"][0]["text"] = serde_json::json!("玄䷀マット");
+        non_han_parent["readings"][1]["text"] = serde_json::json!("玄䷀");
+        non_han_parent["continuations"] = serde_json::json!([[
+            "玄䷀",
+            ["玄䷀で待っています。", "玄䷀の靴をそろえてください。"]
+        ]]);
+        assert!(
+            short_nasal_parent_in(
+                &source(&non_han_parent),
+                "げんか",
+                &[
+                    ("玄䷀マット".into(), CandidateKind::Word),
+                    ("玄䷀".into(), CandidateKind::Word),
+                ]
+            )
+            .is_none()
+        );
+        for rows in [
+            vec![("玄関マット".into(), CandidateKind::Word)],
+            vec![
+                ("玄関".into(), CandidateKind::Word),
+                ("玄関マット".into(), CandidateKind::Word),
+            ],
+            vec![
+                ("玄関マット".into(), CandidateKind::Word),
+                ("別物".into(), CandidateKind::Word),
+                ("玄関".into(), CandidateKind::Word),
+            ],
+            vec![
+                ("玄関マット".into(), CandidateKind::Sentence),
+                ("玄関".into(), CandidateKind::Word),
+            ],
+            vec![
+                ("玄関マット".into(), CandidateKind::Word),
+                ("玄関".into(), CandidateKind::Sentence),
+            ],
+        ] {
+            assert!(
+                short_nasal_parent_in(&lexicon, "げんか", &rows).is_none(),
+                "{rows:?}"
+            );
+        }
+    }
+}
+
 /// Additional words may fill unused mixed-list slots, without replacing the
 /// primary four completions or changing authored sentence weights.
 pub(crate) fn word_completion_backfill(

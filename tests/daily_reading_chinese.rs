@@ -239,14 +239,14 @@ fn reading_preserves_all_3366_readings_flags_and_839_contexts_in_original_order(
 fn reading_appends_only_twelve_words_and_six_exact_authored_contexts() {
     let vocabulary = lexicon::builtin("zh-Hans").unwrap();
     assert_eq!((WORDS.len(), PARTIALS.len(), SENTENCES.len()), (12, 6, 6));
-    assert_eq!(vocabulary.readings().len(), 3410);
-    assert_eq!(vocabulary.continuations().count(), 861);
+    assert_eq!(vocabulary.readings().len(), 3441);
+    assert_eq!(vocabulary.continuations().count(), 888);
     assert_eq!(
         vocabulary
             .continuations()
             .map(|(_, values)| values.len())
             .sum::<usize>(),
-        1720
+        1774
     );
     for (entry, &(reading, text)) in vocabulary.readings()[3366..3378].iter().zip(WORDS) {
         assert_eq!((&*entry.reading, &*entry.text), (reading, text));

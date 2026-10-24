@@ -196,9 +196,9 @@ fn dressing_preserves_all_48_prior_layers_6151_first_seen_ranks_and_phrase_endin
 #[test]
 fn dressing_fixed_layer_has_six_contexts_twelve_authors_and_no_new_indexed_forms() {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 55);
-    assert_eq!(en.next_words().count(), 867);
-    assert_eq!(en.sentences().count(), 1698);
+    assert_eq!(en.word_layers().len(), 61);
+    assert_eq!(en.next_words().count(), 894);
+    assert_eq!(en.sentences().count(), 1752);
     let layer = &en.word_layers()[48];
     assert_eq!(layer.id, "daily_dressing");
     assert!(layer.words.is_empty());

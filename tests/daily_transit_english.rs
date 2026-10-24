@@ -429,7 +429,7 @@ fn transit_preserves_every_old_layer_context_sentence_and_index_rank() {
     for (word, rank) in before {
         assert_eq!(current[&word], rank, "changed old rank for {word}");
     }
-    assert_eq!(current.len(), 6193);
+    assert_eq!(current.len(), 6213);
 }
 
 #[test]

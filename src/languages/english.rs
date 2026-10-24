@@ -743,7 +743,7 @@ mod tests {
     #[test]
     fn bucketed_context_match_equals_linear_for_every_authored_context() {
         let contexts = next_word_contexts();
-        assert_eq!(contexts.len(), 867);
+        assert_eq!(contexts.len(), 894);
         for (context, _) in vocabulary().next_words() {
             for query in [
                 context.to_owned(),
@@ -1125,7 +1125,7 @@ mod tests {
     }
 
     // Current total, independent of the immutable per-layer historical baselines.
-    const EXPECTED_DICTIONARY_WORDS: usize = 6193;
+    const EXPECTED_DICTIONARY_WORDS: usize = 6213;
 
     fn layer_words(id: &str) -> impl Iterator<Item = &'static str> {
         vocabulary()
@@ -2435,8 +2435,8 @@ mod tests {
                 "unreachable sentence: {sentence}"
             );
         }
-        assert_eq!(keys.len(), 867);
-        assert_eq!(sentences.len(), 1698);
+        assert_eq!(keys.len(), 894);
+        assert_eq!(sentences.len(), 1752);
     }
 
     #[test]

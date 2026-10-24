@@ -1,7 +1,27 @@
 # Development notes and history
 
+<!-- release-0.9.6:start -->
+**New source candidate: 0.9.6 / build 46 — Everyday fallback and candidate continuity.** This includes six vocabulary batches (20 English builtin forms, 31 Chinese and 16 Japanese Word readings, 81 contexts and 162 authored sentences) plus three bounded Chinese/Japanese candidate-compatibility repairs. The independent versioned full Rust run passes 2,735 tests / zero failures / 32 original ignores in 294 unfiltered groups including Doc-tests. Separately, 19 exact isolated UI gates and strict all-target/all-feature Clippy with warnings denied (58.69s) pass. Exact-commit remote CI and accepted-package validation remain pending; no 0.9.6 tag, download or publication is claimed yet. The cancelled automation stays cancelled and the personal installation is unchanged. Earlier source/uncommitted/pending records below remain historical. See [0.9.6 release preparation](docs/releases/0.9.6.md).
+
+Source-preparation evidence: `/tmp/suzaku-release-0.9.6.8swV1x/`. The actual pre-version dirty archive has 983 files; 972 immutable files and five exact metadata authorities (eight values) are retained. The complete-run result must come from this version, never the earlier 2705-pass full run or 1021-pass bounded run. Isolated UI uses private Xvfb/D-Bus/XDG; it is not personal-desktop or physical-keyboard acceptance.
+<!-- release-0.9.6:end -->
+
 Historical implementation notes, including earlier behavior and experimental platforms.
 Start with the [README](README.md) and [known limitations](docs/known-limitations.md).
+
+**Current published baseline: 0.9.5 / build 45, exact source
+`de42d39a0b9b24799f45fd5424a10e5859b37532`.** All eight required gates of
+[CI run 39894489515](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/39894489515)
+passed. Accepted artifact `12476299897` was independently validated, and the Linux tar/deb
+plus their two checksum assets were re-downloaded and compared before publishing the
+[non-latest Linux Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.5).
+The personal installation remains unchanged; the cancelled publication automation remains
+cancelled. The current recycling vocabulary follow-up is still uncommitted at version0.9.5/45
+and is not in those release assets. No new CI, installation or automation is part of this batch.
+
+The overview and preparation paragraphs immediately below retain their original historical
+candidate/pending labels. They do not undo the completed0.9.5 publication or constitute
+acceptance for the newer recycling work; its own work record is below.
 
 **New source candidate:0.9.5 /build45 — Kitchen and bedtime fallback.** The release-preparation
 record below supersedes earlier current/uncommitted labels without rewriting their history.
@@ -62,6 +82,280 @@ The paired [English](tests/english_completion_quality.rs) and
 [Chinese](tests/chinese_completion_quality.rs) regression suites provide a reproducible starting point,
 not a general language-quality score. The first follow-up fixes separated Pinyin within existing
 dictionary entries; see the [N47 audit](docs/bug-audit-bilingual-core-2026-09-24.md).
+
+## Daily thermos and table-item locations — 2026 10 24
+
+**Uncommitted follow-up — thermos and table-item locations (2026-10-24).** Adds nine contexts and 18 authored sentences across EN/ZH/JA, with no new word forms/readings. Totals: EN 6,213 / 894 / 1,752 (61 layers); ZH 3,441 / 888 / 1,774; JA 638 / 376 / 751. One independent bounded run passes 1021 tests, zero failures and two original ignores, in 60 unfiltered groups (complete library plus 59 integration targets). Strict all-target/all-feature Clippy passes with warnings denied (1m 07s). New tests share a test-only helper; old suites are not migrated. Production algorithms, candidate budgets, models/protocols, 25 packs/SDK and versions stay unchanged. These are finite location expressions, not item sensing/control. Not full-repository, native, UI, real-model, installation, performance or CI acceptance. Earlier records remain historical.
+
+Baseline: actual 981-file dirty archive `/tmp/suzaku-table-items.kDxYBv/baseline.tar`, SHA256 `0f19fb8a08233892f23d4806f344fbf70cc4128493fb9ce678f90683156a6ea0`. English adds the `daily_table_items` layer; Chinese adds pairs for 保温杯/餐具/筷子, Japanese for 水筒/湯飲み/小皿. Existing `suitou` reading and raw `suito` remain distinct.
+
+Tests-first actual result: 3 pass / 7 missing cases before data, then all ten unchanged cases pass on the first appended-data run. Complete/partial/case/Kana/tone, six horizontal gaps, explicit adoption, long English prefixes, seven line boundaries, opaque tokens and single commit/undo are checked. Private child processes use 8 EN/8 ZH/9 JA packs. Pending/disabled and five typed synthetic provider failures plus empty output preserve the entire local pool; synthetic providers are not real-model acceptance. New source freezes:
+
+- `tests/daily_table_items_dialogue.rs`: `1ea2baeea5b5ae6401860aa1aef8eaab8eb13a5a6554d6477fcbccd606a3a3db`.
+- `tests/support/daily_dialogue.rs`: `db7e48b0f76785c7b945fcd4f1d36b0486628b50f1ea5d985ecc553656abc51b`.
+
+Current one-shot bounded service actually exited zero; log SHA256 `91c2d7dc27a3fdfcf69774d7fba9959437c6ea21a8b69123ebe23e0b24b49fad`. Old logs supply only test-name/order/status/ignore roster references, never current passes. All selected prior cases remain present; child/focused summaries are not added to the totals. All 975 old non-document files are accounted for: 933 identical, 38 current-counter maintenance files (103 operands), three exact resource-tail inverses and one catalog outer-wrapper inverse. The one separate pocket historical-window change freezes offsets 882/370, width three; its literal data, raw hashes, candidate/commit checks and all washroom windows remain unchanged. Only the new suite uses `tests/support/daily_dialogue.rs`; no old suite is refactored. Evidence remains in `/tmp/suzaku-table-items.kDxYBv/`. No commit, push, personal installation, IME-service, configuration or cancelled-automation changes.
+
+## Daily pocket items and receipts — 2026 10 24
+
+**Uncommitted follow-up — wallet, coins and receipt locations (2026-10-24).** Adds nine contexts and 18 authored sentences across English, Chinese and Japanese without new word forms/readings. Totals: EN 6,213 / 891 / 1,746 (60 layers); ZH 3,441 / 885 / 1,768; JA 638 / 373 / 745. The independent bounded run passes 983 tests, zero failures and two original ignores, across 55 unfiltered groups (complete library plus 54 integration targets). Strict all-target/all-feature Clippy passes with warnings denied (1m 06s). This is finite find-item text, not payment processing or financial advice. Production algorithms, model protocols, candidate budgets and 25 packs/SDK stay unchanged. No new full-repository, Doc-tests, native, real-model, installation or CI acceptance. Earlier snapshots below remain historical.
+
+The actual dirty baseline contains 980 files, including the completed washroom batch, not clean HEAD. Archive: `/tmp/suzaku-pocket-items.kvXjoD/baseline.tar`, SHA256 `ead110d8453cb5a71c58a223a25516035ba5e06aa111e91a43ccb194f42f85f4`. No new English form or CJK reading is registered. The English layer `daily_pocket_items` covers wallet/jacket/backpack, coins/pouch/drawer and receipts/folder/basket. Chinese adds pairs for 钱包 / 零钱包 / 卡包; Japanese adds pairs for 財布 / 小銭 / 鞄. These are finite location expressions, not financial, payment, inventory-sensing or item-control capabilities.
+
+The new fixture is frozen at SHA256 `63d1276f3791eac0ea7eb280e9f36ed03399672e07af6f0728796dd473a6367e`. The real before run reports three passes / seven missing cases; the first data-after run passes all ten unchanged tests. Complete/partial/case/Kana/tone, six horizontal gaps, adopted reseeds, long English prefixes, seven line boundaries, opaque tokens and exact single commit/undo are checked. Raw `kozen` remains raw, not an implicit correction to `kozeni`. Separate private processes use eight English, eight Chinese and nine Japanese packs. Five typed synthetic provider failures plus empty output preserve the complete local pool; this is not real-model validation.
+
+The independent one-shot QA service invocation `338eaa5478fb41c59366c42ce914fb55` actually exits zero. Its `targeted.log` SHA256 is `542c153c78c6c578bb60f161ef77a944a41dbc8c64c7fc6705b2f16e4ae7271b`. The 55 unique groups contain 983 passes, zero failures, two original ignores and zero filters; the ten new cases are counted once. All 54 selected old target/test-name/order/status/ignore rosters match. Prior bounded 929 and full 2705 results supply only old-roster references, not current passes, and child summaries are not added.
+
+Source preservation accounts for all 974 old non-document files: 933 byte/mode-identical, 37 current-count maintenance files with 98 exact operands, three raw append inverses and one new outer catalog inverse. The old washroom fixture has one separately reviewed boundary repair: its historical author windows are fixed at Chinese offset 879 / Japanese offset 367, width three; they do not follow the new current totals. Existing author literals, raw hashes, inputs and candidate/commit assertions stay intact. Production logic, all 6213 old English first-seen ranks, all CJK reading flags/order, replay helpers, 25 pack sources, SDK and dependency/version authorities remain. The six document updates add only this evidence and indices, preserving all old scoring/routes/history. Evidence remains in `/tmp/suzaku-pocket-items.kvXjoD/`. No commit, push, installation, personal service or cancelled-automation changes are made.
+
+## Daily washroom item locations — 2026 10 24
+
+**Uncommitted follow-up — washroom item locations (2026-10-24).** Adds nine contexts and 18 authored sentences across English, Chinese and Japanese, reusing existing words/readings. Totals: EN 6,213 forms / 888 contexts / 1,740 sentences (59 layers); ZH 3,441 / 882 / 1,762; JA 638 / 370 / 739. The independent bounded run passes 929 tests, with zero failures and two original ignores, across 48 unfiltered groups (complete library plus 47 integration targets). Strict all-target/all-feature Clippy passes with warnings denied (18.67s). This is not a new full-repository, Doc-tests, physical-keyboard, real-model or installation acceptance. No production algorithm, model protocol, pack/SDK byte or version changes. Earlier snapshots below remain historical.
+
+Start from the actual 979-file dirty snapshot (including the entryway work), not clean HEAD: `/tmp/suzaku-washroom.XDkWrJ/baseline.tar`, SHA256 `924f17d273203d4c33e44c38a1e7476b4bc0c58cffd3001034a188533c0b286b`. No new English form or CJK reading is registered. English adds the specific shampoo, toothpaste and clean-towel contexts; Chinese adds authored pairs for 毛巾 / 沐浴露 / 洗漱包, and Japanese for 歯ブラシ / 石鹸 / タオル. All old English first-seen ranks and CJK reading fields/flags/order remain exact.
+
+The frozen first fixture genuinely reports 3 passes / 7 missing cases before data; the first data-after run reports 8 passes / 2 failures, both retained. One failure was a new helper demanding a raw candidate for an empty draft; the other assumed both new 毛巾 authors must be on page one under optional-pack short-root competition. Only the new fixture changes: full readings still require both authors on page one, short partials require real reachability and exact commits, and the old primary plus author indexes 5/6 are locked. Fixed independent Japanese Kana constants and six horizontal-gap controls strengthen the new fixture. The first strict Clippy run then flags only the new fixture constant type complexity. Two equivalent type aliases fix that lint without an allow attribute; exact inverse restores the entire pre-alias fixture, and all ten new tests pass again, separately from the 929-test bounded run. No old candidate weight, capacity, assertion or golden hash is weakened.
+
+The one-shot QA service `830a9ef0322a4aa8ba91f1481e91e39c` actually exits 0; targeted log SHA256 `5d71c4a84195f74656eff272bc624722e4726ee881a7c0501273d2973a4394f0`. Its 48 unique groups contain 929 passes / zero failures / two original ignores / zero filters; all 47 selected prior target/test-name/order/status/ignore rosters match. The ten new cases are included once, not added again from private child processes or focused retries. Private pack scenarios use separate processes and temporary stores with eight English, eight Chinese and nine Japanese packs, without touching personal data. Synthetic missing/unavailable/timeout/503/invalid/empty-model tests do not constitute real-model validation.
+
+Source preservation accounts for all 973 old non-document files: 933 byte/mode-identical files, 36 current-counter-only paths (93 exact operands), three raw resource append inverses, and one new outer catalog inverse. The six documents only add this evidence and indices; old evidence, maturity scores and routes stay intact. Evidence and real failed runs remain in `/tmp/suzaku-washroom.XDkWrJ/`. Full-repository/native/manual UI/model/performance/install/CI acceptance is not newly claimed.
+
+<!-- entryway-validation-closeout:start -->
+
+**Validation closeout — 2026-10-24 (uncommitted).** The fixed compatibility matrix passes **805 tests / zero failures / two original ignores**, across 20 unfiltered groups. All 44 new checks are included once. Chinese recovery excludes already-reachable authors and unsupported readings; Japanese nasal-parent preservation also handles literal Kana forms, only at the default twelve-row capacity. The earlier 22-failure complete run and exit-143 interruption remain recorded, not acceptance. The independent complete run passes 2,705 tests, zero failures and 32 original ignores, across 291 unique unfiltered groups including Doc-tests. Strict all-target/all-feature Clippy passes with warnings denied (55.99s). No version, commit, push, personal installation or automation change. The preparation snapshots below retain their earlier validation scope.
+
+Compatibility evidence is kept in `/tmp/suzaku-entryway.UZPFK3/`. The final focused log is `compatibility-focused-final.log` (SHA256 `94fbc83fc072f9373878514ef2eb951d937a3c61e9f52beb4679bec3df21b70a`); the owning session 97606 actually returned exit 0. The failed complete `service-full.log` has 289 top-level groups, 2674 passes / 22 failures / 32 ignores / zero filters; two captured child summaries are excluded. No old golden hash, old care/carry/shopping/family assertion or original six entryway/A/B fixture is weakened. The `kutsu` replay inverse validates all current fields and its two new dictionary sources before restoring the independently recorded old frame. The first Japanese guard unit contained an invalid schema fixture; it now explicitly tests schema rejection, rather than unwrapping that invalid input. The original failed logs remain. This is not physical keyboard, human UI, real-model, installation or performance acceptance.
+
+The final independent `accepted-full.log` has SHA256 `f42c8fc3ff984e4ee79ba89427328f8a1dcdf536eb9a872ffaebac9a53cce486`. The one-shot QA service invocation `702e6f37ea044f74bf9b692268b848cd` actually exited 0; its completed-state receipt and full audit preserve all 279 prior target rosters, 32 ignore identities/details and 63 added cases (19 accessories plus 44 entryway/compatibility), each counted once. Full audit SHA256: `7fcf62b2e611dc79fb6a47cee0d6539b49a96190b9c55bf272cc1de93098468d`. The QA service was removed only after evidence capture. Source preservation reconstructs three reviewed production-file deltas and one test-only replay delta; 901 other old non-document files remain byte-exact, with 55 counter-only files, three raw JSON appends and one catalog inverse accounting for all 964 old non-document files. No old golden hash, decoder choice, model protocol, pack/SDK byte or version was changed.
+
+<!-- entryway-validation-closeout:end -->
+
+## Daily entryway and leaving home — 2026 10 23
+
+This follow-up starts from the actual970-file dirty snapshot containing accessories, not
+clean HEAD. Source stays `de42d39a0b9b24799f45fd5424a10e5859b37532`/0.9.5/build45.
+The before archive is `/tmp/suzaku-entryway.UZPFK3/baseline.tar`, SHA256
+`72eeb19275a279c0db88504cc2c4e40acfbc5014e9dad5f8f369a9b22cffe700`.
+
+- Add six builtin English forms (`shoe`, `shoelace`, `shoelaces`, `entryway`, `keycard`,
+  `hook`) in the58th layer, with six contexts/twelve authors. The optional shopping pack's
+  `shoelaces` and travel pack's `keycard` already exist globally; do not count their first
+  builtin occurrences as new to the whole catalog. Reuse old shoes/umbrella/carry vocabulary.
+- Add nine Chinese Word readings, six contexts/twelve authors. Reuse old 鞋柜/门垫/鞋带/
+  钥匙扣/雨伞 rather than duplicating their entries. Keep the historical xi spelling in
+  “鞋带系好了” while authoring the new “鞋带我再系一下” phrase with ji. This does not add
+  contextual polyphone inference. Add five Japanese written Words, 靴箱/傘立て/靴べら/
+  定期入れ/玄関マット, plus six contexts/twelve authors. 定期入れ is a new written synonym
+  of existing パスケース, not a new meaning; `teikiire` keeps adjacent vowels. 鍵の置き場所
+  composes existing 鍵/置き場所 and receives no new dictionary reading. Optional 玄関 and
+  builtin 靴ひも/折り畳み傘 remain intact. Combined totals: EN6213/885/1734 (58layers),
+  ZH3441/879/1756, JA638/367/733; delta six English forms/14 CJK readings/18 contexts/36 authors.
+  These are finite find-item expressions, not locks, weather, personal-location services or
+  actual household actions. Model contracts, decoder, capacities and25 packs/SDK remain fixed.
+- Tests first: the actual before driver exits101, with each language2pass/4missing and the
+  private sixteen-pack case0pass/1missing after old controls pass. The first data-after run
+  has15passes/four failures; the four original data fixtures and authored wording stay frozen.
+  Preserve the logs under `/tmp/suzaku-entryway.UZPFK3/`; no missing expression is evaded
+  by changing its wording, widening a limit or weakening a frozen assertion.
+- Two actual Chinese issues are repaired separately. A verifies an already known Word's
+  complete aligned Pinyin syllable as the source of an adopted author's Han prefix (DAI→袋
+  from its actual dictionary Word), then reserves that exact author's identity when ordinary
+  homophone sentence rows compete. It is not arbitrary homophone substitution, open-ended
+  prediction or contextual polyphone inference. B preserves a verified whole Word's own
+  pair when terminal ng is missing exactly g: the unique Word source, Han/syllable alignment
+  and original finished-path provenance must agree. A's real before case is1pass/3fail;
+  B's is3pass/3fail. The first repair-focused invocation still fails B because two original
+  Sentence paths had been hidden by presentation sorting; the final rule checks exactly
+  those decoder witnesses rather than inferring adjacency from the sorted page. Retain
+  these red runs. Existing anchors, relative Word order, scores, literal rescue, budgets and
+  unrelated ambiguity contracts are preserved; the intended narrow author reachability and
+  page placement change. No decoder paths or source authors are rewritten.
+- Focused acceptance finishes with actual owning-driver exit0:647passes/zero failures/two
+  original ignores, seven unfiltered groups comprising the library and six integration
+  targets. All35 new checks (19 data,10 A/B integration and six cfg tests) are counted once,
+  not added again as before/probe/child results. Source preservation separately passes:
+  all964 old non-document paths are restored byte-for-byte or match their exact approved
+  maintenance/runtime patches, and six new fixtures remain frozen. This is not yet the
+  independent final full/strict-Clippy result, nor new native/UI/model/install/performance QA.
+- **Final acceptance pending:** a fresh complete run and strict Clippy are still in progress.
+  Their actual exits, scope and result inventories must be recorded before claiming completion;
+  do not borrow the previous2642/full or735/bounded results below. This work remains
+  uncommitted at0.9.5/45, outside published packages, without push, CI, personal installation,
+  input-method service changes or restoration of cancelled automation.
+
+The accessory section below retains the preceding snapshot's totals and validation receipts.
+
+## Daily desk accessories and cable storage — 2026 10 23
+
+This finite vocabulary follow-up starts from the actual966-file dirty snapshot containing
+the completed recycling work, not clean HEAD or a daily installation. Source head remains
+`de42d39a0b9b24799f45fd5424a10e5859b37532`, version0.9.5/build45. The before archive is
+`/tmp/suzaku-accessories.7PnFRc/baseline.tar`, SHA256
+`d9a733bc14fc60d69d71f7ce9da2ac6aa4891afcf48ddb5a9111e93cc547f76d`.
+
+- Add six builtin English forms (`connector`, `connectors`, `cord`, `cords`, `pouch`,
+  `pouches`) in the57th layer, `daily_accessories`, with six contexts/twelve authors.
+  Existing `charger`, `charging`, `cable`, `adapter`, `earbuds` and `case` forms are reused,
+  not counted again. Dialogues cover where a spare cable, adapter, pouch or case was left,
+  rather than using hardware or changing electrical settings.
+- Add10 Chinese Word readings: six phrases (“插线板先放这边／延长线收在哪了／转接头帮我留着／
+  电源线别拿混了／耳机盒放在桌边／这些线先分开放”) and four nouns (“插线板／延长线／
+  电源线／理线夹”), with six contexts/twelve authors. Older 充电器/转接头/耳机盒 are reused;
+  the question retains its authored `？` boundary, not a comma substituted for testing.
+- Add five Japanese nouns, 延長コード/変換アダプター/ケーブル/イヤホンケース/電源タップ,
+  with five unique contexts, plus the composed sixth context 充電器の置き場所. The existing
+  充電器 and 置き場所 Words are reused; no reading is added for that entire composed span.
+  It remains a composed Sentence for whole-reading conversion, not a sixth dictionary Word.
+  Near-complete suffix completion can retain its existing Word classification without changing
+  dictionary membership. Preserve explicit long marks and the `n`+vowel boundary:
+  `henkan'adaputa-` or horizontal-separated `henkan adaputa-` spells へんかんあだぷたー;
+  bare `henkanadaputa-` and guessed `nn` spellings do not become invented aliases.
+- Combined addition: six English forms,15 CJK Word readings,18 contexts and36 authored
+  sentences. Current totals are EN6207/879/1722 (57layers), ZH3432/873/1744 and JA633/361/721.
+  Old raw data, flags/order and source authors remain preserved, not every bounded short-root
+  pool/score. Runtime/model algorithms, candidate/source/pack budgets,25 packs/SDK and version
+  stay unchanged. These are location/packing expressions, not electrical operations, connection
+  safety guidance, hardware compatibility promises or a live device service.
+- The four before-data targets are archived in `/tmp/suzaku-accessories.7PnFRc/tests-before.tar`,
+  SHA256 `e4681336c6422d56b46c5451cc1fd55d621aed4a7e29d550a98ef83b5d4b88e6`.
+  The actual owning before driver exits101: each language has2passes/4missing, with old controls
+  passing first in private0/9 Japanese-pack processes; the sixteen-pack target has0pass/1missing
+  after its old English controls pass. Retain `/tmp/suzaku-accessories.7PnFRc/before.log`,
+  SHA256 `de221ab8e144e25af174df65b05a1a95f5c06cda8fd79d5135c2d56d7f8a0cfc`.
+- The first after-data invocation exits101 with18passes/one failure: only the new English
+  completion test's `connec` expectation is wrong. Five older matching Words already occupy
+  the existing bounded slots; this is not loss of dictionary data or a reason to increase the
+  budget, reorder old entries or change the completion algorithm. Only two tuples in the new
+  English fixture narrow that explicit probe to `connecto`. The original archived fixture and
+  red `/tmp/suzaku-accessories.7PnFRc/after-first.log` stay intact, SHA256
+  `53672bd59838a978ca24c7fe6aaf63904606c94bf2b3efc95fad9435cf098ae8`.
+  The Chinese/Japanese/private-pack specifications remain unchanged; this first invocation
+  must not be relabeled an all-green run or combined with later partial reruns into one pass.
+- **Bounded local regression passed:** one new locked/offline/all-feature/no-fail-fast
+  invocation, with single-threaded tests, finishes with actual owning-driver exit0. Its exact
+  command array and terminal receipt are in `/tmp/suzaku-accessories.7PnFRc/targeted-exit.json`;
+  log `/tmp/suzaku-accessories.7PnFRc/targeted-final.log`, SHA256
+  `b10712ce861754c8c2c96bea62b9547fc1ed5be5fa946a0d7200321128cef4d2`, contains23 unique
+  top-level result groups,735passes/zero failures/three original explicit ignores/zero filtered.
+  Scope is the complete library (612passes/two original ignores) plus22 specified integration
+  targets: the four accessory and four recycling fixtures, three daily-device suites,
+  `lexicon_resources`, `japanese_internet_catalog`, `family_pack_japanese`, the two optimization
+  equivalence suites/eight golden tests, `fallback_vocabulary`, three Chinese compound/provenance
+  suites and the English/Chinese family-pack suites. All19 new checks are counted once;
+  before, first-after, child and old full-run counts are not added. This is not Doc-tests,
+  other binaries or complete-workspace acceptance. A separate strict targeted-log audit also
+  exits0: all19 selected old group rosters/names/order/status/ignore reasons match the exact
+  prior log, and both unchanged four-case golden suites pass. Its final root report is
+  `/tmp/suzaku-accessories.7PnFRc/root-targeted-final-audit-report.json`; parser self-tests
+  are not added to the735 executed product tests.
+- Strict locked/offline/all-target/all-feature Clippy with `-D warnings` finishes with actual
+  driver exit0 in58.85s. Its log is `/tmp/suzaku-accessories.7PnFRc/clippy.log`, SHA256
+  `f84d2543eacd15dd7af1456a402b315d50c19d21079d1421f87c3e8fabc78a23`.
+  New formatting,83 Python guards (29 tensor/11 shipping/25 partition/18 CI-graph),250 audit
+  links, tensor and source-preservation checks also finish with actual exit0. Source digest:
+  `6c4b0af1c2345086faa4e441d6212e9e8476f7120810ff03472e50900928fa4e`.
+  Preservation explicitly accounts for54 old maintenance paths/135 exact operands, three
+  data appends and the catalog inverse (58 changed old code/data paths), with902 other old
+  paths byte-identical. Four new fixtures retain their recorded specifications except the
+  two precise new-English probe tuples whose inverse restores the before archive. All five
+  metadata files,25 package JSONs/README, three SDK files, the old recycling replay helper and
+  both golden files remain byte-identical; no budget, runtime algorithm, old rank or golden
+  is adjusted to erase the failed broad-root expectation. Documentation is accounted for
+  separately, not included in unchanged-code counts.
+  This batch deliberately does not rerun or claim the previous complete2642-test regression;
+  the previous full/Clippy/static results below retain their prior snapshot scope. These new
+  bounded receipts do not imply full-repository, UI/native-keyboard, real-model, installation
+  or performance acceptance. No commit, push, CI query, personal service change, installation
+  or restoration of the cancelled automation is part of this work. It remains uncommitted
+  at0.9.5/45 and is not in the published release packages.
+
+The recycling section below is the preceding snapshot, with its own preserved totals and receipts.
+
+## Daily recycling and household coordination — 2026 10 23
+
+This finite data-only batch starts from published source
+`de42d39a0b9b24799f45fd5424a10e5859b37532`/0.9.5/build45, not a new release or installation.
+The before archive is `/tmp/suzaku-recycling.kvhmf4/baseline.tar`, with961 regular files,
+SHA256 `f71f93ceb4193762888fcfe37d89f584eda343360f574c31b03ab194c1ad6970`.
+
+- Add eight builtin English forms (`cardboard`, `carton`, `cartons`, `bins`, `liner`,
+  `liners`, `cans`, `bags`) in the56th ordered layer, `daily_recycling`, with six contexts
+  and12 authored sentences. `bins` was already in the optional family pack: this is its
+  first builtin occurrence, not a claim that it is new to the whole enabled catalog.
+- Add12 Chinese Word readings, with six everyday collaboration contexts and12 authors.
+  Examples include “纸箱先压平／空瓶放在这边／这些包装先别扔／袋口先系好／回收日是哪天／
+  这袋垃圾我来提”. The question keeps its authored `？` boundary; it is not silently changed
+  to a comma to fit a test. This is input expression coverage, not verified collection dates.
+- Add six Japanese Word readings: 収集日, 回収箱, 段ボール, ペットボトル, 生ごみ and 粗大ごみ;
+  each has two authored sentences under its own unique context. Exact Romaji and explicit
+  near-complete partials are tested, with `danbo-ru` preserving the existing explicit long
+  mark. Older ごみ出し/分別/資源ごみ and the optional family's ごみ箱 remain unchanged;
+  short `shuu` roots may still compete with older Words. This is not a morphology expansion.
+- Combined addition: eight English forms,18 CJK Word readings,18 contexts and36 authored
+  sentences. Current totals are EN6201/873/1710 (56layers), ZH3422/867/1732 and JA628/355/709.
+  Preserve earlier ranks, reading flags/order, source authors and the25 recommended packs/SDK;
+  runtime/model algorithms, candidate/source/pack budgets and version0.9.5/build45 stay fixed.
+  Finite input expressions do not provide municipal sorting rules, live collection services,
+  device actions or a blanket guarantee that all bounded short-prefix pools/scores stay equal.
+- Four tests-first targets are frozen: [English](tests/daily_recycling_english.rs)
+  `e469f0c5…`, [Chinese](tests/daily_recycling_chinese.rs)`8a0316a0…`,
+  [Japanese](tests/daily_recycling_japanese.rs)`40a459db…` and
+  [private sixteen-pack](tests/daily_recycling_packs.rs)`152eaae4…`.
+  The actual before invocation finishes with tool exit101: each language has2pass/4missing;
+  the private sixteen-pack target has0pass/1missing after its old controls pass. The retained
+  `/tmp/suzaku-recycling.kvhmf4/before.log` SHA256 is
+  `2088602633c96a190fb7540ffc798df581b0e2d560e29e301cebdf49fb318a5c`.
+  The frozen tests remain unchanged; results are real before-data gaps, not mocked proposals.
+- The first focused invocation has12 groups,65passes and one failure, actual tool exit101.
+  All19 new tests pass in that run, but `lexicon_resources` also exposes a stale current Japanese
+  author total: actual709 versus the old697 operand. Only that current count is synchronized to709;
+  no old prefix hash, assertion strength, slot, budget, algorithm or frozen specification changes.
+  Keep the red `/tmp/suzaku-recycling.kvhmf4/after-focused.log`, SHA256
+  `e4d317464c0c5069253d7c43b808b5da45cd918f0fbe4a5f0c3633462c940213`;
+  do not report the first focused run as all green or combine partial invocations into one pass.
+- The first independent complete run traverses279 groups with2640passes/two failures/32 original
+  ignores/zero filtered and ends with actual driver exit101, not acceptance. Two historical
+  English optimization replay tests fail because the final
+  known token of `one\nline` can now receive the added `liner`/`liners` Word completions.
+  No context is joined across the newline and no old row is displaced: the original three
+  Words retain scores100/92/90, followed by the two added local Words at88/86. Preserve
+  `/tmp/suzaku-recycling.kvhmf4/full.log`, SHA256
+  `d15fa0877caae04f3004bfc12e547eec4f70acf7936a5136b3c5bc9eb51e4529`.
+  A separate direct probe linked against the actual current compiled library exits0 and
+  measures all five complete tuples, with log `/tmp/suzaku-recycling.kvhmf4/probe-actual.log`,
+  SHA256 `edbac2e64fa7b0fdd1f81be07f26c09aa1ef0cc25a2849f7e57c104b43d737a6`.
+  Only the test-side [recycling replay projection](tests/support/daily_recycling_replay.rs)
+  handles the exact English/no-packs/`one\nline` case: it asserts all five rows' text, label,
+  kind, source and score bits before removing only the last two added Words. All other cases
+  pass through unchanged. The old golden/corpus and runtime behavior remain unchanged; this
+  precise vocabulary-delta projection is not a claim that every bounded old pool stays equal.
+- **Final independent local acceptance passed:** a fresh locked/offline/all-feature complete
+  invocation (`cargo test --locked --offline --all-features --no-fail-fast -- --test-threads=1`)
+  finishes with actual owning-driver exit0. Log `/tmp/suzaku-recycling.kvhmf4/final-full.log`,
+  SHA256 `459c752fdd9af6906301f3cfd7a61eccc82605ad717784cceb67b1660f4f6707`, has279 unique
+  top-level groups including Doc-tests,2642passes/zero failures/32 original explicit ignores/
+  zero filtered. The strict full-log audit separately exits0 and verifies all275 prior target
+  rosters, test-name order/status and ignore details unchanged. All19 new tests are included
+  once; focused runs, probes, child results and the earlier2640/2 run are not added to this total.
+  The actual exit receipt and full audit are retained beside the log, rather than inferred
+  from selected green lines or combined partial invocations.
+- New locked/offline/all-target/all-feature Clippy with `-D warnings` finishes with actual
+  driver exit0 (`/tmp/suzaku-recycling.kvhmf4/clippy.log`,1m01s). Formatting and the83 Python
+  guards (29 tensor,11 shipping,25 partition and18 CI-graph),250 source-audit links, tensor
+  schema/digest and code-preservation audits also finish with actual exit0. This batch's source
+  digest is `8c56bb9867757b9d2973d708a155a1a72fe34284c623c6e3b1a4c4dce64572ac`.
+  The code-preservation audit accounts for58 changed old code/data paths:52 exact current-total
+  maintenance changes, three JSON appends, the catalog inverse and two replay callers. The four
+  new fixtures remain frozen and the one replay helper asserts the exact five-tuple delta;
+  897 other old paths are byte-identical. All five version metadata files,25 package JSONs plus
+  their README and the three SDK files stay unchanged. Documentation is accounted for separately,
+  not folded into the immutable-code count. Old raw prefixes, flags/order, author sequences and
+  corpus/goldens remain preserved without claiming all short-root pools are identical.
+  These are new-batch local receipts, not the older2623/full,19 isolated UI or1m03s Clippy records
+  below. They do not add UI/native-keyboard, real-model, installation or performance acceptance.
+  Version0.9.5/build45 is unchanged and this batch is still uncommitted, outside the published
+  packages. No commit, push, CI query, personal service change, installation or restoration of
+  the cancelled automation is performed by this vocabulary work.
 
 ## 0.9.5 source preparation — 2026 10 23
 

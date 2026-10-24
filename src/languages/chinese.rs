@@ -219,26 +219,53 @@ pub(crate) fn is_dictionary_word(text: &str) -> bool {
 /// later words behind several ambiguous conversions do not qualify. Inspect
 /// original decoder provenance, never a page already reordered by the mixer.
 pub(crate) fn immediate_word_continuations(seed: &str) -> Option<Vec<String>> {
-    let choices = pinyin_choices(seed);
-    let [
-        (converted, CandidateKind::Sentence),
-        (word, CandidateKind::Word),
-        ..,
-    ] = choices.as_slice()
-    else {
+    let DecodedPinyin {
+        choices,
+        finished_count,
+    } = pinyin_choices_with_provenance(seed);
+    let (converted, CandidateKind::Sentence) = choices.first()? else {
+        return None;
+    };
+    let code = normalize_pinyin(seed);
+    let code = code.trim_matches(is_pinyin_spacing);
+    // Keep the old immediate-neighbour rule intact. The additional nasal
+    // witness may follow exactly two real finished Sentence paths, never an
+    // arbitrary later row on a rebalanced page.
+    let (word, kind) = choices.get(1)?;
+    let word = if *kind == CandidateKind::Word {
+        word
+    } else if finished_count == 2
+        && choices[..finished_count]
+            .iter()
+            .all(|(_, kind)| *kind == CandidateKind::Sentence)
+        && let Some((word, CandidateKind::Word)) = choices.get(finished_count)
+        && choices[..finished_count].iter().all(|(text, _)| {
+            unique_terminal_ng_completion(
+                code,
+                text.trim_matches(is_pinyin_spacing),
+                word.trim_matches(is_pinyin_spacing),
+                pinyin_starting_with(code),
+            )
+        })
+    {
+        word
+    } else {
         return None;
     };
     let context_word = word.trim_matches(is_pinyin_spacing);
     if !is_dictionary_word(context_word) {
         return None;
     }
-    // Protect only a one-character final completion conflict (e.g. 书 / 睡).
-    // Replacing several characters is an existing ambiguous branch and keeps
-    // its original pagination, even if a whole-word alternative follows it.
+    // Preserve the original one-character final conflict (e.g. 书 / 睡).
+    // A terminal n can also split into two finished syllables before the
+    // missing g completes a uniquely sourced whole Word. Require that precise
+    // authored reading witness; arbitrary multi-character ambiguity stays put.
     let converted = converted.trim_matches(is_pinyin_spacing);
     let converted_prefix = &converted[..converted.char_indices().next_back()?.0];
     let word_prefix = &context_word[..context_word.char_indices().next_back()?.0];
-    if converted_prefix != word_prefix {
+    if converted_prefix != word_prefix
+        && !unique_terminal_ng_completion(code, converted, context_word, pinyin_starting_with(code))
+    {
         return None;
     }
     vocabulary()
@@ -253,6 +280,46 @@ pub(crate) fn immediate_word_continuations(seed: &str) -> Option<Vec<String>> {
                 })
                 .collect()
         })
+}
+
+fn unique_terminal_ng_completion(
+    code: &str,
+    converted: &str,
+    word: &str,
+    entries: &[&PinyinEntry],
+) -> bool {
+    if code.is_empty()
+        || !code
+            .chars()
+            .all(|ch| ch.is_ascii_lowercase() || is_pinyin_separator(ch))
+        || !word.chars().all(is_han_scalar)
+        || !converted.chars().all(is_han_scalar)
+        || converted.chars().count() != word.chars().count() + 1
+    {
+        return false;
+    }
+    let mut witnessed = false;
+    for entry in entries.iter().filter(|entry| {
+        entry.kind == EntryKind::Word && entry.match_input(code) == Some(ReadingMatch::Prefix)
+    }) {
+        // A second distinct whole-reading completion is real ambiguity, not
+        // permission to select whichever context happens to have authors.
+        if entry.text != word {
+            return false;
+        }
+        if entry.reading.ends_with("ng")
+            && entry.reading.split('\'').count() == word.chars().count()
+        {
+            let without_g = PinyinEntry {
+                reading: &entry.reading[..entry.reading.len() - 1],
+                text: entry.text,
+                require_separators: entry.require_separators,
+                kind: entry.kind,
+            };
+            witnessed |= without_g.match_input(code) == Some(ReadingMatch::Exact(code.len()));
+        }
+    }
+    witnessed
 }
 
 // Reuse the decoder's existing bounded choices. Its first five finished paths
@@ -334,14 +401,334 @@ fn displaced_branch_sources(
         .map(|(text, _)| text.as_str())
 }
 
+fn is_han_scalar(ch: char) -> bool {
+    matches!(ch,
+        '\u{3400}'..='\u{4dbf}' | '\u{4e00}'..='\u{9fff}' |
+        '\u{f900}'..='\u{faff}' | '\u{20000}'..='\u{323af}')
+}
+
+// A whole Word can witness a complete prefix syllable without adding an entry
+// or another decoder path. Alignment is explicit and conservative: one Han
+// scalar per authored reading syllable, never Sentence/Latin/misaligned text.
+fn aligned_word_syllable_prefix(
+    entry: &PinyinEntry,
+    code: &str,
+    authored_remaining: &str,
+) -> Option<usize> {
+    let code = code.trim_end_matches(is_pinyin_spacing);
+    if entry.kind != EntryKind::Word
+        || !entry.text.chars().all(is_han_scalar)
+        || entry.text.chars().count() != entry.reading.split('\'').count()
+        || code.is_empty()
+        || code.ends_with('\'')
+        || !code
+            .chars()
+            .all(|ch| ch.is_ascii_lowercase() || is_pinyin_separator(ch))
+    {
+        return None;
+    }
+    let mut text_ends = entry
+        .text
+        .char_indices()
+        .map(|(index, ch)| index + ch.len_utf8());
+    for reading_end in entry
+        .reading
+        .match_indices('\'')
+        .map(|(index, _)| index)
+        .chain(std::iter::once(entry.reading.len()))
+    {
+        let text_end = text_ends.next()?;
+        let text = &entry.text[..text_end];
+        if !authored_remaining.starts_with(text) {
+            break;
+        }
+        let prefix = PinyinEntry {
+            reading: &entry.reading[..reading_end],
+            text,
+            require_separators: entry.require_separators,
+            kind: EntryKind::Word,
+        };
+        if prefix.match_input(code) == Some(ReadingMatch::Exact(code.len())) {
+            return Some(text_end);
+        }
+    }
+    None
+}
+
+fn verified_word_syllable_prefix(input: &str, authored_remaining: &str) -> Option<usize> {
+    let code = normalize_pinyin(input);
+    // A longer Word's explicit syllables are not a new reading registration.
+    // The typed reading must already finish a real decoder conversion; a
+    // Prefix-only completion (jiu -> 就近) cannot authorize jiu -> 就.
+    let decoded = pinyin_choices_with_provenance(&code);
+    if decoded.finished_count == 0
+        || !decoded
+            .choices
+            .iter()
+            .take(decoded.finished_count)
+            .any(|(_, kind)| *kind != CandidateKind::Literal)
+    {
+        return None;
+    }
+    pinyin_starting_with(&code)
+        .iter()
+        .find_map(|entry| aligned_word_syllable_prefix(entry, &code, authored_remaining))
+}
+
+// Preserve every written byte before the first Pinyin mismatch. The suffix is
+// eligible only inside an already adopted Han author, and only the exact
+// complete syllable prefix verified above may bridge that one reading tail.
+// The returned author remainder is also used by the long-draft routing hint.
+fn authored_syllable_remainder<'a>(input: &str, sentence: &'a str) -> Option<(usize, &'a str)> {
+    let mut expected = sentence.char_indices().peekable();
+    let mut written_han = false;
+    for (offset, ch) in input.char_indices() {
+        if is_pinyin_spacing(ch) {
+            while let Some(&(_, next)) = expected.peek()
+                && is_pinyin_spacing(next)
+            {
+                expected.next();
+            }
+            continue;
+        }
+        let (index, next) = expected.next()?;
+        if ch != next {
+            return (written_han
+                && (ch.is_ascii_alphabetic() || matches!(ch, 'ü' | 'Ü'))
+                && verified_word_syllable_prefix(&input[offset..], &sentence[index..]).is_some())
+            .then_some((offset, &sentence[index..]));
+        }
+        written_han |= is_han_scalar(ch);
+    }
+    None
+}
+
+#[cfg(test)]
+mod adopted_syllable_prefix_proof_tests {
+    use super::*;
+
+    #[test]
+    fn source_prefix_proof_requires_word_han_alignment_and_exact_author_head() {
+        let source = PinyinEntry::new("dai'kou'xian'ji'hao", "袋口先系好");
+        assert_eq!(
+            aligned_word_syllable_prefix(&source, "dai", "袋子我来挪开。"),
+            Some(3)
+        );
+        for rejected in [
+            PinyinEntry {
+                kind: EntryKind::Sentence,
+                ..PinyinEntry::new("dai'kou'xian'ji'hao", "袋口先系好")
+            },
+            PinyinEntry::new("dai'kou", "袋"),
+            PinyinEntry::new("dai'kou", "袋A"),
+        ] {
+            assert!(aligned_word_syllable_prefix(&rejected, "dai", "袋子我来挪开。").is_none());
+        }
+        for (code, remaining) in [
+            ("da", "袋子我来挪开。"),
+            ("d a i", "袋子我来挪开。"),
+            ("dai'", "袋子我来挪开。"),
+            ("dai4.5", "袋子我来挪开。"),
+            ("dai", "带子我来挪开。"),
+        ] {
+            assert!(aligned_word_syllable_prefix(&source, code, remaining).is_none());
+        }
+    }
+
+    #[test]
+    fn source_prefix_proof_honors_complete_syllables_and_required_separators() {
+        let source = PinyinEntry {
+            require_separators: true,
+            ..PinyinEntry::new("xi'an", "西安")
+        };
+        assert_eq!(
+            aligned_word_syllable_prefix(&source, "xi", "西安附近。"),
+            Some(3)
+        );
+        for code in ["xi an", "xi'an", "xi\u{3000}an"] {
+            assert_eq!(
+                aligned_word_syllable_prefix(&source, code, "西安附近。"),
+                Some(6)
+            );
+        }
+        for code in ["xian", "xi a", "xi'a", "x i", "xi\nan"] {
+            assert!(aligned_word_syllable_prefix(&source, code, "西安附近。").is_none());
+        }
+        assert_eq!(
+            aligned_word_syllable_prefix(&PinyinEntry::new("xi'an", "西安"), "xian", "西安附近。"),
+            Some(6)
+        );
+    }
+
+    #[test]
+    fn unsupported_prefix_only_readings_cannot_authorize_authors_or_routing_hints() {
+        let remaining = "就好，我回去再整理。";
+        let author = "收据放在袋子里就好，我回去再整理。";
+        let longer_word = PinyinEntry::new("jiu'jin", "就近");
+        for input in ["jiu", "JIU", "jiu4", "JIU4", "jiu\t", "jiu4\u{3000}"] {
+            let code = normalize_pinyin(input);
+            let decoded = pinyin_choices_with_provenance(&code);
+            assert_eq!(decoded.finished_count, 0, "{input:?}");
+            assert!(
+                decoded
+                    .choices
+                    .iter()
+                    .any(|(_, kind)| *kind == CandidateKind::Word)
+            );
+            // The aligned longer Word really exists. The absent *finished*
+            // input reading, not a missing optional context, rejects it.
+            assert_eq!(
+                aligned_word_syllable_prefix(&longer_word, &code, remaining),
+                Some(3)
+            );
+            assert!(verified_word_syllable_prefix(input, remaining).is_none());
+            let local = format!("收据放在袋子里{input}");
+            assert!(authored_syllable_remainder(&local, author).is_none());
+            assert!(authored_sentence_suffix(&local, author, true).is_none());
+            for prefix in [String::new(), "前文 café 😀。  ".repeat(40)] {
+                let seed = format!("{prefix}{local}");
+                assert!(authored_syllable_continuations(&seed).is_none());
+                assert!(adopted_continuation_tail(&seed).is_none());
+            }
+        }
+        for input in ["unknown", "jiu'", "jiu6", "jiu\n", "https://jiu"] {
+            assert!(
+                verified_word_syllable_prefix(input, remaining).is_none(),
+                "{input:?}"
+            );
+            assert!(
+                authored_syllable_remainder(&format!("收据放在袋子里{input}"), author).is_none()
+            );
+        }
+        for input in ["dai", "DAI", "dai4"] {
+            let decoded = pinyin_choices_with_provenance(&normalize_pinyin(input));
+            assert!(decoded.finished_count > 0);
+            assert!(
+                decoded.choices[..decoded.finished_count]
+                    .iter()
+                    .any(|(_, kind)| *kind != CandidateKind::Literal)
+            );
+            assert_eq!(
+                verified_word_syllable_prefix(input, "袋子我来挪开。"),
+                Some(3)
+            );
+        }
+    }
+
+    #[test]
+    fn new_syllable_witness_excludes_existing_authors_and_keeps_original_pages() {
+        use crate::ime::{
+            EngineConfig, XRTabletImeEngine,
+            candidate_mix::{CandidateSource, PAGE_SIZE},
+        };
+
+        fn local(seed: &str) -> Vec<Candidate> {
+            let mut ime = XRTabletImeEngine::new(EngineConfig {
+                default_language: "zh-Hans".into(),
+                ..Default::default()
+            });
+            ime.enable_ibus_candidate_mix();
+            ime.seed(seed);
+            assert_eq!(ime.snapshot().seed_text, seed);
+            assert!(ime.snapshot().committed_text.is_empty());
+            ime.candidates().to_vec()
+        }
+
+        let gaps = ["'", " ", "\t", "\u{a0}", "\u{2007}", "\u{202f}", "\u{3000}"];
+        let mut readings = vec![
+            "zaichumen".into(),
+            "ZAICHUMEN".into(),
+            "zai4chu1men2".into(),
+        ];
+        for gap in gaps {
+            let lower = format!("zai{gap}chu{gap}men");
+            readings.extend([
+                lower.to_ascii_uppercase(),
+                lower,
+                format!("zai4{gap}chu1{gap}men2"),
+            ]);
+        }
+        for prefix in [String::new(), "前文 café 😀。  ".repeat(40)] {
+            for (word, first, second) in [
+                (
+                    "我先洗把脸",
+                    "我先洗把脸再出门，你先坐一会儿。",
+                    "我先洗把脸再出门，等我两分钟。",
+                ),
+                (
+                    "我先换双鞋",
+                    "我先换双鞋再出门，你在门口等我一下。",
+                    "我先换双鞋再出门，走路会舒服一点。",
+                ),
+            ] {
+                for reading in &readings {
+                    let seed = format!("{prefix}{word}{reading}");
+                    // A complete, already decoded author is not new syllable
+                    // evidence and must not promote its old second-page row.
+                    assert!(authored_syllable_continuations(&seed).is_none(), "{seed:?}");
+                    let choices = local(&seed);
+                    assert!(choices.iter().all(|c| c.text.starts_with(&prefix)));
+                    assert!(
+                        choices
+                            .iter()
+                            .any(|c| c.text == seed && c.kind == CandidateKind::Literal)
+                    );
+                    let at = |text: &str| {
+                        choices
+                            .iter()
+                            .position(|c| {
+                                c.text == format!("{prefix}{text}")
+                                    && c.kind == CandidateKind::Sentence
+                                    && c.source == CandidateSource::Local
+                            })
+                            .unwrap_or_else(|| panic!("missing {text:?}: {choices:?}"))
+                    };
+                    assert!(at(first) < PAGE_SIZE, "{seed:?}: {choices:?}");
+                    assert!(
+                        (PAGE_SIZE..2 * PAGE_SIZE).contains(&at(second)),
+                        "{seed:?}: {choices:?}"
+                    );
+                }
+            }
+            // The actual old decoder still reads 带, not this author's 袋;
+            // only that genuinely missing author keeps the new identity slot.
+            for padding in ["", " ", "\t", "\u{a0}", "\u{2007}", "\u{202f}", "\u{3000}"] {
+                for reading in ["dai", "DAI", "dai4"] {
+                    let seed = format!("{prefix}门垫旁边先留空，{padding}{reading}");
+                    let author = format!("{prefix}门垫旁边先留空，{padding}袋子我来挪开。");
+                    assert_eq!(
+                        authored_syllable_continuations(&seed),
+                        Some(vec![author.clone()])
+                    );
+                    let choices = local(&seed);
+                    assert!(choices.iter().all(|c| c.text.starts_with(&prefix)));
+                    assert!(
+                        choices[..PAGE_SIZE].iter().any(|c| {
+                            c.text == author
+                                && c.kind == CandidateKind::Sentence
+                                && c.source == CandidateSource::Local
+                        }),
+                        "{seed:?}: {choices:?}"
+                    );
+                }
+            }
+        }
+    }
+}
+
 /// Match already converted text without erasing its literal horizontal padding.
 /// The optional reading tail is only a routing hint for the long-draft window:
-/// emitted sentences must match an actual decoder result, never this hint.
+/// this function's result never authorizes emission. Decoder-based emission
+/// remains literal; syllable-prefix emission separately rechecks its Word proof.
 fn authored_sentence_suffix<'a>(
     input: &str,
     sentence: &'a str,
     allow_reading_tail: bool,
 ) -> Option<&'a str> {
+    if allow_reading_tail && let Some((_, remainder)) = authored_syllable_remainder(input, sentence)
+    {
+        return Some(remainder);
+    }
     let mut expected = sentence.char_indices().peekable();
     let mut consumed = 0;
     for (offset, ch) in input.char_indices() {
@@ -490,9 +877,77 @@ pub(crate) fn adopted_continuation_tail(seed: &str) -> Option<&str> {
     authored_continuation(seed, true).map(|(tail, _)| tail)
 }
 
-pub(crate) fn mixed_candidates(
-    seed: &str,
-) -> Vec<(String, crate::ime::candidate_mix::CandidateKind)> {
+/// Exact adopted-context authors witnessed by an existing Word's complete
+/// syllable prefix. This is read-only provenance shared by emission and page
+/// balancing; it does not repair written Han or introduce global homophones.
+fn authored_syllable_candidates(seed: &str) -> Option<Vec<String>> {
+    let (tail, values) = authored_continuation(seed, true)?;
+    let start = seed.len() - tail.len();
+    let mut output = Vec::new();
+    for text in values {
+        if let Some((offset, remainder)) = authored_syllable_remainder(tail, text) {
+            let completed = format!("{}{remainder}", &seed[..start + offset]);
+            if !output.contains(&completed) {
+                output.push(completed);
+            }
+        }
+    }
+    (!output.is_empty()).then_some(output)
+}
+
+// This is the complete pre-syllable emission, including its original
+// continuation/whole-Word/displaced sources, plus the unchanged decoder rows.
+struct PreSyllableCandidates {
+    mixed: Vec<(String, CandidateKind)>,
+    decoded: Vec<(String, CandidateKind)>,
+}
+
+fn missing_syllable_authors(authors: Vec<String>, previous: &PreSyllableCandidates) -> Vec<String> {
+    authors
+        .into_iter()
+        .filter(|text| {
+            !previous
+                .mixed
+                .iter()
+                .chain(&previous.decoded)
+                .any(|(old, _)| old == text)
+        })
+        .collect()
+}
+
+/// Only an author absent from the actual pre-syllable decoder/mixed output
+/// can acquire this new identity witness. Existing authors keep their pages.
+/// Reuse the engine's exact bounded window before restoring its frozen prefix.
+pub(crate) fn authored_syllable_continuations(seed: &str) -> Option<Vec<String>> {
+    let (prefix, tail) = super::draft::long_local_tail("zh-Hans", seed).unwrap_or(("", seed));
+    if tail.chars().nth(super::draft::LOCAL_TAIL_CHARS).is_some() {
+        return None;
+    }
+    let authors = authored_syllable_candidates(tail)?;
+    let previous = mixed_candidates_before_syllable(tail);
+    let missing = missing_syllable_authors(authors, &previous);
+    (!missing.is_empty()).then(|| {
+        missing
+            .into_iter()
+            .map(|text| format!("{prefix}{text}"))
+            .collect()
+    })
+}
+
+pub(crate) fn mixed_candidates(seed: &str) -> Vec<(String, CandidateKind)> {
+    let mut previous = mixed_candidates_before_syllable(seed);
+    if let Some(authors) = authored_syllable_candidates(seed) {
+        let missing = missing_syllable_authors(authors, &previous);
+        previous.mixed.extend(
+            missing
+                .into_iter()
+                .map(|text| (text, CandidateKind::Sentence)),
+        );
+    }
+    previous.mixed
+}
+
+fn mixed_candidates_before_syllable(seed: &str) -> PreSyllableCandidates {
     let code = normalize_pinyin(seed);
     let mut output = Vec::new();
     if code.bytes().filter(u8::is_ascii_lowercase).count() >= 2 {
@@ -617,7 +1072,10 @@ pub(crate) fn mixed_candidates(
             }
         }
     }
-    prioritized
+    PreSyllableCandidates {
+        mixed: prioritized,
+        decoded: conversions,
+    }
 }
 
 pub fn pinyin_candidates(seed: &str) -> Vec<String> {
@@ -794,6 +1252,102 @@ fn decode_pinyin_choices(seed: &str) -> DecodedPinyin {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn terminal_ng_pair_uses_real_finished_boundary_not_sorted_page_position() {
+        let seed = "xie'gui'li'hai'you'yi'shuan";
+        let decoded = pinyin_choices_with_provenance(seed);
+        assert_eq!(decoded.finished_count, 2);
+        assert_eq!(
+            decoded.choices[0],
+            ("鞋柜厉害有以书安".into(), CandidateKind::Sentence)
+        );
+        assert_eq!(
+            decoded.choices[1],
+            ("鞋柜厉害又以书安".into(), CandidateKind::Sentence)
+        );
+        assert_eq!(
+            decoded.choices[2],
+            ("鞋柜里还有一双".into(), CandidateKind::Word)
+        );
+        assert_eq!(
+            immediate_word_continuations(seed).unwrap(),
+            [
+                "鞋柜里还有一双，我帮你拿出来。",
+                "鞋柜里还有一双，放在下面那层。",
+            ]
+        );
+        assert!(immediate_word_continuations("huan ge").is_none());
+    }
+
+    #[test]
+    fn terminal_ng_pair_proof_requires_unique_aligned_word_and_exact_missing_g() {
+        let source = PinyinEntry::new("xi'ang", "西昂");
+        for code in ["xi'an", "xi an", "xian"] {
+            assert!(unique_terminal_ng_completion(
+                code,
+                "西安安",
+                "西昂",
+                &[&source]
+            ));
+        }
+        for (code, converted, word) in [
+            ("xi'a", "西安安", "西昂"),
+            ("xi'an'", "西安安", "西昂"),
+            ("x ian", "西安安", "西昂"),
+            ("xi\nan", "西安安", "西昂"),
+            ("xi'an", "西安", "西昂"),
+            ("xi'an", "西安A", "西昂"),
+            ("xi'an", "西安安", "西A"),
+        ] {
+            assert!(!unique_terminal_ng_completion(
+                code,
+                converted,
+                word,
+                &[&source]
+            ));
+        }
+        let ambiguous = PinyinEntry::new("xi'ang", "喜昂");
+        assert!(!unique_terminal_ng_completion(
+            "xi'an",
+            "西安安",
+            "西昂",
+            &[&source, &ambiguous]
+        ));
+        let sentence = PinyinEntry {
+            kind: EntryKind::Sentence,
+            ..PinyinEntry::new("xi'ang", "西昂")
+        };
+        assert!(!unique_terminal_ng_completion(
+            "xi'an",
+            "西安安",
+            "西昂",
+            &[&sentence]
+        ));
+        let misaligned = PinyinEntry::new("xiang", "西昂");
+        assert!(!unique_terminal_ng_completion(
+            "xian",
+            "西安安",
+            "西昂",
+            &[&misaligned]
+        ));
+        let required = PinyinEntry {
+            require_separators: true,
+            ..PinyinEntry::new("xi'ang", "西昂")
+        };
+        assert!(unique_terminal_ng_completion(
+            "xi an",
+            "西安安",
+            "西昂",
+            &[&required]
+        ));
+        assert!(!unique_terminal_ng_completion(
+            "xian",
+            "西安安",
+            "西昂",
+            &[&required]
+        ));
+    }
 
     fn linear_authored_continuation<'seed, 'catalog>(
         seed: &'seed str,
@@ -1411,7 +1965,7 @@ mod tests {
 
     #[test]
     fn authored_continuations_are_unique_complete_and_preserve_padding() {
-        assert_eq!(pinyin().len(), 3410);
+        assert_eq!(pinyin().len(), 3441);
         let mut phrases = std::collections::HashSet::new();
         let mut sentences = std::collections::HashSet::new();
         for (phrase, values) in vocabulary().continuations() {

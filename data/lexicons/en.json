@@ -12692,6 +12692,212 @@
         "the bedside lamp is on the table next to the book i'm reading.",
         "the bedside lamp is on the shelf where i left my glasses."
       ]
+    },
+    {
+      "id": "daily_recycling",
+      "words": [
+        "cardboard",
+        "carton",
+        "cartons",
+        "bins",
+        "liner",
+        "liners",
+        "cans",
+        "bags"
+      ],
+      "next_words": [
+        ["these empty cartons can wait",["here","outside"]],
+        ["the cardboard is ready for",["collection","recycling"]],
+        ["i have left the empty cans",["here","downstairs"]],
+        ["these bins still need new",["liners","labels"]],
+        ["the spare bin liners are",["under","inside"]],
+        ["i can take these bags",["down","outside"]]
+      ],
+      "sentences": [
+        "these empty cartons can wait here until we take them downstairs.",
+        "these empty cartons can wait outside with the cardboard.",
+        "the cardboard is ready for collection by the door.",
+        "the cardboard is ready for recycling and i will carry it downstairs.",
+        "i have left the empty cans here with the bottles.",
+        "i have left the empty cans downstairs next to the bins.",
+        "these bins still need new liners before we use them.",
+        "these bins still need new labels so we can find the right one.",
+        "the spare bin liners are under the sink with the spare bags.",
+        "the spare bin liners are inside the cupboard in the kitchen.",
+        "i can take these bags down when i leave.",
+        "i can take these bags outside after dinner."
+      ]
+    },
+    {
+      "id": "daily_accessories",
+      "words": [
+        "connector",
+        "connectors",
+        "cord",
+        "cords",
+        "pouch",
+        "pouches"
+      ],
+      "next_words": [
+        ["the spare charging cable is",["here","inside"]],
+        ["i put the adapter in the",["drawer","pouch"]],
+        ["my earbuds are still in the",["case","pouch"]],
+        ["the connectors for these cables are",["here","there"]],
+        ["i left the spare cords",["here","upstairs"]],
+        ["these small pouches can hold",["cables","adapters"]]
+      ],
+      "sentences": [
+        "the spare charging cable is here on the desk.",
+        "the spare charging cable is inside the small pouch.",
+        "i put the adapter in the drawer with the spare cables.",
+        "i put the adapter in the pouch next to my earbuds.",
+        "my earbuds are still in the case next to my notebook.",
+        "my earbuds are still in the pouch i brought yesterday.",
+        "the connectors for these cables are here in the top drawer.",
+        "the connectors for these cables are there in the small box.",
+        "i left the spare cords here with the chargers.",
+        "i left the spare cords upstairs in the desk drawer.",
+        "these small pouches can hold cables while we travel.",
+        "these small pouches can hold adapters and the spare connector."
+      ]
+    },
+    {
+      "id": "daily_entryway",
+      "words": [
+        "shoe",
+        "shoelace",
+        "shoelaces",
+        "entryway",
+        "keycard",
+        "hook"
+      ],
+      "next_words": [
+        ["my shoes are still by the",["door","doormat"]],
+        ["i left my keycard in the",["pocket","drawer"]],
+        ["the umbrella is hanging on the",["hook","rack"]],
+        ["one shoelace is caught under the",["shoe","bag"]],
+        ["i can wait in the",["entryway","hallway"]],
+        ["could you pass me my",["keycard","umbrella"]]
+      ],
+      "sentences": [
+        "my shoes are still by the door with my bag.",
+        "my shoes are still by the doormat in the entryway.",
+        "i left my keycard in the pocket of my jacket.",
+        "i left my keycard in the drawer with the spare key.",
+        "the umbrella is hanging on the hook next to my coat.",
+        "the umbrella is hanging on the rack in the entryway.",
+        "one shoelace is caught under the shoe so i need a moment.",
+        "one shoelace is caught under the bag i left by the door.",
+        "i can wait in the entryway while you find your keys.",
+        "i can wait in the hallway until everyone is ready.",
+        "could you pass me my keycard before we leave?",
+        "could you pass me my umbrella from the entryway?"
+      ]
+    },
+    {
+      "id": "daily_washroom",
+      "words": [],
+      "next_words": [
+        [
+          "the shampoo is still on the",
+          [
+            "shelf",
+            "counter"
+          ]
+        ],
+        [
+          "please put the toothpaste in the",
+          [
+            "drawer",
+            "pouch"
+          ]
+        ],
+        [
+          "the clean towels are in the",
+          [
+            "basket",
+            "cupboard"
+          ]
+        ]
+      ],
+      "sentences": [
+        "the shampoo is still on the shelf next to the conditioner.",
+        "the shampoo is still on the counter next to the sink.",
+        "please put the toothpaste in the drawer with the soap.",
+        "please put the toothpaste in the pouch with the shampoo.",
+        "the clean towels are in the basket by the bathroom door.",
+        "the clean towels are in the cupboard above the sink."
+      ]
+    },
+    {
+      "id": "daily_pocket_items",
+      "words": [],
+      "next_words": [
+        [
+          "my wallet is still in the",
+          [
+            "jacket",
+            "backpack"
+          ]
+        ],
+        [
+          "the loose coins are in the",
+          [
+            "pouch",
+            "drawer"
+          ]
+        ],
+        [
+          "the receipts are together in the",
+          [
+            "folder",
+            "basket"
+          ]
+        ]
+      ],
+      "sentences": [
+        "my wallet is still in the jacket pocket.",
+        "my wallet is still in the backpack by the door.",
+        "the loose coins are in the pouch next to my keys.",
+        "the loose coins are in the drawer with the spare key.",
+        "the receipts are together in the folder with the tickets.",
+        "the receipts are together in the basket on the desk."
+      ]
+    },
+    {
+      "id": "daily_table_items",
+      "words": [],
+      "next_words": [
+        [
+          "my thermos is still in the",
+          [
+            "backpack",
+            "kitchen"
+          ]
+        ],
+        [
+          "i put the chopsticks in the",
+          [
+            "pouch",
+            "drawer"
+          ]
+        ],
+        [
+          "the spare napkins are in the",
+          [
+            "basket",
+            "cupboard"
+          ]
+        ]
+      ],
+      "sentences": [
+        "my thermos is still in the backpack next to my lunchbox.",
+        "my thermos is still in the kitchen by the sink.",
+        "i put the chopsticks in the pouch with the spoon.",
+        "i put the chopsticks in the drawer with the forks.",
+        "the spare napkins are in the basket next to the cups.",
+        "the spare napkins are in the cupboard above the sink."
+      ]
     }
   ],
   "phrase_endings": [

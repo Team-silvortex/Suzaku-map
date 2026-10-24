@@ -3411,7 +3411,38 @@
     {"reading": "zhen'tou", "text": "枕头", "kind": "word"},
     {"reading": "bei'zi", "text": "被子", "kind": "word"},
     {"reading": "tan'zi", "text": "毯子", "kind": "word"},
-    {"reading": "chuang'dian", "text": "床垫", "kind": "word"}
+    {"reading": "chuang'dian", "text": "床垫", "kind": "word"},
+    {"reading": "zhi'xiang'xian'ya'ping", "text": "纸箱先压平", "kind": "word"},
+    {"reading": "kong'ping'fang'zai'zhe'bian", "text": "空瓶放在这边", "kind": "word"},
+    {"reading": "zhe'xie'bao'zhuang'xian'bie'reng", "text": "这些包装先别扔", "kind": "word"},
+    {"reading": "dai'kou'xian'ji'hao", "text": "袋口先系好", "kind": "word"},
+    {"reading": "hui'shou'ri'shi'na'tian", "text": "回收日是哪天", "kind": "word"},
+    {"reading": "zhe'dai'la'ji'wo'lai'ti", "text": "这袋垃圾我来提", "kind": "word"},
+    {"reading": "hui'shou'xiang", "text": "回收箱", "kind": "word"},
+    {"reading": "kong'ping", "text": "空瓶", "kind": "word"},
+    {"reading": "zhi'he", "text": "纸盒", "kind": "word"},
+    {"reading": "yi'la'guan", "text": "易拉罐", "kind": "word"},
+    {"reading": "fei'zhi", "text": "废纸", "kind": "word"},
+    {"reading": "hui'shou'ri", "text": "回收日", "kind": "word"},
+    {"reading": "cha'xian'ban'xian'fang'zhe'bian", "text": "插线板先放这边", "kind": "word"},
+    {"reading": "yan'chang'xian'shou'zai'na'le", "text": "延长线收在哪了", "kind": "word"},
+    {"reading": "zhuan'jie'tou'bang'wo'liu'zhe", "text": "转接头帮我留着", "kind": "word"},
+    {"reading": "dian'yuan'xian'bie'na'hun'le", "text": "电源线别拿混了", "kind": "word"},
+    {"reading": "er'ji'he'fang'zai'zhuo'bian", "text": "耳机盒放在桌边", "kind": "word"},
+    {"reading": "zhe'xie'xian'xian'fen'kai'fang", "text": "这些线先分开放", "kind": "word"},
+    {"reading": "cha'xian'ban", "text": "插线板", "kind": "word"},
+    {"reading": "yan'chang'xian", "text": "延长线", "kind": "word"},
+    {"reading": "dian'yuan'xian", "text": "电源线", "kind": "word"},
+    {"reading": "li'xian'jia", "text": "理线夹", "kind": "word"},
+    {"reading": "xie'gui'li'hai'you'yi'shuang", "text": "鞋柜里还有一双", "kind": "word"},
+    {"reading": "men'dian'pang'bian'xian'liu'kong", "text": "门垫旁边先留空", "kind": "word"},
+    {"reading": "xie'dai'wo'zai'ji'yi'xia", "text": "鞋带我再系一下", "kind": "word"},
+    {"reading": "men'jin'ka'xian'bang'wo'na'zhe", "text": "门禁卡先帮我拿着", "kind": "word"},
+    {"reading": "yao'shi'kou'zai'xiao'he'li", "text": "钥匙扣在小盒里", "kind": "word"},
+    {"reading": "zhe'die'san'xian'fang'san'jia", "text": "折叠伞先放伞架", "kind": "word"},
+    {"reading": "men'jin'ka", "text": "门禁卡", "kind": "word"},
+    {"reading": "zhe'die'san", "text": "折叠伞", "kind": "word"},
+    {"reading": "san'jia", "text": "伞架", "kind": "word"}
   ],
   "continuations": [
     [
@@ -9437,6 +9468,195 @@
       [
         "睡前把床铺好，我先去洗漱。",
         "睡前把床铺好，衣服放到椅子上。"
+      ]
+    ],
+    [
+      "纸箱先压平",
+      [
+        "纸箱先压平，我来把它们放好。",
+        "纸箱先压平，等会儿再一起搬下去。"
+      ]
+    ],
+    [
+      "空瓶放在这边",
+      [
+        "空瓶放在这边，我先找个袋子。",
+        "空瓶放在这边，别和还没喝完的放一起。"
+      ]
+    ],
+    [
+      "这些包装先别扔",
+      [
+        "这些包装先别扔，我再确认一下。",
+        "这些包装先别扔，里面可能还有配件。"
+      ]
+    ],
+    [
+      "袋口先系好",
+      [
+        "袋口先系好，我来拿另一袋。",
+        "袋口先系好，放在门边等我。"
+      ]
+    ],
+    [
+      "回收日是哪天",
+      [
+        "回收日是哪天？我先记下来。",
+        "回收日是哪天？我们再看一下通知。"
+      ]
+    ],
+    [
+      "这袋垃圾我来提",
+      [
+        "这袋垃圾我来提，你帮我开一下门。",
+        "这袋垃圾我来提，另外那袋先放着。"
+      ]
+    ],
+    [
+      "插线板先放这边",
+      [
+        "插线板先放这边，我来腾出一点位置。",
+        "插线板先放这边，等整理好再收起来。"
+      ]
+    ],
+    [
+      "延长线收在哪了",
+      [
+        "延长线收在哪了？我只找到旁边的袋子。",
+        "延长线收在哪了？你看到后告诉我。"
+      ]
+    ],
+    [
+      "转接头帮我留着",
+      [
+        "转接头帮我留着，我等会儿来拿。",
+        "转接头帮我留着，放在小盒子里就行。"
+      ]
+    ],
+    [
+      "电源线别拿混了",
+      [
+        "电源线别拿混了，我再看一下标签。",
+        "电源线别拿混了，这根上面贴了标签。"
+      ]
+    ],
+    [
+      "耳机盒放在桌边",
+      [
+        "耳机盒放在桌边，和钥匙放在一起。",
+        "耳机盒放在桌边，我出门前会拿走。"
+      ]
+    ],
+    [
+      "这些线先分开放",
+      [
+        "这些线先分开放，我来找几个收纳袋。",
+        "这些线先分开放，标签朝外比较好找。"
+      ]
+    ],
+    [
+      "鞋柜里还有一双",
+      [
+        "鞋柜里还有一双，我帮你拿出来。",
+        "鞋柜里还有一双，放在下面那层。"
+      ]
+    ],
+    [
+      "门垫旁边先留空",
+      [
+        "门垫旁边先留空，袋子我来挪开。",
+        "门垫旁边先留空，等我把鞋放好。"
+      ]
+    ],
+    [
+      "鞋带我再系一下",
+      [
+        "鞋带我再系一下，你先把东西拿好。",
+        "鞋带我再系一下，系好就一起走。"
+      ]
+    ],
+    [
+      "门禁卡先帮我拿着",
+      [
+        "门禁卡先帮我拿着，我先把鞋穿好。",
+        "门禁卡先帮我拿着，等会儿再递给我。"
+      ]
+    ],
+    [
+      "钥匙扣在小盒里",
+      [
+        "钥匙扣在小盒里，和备用钥匙放一起。",
+        "钥匙扣在小盒里，你打开看看就能找到。"
+      ]
+    ],
+    [
+      "折叠伞先放伞架",
+      [
+        "折叠伞先放伞架，我把袋子收起来。",
+        "折叠伞先放伞架，出门时再一起拿。"
+      ]
+    ],
+    [
+      "毛巾",
+      [
+        "毛巾挂在门后的架子上。",
+        "毛巾还有一条，放在柜子里。"
+      ]
+    ],
+    [
+      "沐浴露",
+      [
+        "沐浴露放在浴室的小架子上。",
+        "沐浴露还有一瓶，放在柜子下面。"
+      ]
+    ],
+    [
+      "洗漱包",
+      [
+        "洗漱包放在行李箱的侧袋里。",
+        "洗漱包里的东西我已经收好了。"
+      ]
+    ],
+    [
+      "钱包",
+      [
+        "钱包放在外套的内袋里。",
+        "钱包还在背包里，我去拿一下。"
+      ]
+    ],
+    [
+      "零钱包",
+      [
+        "零钱包在抽屉的小盒子里。",
+        "零钱包和钥匙放在一起了。"
+      ]
+    ],
+    [
+      "卡包",
+      [
+        "卡包放在桌边的袋子里。",
+        "卡包在背包的侧袋里，你看看。"
+      ]
+    ],
+    [
+      "保温杯",
+      [
+        "保温杯放在背包的侧袋里。",
+        "保温杯还在厨房的架子上。"
+      ]
+    ],
+    [
+      "餐具",
+      [
+        "餐具放在抽屉的前面。",
+        "餐具在袋子里，和纸巾放在一起。"
+      ]
+    ],
+    [
+      "筷子",
+      [
+        "筷子放在餐具旁边。",
+        "筷子在小盒子里，我帮你拿过来。"
       ]
     ]
   ]

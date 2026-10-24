@@ -523,7 +523,64 @@ fn balance_for_seed(
                         })
                     })
         });
-    if reserve_progress_pair {
+    let adopted_authors = (limit >= PAGE_SIZE
+        && BuiltinLanguage::resolve(language) == Some(BuiltinLanguage::ChineseSimplified)
+        && pool.first().is_some_and(|anchor| {
+            !anchor.text.is_empty()
+                && anchor.score.is_finite()
+                && anchor.kind == CandidateKind::Sentence
+                && anchor.source == CandidateSource::Local
+        }))
+    .then(|| chinese::authored_syllable_continuations(seed))
+    .flatten()
+    .unwrap_or_default()
+    .into_iter()
+    .filter(|text| is_actual_local_row(&pool, text, CandidateKind::Sentence))
+    .collect::<Vec<_>>();
+    let short_nasal_authors = if limit == PAGE_SIZE * 2
+        && BuiltinLanguage::resolve(language) == Some(BuiltinLanguage::Japanese)
+    {
+        japanese::authored_short_nasal_parent(seed).and_then(|(word, anchors, values)| {
+            (pool
+                .first()
+                .is_some_and(|primary| primary.text == anchors[0] && primary.score.is_finite())
+                && anchors.iter().all(|text| {
+                    let kind = if text == seed {
+                        CandidateKind::Literal
+                    } else {
+                        CandidateKind::Unspecified
+                    };
+                    is_actual_local_row(&pool, text, kind)
+                })
+                && is_actual_local_row(&pool, word, CandidateKind::Word)
+                && values.len() >= 2
+                && values[0] != values[1]
+                && values[..2]
+                    .iter()
+                    .all(|text| is_actual_local_row(&pool, text, CandidateKind::Sentence)))
+            .then_some(values)
+        })
+    } else {
+        None
+    };
+    if !adopted_authors.is_empty() {
+        // Only exact, locally verified adopted-context authors can occupy
+        // these slots. Keep the original typing anchor and every score; an
+        // unrelated model sentence or homophone cannot supply the witness.
+        balance_with_authored_slots(
+            pool,
+            pinned,
+            limit,
+            reserve_pair,
+            limit == PAGE_SIZE,
+            &adopted_authors,
+        )
+    } else if let Some(authors) = short_nasal_authors {
+        // At the default two-page capacity only, a unique nearly complete
+        // parent may retain its own pair ahead of a longer compound's pair.
+        // Neither phonetic anchor, Word order, weights nor count limits change.
+        balance_with_authored_slots(pool, pinned, limit, false, false, &authors)
+    } else if reserve_progress_pair {
         // The conversion remains the typing anchor, not an authored extension.
         // With exactly one page, reserve raw text before filling surplus Word
         // slots so literal rescue cannot replace the second continuation.
@@ -531,6 +588,17 @@ fn balance_for_seed(
     } else {
         balance(pool, pinned, limit, reserve_pair)
     }
+}
+
+fn is_actual_local_row(pool: &[Candidate], text: &str, kind: CandidateKind) -> bool {
+    // Match the finite-value filtering and first-text deduplication in balance.
+    !text.is_empty()
+        && pool
+            .iter()
+            .find(|candidate| candidate.text == text && candidate.score.is_finite())
+            .is_some_and(|candidate| {
+                candidate.kind == kind && candidate.source == CandidateSource::Local
+            })
 }
 
 fn balance(
@@ -543,11 +611,29 @@ fn balance(
 }
 
 fn balance_with_page_literal(
+    pool: Vec<Candidate>,
+    pinned: usize,
+    limit: usize,
+    reserve_word_pair: bool,
+    reserve_literal_on_page: bool,
+) -> Vec<Candidate> {
+    balance_with_authored_slots(
+        pool,
+        pinned,
+        limit,
+        reserve_word_pair,
+        reserve_literal_on_page,
+        &[],
+    )
+}
+
+fn balance_with_authored_slots(
     mut pool: Vec<Candidate>,
     pinned: usize,
     limit: usize,
     reserve_word_pair: bool,
     reserve_literal_on_page: bool,
+    authored: &[String],
 ) -> Vec<Candidate> {
     let limit = limit.max(1);
     let mut seen = HashSet::new();
@@ -563,6 +649,17 @@ fn balance_with_page_literal(
     {
         reserved.push(rest.remove(index));
     }
+    for text in authored.iter().take(2) {
+        if pool.len() + reserved.len() < page
+            && let Some(index) = rest.iter().position(|candidate| {
+                candidate.text == *text
+                    && candidate.kind == CandidateKind::Sentence
+                    && candidate.source == CandidateSource::Local
+            })
+        {
+            reserved.push(rest.remove(index));
+        }
+    }
     for kind in [CandidateKind::Word, CandidateKind::Sentence] {
         let anchors = pool.iter().filter(|c| c.kind == kind).count();
         // Only a verified whole-word fallback or authored progress gets this.
@@ -573,7 +670,8 @@ fn balance_with_page_literal(
         } else {
             anchors
         };
-        let mut needed = quota.saturating_sub(anchors);
+        let reserved_kind = reserved.iter().filter(|c| c.kind == kind).count();
+        let mut needed = quota.saturating_sub(anchors + reserved_kind);
         let mut index = 0;
         while needed > 0 && pool.len() + reserved.len() < page && index < rest.len() {
             if rest[index].kind == kind {
@@ -1629,6 +1727,101 @@ mod tests {
                 .windows(2)
                 .all(|pair| pair[0].score >= pair[1].score)
         );
+    }
+
+    #[test]
+    fn absent_or_nonlocal_adopted_author_cannot_change_page_reservation() {
+        let seed = "门垫旁边先留空，DAI";
+        let author = "门垫旁边先留空，袋子我来挪开。";
+        let mut absent = engine("zh-Hans", seed).candidates().to_vec();
+        let real = absent.iter().find(|c| c.text == author).unwrap().clone();
+        absent.retain(|c| c.text != author);
+        let mut model = real.clone();
+        model.source = CandidateSource::Model;
+        let mut word = real.clone();
+        word.kind = CandidateKind::Word;
+        let mut nan = real.clone();
+        nan.score = f32::NAN;
+        for added in [
+            vec![],
+            vec![model.clone()],
+            vec![word],
+            vec![nan],
+            vec![model, real],
+        ] {
+            let mut pool = absent.clone();
+            pool.extend(added);
+            assert_eq!(
+                balance_for_seed("zh-Hans", seed, pool.clone(), 1, PAGE_SIZE),
+                balance(pool, 1, PAGE_SIZE, false),
+            );
+        }
+    }
+
+    #[test]
+    fn verified_adopted_syllable_author_keeps_its_page_with_model_and_preferences() {
+        for prefix in [String::new(), "前文 café 😀。  ".repeat(40)] {
+            let seed = format!("{prefix}门垫旁边先留空，DAI");
+            let author = format!("{prefix}门垫旁边先留空，袋子我来挪开。");
+            let local = engine("zh-Hans", &seed).candidates().to_vec();
+            let (merged, accepted) = merge_model(
+                "zh-Hans",
+                &seed,
+                local.clone(),
+                vec![LlmCompletion {
+                    text: format!("{prefix}门垫旁边先留空，待会再处理。"),
+                    kind: Some(CandidateKind::Sentence),
+                    score_bias: 1.0,
+                }],
+                12,
+            );
+            // Whole-draft model budgets remain independent of local routing.
+            if prefix.is_empty() {
+                assert!(accepted);
+            }
+            let learned = personalize("zh-Hans", &seed, merged.clone(), true, 12, |c| {
+                if c.text.ends_with("待办事项已经整理好了。") {
+                    4.0
+                } else {
+                    0.0
+                }
+            });
+            for choices in [&local, &merged, &learned] {
+                assert_eq!(choices[0], local[0]);
+                assert_eq!(choices[0].text, format!("{prefix}门垫旁边先留空，带"));
+                assert!(choices[..PAGE_SIZE].iter().any(|c| c.text == author
+                    && c.kind == CandidateKind::Sentence
+                    && c.source == CandidateSource::Local));
+                let words: Vec<_> = choices
+                    .iter()
+                    .filter(|c| c.kind == CandidateKind::Word)
+                    .map(|c| (&c.text, c.score.to_bits()))
+                    .collect();
+                let old_words: Vec<_> = local
+                    .iter()
+                    .filter(|c| c.kind == CandidateKind::Word)
+                    .map(|c| (&c.text, c.score.to_bits()))
+                    .collect();
+                assert_eq!(words, old_words);
+                for limit in 0..=12 {
+                    let limited =
+                        personalize("zh-Hans", &seed, choices.clone(), true, limit, |_| 0.0);
+                    assert_eq!(limited[0], choices[0]);
+                    assert!(limited.len() <= limit.max(1));
+                    assert!(limited.iter().all(|c| choices.contains(c)));
+                    if limit > 1 {
+                        assert!(
+                            limited
+                                .iter()
+                                .any(|c| c.text == seed && c.kind == CandidateKind::Literal)
+                        );
+                    }
+                    if limit >= PAGE_SIZE {
+                        assert!(limited[..PAGE_SIZE].iter().any(|c| c.text == author));
+                    }
+                }
+            }
+        }
     }
 
     #[test]

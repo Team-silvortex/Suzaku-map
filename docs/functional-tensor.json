@@ -2,10 +2,10 @@
   "schema_version": 1,
   "snapshot": {
     "date": "2026-10-23",
-    "head": "d2b0a1a458a47054a94a2eb55afa23971da69a5e",
+    "head": "de42d39a0b9b24799f45fd5424a10e5859b37532",
     "dirty": true,
-    "source_sha256": "78f917fe5791849714734ed55f93e43f80050b1c9416f1032df039ca39aa4d90",
-    "note": "0.9.5/build45源码准备：只纳入d2b0a1a/0.9.4源码后的kitchen和bedding数据两批，新增14builtin ENforms/20ZH8JA Word读音/30ctx60作者句，当前EN6193/867/1698(55层)、ZH3410/861/1720、JA622/349/697；旧rank/资源flags顺序/作者源、运行logic/模型协议/25packsSDK/预算不变，短根池可随新增数据变化并非全部候选保留。实际升版前961regular归档8c8e2be2a00f57f8c75f9d2feb81cdb76d225c4d26908584d61a2c8d69f78fa9已含pending release note和五doc摘要；允许7文档路径与5metadata8版本值，954非doc包含5metadata不冒称954全不可变。新版独立versionedfull实际工具exit0，275唯一组含Doc-tests/2623pass0fail32原ignore0filter，logSHA db479ff88ec6d36e04690515c4c653538b075b128c76357e6893e232a1a2ad09；terminal receipt及audit-release-full核全275旧test名字顺序status/32ignore身份同，非旧同数bedding重标/不加focusedprobechild。83Python/250links/release-preservation实际过；新版fresh精确隔离UI19实际工具0，18panel单门1pass270显式filter加1launch1pass0filter，不把未选中算pass/ignore且不加full2623。首临时wrapper误用未安装1.95.0alias触发setup下载，0test结果，Root仅自有scope SIGINT/exit130留log及原wrapper；只/tmp alias改installedstable(actualrustc1.95)，repo runner/assert/90s/isolation及个人默认toolchain/IBus不动，非产品失败/不拼前次0test。新版strictlocked-offline-alltarget-allfeatureClippy-Dwarnings实际工具exit0/1分03秒，非旧52.51秒重标；最终precommit格式/保真另行检查，准确新commit八CI/accepted四资产仍待独立完成，旧419不充新版验收/不宣称tag发布安装。用户授权提交推送及全部通过后Ubuntu24.04amd64/glibc2.39 LinuxAlpha prerelease非latest，annotated不可移动tag/draft-first/远端资产重下bytes验证；此摘要不表示已tag/发布/安装，不恢复已取消定时跟进。133旧E/49impl/79cells/评分语义/axes/limits/routes及完整旧note后缀原样，snapshotHEAD/date/dirty不改，source_digest由主代理真实终算。此前厨房、床品及全部历史原文：当前未提交E-daily-bedding，从含kitchen的实际956文件脏快照开始，非clean HEAD；archive9c6959fa3cfa79d163e674f65f1d0c39b08121599b875c48c1575dee0fd753f2，head仍d2b0a1a/0.9.4-build44。新增6builtinENforms/8ZH3JA Word读音/12ctx24作者句，当前EN6193/867/1698(55层)、ZH3410/861/1720、JA622/349/697；复用目覚まし及旧床单被套枕套等，不计重复。四冻target真before三语各2pass4missing、私有16pack0pass1missing且BEDDING_OLD_CONTROLS_OK:16先过；16是包数，不借kitchen首filter失败。focused-after实际工具0为8组46pass0fail0ignore0filter，新19+oldgolden8+catalog4+resource15，不与终局叠加；独立final-full实际工具exit0，275唯一组含Doc-tests/2623pass0fail32原ignore0filter，旧271test名字顺序status与ignore身份同，新19已含一次，不加focused46/419probes/child。真实before7edc/after1b08新编同probe无mock，fixed328+91=419全tuple+JSONL原字节同；每0/9JA目录20full/specificpartial双作者首页、15protectedま池全同、4partial6/9/12作者3/4。邻域每目录82中42同40变，mou12唯一旧生成tail Word builtinも受付/9包も受け取り退场，源词作者未删，不泛称allshort根稳定。83Python(29+11+25+18)/250links/fmt/diff/source-schema过；956baseline50维护wholefileinverse/3rawappend/catalogwrapper+routeinverse/896其它旧文件bytesmodes/types/25packsSDK/5versions/4freeze保持，无额外增删。临时source审计器初错macOS路径仅改审计lookup保留日志，非产品失败/放宽守卫。最终strictClippy locked/offline/alltarget/allfeature-Dwarnings实际工具exit0/52.51秒，finalfmt/83Python(29+11+25+18)/250links/source-preserve/tensorcheck/diff再验均工具0；full-audit报告SHAdd570acc35e153e5b394e0c86314e4c3ac3da5085cdeebff9e808e516385f74a。32原ignore身份保持，不借旧kitchen2604/UI19/50.42秒，不新增UI/原生键盘/实模/安装/性能验收。中文问句实际？边界与wo尾保真，不改成逗号；四specificpartial不等任意短根稳定。有限床品整理输入，非医疗/睡眠功效建议/闹钟或设备控制。旧rank/flags/作者源、运行logic/模型/25packsSDK/预算及版本不变，不commit/install/查CI或恢复取消发布自动化。仅本新E、F16-F19四refs、EN2ZH2JA1五index；132旧E/49impl/79cells/评分语义/axes/limits/routes与oldnote完整suffix保持。以下完整保留厨房及更早历史摘要：当前未提交E-daily-kitchen，干净d2b0a1a458a47054a94a2eb55afa23971da69a5e/0.9.4-build44，实际952文件before-source.tar SHA5a6e641d01a62696e993db367994372e910302fe85f5ea28968d770ef2926eb2。新增8builtin ENforms/12ZH5JA Word读音/18ctx36作者句；当前EN6187/863/1690(54层)、ZH3402/857/1712、JA619/345/689。bowls/spoons已有optional cooking只算新builtin，其他6forms跨builtin+8ENpacks无旧独立词；JA箸复用/5新reading，supu-n明确长音不承诺supuun，hash显式6一作者旧边界保留。四targets先冻，真before EN1pass5missing/ZH2pass4missing/JA2pass4missing；私有16包初a47…陈旧child过滤名空跑被running1断言抓住，日志保留，仅改过滤名125e…后真before0pass1missing，KITCHEN_OLD_CONTROLS_OK:16先过，16是包数非controls数。mock提案非after证据；八targetfocused实际46pass0fail不与终局叠加；final-full.log工具exit0，独立audit确认271唯一组含Doc-tests/2604pass0fail32原ignore0filter，旧267test名字顺序status及ignore身份同，新19已含一次，不加focused46/419probes/child。StrictalltargetallfeatureClippy-Dwarnings工具exit0/50.42秒；source-schema/250links/48maintenance整文件inverse/3rawappendinverse/catalogwrapper+route/894其它旧bytes及6docs保真通过。真实savedbefore0547和after7edc各自新编同probe，无mock注入，fixed328+91=419全tuple及JSONL原bytes同；0/9JA目录各30完整/具体partial双作者首页与15受保护ま池保持，hash显式6仍一作者。邻域不是全恒定：九包fur保留旧フライパンWord，但两作者从该短根11行池退场，非末12截断/源作者删除。actual-japanese-audit-report.json与final-full-audit-report.json留存；旧2585/UI19/51.90秒不是本批验收，不新增UI/原生键盘/实模/安装/性能声明。旧rank/flags/数据顺序保留不等任意shortprefix池不变，kuai ji可加筷架而旧快捷键仍可选。仅数据append，不改runtime/模型协议/25packsSDK/预算/版本/个人安装，不提交查CI或重启取消的发布自动跟进。仅此新证据、F16-F19四refs及EN2ZH2JA1五testindex，131旧evidence/成熟度/结构/路由保持；非食谱/健康建议/设备控制/UI/原生/实模/性能/安装/发布验收。此前0.9.4准备及全部历史摘要原文：0.9.4/build44源码准备：收录6edfa3e后dressing/room/stationery/reading/plants五批，新增28ENforms/60ZH22JA Word读音/90语境180作者句，当前EN6179/857/1678(53层)、ZH3390/851/1700、JA614/339/677；有界日语nasal进度与default12末槽父词、单源和合并catalog层数修正，25包SDK/模型协议/默认预算保持。实际951文件升版前归档9002c03d…；五权威metadata八值精确同步，其余939文件、257Rustfixtures、原131E/cells/impl/评分/axes/完整旧note后缀保持。新版完整工具exit0：267组含Doc-tests/2585过0失败32原ignore0filter；原进程2026-10-23恢复确认退出，全roster及ignore身份同，SHA33ea888ce546a622936f0b548233280a578fe5e67bcfa8182c9b050f8b505725。独立隔离UI19/19、严格Clippy51.90秒工具exit0，83Python/250links/fmt/source/保真过，不将UI/child/旧2585或51.34秒加成新版结果，无实模/新时延/个人安装验收。用户授权准确新commit八CI与accepted四产物验收全部通过后发布LinuxAlpha prerelease非latest，远端仍待验，不先打tag/发布/安装，不碰个人服务配置。以下均保留原研发快照：当前未提交E-daily-plants，actual946文件reading脏基线ef8eb346e21755292bb2d1c34b4522ae673183d597bc65431872b1bfca944435；新增8builtinENforms/12ZH5JA Word读音/18语境36作者句，EN6179/857/1678(53层)、ZH3390/851/1700、JA614/339/677。初data-only完整2578过2失败/266组及首wide-repair53过1失败保留；旧mad仅精确扩充逆投影保旧hash，family+railま基础Word不可达由generic仅默认12的spare末槽父词保留修复，0..11/>12旧行为保持，不改旧family断言/早前rows/raw/槽metadata/配额。最终独立full-fixed工具exit0：267唯一组含Doc-tests/2585过0失败32原ignore0filter；新22集成+2cfg已含一次，不加focused54/child/失败轮。旧262test/status与32ignore身份同，strict全target/allfeatureClippy51.34秒/fmt/83Python/250links/source/53inverse887bytes6docs5freeze保真过；native-core静态9另列非原生输入。真7812db…库hash-match、同冻结probe重采419/419实际全cmp0，stale旧probe不计，419不代替两故障专项；最终42邻域同data-only，原before16/42同26变化仍披露。仅本新E/F16-F20五refs/EN2ZH2JA2mix1七索引，130旧E/成熟度/axes/limits/routes与完整旧note后缀不变。有限植物交流非科学指导/传感/控水，无UI/native/实模/时延/安装验收；仍0.9.3/43未commit/install，不在发布资产内。此前reading及更早历史摘要原文：当前未提交E-daily-reading，基于含stationery实际941文件脏快照3c9d8b5c69059d3affcc0739d82c15765bcdb9dac1c9a9fc6ca0f99c7e064be5；新增4ENforms/12ZH4JA Word读音/18语境36作者句，EN6171/851/1666(52层)、ZH3378/845/1688、JA609/333/665。有限阅读/书页/书签表达，非书籍检索/书签管理/阅读进度跟踪；旧英文首现rank/读音flags/作者数据顺序/25包SDK/模型协议/配额及runtime算法不变。四tests-first的真实before、新oracle复核和最终after/full/Clippy独立记DEVELOPMENT，不借stationery2542/49.91s或旧UI/native/实模/timing。仅新本证据、F16-F19四refs及EN2/ZH3/JA1测试索引，129旧evidence/成熟度/路由保持；仍0.9.3/43未commit/install、不在发布资产内。固定source独立完整full-regression工具exit0：262唯一顶层组含Doc-tests/2561过0失败32原有ignore0filter，新4targets19已含不加focused38/旧golden8/child，独立逐项旧258group/test/status与32ignoreidentity同。strict全target/allfeatureClippy-Dwarnings实际exit0/50.58秒，fmt工具0、83Python/250links/source-schema/postfull保真过；不借旧UI/native/实模/安装/timing。此前stationery及更早历史摘要原文：当前未提交E-daily-stationery，含room实际dirty936文件c3e3377fbb51df1a65ac0cb7db7c546c16049b50cc26e26684f4aee7c48cc1f9基线；新增8ENforms/12ZH4JA Word读音/18语境/36作者句，EN6167/845/1654(51层)、ZH3366/839/1676、JA605/327/653。旧6159rank/flags/作者顺序/25包SDK/模型协议及配额保持，纯数据不改runtime转换/混排。五新fixture真实before EN1过5缺/ZH2过4缺/JA2过4缺/compat4过/packs0过2缺；EN9cc…误认optional-onlybeside为builtin，留原spec/log后批准next to同义替换，faf1…重冻/before同1过5缺。首after23过1失败为新ENadoptoracle假定out后空格，真实作者out, so…；只修row2 following=', '、其它' '，保ou/out/完整comma作者/adoptcommitundo，2e6e976ca4fe83e8bd248851ded2c329cbaab050ba6cec980fddd724176d06a3重冻/再before同1过5缺，非prod故障，原失败与其它23原spec通过留存。修后英target对afterlib独立6过0ignore0filter/exit0，同spec before仍1过5缺exit101，不拼首23/1为24单命令全绿。实际固定raw419/419全tuple同(328+91)，58邻接仅31同/27扩充；zheji原这继续Word/两拼接句75.5/75及xianna原先闹钟Word/两拼接句79/78.5(首句原首页index5)因同take4被新整词分支替换，非作者源记录删改，不能称全部旧作者候选/首页项保留。固定final5targets后独立完整full-regression.log工具exit0：2542过0失败32旧ignore/258唯一顶层组含Doc-tests/0filter，24新已含一次，不加初23/1+英6/child或旧room2518；strict全target/allfeatureClippy-Dwarnings工具exit0/49.91秒、fmt工具exit0，当前120ef45f…source摘要/schema/83Python(29+11+25+18)/250links/diff已过，不预报24firstgreen，不借旧room2518/32/UI19/历史timing。仅新1stationery证据、F16-F19四refs、ENZHJA九test索引；128旧evidence/评分/运行路由不动。0.9.3/43不变，未commit/install、不在已发布0.9.3包内。此前room及更早完整历史摘要原文：当前未提交E-daily-room-comfort，实际dirty928文件dressing基线ab91737d6bc77c97b9457f9605b9c28bfbfd367fe3dab1094347fa60363943cd；新增8ENforms/12ZH5JA Word读音/18语境/36作者句，EN6159/839/1642(50层)、ZH3354/833/1664、JA601/321/641。五新fixture24项首after23过1失败kankise第二作者index8；广末拨音方案完整full2509过2失败32旧ignore/252组，保留旧transit第二页回归及merged误用单source64拒有效包的失败，非最终结果。广方案seirikepositive新fixture/顺序inverse撤回，日志和redgreen实验保留；最终stem须已有双distinct作者，守旧joushake/seirike12tuple/六槽策略，4新boundary，旧family仅limit6以77.5第二作者替Unknown，其余0..5/7..12tuple同。单source64/单pack8层2048units/lang4096/16installed不扩；运行aggregate64+16*8=192，directCatalog也计disabled/invalid16；新4packtests真实red1过3失败→4过。narrowfocused15targets93过0失败0ignore0filter，不与独立full/Clippy重复累计；最终独立完整full-narrow-regression.log工具exit0，2518过0失败32旧ignore/253唯一顶层组含Doc-tests/零筛除，38新(room24+nasal3+boundary4+layer4+cfg3)已含，不加focused93/redgreen/撤positive/child；旧两fail/fulln7/releasetail8/两4golden通过，strict全target/allfeature Clippy-Dwarnings49.21秒实际exit0无warning/error，fmt/diff/83Python(29+11+25+18)/250auditlinks/最终source摘要过。窄raw before418/419全字段同、dataonly419/419同，adj before21/38/dataonly38/38，17真实扩充；fangjian原take4使放键盘退场，三旧Word既有权重各-2，不说所有旧候选可达/分数不变。原6151rank/旧资源/25包SDK/模型协议/6-12-256候选窗/127旧evidence/评分/路由保持；50inverse/872其它bytes/6doc/8新freeze且928typesmodes同，83静态与250链接已过。仅本证据扩F16-F20/F57/F58/F67及实现索引；版本0.9.3/43不变，已发布0.9.3排除dirtydressing+room，不操作安装/个人服务，不借旧2480/2456/UI19/性能时间。以下完整保留此前dressing与发布准备历史摘要：当前未提交E-daily-dressing，位于准确6edfa3e之后；新增12ZH/4JA Word读音、18语境、36三语作者句、零EN词形；EN6151/833/1630(49层)、ZH3342/827/1652、JA596/315/629。旧48层/6151rank/读音flags/25packsSDK/模型协议/配额/成熟度/路由保持。新24已含在独立完整all-feature2480过0失败32原有ignore/245唯一顶层组/零筛除内，含fulln7/releasetail8/两套旧4golden；不加focused或capturedchild计数。首次full2479过1失败仅遗漏旧privatecompound总数3331→3343，原失败保留，仅该数值同步；20维护路径58literal精确逆回。早先专项23过1失败为root同文JA要求Word的错误oracle，仅按既有Literal原文规则纠正identity-spelling，不改production/限额；3语言+compat冻结原字节。419实际旧池全同，独立邻接24中21全同，三根新增仍保留旧选项，旧靴双句首页分各-0.5是旧indexweight。923baseline中893其它bytes/modes相同，3raw追加/catalog新inverse/20metadata/6docs以外保持；127evidence保留126旧，仅新4ref/9testindex。仍0.9.3/43，未提交安装，不替换已锁定验收SHA，无借旧2456/UI19或新native/UI/实模/性能/发布声明。严格全target/allfeature Clippy-Dwarnings46.05秒、83Python守卫/250源码审计链接/格式diff/源码digest/精确保真审计通过。此前源码准备摘要原文：0.9.3/build43源码候选收口，纳入route/call/storage/restock/hygiene五批，相对4108bc0新增8EN forms、122CJK读音、188三语作者句；三语总量6151/827/1618(48层)、3330/821/1640、592/309/617。25包SDK/模型协议/成熟度旧评分保持。新增2项模型+RAM偏好实际管线回归；最初提前限12诊断非实际Engine路径，原失败保留，不改production来满足错误oracle。首次versioned全量发现新hygiene whether泛语境挤出既有privatepack首页，红日志保留；只改新作者if同义语境和两新fixture精确常量，六语境12分支/旧edge断言/生产配额原样，13项修复回归过；独立full后发现catalog新增hygiene精确tuple遗漏3处同步，第二失败同样保留；四文件共13处literal改词精确逆回，历史hash/oracle不变，再从头完整验证。最终独立完整all-feature2456过0失败32原有ignore，240唯一顶层结果组含Doc-tests全零筛除，含fulln7/releasetail8及两套四golden；另私有UI19/19、严格全target全featureClippy49.76秒、83Python/250源码链接/格式/五版本一致性/严格保持审计过。560releasebefore内543其它字节同；17预期差异、229Rusttests226字节同加3处新hygiene证明文字可逆；126旧evidence/cells/成熟度/25包SDK保持。第一full边界失败和第二full 2455过1失败目录tuple不同于最终全量，日志都保留，不组合重试充零失败。远端新提交CI与accepted四资产仍待独立完成，不计旧1872 scoped、focused13、父调child或0.9.2结果为新增通过；用户授权新提交全部CI及accepted四资产验收后发布LinuxAlpha prerelease非latest，个人安装不改。以下为先前研发阶段的原始摘要：当前未提交E-daily-hygiene：追加8EN forms、8ZH/6JA Word读音、36三语作者句，EN6151/827/1618(48层)、ZH3330/821/1640、JA592/309/617。旧47层/6143rank/flags/25packsSDK原样；数据模型宿主解耦。先冻20词库/pack测试，before EN1/5 ZH2/4 JA2/4和pack0/2，after19/1保留senganryo真实index8失败。新3集成0/3、新3mix unit1/2之后独立窄修：唯一offset0整Word末长元音补全、strict同根、真实旧转换和首Word、双distinct作者及actual LocalWord/2LocalSentence，>=6复用rawreserve；旧root/progress helpers/分数/Word序/模型偏好竞争/6/12/4/256/16包保持。新26原样过，完整同范围重跑1872过0失败5旧ignore/188唯一组，605lib+187集成1267全部无筛除；含fulln7/releasetail8/oldcleaning10/旧两套四golden。before源b099a2e0556a54415894f1aa3583d5bd0accd50b11bb074c6beb698f98025319含555文件224旧Rusttests，非HEAD安装；3JSONraw、36计数与历史epoch维护、2prod叶子/catalog投影可逆，507其它文件字节同。实际before与data-only419vectors全同，最终旧goldens另原样通过；不可称所有新短前缀池无变。仍0.9.2/42、未提交发布安装，不碰个人服务；无新性能/native/UI/实模声明。全部旧评分/证据/路由不改。 历史阶段原始记录保留在下方全部旧evidence对象，snapshot.note只摘要本轮。"
+    "source_sha256": "61aa32df70f33c531a51d8d7767284a82e7c8c9f797df85d3c696b1dc8cdef9c",
+    "note": "**0.9.6 / build46 源码准备：日用fallback与候选连续性。** 汇总六批词库：新增20英文内置词形、31中文和16日文Word读音，三语共81语境、162作者句；并包含三处有界中日候选来源/保位修正，不是纯数据版本。本版独立完整Rust2735过、0失败、32原ignore，294唯一组含Doc-tests且零筛除；另19项隔离UI及严格all-target/all-feature Clippy-Dwarnings通过（58.69s），不叠加到完整Rust总数。准确提交的远端八门和accepted安装包仍待独立验收，尚未声称0.9.6标签、下载或发布。25包/SDK、模型协议与12行/6项分页预算不变。不恢复已取消的定时任务，不替换日常安装或输入法配置；下方历史记录原样保留。 以下完整旧记录原样保留：**当前未提交：保温杯、餐具与小碟子的取放（2026-10-24）**。新增9组语境、18条中英日候选句，不增词形或读音。EN6213/894/1752（61层）、ZH3441/888/1774、JA638/376/751。独立定向回归1021过、0失败、2原ignore，60组零筛除（完整库与59集成target）；严格Clippy-Dwarnings通过（1m 07s）。新测试复用测试辅助层，旧套件不迁移；旧pocket作者窗口固定ZH882/JA370取3，washroom窗口不动。原生产算法、权重、候选预算、模型协议、25包SDK及版本保持。不感知或控制物品，非本轮全仓/原生/UI/实模/性能/安装/CI验收；未提交推送。下方为历史快照。 真实dirty981基线0f19fb8a，冻结新fixture与support后before3过7缺，首after原10项全过；新10项只计一次。38路径103当前数字维护，另pocket历史窗口一处封边，975旧非文档=933字节模式不变+38精确维护+3raw逆回+1新catalog外wrapper。添加E-daily-table-items、F16-F19四refs与三个语言的新套件/helper索引，138旧证据、49实现、79cells/评分/路由保留。 以下完整旧记录原样保留：2026-10-24钱包零钱票据取放：从真实dirty980快照ead110d8开始，仍de42d39/0.9.5-build45未提交。零新forms/读音，新增9语境18作者句；EN6213/891/1746(60层)、ZH3441/885/1768、JA638/373/745。英文wallet/coins/receipts用既有词构成三个具体语境；中文钱包/零钱包/卡包，日语財布/小銭/鞄补双句。保留kozen原文，不误变kozeni；仅位置交流，不是付款处理、金融建议或真实物品探测。固定新fixture63d1276f的真实before3过7缺，首after10项全过，不改新oracle凑绿；独立定向服务实际exit0：完整lib+54集成target，55唯一组983过0失败2原ignore0filter，新10只计一次。54个旧selected target/test名字顺序status/ignore细节同；不拼child、focused或借上轮929/之前2705充新版完整验收。本轮strict locked-offline-alltarget-allfeature Clippy-Dwarnings实际exit0/1m 06s。37路径98 current数字精确维护；旧washroom窗口另1处固定ZH879/JA367取3，原作者及hash不动。974旧非doc=933整体byte/mode同+37精确重建+3raw逆回+1catalog外wrapper；旧生产逻辑、模型协议、25包SDK、依赖和版本不动。新增E-daily-pocket-items、F16-F19四refs与ENZHJA各一test索引；137旧证据/49实现/79cells/评分/路由和完整oldnote保留。本轮不是全repo/Doc-tests/人工UI/原生键盘/真实模型/性能/安装/CI验收，不提交推送或恢复取消自动化。 以下完整旧记录原样保留：2026-10-24洗漱用品位置与收纳：真实dirty979基线924f17d2，仍de42d39/0.9.5-build45未提交。零新词形/读音，新增9语境18作者句；EN6213/888/1740(59层)、ZH3441/882/1762、JA638/370/739。既有毛巾/沐浴露/洗漱包与歯ブラシ/石鹸/タオル补双句，英文新daily_washroom全词元已知、旧first-rank全同；仅有限位置交流，不是库存感知或物品控制。真实before3过7缺，首after8过2失败保留；仅新fixture修空草稿raw前提及可选包短mao-ji分页oracle：完整reading仍双句首页，partial锁旧anchor和新作者index5/6并可逐字提交；不以推广新句为由改旧权重/容量。另加固定JA假名独立oracle及3词六横空白守卫。独立定向运行真实进程exit0：完整lib+47集成target，48唯一组929过0失败2原ignore0filter，新10只计一次；旧47组逐个test名字/顺序/status/ignore细节同，不把此前2705完整轮借成新版通过，也不加child或局部重试。首Clippy仅报新fixture类型复杂，保留红记录；仅提取两类型别名并严格逆回此前fixture全部字节，新10项再测通过、不累加929。严格全target/allfeature Clippy-Dwarnings实际exit0/18.67s。36路径93current数字精确维护、3raw逆回、catalog新最外wrapper以外旧973非doc中933完整byte/mode同；旧decoder/生产运行逻辑/模型协议/25包SDK/依赖版本不变。仅新E-daily-washroom、F16-F19四refs、ENZHJA各一test索引；136旧证据/49实现/79cells/评分/路由及旧note完整保留。本轮不是完整repo/Doc-tests/人工UI/原生键盘/真实模型/性能/安装/CI验收，不提交推送或恢复取消自动化。 以下完整旧记录原样保留：2026-10-24玄关批次兼容性收尾：基于真实dirty970快照72eeb192，仍de42d39/0.9.5-build45未提交；新增6ENforms/9ZH5JA Word读音、18语境36作者句，EN6213/885/1734(58层)、ZH3441/879/1756、JA638/367/733。A仅为旧完整mixed/base都缺失且原decoder已有真实finished读音的作者提供新身份，保持旧care/carry页2，拒绝Prefix-only jiu推断；共享长稿窗口与原字节前缀，不承诺上下文多音字消歧。B保留旧单字规则，仅唯一Word终音ng缺g且实际完成分支出处可证时保留双句。日语只在默认12容量、唯一近完整kana+ん短Word且更长同源compound真实竞争、发布前2Word可证、实际两个音形/Word/双作者身份存在时保留短词原作者；假名原文项可为Literal，不能只认Unspecified。既有日语补全helpers、底层decoder、模型协议、容量及25包SDK不变；新增窄分页策略不改变候选文本或Word分数。kutsu新增靴箱/靴べら和四作者各-1索引权重是合法数据变化；测试先核当前完整12 tuple再精确逆回真实旧10及旧hash，非泛化过滤。保留before、首after15/4、A/B独立before和中间修复红；143中断轮实际也有4中文失败，早先tail误判已更正。完整失败轮289组2674过22失败32ignore0filter：7真实词库兼容case及15重复UI断言；后者来自服务未继承LC_ALL，现每次测试显式C.UTF-8，不改UI。新固定专项实际owner97606工具exit0：805过0失败2原ignore，20唯一组0filter，44本轮新增项已含一次，不加child或旧轮结果。独立完整回归实际2705过、零失败、32原ignore，291唯一组含Doc-tests、零筛除。严格全target/all-feature Clippy-Dwarnings通过（55.99s）。原135证据/49实现/79cells/评分/路由/历史note保持，仅E-daily-entryway、四refs和EN2/ZH4/JA4十索引。不新增原生键盘/人工UI/真实模型/性能/安装/CI验收，不恢复已取消自动化，不在已发布包内。 以下完整旧记录原样保留：当前未提交E-daily-accessories，基于含recycling的真实dirty966文件快照d9a733bc（HEAD仍de42d39/0.9.5-build45），新增6ENforms/10ZH5JA Word读音/18contexts36作者句，EN6207/879/1722(57层)、ZH3432/873/1744、JA633/361/721。充电器/转接头/耳机盒等复用不重计，JA充電器の置き場所为既有词组合、不是新增整词reading；保留显式长音与n+a撇号边界。仅配件位置与收纳输入，不提供供电/接线/电气操作建议。真实before三语各2pass4missing、私有16包旧controls先过后0/1；首after18pass1fail仅新EN connec短根oracle过宽，保留失败日志后只改两新tuple为connecto，旧配额/rank/hash不动。最终独立定向回归实际owner1392工具0：23唯一顶层组=完整lib+22相关集成套件，735pass0fail3原ignore0filter，新19只计一次，8旧golden过；不含Doc-tests/其他bins或全量，不借旧2642/32ignore。严格locked-offline-alltarget-allfeature Clippy-Dwarnings实际工具0/58.85s；本轮83Python/250links/fmt/源码和功能结构保真通过。仅新E/F16-F19四refs与五test索引，旧134E/49实现/79cells/评分/路由/完整历史note、模型协议/生产runtime/25包SDK/预算/版本保持。无新UI/native/实模/性能/安装/CI验收，本批未提交，不在已发布0.9.5资产中，不恢复取消自动化。 以下完整旧记录原样保留：当前未提交E-daily-recycling，基于已发布de42d39/0.9.5-build45；新增8builtin ENforms/12ZH6JA Word读音/18contexts36作者句，EN6201/873/1710(56层)、ZH3422/867/1732、JA628/355/709。bins原optional-family已有；仅有限回收物整理协作表达，不提供地方规则或实际收集服务。真实before三语各2pass4missing、私有16pack旧controls先过后0/1；首focused65pass1fail的JA当前总数697→709精确同步，红日志保留。首full279组2640pass2fail/工具101保留；actual probe确认one\\nline仅增加liner/liners尾Word88/86、旧3Word100/92/90原样，test-only窄投影先assert完整五字段向量后移末2Word，旧golden/corpus不动。fresh final-full实际工具0且独立审计通过：279唯一顶层组含Doc-tests、2642pass0fail32原ignore0filter，275旧roster/status/ignore细节精确保留、新19仅计一次；严格locked-offline-alltarget-allfeature Clippy-Dwarnings实际工具0/1m01s，83Python/250links/fmt/源码及结构保真通过。仅新E、F16-F19四refs与六test索引；133旧E/49实现/79cells/成熟度、路由、模型协议、生产runtime、旧rank/flags/作者源、25包SDK/预算/版本不变，不保证所有短根池恒定。无新UI/native/实模/性能/安装/CI验收；本批未提交、不在已发布0.9.5资产中、不恢复取消自动化，详见DEVELOPMENT。 以下完整旧记录按原样保留：0.9.5/build45源码准备：只纳入d2b0a1a/0.9.4源码后的kitchen和bedding数据两批，新增14builtin ENforms/20ZH8JA Word读音/30ctx60作者句，当前EN6193/867/1698(55层)、ZH3410/861/1720、JA622/349/697；旧rank/资源flags顺序/作者源、运行logic/模型协议/25packsSDK/预算不变，短根池可随新增数据变化并非全部候选保留。实际升版前961regular归档8c8e2be2a00f57f8c75f9d2feb81cdb76d225c4d26908584d61a2c8d69f78fa9已含pending release note和五doc摘要；允许7文档路径与5metadata8版本值，954非doc包含5metadata不冒称954全不可变。新版独立versionedfull实际工具exit0，275唯一组含Doc-tests/2623pass0fail32原ignore0filter，logSHA db479ff88ec6d36e04690515c4c653538b075b128c76357e6893e232a1a2ad09；terminal receipt及audit-release-full核全275旧test名字顺序status/32ignore身份同，非旧同数bedding重标/不加focusedprobechild。83Python/250links/release-preservation实际过；新版fresh精确隔离UI19实际工具0，18panel单门1pass270显式filter加1launch1pass0filter，不把未选中算pass/ignore且不加full2623。首临时wrapper误用未安装1.95.0alias触发setup下载，0test结果，Root仅自有scope SIGINT/exit130留log及原wrapper；只/tmp alias改installedstable(actualrustc1.95)，repo runner/assert/90s/isolation及个人默认toolchain/IBus不动，非产品失败/不拼前次0test。新版strictlocked-offline-alltarget-allfeatureClippy-Dwarnings实际工具exit0/1分03秒，非旧52.51秒重标；最终precommit格式/保真另行检查，准确新commit八CI/accepted四资产仍待独立完成，旧419不充新版验收/不宣称tag发布安装。用户授权提交推送及全部通过后Ubuntu24.04amd64/glibc2.39 LinuxAlpha prerelease非latest，annotated不可移动tag/draft-first/远端资产重下bytes验证；此摘要不表示已tag/发布/安装，不恢复已取消定时跟进。133旧E/49impl/79cells/评分语义/axes/limits/routes及完整旧note后缀原样，snapshotHEAD/date/dirty不改，source_digest由主代理真实终算。此前厨房、床品及全部历史原文：当前未提交E-daily-bedding，从含kitchen的实际956文件脏快照开始，非clean HEAD；archive9c6959fa3cfa79d163e674f65f1d0c39b08121599b875c48c1575dee0fd753f2，head仍d2b0a1a/0.9.4-build44。新增6builtinENforms/8ZH3JA Word读音/12ctx24作者句，当前EN6193/867/1698(55层)、ZH3410/861/1720、JA622/349/697；复用目覚まし及旧床单被套枕套等，不计重复。四冻target真before三语各2pass4missing、私有16pack0pass1missing且BEDDING_OLD_CONTROLS_OK:16先过；16是包数，不借kitchen首filter失败。focused-after实际工具0为8组46pass0fail0ignore0filter，新19+oldgolden8+catalog4+resource15，不与终局叠加；独立final-full实际工具exit0，275唯一组含Doc-tests/2623pass0fail32原ignore0filter，旧271test名字顺序status与ignore身份同，新19已含一次，不加focused46/419probes/child。真实before7edc/after1b08新编同probe无mock，fixed328+91=419全tuple+JSONL原字节同；每0/9JA目录20full/specificpartial双作者首页、15protectedま池全同、4partial6/9/12作者3/4。邻域每目录82中42同40变，mou12唯一旧生成tail Word builtinも受付/9包も受け取り退场，源词作者未删，不泛称allshort根稳定。83Python(29+11+25+18)/250links/fmt/diff/source-schema过；956baseline50维护wholefileinverse/3rawappend/catalogwrapper+routeinverse/896其它旧文件bytesmodes/types/25packsSDK/5versions/4freeze保持，无额外增删。临时source审计器初错macOS路径仅改审计lookup保留日志，非产品失败/放宽守卫。最终strictClippy locked/offline/alltarget/allfeature-Dwarnings实际工具exit0/52.51秒，finalfmt/83Python(29+11+25+18)/250links/source-preserve/tensorcheck/diff再验均工具0；full-audit报告SHAdd570acc35e153e5b394e0c86314e4c3ac3da5085cdeebff9e808e516385f74a。32原ignore身份保持，不借旧kitchen2604/UI19/50.42秒，不新增UI/原生键盘/实模/安装/性能验收。中文问句实际？边界与wo尾保真，不改成逗号；四specificpartial不等任意短根稳定。有限床品整理输入，非医疗/睡眠功效建议/闹钟或设备控制。旧rank/flags/作者源、运行logic/模型/25packsSDK/预算及版本不变，不commit/install/查CI或恢复取消发布自动化。仅本新E、F16-F19四refs、EN2ZH2JA1五index；132旧E/49impl/79cells/评分语义/axes/limits/routes与oldnote完整suffix保持。以下完整保留厨房及更早历史摘要：当前未提交E-daily-kitchen，干净d2b0a1a458a47054a94a2eb55afa23971da69a5e/0.9.4-build44，实际952文件before-source.tar SHA5a6e641d01a62696e993db367994372e910302fe85f5ea28968d770ef2926eb2。新增8builtin ENforms/12ZH5JA Word读音/18ctx36作者句；当前EN6187/863/1690(54层)、ZH3402/857/1712、JA619/345/689。bowls/spoons已有optional cooking只算新builtin，其他6forms跨builtin+8ENpacks无旧独立词；JA箸复用/5新reading，supu-n明确长音不承诺supuun，hash显式6一作者旧边界保留。四targets先冻，真before EN1pass5missing/ZH2pass4missing/JA2pass4missing；私有16包初a47…陈旧child过滤名空跑被running1断言抓住，日志保留，仅改过滤名125e…后真before0pass1missing，KITCHEN_OLD_CONTROLS_OK:16先过，16是包数非controls数。mock提案非after证据；八targetfocused实际46pass0fail不与终局叠加；final-full.log工具exit0，独立audit确认271唯一组含Doc-tests/2604pass0fail32原ignore0filter，旧267test名字顺序status及ignore身份同，新19已含一次，不加focused46/419probes/child。StrictalltargetallfeatureClippy-Dwarnings工具exit0/50.42秒；source-schema/250links/48maintenance整文件inverse/3rawappendinverse/catalogwrapper+route/894其它旧bytes及6docs保真通过。真实savedbefore0547和after7edc各自新编同probe，无mock注入，fixed328+91=419全tuple及JSONL原bytes同；0/9JA目录各30完整/具体partial双作者首页与15受保护ま池保持，hash显式6仍一作者。邻域不是全恒定：九包fur保留旧フライパンWord，但两作者从该短根11行池退场，非末12截断/源作者删除。actual-japanese-audit-report.json与final-full-audit-report.json留存；旧2585/UI19/51.90秒不是本批验收，不新增UI/原生键盘/实模/安装/性能声明。旧rank/flags/数据顺序保留不等任意shortprefix池不变，kuai ji可加筷架而旧快捷键仍可选。仅数据append，不改runtime/模型协议/25packsSDK/预算/版本/个人安装，不提交查CI或重启取消的发布自动跟进。仅此新证据、F16-F19四refs及EN2ZH2JA1五testindex，131旧evidence/成熟度/结构/路由保持；非食谱/健康建议/设备控制/UI/原生/实模/性能/安装/发布验收。此前0.9.4准备及全部历史摘要原文：0.9.4/build44源码准备：收录6edfa3e后dressing/room/stationery/reading/plants五批，新增28ENforms/60ZH22JA Word读音/90语境180作者句，当前EN6179/857/1678(53层)、ZH3390/851/1700、JA614/339/677；有界日语nasal进度与default12末槽父词、单源和合并catalog层数修正，25包SDK/模型协议/默认预算保持。实际951文件升版前归档9002c03d…；五权威metadata八值精确同步，其余939文件、257Rustfixtures、原131E/cells/impl/评分/axes/完整旧note后缀保持。新版完整工具exit0：267组含Doc-tests/2585过0失败32原ignore0filter；原进程2026-10-23恢复确认退出，全roster及ignore身份同，SHA33ea888ce546a622936f0b548233280a578fe5e67bcfa8182c9b050f8b505725。独立隔离UI19/19、严格Clippy51.90秒工具exit0，83Python/250links/fmt/source/保真过，不将UI/child/旧2585或51.34秒加成新版结果，无实模/新时延/个人安装验收。用户授权准确新commit八CI与accepted四产物验收全部通过后发布LinuxAlpha prerelease非latest，远端仍待验，不先打tag/发布/安装，不碰个人服务配置。以下均保留原研发快照：当前未提交E-daily-plants，actual946文件reading脏基线ef8eb346e21755292bb2d1c34b4522ae673183d597bc65431872b1bfca944435；新增8builtinENforms/12ZH5JA Word读音/18语境36作者句，EN6179/857/1678(53层)、ZH3390/851/1700、JA614/339/677。初data-only完整2578过2失败/266组及首wide-repair53过1失败保留；旧mad仅精确扩充逆投影保旧hash，family+railま基础Word不可达由generic仅默认12的spare末槽父词保留修复，0..11/>12旧行为保持，不改旧family断言/早前rows/raw/槽metadata/配额。最终独立full-fixed工具exit0：267唯一组含Doc-tests/2585过0失败32原ignore0filter；新22集成+2cfg已含一次，不加focused54/child/失败轮。旧262test/status与32ignore身份同，strict全target/allfeatureClippy51.34秒/fmt/83Python/250links/source/53inverse887bytes6docs5freeze保真过；native-core静态9另列非原生输入。真7812db…库hash-match、同冻结probe重采419/419实际全cmp0，stale旧probe不计，419不代替两故障专项；最终42邻域同data-only，原before16/42同26变化仍披露。仅本新E/F16-F20五refs/EN2ZH2JA2mix1七索引，130旧E/成熟度/axes/limits/routes与完整旧note后缀不变。有限植物交流非科学指导/传感/控水，无UI/native/实模/时延/安装验收；仍0.9.3/43未commit/install，不在发布资产内。此前reading及更早历史摘要原文：当前未提交E-daily-reading，基于含stationery实际941文件脏快照3c9d8b5c69059d3affcc0739d82c15765bcdb9dac1c9a9fc6ca0f99c7e064be5；新增4ENforms/12ZH4JA Word读音/18语境36作者句，EN6171/851/1666(52层)、ZH3378/845/1688、JA609/333/665。有限阅读/书页/书签表达，非书籍检索/书签管理/阅读进度跟踪；旧英文首现rank/读音flags/作者数据顺序/25包SDK/模型协议/配额及runtime算法不变。四tests-first的真实before、新oracle复核和最终after/full/Clippy独立记DEVELOPMENT，不借stationery2542/49.91s或旧UI/native/实模/timing。仅新本证据、F16-F19四refs及EN2/ZH3/JA1测试索引，129旧evidence/成熟度/路由保持；仍0.9.3/43未commit/install、不在发布资产内。固定source独立完整full-regression工具exit0：262唯一顶层组含Doc-tests/2561过0失败32原有ignore0filter，新4targets19已含不加focused38/旧golden8/child，独立逐项旧258group/test/status与32ignoreidentity同。strict全target/allfeatureClippy-Dwarnings实际exit0/50.58秒，fmt工具0、83Python/250links/source-schema/postfull保真过；不借旧UI/native/实模/安装/timing。此前stationery及更早历史摘要原文：当前未提交E-daily-stationery，含room实际dirty936文件c3e3377fbb51df1a65ac0cb7db7c546c16049b50cc26e26684f4aee7c48cc1f9基线；新增8ENforms/12ZH4JA Word读音/18语境/36作者句，EN6167/845/1654(51层)、ZH3366/839/1676、JA605/327/653。旧6159rank/flags/作者顺序/25包SDK/模型协议及配额保持，纯数据不改runtime转换/混排。五新fixture真实before EN1过5缺/ZH2过4缺/JA2过4缺/compat4过/packs0过2缺；EN9cc…误认optional-onlybeside为builtin，留原spec/log后批准next to同义替换，faf1…重冻/before同1过5缺。首after23过1失败为新ENadoptoracle假定out后空格，真实作者out, so…；只修row2 following=', '、其它' '，保ou/out/完整comma作者/adoptcommitundo，2e6e976ca4fe83e8bd248851ded2c329cbaab050ba6cec980fddd724176d06a3重冻/再before同1过5缺，非prod故障，原失败与其它23原spec通过留存。修后英target对afterlib独立6过0ignore0filter/exit0，同spec before仍1过5缺exit101，不拼首23/1为24单命令全绿。实际固定raw419/419全tuple同(328+91)，58邻接仅31同/27扩充；zheji原这继续Word/两拼接句75.5/75及xianna原先闹钟Word/两拼接句79/78.5(首句原首页index5)因同take4被新整词分支替换，非作者源记录删改，不能称全部旧作者候选/首页项保留。固定final5targets后独立完整full-regression.log工具exit0：2542过0失败32旧ignore/258唯一顶层组含Doc-tests/0filter，24新已含一次，不加初23/1+英6/child或旧room2518；strict全target/allfeatureClippy-Dwarnings工具exit0/49.91秒、fmt工具exit0，当前120ef45f…source摘要/schema/83Python(29+11+25+18)/250links/diff已过，不预报24firstgreen，不借旧room2518/32/UI19/历史timing。仅新1stationery证据、F16-F19四refs、ENZHJA九test索引；128旧evidence/评分/运行路由不动。0.9.3/43不变，未commit/install、不在已发布0.9.3包内。此前room及更早完整历史摘要原文：当前未提交E-daily-room-comfort，实际dirty928文件dressing基线ab91737d6bc77c97b9457f9605b9c28bfbfd367fe3dab1094347fa60363943cd；新增8ENforms/12ZH5JA Word读音/18语境/36作者句，EN6159/839/1642(50层)、ZH3354/833/1664、JA601/321/641。五新fixture24项首after23过1失败kankise第二作者index8；广末拨音方案完整full2509过2失败32旧ignore/252组，保留旧transit第二页回归及merged误用单source64拒有效包的失败，非最终结果。广方案seirikepositive新fixture/顺序inverse撤回，日志和redgreen实验保留；最终stem须已有双distinct作者，守旧joushake/seirike12tuple/六槽策略，4新boundary，旧family仅limit6以77.5第二作者替Unknown，其余0..5/7..12tuple同。单source64/单pack8层2048units/lang4096/16installed不扩；运行aggregate64+16*8=192，directCatalog也计disabled/invalid16；新4packtests真实red1过3失败→4过。narrowfocused15targets93过0失败0ignore0filter，不与独立full/Clippy重复累计；最终独立完整full-narrow-regression.log工具exit0，2518过0失败32旧ignore/253唯一顶层组含Doc-tests/零筛除，38新(room24+nasal3+boundary4+layer4+cfg3)已含，不加focused93/redgreen/撤positive/child；旧两fail/fulln7/releasetail8/两4golden通过，strict全target/allfeature Clippy-Dwarnings49.21秒实际exit0无warning/error，fmt/diff/83Python(29+11+25+18)/250auditlinks/最终source摘要过。窄raw before418/419全字段同、dataonly419/419同，adj before21/38/dataonly38/38，17真实扩充；fangjian原take4使放键盘退场，三旧Word既有权重各-2，不说所有旧候选可达/分数不变。原6151rank/旧资源/25包SDK/模型协议/6-12-256候选窗/127旧evidence/评分/路由保持；50inverse/872其它bytes/6doc/8新freeze且928typesmodes同，83静态与250链接已过。仅本证据扩F16-F20/F57/F58/F67及实现索引；版本0.9.3/43不变，已发布0.9.3排除dirtydressing+room，不操作安装/个人服务，不借旧2480/2456/UI19/性能时间。以下完整保留此前dressing与发布准备历史摘要：当前未提交E-daily-dressing，位于准确6edfa3e之后；新增12ZH/4JA Word读音、18语境、36三语作者句、零EN词形；EN6151/833/1630(49层)、ZH3342/827/1652、JA596/315/629。旧48层/6151rank/读音flags/25packsSDK/模型协议/配额/成熟度/路由保持。新24已含在独立完整all-feature2480过0失败32原有ignore/245唯一顶层组/零筛除内，含fulln7/releasetail8/两套旧4golden；不加focused或capturedchild计数。首次full2479过1失败仅遗漏旧privatecompound总数3331→3343，原失败保留，仅该数值同步；20维护路径58literal精确逆回。早先专项23过1失败为root同文JA要求Word的错误oracle，仅按既有Literal原文规则纠正identity-spelling，不改production/限额；3语言+compat冻结原字节。419实际旧池全同，独立邻接24中21全同，三根新增仍保留旧选项，旧靴双句首页分各-0.5是旧indexweight。923baseline中893其它bytes/modes相同，3raw追加/catalog新inverse/20metadata/6docs以外保持；127evidence保留126旧，仅新4ref/9testindex。仍0.9.3/43，未提交安装，不替换已锁定验收SHA，无借旧2456/UI19或新native/UI/实模/性能/发布声明。严格全target/allfeature Clippy-Dwarnings46.05秒、83Python守卫/250源码审计链接/格式diff/源码digest/精确保真审计通过。此前源码准备摘要原文：0.9.3/build43源码候选收口，纳入route/call/storage/restock/hygiene五批，相对4108bc0新增8EN forms、122CJK读音、188三语作者句；三语总量6151/827/1618(48层)、3330/821/1640、592/309/617。25包SDK/模型协议/成熟度旧评分保持。新增2项模型+RAM偏好实际管线回归；最初提前限12诊断非实际Engine路径，原失败保留，不改production来满足错误oracle。首次versioned全量发现新hygiene whether泛语境挤出既有privatepack首页，红日志保留；只改新作者if同义语境和两新fixture精确常量，六语境12分支/旧edge断言/生产配额原样，13项修复回归过；独立full后发现catalog新增hygiene精确tuple遗漏3处同步，第二失败同样保留；四文件共13处literal改词精确逆回，历史hash/oracle不变，再从头完整验证。最终独立完整all-feature2456过0失败32原有ignore，240唯一顶层结果组含Doc-tests全零筛除，含fulln7/releasetail8及两套四golden；另私有UI19/19、严格全target全featureClippy49.76秒、83Python/250源码链接/格式/五版本一致性/严格保持审计过。560releasebefore内543其它字节同；17预期差异、229Rusttests226字节同加3处新hygiene证明文字可逆；126旧evidence/cells/成熟度/25包SDK保持。第一full边界失败和第二full 2455过1失败目录tuple不同于最终全量，日志都保留，不组合重试充零失败。远端新提交CI与accepted四资产仍待独立完成，不计旧1872 scoped、focused13、父调child或0.9.2结果为新增通过；用户授权新提交全部CI及accepted四资产验收后发布LinuxAlpha prerelease非latest，个人安装不改。以下为先前研发阶段的原始摘要：当前未提交E-daily-hygiene：追加8EN forms、8ZH/6JA Word读音、36三语作者句，EN6151/827/1618(48层)、ZH3330/821/1640、JA592/309/617。旧47层/6143rank/flags/25packsSDK原样；数据模型宿主解耦。先冻20词库/pack测试，before EN1/5 ZH2/4 JA2/4和pack0/2，after19/1保留senganryo真实index8失败。新3集成0/3、新3mix unit1/2之后独立窄修：唯一offset0整Word末长元音补全、strict同根、真实旧转换和首Word、双distinct作者及actual LocalWord/2LocalSentence，>=6复用rawreserve；旧root/progress helpers/分数/Word序/模型偏好竞争/6/12/4/256/16包保持。新26原样过，完整同范围重跑1872过0失败5旧ignore/188唯一组，605lib+187集成1267全部无筛除；含fulln7/releasetail8/oldcleaning10/旧两套四golden。before源b099a2e0556a54415894f1aa3583d5bd0accd50b11bb074c6beb698f98025319含555文件224旧Rusttests，非HEAD安装；3JSONraw、36计数与历史epoch维护、2prod叶子/catalog投影可逆，507其它文件字节同。实际before与data-only419vectors全同，最终旧goldens另原样通过；不可称所有新短前缀池无变。仍0.9.2/42、未提交发布安装，不碰个人服务；无新性能/native/UI/实模声明。全部旧评分/证据/路由不改。 历史阶段原始记录保留在下方全部旧evidence对象，snapshot.note只摘要本轮。"
   },
   "architectures": [
     {
@@ -372,6 +372,17 @@
         "data/lexicons/en.json"
       ],
       "tests": [
+        "tests/daily_table_items_dialogue.rs",
+        "tests/support/daily_dialogue.rs",
+        "tests/daily_pocket_items_dialogue.rs",
+        "tests/daily_washroom_dialogue.rs",
+        "tests/daily_entryway_english.rs",
+        "tests/daily_entryway_packs.rs",
+        "tests/daily_accessories_english.rs",
+        "tests/daily_accessories_packs.rs",
+        "tests/daily_recycling_english.rs",
+        "tests/daily_recycling_packs.rs",
+        "tests/support/daily_recycling_replay.rs",
         "tests/daily_bedding_english.rs",
         "tests/daily_bedding_packs.rs",
         "tests/daily_kitchen_english.rs",
@@ -450,6 +461,18 @@
         "data/lexicons/zh-Hans.json"
       ],
       "tests": [
+        "tests/daily_table_items_dialogue.rs",
+        "tests/support/daily_dialogue.rs",
+        "tests/daily_pocket_items_dialogue.rs",
+        "tests/daily_washroom_dialogue.rs",
+        "tests/daily_entryway_chinese.rs",
+        "tests/daily_entryway_packs.rs",
+        "tests/chinese_adopted_syllable_prefix.rs",
+        "tests/chinese_terminal_ng_page.rs",
+        "tests/daily_accessories_chinese.rs",
+        "tests/daily_accessories_packs.rs",
+        "tests/daily_recycling_chinese.rs",
+        "tests/daily_recycling_packs.rs",
         "tests/daily_bedding_chinese.rs",
         "tests/daily_bedding_packs.rs",
         "tests/daily_kitchen_chinese.rs",
@@ -540,6 +563,16 @@
         "data/lexicons/ja.json"
       ],
       "tests": [
+        "tests/daily_table_items_dialogue.rs",
+        "tests/support/daily_dialogue.rs",
+        "tests/daily_pocket_items_dialogue.rs",
+        "tests/daily_washroom_dialogue.rs",
+        "tests/daily_entryway_japanese.rs",
+        "tests/daily_entryway_replay_guard.rs",
+        "tests/support/daily_entryway_replay.rs",
+        "tests/japanese_short_nasal_parent.rs",
+        "tests/daily_accessories_japanese.rs",
+        "tests/daily_recycling_japanese.rs",
         "tests/daily_bedding_japanese.rs",
         "tests/daily_kitchen_japanese.rs",
         "tests/daily_plants_japanese.rs",
@@ -1612,6 +1645,68 @@
     }
   ],
   "evidence": [
+    {
+      "id": "E-daily-entryway",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_entryway_english.rs",
+        "tests/daily_entryway_chinese.rs",
+        "tests/daily_entryway_japanese.rs",
+        "tests/daily_entryway_packs.rs",
+        "tests/chinese_adopted_syllable_prefix.rs",
+        "tests/chinese_terminal_ng_page.rs",
+        "src/languages/chinese.rs",
+        "src/ime/candidate_mix.rs",
+        "tests/daily_entryway_replay_guard.rs",
+        "tests/support/daily_entryway_replay.rs",
+        "tests/japanese_short_nasal_parent.rs",
+        "src/languages/japanese.rs"
+      ],
+      "scope": "玄关三语有限fallback与中文/日语窄兼容修复；本机代码验证，非安装/原生/实模/性能/发布验收",
+      "note": "2026-10-24玄关批次兼容性收尾：基于真实dirty970快照72eeb192，仍de42d39/0.9.5-build45未提交；新增6ENforms/9ZH5JA Word读音、18语境36作者句，EN6213/885/1734(58层)、ZH3441/879/1756、JA638/367/733。A仅为旧完整mixed/base都缺失且原decoder已有真实finished读音的作者提供新身份，保持旧care/carry页2，拒绝Prefix-only jiu推断；共享长稿窗口与原字节前缀，不承诺上下文多音字消歧。B保留旧单字规则，仅唯一Word终音ng缺g且实际完成分支出处可证时保留双句。日语只在默认12容量、唯一近完整kana+ん短Word且更长同源compound真实竞争、发布前2Word可证、实际两个音形/Word/双作者身份存在时保留短词原作者；假名原文项可为Literal，不能只认Unspecified。既有日语补全helpers、底层decoder、模型协议、容量及25包SDK不变；新增窄分页策略不改变候选文本或Word分数。kutsu新增靴箱/靴べら和四作者各-1索引权重是合法数据变化；测试先核当前完整12 tuple再精确逆回真实旧10及旧hash，非泛化过滤。保留before、首after15/4、A/B独立before和中间修复红；143中断轮实际也有4中文失败，早先tail误判已更正。完整失败轮289组2674过22失败32ignore0filter：7真实词库兼容case及15重复UI断言；后者来自服务未继承LC_ALL，现每次测试显式C.UTF-8，不改UI。新固定专项实际owner97606工具exit0：805过0失败2原ignore，20唯一组0filter，44本轮新增项已含一次，不加child或旧轮结果。独立完整回归实际2705过、零失败、32原ignore，291唯一组含Doc-tests、零筛除。严格全target/all-feature Clippy-Dwarnings通过（55.99s）。原135证据/49实现/79cells/评分/路由/历史note保持，仅E-daily-entryway、四refs和EN2/ZH4/JA4十索引。不新增原生键盘/人工UI/真实模型/性能/安装/CI验收，不恢复已取消自动化，不在已发布包内。"
+    },
+    {
+      "id": "E-daily-accessories",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_accessories_english.rs",
+        "tests/daily_accessories_chinese.rs",
+        "tests/daily_accessories_japanese.rs",
+        "tests/daily_accessories_packs.rs"
+      ],
+      "scope": "2026-10-23未提交桌边配件与线材收纳有限fallback；非电气操作/供电建议/UI/原生/实模/性能/安装/发布验收",
+      "note": "当前未提交E-daily-accessories，基于含recycling的真实dirty966文件快照d9a733bc（HEAD仍de42d39/0.9.5-build45），新增6ENforms/10ZH5JA Word读音/18contexts36作者句，EN6207/879/1722(57层)、ZH3432/873/1744、JA633/361/721。充电器/转接头/耳机盒等复用不重计，JA充電器の置き場所为既有词组合、不是新增整词reading；保留显式长音与n+a撇号边界。仅配件位置与收纳输入，不提供供电/接线/电气操作建议。真实before三语各2pass4missing、私有16包旧controls先过后0/1；首after18pass1fail仅新EN connec短根oracle过宽，保留失败日志后只改两新tuple为connecto，旧配额/rank/hash不动。最终独立定向回归实际owner1392工具0：23唯一顶层组=完整lib+22相关集成套件，735pass0fail3原ignore0filter，新19只计一次，8旧golden过；不含Doc-tests/其他bins或全量，不借旧2642/32ignore。严格locked-offline-alltarget-allfeature Clippy-Dwarnings实际工具0/58.85s；本轮83Python/250links/fmt/源码和功能结构保真通过。仅新E/F16-F19四refs与五test索引，旧134E/49实现/79cells/评分/路由/完整历史note、模型协议/生产runtime/25包SDK/预算/版本保持。无新UI/native/实模/性能/安装/CI验收，本批未提交，不在已发布0.9.5资产中，不恢复取消自动化。"
+    },
+    {
+      "id": "E-daily-recycling",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_recycling_english.rs",
+        "tests/daily_recycling_chinese.rs",
+        "tests/daily_recycling_japanese.rs",
+        "tests/daily_recycling_packs.rs",
+        "tests/support/daily_recycling_replay.rs",
+        "tests/input_catalog_index_equivalence.rs",
+        "tests/input_hotpath_equivalence.rs"
+      ],
+      "scope": "2026-10-23未提交回收物整理与倒垃圾协作有限fallback；非地方规则/实际收集服务/UI/原生/实模/时延/安装/发布验收",
+      "note": "当前未提交E-daily-recycling，基于已发布de42d39/0.9.5-build45；新增8builtin ENforms/12ZH6JA Word读音/18contexts36作者句，EN6201/873/1710(56层)、ZH3422/867/1732、JA628/355/709。bins原optional-family已有；仅有限回收物整理协作表达，不提供地方规则或实际收集服务。真实before三语各2pass4missing、私有16pack旧controls先过后0/1；首focused65pass1fail的JA当前总数697→709精确同步，红日志保留。首full279组2640pass2fail/工具101保留；actual probe确认one\\nline仅增加liner/liners尾Word88/86、旧3Word100/92/90原样，test-only窄投影先assert完整五字段向量后移末2Word，旧golden/corpus不动。fresh final-full实际工具0且独立审计通过：279唯一顶层组含Doc-tests、2642pass0fail32原ignore0filter，275旧roster/status/ignore细节精确保留、新19仅计一次；严格locked-offline-alltarget-allfeature Clippy-Dwarnings实际工具0/1m01s，83Python/250links/fmt/源码及结构保真通过。仅新E、F16-F19四refs与六test索引；133旧E/49实现/79cells/成熟度、路由、模型协议、生产runtime、旧rank/flags/作者源、25包SDK/预算/版本不变，不保证所有短根池恒定。无新UI/native/实模/性能/安装/CI验收；本批未提交、不在已发布0.9.5资产中、不恢复取消自动化，详见DEVELOPMENT。"
+    },
     {
       "id": "E-daily-bedding",
       "kind": "historical_run",
@@ -3441,6 +3536,50 @@
       ],
       "scope": "当前文档中的能力/隐私限制",
       "note": "源码与静态检查边界，不是执行记录。"
+    },
+    {
+      "id": "E-daily-washroom",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_washroom_dialogue.rs"
+      ],
+      "scope": "三语有限洗漱用品位置与收纳fallback；本机定向代码回归，非实模/安装/原生输入/全仓验收",
+      "note": "2026-10-24洗漱用品位置与收纳：真实dirty979基线924f17d2，仍de42d39/0.9.5-build45未提交。零新词形/读音，新增9语境18作者句；EN6213/888/1740(59层)、ZH3441/882/1762、JA638/370/739。既有毛巾/沐浴露/洗漱包与歯ブラシ/石鹸/タオル补双句，英文新daily_washroom全词元已知、旧first-rank全同；仅有限位置交流，不是库存感知或物品控制。真实before3过7缺，首after8过2失败保留；仅新fixture修空草稿raw前提及可选包短mao-ji分页oracle：完整reading仍双句首页，partial锁旧anchor和新作者index5/6并可逐字提交；不以推广新句为由改旧权重/容量。另加固定JA假名独立oracle及3词六横空白守卫。独立定向运行真实进程exit0：完整lib+47集成target，48唯一组929过0失败2原ignore0filter，新10只计一次；旧47组逐个test名字/顺序/status/ignore细节同，不把此前2705完整轮借成新版通过，也不加child或局部重试。首Clippy仅报新fixture类型复杂，保留红记录；仅提取两类型别名并严格逆回此前fixture全部字节，新10项再测通过、不累加929。严格全target/allfeature Clippy-Dwarnings实际exit0/18.67s。36路径93current数字精确维护、3raw逆回、catalog新最外wrapper以外旧973非doc中933完整byte/mode同；旧decoder/生产运行逻辑/模型协议/25包SDK/依赖版本不变。仅新E-daily-washroom、F16-F19四refs、ENZHJA各一test索引；136旧证据/49实现/79cells/评分/路由及旧note完整保留。本轮不是完整repo/Doc-tests/人工UI/原生键盘/真实模型/性能/安装/CI验收，不提交推送或恢复取消自动化。"
+    },
+    {
+      "id": "E-daily-pocket-items",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_pocket_items_dialogue.rs",
+        "tests/daily_washroom_dialogue.rs"
+      ],
+      "scope": "三语有限钱包零钱票据位置交流fallback；本机定向验证，非支付服务/真实模型/原生安装/全仓验收",
+      "note": "2026-10-24钱包零钱票据取放：从真实dirty980快照ead110d8开始，仍de42d39/0.9.5-build45未提交。零新forms/读音，新增9语境18作者句；EN6213/891/1746(60层)、ZH3441/885/1768、JA638/373/745。英文wallet/coins/receipts用既有词构成三个具体语境；中文钱包/零钱包/卡包，日语財布/小銭/鞄补双句。保留kozen原文，不误变kozeni；仅位置交流，不是付款处理、金融建议或真实物品探测。固定新fixture63d1276f的真实before3过7缺，首after10项全过，不改新oracle凑绿；独立定向服务实际exit0：完整lib+54集成target，55唯一组983过0失败2原ignore0filter，新10只计一次。54个旧selected target/test名字顺序status/ignore细节同；不拼child、focused或借上轮929/之前2705充新版完整验收。本轮strict locked-offline-alltarget-allfeature Clippy-Dwarnings实际exit0/1m 06s。37路径98 current数字精确维护；旧washroom窗口另1处固定ZH879/JA367取3，原作者及hash不动。974旧非doc=933整体byte/mode同+37精确重建+3raw逆回+1catalog外wrapper；旧生产逻辑、模型协议、25包SDK、依赖和版本不动。新增E-daily-pocket-items、F16-F19四refs与ENZHJA各一test索引；137旧证据/49实现/79cells/评分/路由和完整oldnote保留。本轮不是全repo/Doc-tests/人工UI/原生键盘/真实模型/性能/安装/CI验收，不提交推送或恢复取消自动化。"
+    },
+    {
+      "id": "E-daily-table-items",
+      "kind": "historical_run",
+      "paths": [
+        "DEVELOPMENT.md",
+        "data/lexicons/README.md",
+        "data/lexicons/en.json",
+        "data/lexicons/zh-Hans.json",
+        "data/lexicons/ja.json",
+        "tests/daily_table_items_dialogue.rs",
+        "tests/support/daily_dialogue.rs"
+      ],
+      "scope": "三语有限保温杯和餐具位置交流fallback；本机定向测试，非真实物品探测/模型/原生/安装/全仓验收",
+      "note": "**当前未提交：保温杯、餐具与小碟子的取放（2026-10-24）**。新增9组语境、18条中英日候选句，不增词形或读音。EN6213/894/1752（61层）、ZH3441/888/1774、JA638/376/751。独立定向回归1021过、0失败、2原ignore，60组零筛除（完整库与59集成target）；严格Clippy-Dwarnings通过（1m 07s）。新测试复用测试辅助层，旧套件不迁移；旧pocket作者窗口固定ZH882/JA370取3，washroom窗口不动。原生产算法、权重、候选预算、模型协议、25包SDK及版本保持。不感知或控制物品，非本轮全仓/原生/UI/实模/性能/安装/CI验收；未提交推送。下方为历史快照。 真实dirty981基线0f19fb8a，冻结新fixture与support后before3过7缺，首after原10项全过；新10项只计一次。38路径103当前数字维护，另pocket历史窗口一处封边，975旧非文档=933字节模式不变+38精确维护+3raw逆回+1新catalog外wrapper。添加E-daily-table-items、F16-F19四refs与三个语言的新套件/helper索引，138旧证据、49实现、79cells/评分/路由保留。"
     }
   ],
   "cells": [
@@ -3716,6 +3855,9 @@
         2
       ],
       "evidence": [
+        "E-daily-entryway",
+        "E-daily-accessories",
+        "E-daily-recycling",
         "E-daily-bedding",
         "E-daily-kitchen",
         "E-daily-plants",
@@ -3761,7 +3903,10 @@
         "E-daily-choices",
         "E-daily-followup",
         "E-daily-leisure",
-        "E-linux-delivery"
+        "E-linux-delivery",
+        "E-daily-washroom",
+        "E-daily-pocket-items",
+        "E-daily-table-items"
       ],
       "limit": "有限词表；大小写/撇号保真；不强制纠错URL、标识符。采用后词元变化的学习边界见F66/preference，不属于词库实现。"
     },
@@ -3776,6 +3921,9 @@
         2
       ],
       "evidence": [
+        "E-daily-entryway",
+        "E-daily-accessories",
+        "E-daily-recycling",
         "E-daily-bedding",
         "E-daily-kitchen",
         "E-daily-plants",
@@ -3823,7 +3971,10 @@
         "E-daily-choices",
         "E-daily-followup",
         "E-daily-leisure",
-        "E-linux-delivery"
+        "E-linux-delivery",
+        "E-daily-washroom",
+        "E-daily-pocket-items",
+        "E-daily-table-items"
       ],
       "limit": "有界作者搭配，不是通用语法/拼写纠错；句子语境不跨行。"
     },
@@ -3838,6 +3989,9 @@
         2
       ],
       "evidence": [
+        "E-daily-entryway",
+        "E-daily-accessories",
+        "E-daily-recycling",
         "E-daily-bedding",
         "E-daily-kitchen",
         "E-daily-plants",
@@ -3894,7 +4048,10 @@
         "E-daily-choices",
         "E-daily-followup",
         "E-daily-leisure",
-        "E-linux-delivery"
+        "E-linux-delivery",
+        "E-daily-washroom",
+        "E-daily-pocket-items",
+        "E-daily-table-items"
       ],
       "limit": "有限词表、声调/音节边界；未知输入保原文，非完整长句统计拼音引擎。"
     },
@@ -3909,6 +4066,9 @@
         2
       ],
       "evidence": [
+        "E-daily-entryway",
+        "E-daily-accessories",
+        "E-daily-recycling",
         "E-daily-bedding",
         "E-daily-kitchen",
         "E-daily-plants",
@@ -3962,7 +4122,10 @@
         "E-daily-leisure",
         "E-japanese-progress",
         "E-japanese-daily",
-        "E-linux-delivery"
+        "E-linux-delivery",
+        "E-daily-washroom",
+        "E-daily-pocket-items",
+        "E-daily-table-items"
       ],
       "limit": "基础促音/拨音、日常词句及已知表记续写；没有完整形态分析器、任意片假名反查或日语长稿窗口。"
     },

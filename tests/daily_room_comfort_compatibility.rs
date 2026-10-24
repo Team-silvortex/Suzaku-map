@@ -1,4 +1,7 @@
 //! Frozen actual dirty-dressing before-room pools; reviewed room roots tested separately.
+#[path = "support/daily_entryway_replay.rs"]
+mod daily_entryway_replay;
+
 use suzaku_map::ime::{
     CommitOptions, EngineConfig, XRTabletImeEngine,
     candidate_mix::{CandidateKind, CandidateSource},
@@ -25,8 +28,10 @@ fn engine(language: &str, seed: &str) -> XRTabletImeEngine {
 fn unchanged(language: &str, cases: &[(&str, u64)]) {
     for &(seed, expected) in cases {
         let ime = engine(language, seed);
+        let projected =
+            daily_entryway_replay::before_daily_entryway(language, seed, ime.candidates(), false);
         let mut hash = 0xcbf29ce484222325_u64;
-        for c in ime.candidates() {
+        for c in &projected {
             for byte in c
                 .text
                 .bytes()

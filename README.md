@@ -1,11 +1,93 @@
 # Suzaku Map · 朱雀
 
+<!-- release-0.9.6:start -->
+**New source candidate: 0.9.6 / build 46 — Everyday fallback and candidate continuity.** This includes six vocabulary batches (20 English builtin forms, 31 Chinese and 16 Japanese Word readings, 81 contexts and 162 authored sentences) plus three bounded Chinese/Japanese candidate-compatibility repairs. The independent versioned full Rust run passes 2,735 tests / zero failures / 32 original ignores in 294 unfiltered groups including Doc-tests. Separately, 19 exact isolated UI gates and strict all-target/all-feature Clippy with warnings denied (58.69s) pass. Exact-commit remote CI and accepted-package validation remain pending; no 0.9.6 tag, download or publication is claimed yet. The cancelled automation stays cancelled and the personal installation is unchanged. Earlier source/uncommitted/pending records below remain historical. See [0.9.6 release preparation](docs/releases/0.9.6.md).
+<!-- release-0.9.6:end -->
+
 A local-first, continuous-writing input method with word and sentence candidates,
 optional language models, and a compact floating companion panel.
 
-**[0.9.3 · Linux / IBus Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.3), not latest stable.** Current validation targets **Ubuntu 24.04,
+**[0.9.5 · Linux / IBus Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.5), not latest stable.** Current validation targets **Ubuntu 24.04,
 amd64, IBus, X11 or GNOME with XWayland**. Keep your usual input method available
 as a fallback. Other platforms remain experimental.
+
+**Published baseline: 0.9.5 / build 45, source `de42d39`.** The exact-commit
+[CI run 39894489515](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/39894489515)
+passed all eight required gates. Accepted artifact `12476299897` supplied the Linux
+`.tar.gz`, `.deb` and their two `.sha256` files; the four release assets were independently
+validated and re-downloaded for byte comparison before publication. This is a non-latest
+Linux Alpha prerelease; the personal installation was not changed and the cancelled
+publication automation was not restored. Preparation-time pending statuses below are historical,
+not the current publication status. See [0.9.5 preparation scope](docs/releases/0.9.5.md).
+
+**Uncommitted follow-up — thermos and table-item locations (2026-10-24).** Adds nine contexts and 18 authored sentences across EN/ZH/JA, with no new word forms/readings. Totals: EN 6,213 / 894 / 1,752 (61 layers); ZH 3,441 / 888 / 1,774; JA 638 / 376 / 751. One independent bounded run passes 1021 tests, zero failures and two original ignores, in 60 unfiltered groups (complete library plus 59 integration targets). Strict all-target/all-feature Clippy passes with warnings denied (1m 07s). New tests share a test-only helper; old suites are not migrated. Production algorithms, candidate budgets, models/protocols, 25 packs/SDK and versions stay unchanged. These are finite location expressions, not item sensing/control. Not full-repository, native, UI, real-model, installation, performance or CI acceptance. Earlier records remain historical.
+
+**Uncommitted follow-up — wallet, coins and receipt locations (2026-10-24).** Adds nine contexts and 18 authored sentences across English, Chinese and Japanese without new word forms/readings. Totals: EN 6,213 / 891 / 1,746 (60 layers); ZH 3,441 / 885 / 1,768; JA 638 / 373 / 745. The independent bounded run passes 983 tests, zero failures and two original ignores, across 55 unfiltered groups (complete library plus 54 integration targets). Strict all-target/all-feature Clippy passes with warnings denied (1m 06s). This is finite find-item text, not payment processing or financial advice. Production algorithms, model protocols, candidate budgets and 25 packs/SDK stay unchanged. No new full-repository, Doc-tests, native, real-model, installation or CI acceptance. Earlier snapshots below remain historical.
+
+**Uncommitted follow-up — washroom item locations (2026-10-24).** Adds nine contexts and 18 authored sentences across English, Chinese and Japanese, reusing existing words/readings. Totals: EN 6,213 forms / 888 contexts / 1,740 sentences (59 layers); ZH 3,441 / 882 / 1,762; JA 638 / 370 / 739. The independent bounded run passes 929 tests, with zero failures and two original ignores, across 48 unfiltered groups (complete library plus 47 integration targets). Strict all-target/all-feature Clippy passes with warnings denied (18.67s). This is not a new full-repository, Doc-tests, physical-keyboard, real-model or installation acceptance. No production algorithm, model protocol, pack/SDK byte or version changes. Earlier snapshots below remain historical.
+
+<!-- entryway-validation-closeout:start -->
+
+**Validation closeout — 2026-10-24 (uncommitted).** The fixed compatibility matrix passes **805 tests / zero failures / two original ignores**, across 20 unfiltered groups. All 44 new checks are included once. Chinese recovery excludes already-reachable authors and unsupported readings; Japanese nasal-parent preservation also handles literal Kana forms, only at the default twelve-row capacity. The earlier 22-failure complete run and exit-143 interruption remain recorded, not acceptance. The independent complete run passes 2,705 tests, zero failures and 32 original ignores, across 291 unique unfiltered groups including Doc-tests. Strict all-target/all-feature Clippy passes with warnings denied (55.99s). No version, commit, push, personal installation or automation change. The preparation snapshots below retain their earlier validation scope.
+
+<!-- entryway-validation-closeout:end -->
+
+**Current uncommitted follow-up: entryway and leaving home.** Adds six English forms, nine Chinese/five Japanese Word readings,
+18 contexts and36 authored sentences from the accessory-inclusive970-file dirty snapshot, not clean HEAD.
+Totals: **EN6,213/885/1,734 (58 layers), ZH3,441/879/1,756, JA638/367/733**; existing carry vocabulary and optional-pack words are not counted as globally new.
+Japanese “鍵の置き場所” composes old Words; `teikiire` retains both adjacent vowels. This is finite find-item dialogue, not lock/weather/location control.
+Two narrow Chinese repairs preserve verified adopted-syllable authors and a uniquely sourced terminal-`ng` pair; they do not add arbitrary prediction or polyphone inference.
+Real failing before/after/repair runs remain saved; the four original entryway specifications and author wording are unchanged.
+Focused acceptance passes **647 tests / zero failures / two original ignores**, across7 unfiltered groups (library plus6 targets); all35 new checks are included once.
+Fresh independent complete regression and strict Clippy are still pending; older2642/full or735/bounded receipts are not this batch's final acceptance.
+Version0.9.5/45 stays uncommitted/outside published packages; no installation, CI, automation, native/model or performance acceptance is added.
+See the [entryway work record](DEVELOPMENT.md#daily-entryway-and-leaving-home--2026-10-23).
+
+The accessory block below retains the preceding snapshot's scope and receipts, not the latest entryway totals or acceptance.
+
+**Current uncommitted follow-up: desk accessories and cable storage.** Adds six English forms,
+10 Chinese and five Japanese Word readings,18 contexts and36 authored sentences from the recycling-inclusive dirty snapshot.
+Totals: **EN6,207/879/1,722 (57 layers), ZH3,432/873/1,744, JA633/361/721**.
+Existing chargers/adapters/cases are reused; Japanese “充電器の置き場所” is a composed context, not a new dictionary Word.
+This is finite location/packing dialogue, not electrical operations or advice; runtime/model logic, budgets and25 packs/SDK stay fixed.
+The real before run found missing candidates; the first after run has18passes/one English failure at the broad `connec` root.
+Only two new test tuples narrow that probe to `connecto`; old ranks/quotas and the failed log are retained.
+The new bounded run passes **735 tests / zero failures / three original ignores**, across23 unfiltered groups: complete library plus22 integration targets.
+Strict Clippy (58.85s), formatting,83 Python guards,250 links,tensor and preservation checks pass; this is not a new full-workspace run.
+Version0.9.5/45 remains uncommitted/outside published packages; no installation, CI, automation, UI/native/model or performance acceptance is added.
+See the [accessory work record](DEVELOPMENT.md#daily-desk-accessories-and-cable-storage--2026-10-23).
+
+The recycling block below retains the previous snapshot's totals and validation, not the latest accessory batch's results.
+
+**Current uncommitted follow-up: recycling and household coordination.** This finite
+data-only batch adds **eight builtin English forms, 12 Chinese and six Japanese Word
+readings, 18 contexts and 36 trilingual authored sentences**. `bins` already existed in
+the optional English family pack and is counted only as newly builtin. Examples include
+`cardboard / bin liners`, “纸箱先压平／回收日是哪天” and “段ボール／収集日／ペットボトル”.
+Current totals are **EN 6,201 / 873 / 1,710 (56 layers)**, **ZH 3,422 / 867 / 1,732**,
+**JA 628 / 355 / 709** (forms/readings, contexts, sentences). Source version/build remains
+0.9.5/45; this follow-up is not in the published packages. Model/runtime algorithms, budgets,
+25 recommended packs and SDK are unchanged. These are input expressions, not a collection
+service, local sorting rules or a promise that all short-root candidate pools are unchanged.
+The tests-first run recorded missing candidates in all three languages and the private-pack
+workflow. The first focused run passed all 19 new tests but also exposed one stale current-total
+assertion; that failure is retained, not labeled an all-green run. The first complete run then
+found two historical English replay mismatches: the final token of `one\nline` now also
+completes to `liner / liners`. A test-only projection checks the entire measured five-row
+vector before removing those two added tail rows; the old corpus/goldens and runtime behavior
+are unchanged. The fresh independent full run now passes **2,642 tests / zero failures /
+32 original ignores**, across279 unfiltered groups including Doc-tests, with all19 new tests
+included once. Strict all-target/all-feature Clippy with warnings denied (1m01s), formatting,
+83 Python guards,250 audit links and source preservation checks pass. The earlier failed runs
+remain recorded; these results do not add new UI/native-keyboard, real-model, installation or
+performance acceptance. No installation, CI run or automation is started for this batch.
+See the [recycling work record](DEVELOPMENT.md#daily-recycling-and-household-coordination--2026-10-23).
+
+### Historical release and source-preparation snapshots
+
+The following baseline/candidate and uncommitted labels retain their original development-time
+scope. The kitchen and bedding batches are now included in published 0.9.5; the newer recycling
+batch above is not. Their old local counts are not new-batch or remote-release acceptance.
 
 **Published baseline: 0.9.3 / build 43.** It includes five everyday-vocabulary batches,
 immutable-catalog query indexes and Japanese sentence-slot repairs. Its Linux release
