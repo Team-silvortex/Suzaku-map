@@ -230,9 +230,9 @@ fn entryway_preserves_57_prior_layers_6207_first_seen_ranks_endings_and_raw_byte
 #[test]
 fn entryway_fixed_layer_adds_six_forms_six_contexts_and_twelve_authors_only() {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 61);
-    assert_eq!(en.next_words().count(), 894);
-    assert_eq!(en.sentences().count(), 1752);
+    assert_eq!(en.word_layers().len(), 63);
+    assert_eq!(en.next_words().count(), 915);
+    assert_eq!(en.sentences().count(), 1794);
     let layer = &en.word_layers()[57];
     assert_eq!(layer.id, "daily_entryway");
     assert_eq!(
@@ -257,7 +257,7 @@ fn entryway_fixed_layer_adds_six_forms_six_contexts_and_twelve_authors_only() {
     );
     let old = indexed_occurrences(&en.word_layers()[..57]);
     let all = indexed_occurrences(en.word_layers());
-    assert_eq!(all.len(), 6213);
+    assert_eq!(all.len(), 6216);
     assert_eq!(&all[..6207], old.as_slice());
     assert_eq!(
         all[6207..6213]

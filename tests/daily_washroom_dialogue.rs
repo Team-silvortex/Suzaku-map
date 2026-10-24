@@ -1,4 +1,6 @@
 //! Data-only washroom-location dialogue, not sensing, product advice or device control.
+#[path = "support/living_room_reading.rs"]
+mod living_room_reading;
 use ring::digest::{SHA256, digest};
 use std::{
     collections::HashSet,
@@ -192,7 +194,7 @@ fn sha(text: &str) -> String {
         .collect()
 }
 fn old_resource(language: &str, raw: &str) -> String {
-    let mut old = raw.to_owned();
+    let mut old = living_room_reading::without_living_room_reading(raw);
     let first = match language {
         "en" => ",\n    {\n      \"id\": \"daily_washroom\",",
         "zh-Hans" => ",\n    [\n      \"毛巾\",",
@@ -240,7 +242,7 @@ fn washroom_preserves_exact_old_resources_readings_flags_rank_sources_and_author
 #[test]
 fn washroom_adds_only_three_contexts_and_six_authors_per_language_without_new_forms_or_readings() {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 61);
+    assert_eq!(en.word_layers().len(), 63);
     let layer = &en.word_layers()[58];
     assert_eq!(layer.id, "daily_washroom");
     assert!(layer.words.is_empty());
@@ -277,7 +279,7 @@ fn washroom_adds_only_three_contexts_and_six_authors_per_language_without_new_fo
         assert_eq!(&layer.sentences[2 * i..2 * i + 2], authors);
     }
     for (language, entries, reads, contexts, authors) in
-        [("zh-Hans", ZH, 3441, 888, 1774), ("ja", JA, 638, 376, 751)]
+        [("zh-Hans", ZH, 3442, 906, 1810), ("ja", JA, 638, 394, 787)]
     {
         let data = builtin(language).unwrap();
         assert_eq!(data.readings().len(), reads);

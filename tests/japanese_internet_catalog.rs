@@ -1,6 +1,10 @@
 //! Japanese catalog growth does not raise the sixteen-installed-pack limit.
+#[path = "support/living_room_reading.rs"]
+mod living_room_reading;
 #[path = "support/offline_pack_sets.rs"]
 mod offline_pack_sets;
+#[path = "support/release_storage_context.rs"]
+mod release_storage_context;
 use ring::digest::{SHA256, digest};
 use serde_json::Value;
 use std::{
@@ -254,6 +258,383 @@ fn remove_unique_append(source: &mut String, first: &str, after: &str) {
     let end = source.find(after).unwrap();
     assert!(start < end, "append range is empty or reversed");
     source.replace_range(start..end, "");
+}
+
+fn builtin_before_daily_progress(language: &str, source: &str) -> String {
+    // Bind only this in-layer/tail append before the unchanged historical chain.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "899d6e92d29729e7ea31d5d3e4cda420f9c712381caf4dded030a9a99e4a7bd3"
+            );
+            let layers = current["word_layers"].as_array().unwrap();
+            assert_eq!(layers.len(), 63);
+            let layer = &layers[62];
+            assert!(layer["words"].as_array().unwrap().is_empty());
+            assert_eq!(layer["next_words"].as_array().unwrap().len(), 18);
+            assert_eq!(layer["sentences"].as_array().unwrap().len(), 36);
+            let layer_first = "\n    {\n      \"id\": \"daily_essentials_dialogue\",";
+            assert_eq!(previous.matches(layer_first).count(), 1);
+            let layer_start = previous.find(layer_first).unwrap();
+            let layer_after = "\n    }\n  ],\n  \"phrase_endings\": [";
+            let suffix = &previous[layer_start..];
+            assert_eq!(suffix.matches(layer_after).count(), 1);
+            let layer_end = layer_start + suffix.find(layer_after).unwrap();
+            let mut layer = previous[layer_start..layer_end].to_owned();
+            for (first, after) in [
+                (
+                    ",\n        [\n          \"the first part is\",",
+                    "\n      ],\n      \"sentences\": [",
+                ),
+                (
+                    ",\n        \"the first part is done, and i'm checking the rest.\"",
+                    "\n      ]",
+                ),
+            ] {
+                assert_eq!(layer.matches(first).count(), 1);
+                let start = layer.find(first).unwrap();
+                let suffix = &layer[start..];
+                assert_eq!(suffix.matches(after).count(), 1);
+                let end = start + suffix.find(after).unwrap();
+                assert!(start < end);
+                layer.replace_range(start..end, "");
+            }
+            previous.replace_range(layer_start..layer_end, &layer);
+            "caba7d31753c4b472e404c40a3e0b82232f157c845bcdef69bc64f54982681c5"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "757614e5835d74559c81ea75feb2ab7841052bfb4761b83a6dd6b6ab27b09f15"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3442);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 906);
+            remove_unique_append(&mut previous, ",\n    [\n      \"卡住\",", "\n  ]\n}");
+            "2f2953249aba6680b4bb4b47da6a512a05eda177aa37d77234f541e052a27f22"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "68019e118f4422174fe6f6ba063129dba1ba70f87dd9e00a9c16e0f25b7d5269"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 638);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 394);
+            remove_unique_append(
+                &mut previous,
+                ",\n    [\n      \"終わりました\",",
+                "\n  ]\n}",
+            );
+            "df0e779bc24260a6bef3fcc39280b1d547ba1091cae93043918360a4fe0f1abe"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected);
+    previous
+}
+
+fn builtin_before_daily_clarity(language: &str, source: &str) -> String {
+    // Bind only this in-layer/tail append before the unchanged historical chain.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "caba7d31753c4b472e404c40a3e0b82232f157c845bcdef69bc64f54982681c5"
+            );
+            let layers = current["word_layers"].as_array().unwrap();
+            assert_eq!(layers.len(), 63);
+            let layer = &layers[62];
+            assert!(layer["words"].as_array().unwrap().is_empty());
+            assert_eq!(layer["next_words"].as_array().unwrap().len(), 15);
+            assert_eq!(layer["sentences"].as_array().unwrap().len(), 30);
+            let layer_first = "\n    {\n      \"id\": \"daily_essentials_dialogue\",";
+            assert_eq!(previous.matches(layer_first).count(), 1);
+            let layer_start = previous.find(layer_first).unwrap();
+            let layer_after = "\n    }\n  ],\n  \"phrase_endings\": [";
+            let suffix = &previous[layer_start..];
+            assert_eq!(suffix.matches(layer_after).count(), 1);
+            let layer_end = layer_start + suffix.find(layer_after).unwrap();
+            let mut layer = previous[layer_start..layer_end].to_owned();
+            for (first, after) in [
+                (
+                    ",\n        [\n          \"before we start, i want to confirm\",",
+                    "\n      ],\n      \"sentences\": [",
+                ),
+                (
+                    ",\n        \"before we start, i want to confirm what you need.\"",
+                    "\n      ]",
+                ),
+            ] {
+                assert_eq!(layer.matches(first).count(), 1);
+                let start = layer.find(first).unwrap();
+                let suffix = &layer[start..];
+                assert_eq!(suffix.matches(after).count(), 1);
+                let end = start + suffix.find(after).unwrap();
+                assert!(start < end);
+                layer.replace_range(start..end, "");
+            }
+            previous.replace_range(layer_start..layer_end, &layer);
+            "ad3fbdcaaadcb69a6d6056d82bc9f57af4cc3f89f140620a43f241205e5d3667"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "2f2953249aba6680b4bb4b47da6a512a05eda177aa37d77234f541e052a27f22"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3442);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 903);
+            remove_unique_append(&mut previous, ",\n    [\n      \"分歧\",", "\n  ]\n}");
+            "119bddcbce9d69a55e01038f52cfc566dd418997dcda248170f50e87f3e24f34"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "df0e779bc24260a6bef3fcc39280b1d547ba1091cae93043918360a4fe0f1abe"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 638);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 391);
+            remove_unique_append(&mut previous, ",\n    [\n      \"必要\",", "\n  ]\n}");
+            "083a8152b3e71594e60ac005d4e590d79cce815807582b6fea89480bb74ac693"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected);
+    previous
+}
+
+fn builtin_before_daily_coordination(language: &str, source: &str) -> String {
+    // Bind only this in-layer/tail append before the unchanged historical chain.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "ad3fbdcaaadcb69a6d6056d82bc9f57af4cc3f89f140620a43f241205e5d3667"
+            );
+            let layers = current["word_layers"].as_array().unwrap();
+            assert_eq!(layers.len(), 63);
+            let layer = &layers[62];
+            assert!(layer["words"].as_array().unwrap().is_empty());
+            assert_eq!(layer["next_words"].as_array().unwrap().len(), 12);
+            assert_eq!(layer["sentences"].as_array().unwrap().len(), 24);
+            let layer_first = "\n    {\n      \"id\": \"daily_essentials_dialogue\",";
+            assert_eq!(previous.matches(layer_first).count(), 1);
+            let layer_start = previous.find(layer_first).unwrap();
+            let layer_after = "\n    }\n  ],\n  \"phrase_endings\": [";
+            let suffix = &previous[layer_start..];
+            assert_eq!(suffix.matches(layer_after).count(), 1);
+            let layer_end = layer_start + suffix.find(layer_after).unwrap();
+            let mut layer = previous[layer_start..layer_end].to_owned();
+            for (first, after) in [
+                (
+                    ",\n        [\n          \"give me a moment to\",",
+                    "\n      ],\n      \"sentences\": [",
+                ),
+                (
+                    ",\n        \"give me a moment to finish this message before we leave.\"",
+                    "\n      ]",
+                ),
+            ] {
+                assert_eq!(layer.matches(first).count(), 1);
+                let start = layer.find(first).unwrap();
+                let suffix = &layer[start..];
+                assert_eq!(suffix.matches(after).count(), 1);
+                let end = start + suffix.find(after).unwrap();
+                assert!(start < end);
+                layer.replace_range(start..end, "");
+            }
+            previous.replace_range(layer_start..layer_end, &layer);
+            "7b83d83199a921f28b25a227ad150e98ef6e3ee8f60c5a2d5a0f084e7a39b44b"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "119bddcbce9d69a55e01038f52cfc566dd418997dcda248170f50e87f3e24f34"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3442);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 900);
+            remove_unique_append(&mut previous, ",\n    [\n      \"碰头\",", "\n  ]\n}");
+            "ed2e998006487fccdf70bcefe75e8980f26d2c21a4260e6da6676b887b3fe733"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "083a8152b3e71594e60ac005d4e590d79cce815807582b6fea89480bb74ac693"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 638);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 388);
+            remove_unique_append(&mut previous, ",\n    [\n      \"予定変更\",", "\n  ]\n}");
+            "537be7069924d76339c1f4ed64b09450510a6d57f5249bea1077654b5394962d"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected);
+    previous
+}
+
+fn builtin_before_daily_small_essentials(language: &str, source: &str) -> String {
+    // The new bounded in-layer append precedes the unchanged personal/history chain.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "7b83d83199a921f28b25a227ad150e98ef6e3ee8f60c5a2d5a0f084e7a39b44b"
+            );
+            assert_eq!(current["word_layers"].as_array().unwrap().len(), 63);
+            let layer_first = "\n    {\n      \"id\": \"daily_essentials_dialogue\",";
+            assert_eq!(previous.matches(layer_first).count(), 1);
+            let layer_start = previous.find(layer_first).unwrap();
+            let layer_after = "\n    }\n  ],\n  \"phrase_endings\": [";
+            let suffix = &previous[layer_start..];
+            assert_eq!(suffix.matches(layer_after).count(), 1);
+            let layer_end = layer_start + suffix.find(layer_after).unwrap();
+            let mut layer = previous[layer_start..layer_end].to_owned();
+            for (first, after) in [
+                (
+                    ",\n        [\n          \"the comb is still in the\",",
+                    "\n      ],\n      \"sentences\": [",
+                ),
+                (
+                    ",\n        \"the comb is still in the drawer with my hairbrush.\"",
+                    "\n      ]",
+                ),
+            ] {
+                assert_eq!(layer.matches(first).count(), 1);
+                let start = layer.find(first).unwrap();
+                let suffix = &layer[start..];
+                assert_eq!(suffix.matches(after).count(), 1);
+                let end = start + suffix.find(after).unwrap();
+                assert!(start < end);
+                layer.replace_range(start..end, "");
+            }
+            previous.replace_range(layer_start..layer_end, &layer);
+            "9ef6f80aedd0e1ffea70bc183abdb0d0bb551fc6808a80c1f92681bd141c3cb4"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "ed2e998006487fccdf70bcefe75e8980f26d2c21a4260e6da6676b887b3fe733"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3442);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 897);
+            remove_unique_append(&mut previous, ",\n    [\n      \"雨伞\",", "\n  ]\n}");
+            "dcc3f0a1c68ecea2e6c4c2e300611eecc3d89bef7e86e97552ce11f0737ca53d"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "537be7069924d76339c1f4ed64b09450510a6d57f5249bea1077654b5394962d"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 638);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 385);
+            remove_unique_append(&mut previous, ",\n    [\n      \"日傘\",", "\n  ]\n}");
+            "6b0e58f650657267c1bd5670a852fb1e23f1a6b93347c979ab80dcf600ea0282"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected);
+    previous
+}
+
+fn builtin_before_daily_personal_items(language: &str, source: &str) -> String {
+    // Bind this exact append before the unchanged living-room/history chain.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = source.to_owned();
+    let expected = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "9ef6f80aedd0e1ffea70bc183abdb0d0bb551fc6808a80c1f92681bd141c3cb4"
+            );
+            assert_eq!(current["word_layers"].as_array().unwrap().len(), 63);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_essentials_dialogue\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "cdcd49c76d7f7c7575dbe5d831a26c90a00db39f054d5c96ad71b792f5b73e5d"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "dcc3f0a1c68ecea2e6c4c2e300611eecc3d89bef7e86e97552ce11f0737ca53d"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3442);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 894);
+            remove_unique_append(&mut previous, ",\n    [\n      \"梳子\",", "\n  ]\n}");
+            "17cf01cc061faaea9f247a4713deb3cfaf3cc2048e9d14a2f64e04407c8d5a70"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "6b0e58f650657267c1bd5670a852fb1e23f1a6b93347c979ab80dcf600ea0282"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 638);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 382);
+            remove_unique_append(&mut previous, ",\n    [\n      \"手袋\",", "\n  ]\n}");
+            "be1c068f5cf7fc624099707fb95d283727fe43500cd8ff3ab8f556998f4cdcc9"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected);
+    previous
+}
+
+fn builtin_before_daily_living_room(language: &str, source: &str) -> String {
+    // Bind this exact append, then enter the unchanged historical inverse chain.
+    let current: Value = serde_json::from_str(source).unwrap();
+    assert_eq!(current["language"], language);
+    let mut previous = living_room_reading::without_living_room_reading(source);
+    let expected = match language {
+        "en" => {
+            assert_eq!(
+                source_sha256(source),
+                "cdcd49c76d7f7c7575dbe5d831a26c90a00db39f054d5c96ad71b792f5b73e5d"
+            );
+            assert_eq!(current["word_layers"].as_array().unwrap().len(), 62);
+            remove_unique_append(
+                &mut previous,
+                ",\n    {\n      \"id\": \"daily_living_room\",",
+                "\n  ],\n  \"phrase_endings\": [",
+            );
+            "0093f628ea334d37d6649ab16cafaab4bc6041b310c4ab2785bd0481ccd5d640"
+        }
+        "zh-Hans" => {
+            assert_eq!(
+                source_sha256(source),
+                "17cf01cc061faaea9f247a4713deb3cfaf3cc2048e9d14a2f64e04407c8d5a70"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 3442);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 891);
+            remove_unique_append(&mut previous, ",\n    [\n      \"遥控器\",", "\n  ]\n}");
+            "7e5e0e8cd2f223cd4bd8308399485477ca960980a1272c6fe2b31cec0fcaa490"
+        }
+        "ja" => {
+            assert_eq!(
+                source_sha256(source),
+                "be1c068f5cf7fc624099707fb95d283727fe43500cd8ff3ab8f556998f4cdcc9"
+            );
+            assert_eq!(current["readings"].as_array().unwrap().len(), 638);
+            assert_eq!(current["continuations"].as_array().unwrap().len(), 379);
+            remove_unique_append(&mut previous, ",\n    [\n      \"リモコン\",", "\n  ]\n}");
+            "5b46a3322bbb39aba7285793189c04d3945945e33ca0405dd22eb8f84ef2f875"
+        }
+        _ => unreachable!(),
+    };
+    assert_eq!(source_sha256(&previous), expected);
+    previous
 }
 
 fn builtin_before_daily_table_items(language: &str, source: &str) -> String {
@@ -2425,7 +2806,16 @@ fn japanese_internet_preserves_all_eighteen_source_bytes_and_catalog_positions()
         );
     }
     for (language, source, expected) in BUILTIN {
-        let before_table_items = builtin_before_daily_table_items(language, source);
+        let before_release_contexts = release_storage_context::restore_pre_release_contexts(source);
+        let before_progress = builtin_before_daily_progress(language, &before_release_contexts);
+        let before_clarity = builtin_before_daily_clarity(language, &before_progress);
+        let before_coordination = builtin_before_daily_coordination(language, &before_clarity);
+        let before_small_essentials =
+            builtin_before_daily_small_essentials(language, &before_coordination);
+        let before_personal_items =
+            builtin_before_daily_personal_items(language, &before_small_essentials);
+        let before_living_room = builtin_before_daily_living_room(language, &before_personal_items);
+        let before_table_items = builtin_before_daily_table_items(language, &before_living_room);
         let before_pocket_items = builtin_before_daily_pocket_items(language, &before_table_items);
         let before_washroom = builtin_before_daily_washroom(language, &before_pocket_items);
         let before_entryway = builtin_before_daily_entryway(language, &before_washroom);

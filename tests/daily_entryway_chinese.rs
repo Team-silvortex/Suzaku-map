@@ -190,11 +190,11 @@ fn entryway_adds_nine_words_six_contexts_and_twelve_authors_without_duplicating_
     let zh = lexicon::builtin("zh-Hans").unwrap();
     assert_eq!(
         (zh.readings().len(), zh.continuations().count()),
-        (3441, 888)
+        (3442, 906)
     );
     assert_eq!(
         zh.continuations().map(|(_, vs)| vs.len()).sum::<usize>(),
-        1774
+        1810
     );
     assert_eq!((WORDS.len(), TONES.len(), PARTIALS.len()), (9, 9, 6));
     for (e, &(reading, text)) in zh.readings()[3432..3441].iter().zip(WORDS) {

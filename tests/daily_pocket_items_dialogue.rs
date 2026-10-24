@@ -1,4 +1,6 @@
 //! Data-only wallet, coin and receipt locations; not payment processing or financial advice.
+#[path = "support/living_room_reading.rs"]
+mod living_room_reading;
 use ring::digest::{SHA256, digest};
 use std::{
     collections::HashSet,
@@ -191,7 +193,7 @@ fn sha(text: &str) -> String {
         .collect()
 }
 fn old_resource(language: &str, raw: &str) -> String {
-    let mut old = raw.to_owned();
+    let mut old = living_room_reading::without_living_room_reading(raw);
     let first = match language {
         "en" => ",\n    {\n      \"id\": \"daily_pocket_items\",",
         "zh-Hans" => ",\n    [\n      \"钱包\",",
@@ -240,7 +242,7 @@ fn pocket_items_preserves_exact_old_resources_readings_flags_rank_sources_and_au
 fn pocket_items_adds_only_three_contexts_and_six_authors_per_language_without_new_forms_or_readings()
  {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 61);
+    assert_eq!(en.word_layers().len(), 63);
     let layer = &en.word_layers()[59];
     assert_eq!(layer.id, "daily_pocket_items");
     assert!(layer.words.is_empty());
@@ -277,7 +279,7 @@ fn pocket_items_adds_only_three_contexts_and_six_authors_per_language_without_ne
         assert_eq!(&layer.sentences[2 * i..2 * i + 2], authors);
     }
     for (language, entries, reads, contexts, authors) in
-        [("zh-Hans", ZH, 3441, 888, 1774), ("ja", JA, 638, 376, 751)]
+        [("zh-Hans", ZH, 3442, 906, 1810), ("ja", JA, 638, 394, 787)]
     {
         let data = builtin(language).unwrap();
         assert_eq!(data.readings().len(), reads);

@@ -493,5 +493,5 @@ fn courtesy_keeps_all_twenty_previous_layers_full_wording_and_every_word_rank() 
     // Courtesy itself reuses only old indexed words. Later independent layers
     // may append new forms, but must retain every old rank and the same budget.
     assert_eq!(word_positions(&en.word_layers()[..21]), previous_positions);
-    assert_eq!(current.len(), 6213);
+    assert_eq!(current.len(), 6216);
 }

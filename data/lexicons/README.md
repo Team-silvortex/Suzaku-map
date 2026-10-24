@@ -1,5 +1,23 @@
 # 内置词库数据
 
+**已发布基线：[0.9.6 / build46](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.6)，准确源码 `c5604aaff8bc6121f318ca846da6f058866c4d25`。** [CI40056999646](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/40056999646)八门成功，accepted artifact `12546279679` 与四个Release资产已验收并重新下载逐字节比对。仍为非latest的Linux Alpha prerelease；下方准备期pending和旧未提交标签保留为历史。日常安装未变，已取消自动跟进未恢复。
+
+<!-- release-0.9.7:start -->
+**New source candidate: 0.9.7 / build 47 — Everyday dialogue fallback.** Six batches add 57 trilingual contexts / 114 authored sentences, three English forms and one Chinese Word reading. One independent versioned full Rust run passes 2,805 tests / zero failures / 32 original ignores in 301 unfiltered groups including Doc-tests; all 70 new cases occur once. Separately, 19 isolated UI gates and strict all-target/all-feature locked-offline Clippy with warnings denied pass (61.25s main process), not added to the Rust total. Only six data strings were withdrawn to restore old Chinese pools; production algorithms, model protocols, 25 packs/SDK and candidate budgets remain unchanged. Exact-commit remote CI and accepted-package validation remain pending; no 0.9.7 tag, download or publication is claimed. The six uncommitted batch records below remain historical. The personal installation and cancelled automation remain unchanged. See [0.9.7 preparation](../../docs/releases/0.9.7.md).
+<!-- release-0.9.7:end -->
+
+**当前未提交：日常进度反馈（2026-10-24）**。复用既有词，新增三语9语境、18作者句，零新词形/读音；EN6216/915/1794（63层），ZH3442/906/1810，JA638/394/787。独立单次有界回归1194过、0失败、2原ignore，83组零筛除（完整lib+82指定集成目标），11新项只计一次；严格all-target/all-feature Clippy-Dwarnings实际通过（59.61s main process）。旧数据、模型协议、生产算法、25包/SDK、分页配额和0.9.6/46版本不变。仅有限进度表达，不执行任务、发送消息或自动催办；非本轮全仓/Doc-tests/UI/原生/实模/性能/安装/远端CI验收，未提交、不在已发布0.9.6包内，不恢复已取消自动跟进。
+
+**当前未提交：日常澄清与确认（2026-10-24）**。复用既有词，新增三语9语境、18作者句，零新词形/读音；EN6216/912/1788（63层），ZH3442/903/1804，JA638/391/781。独立单次有界回归1319过、0失败、2原ignore，99组零筛除（完整lib+98指定集成目标），11新项只计一次；严格all-target/all-feature Clippy-Dwarnings实际通过（62.53s main process）。旧数据、模型协议、生产算法、25包/SDK、分页配额和0.9.6/46版本不变。仅有限澄清表达，不执行预约、任务或通用问答；非本轮全仓/Doc-tests/UI/原生/实模/性能/安装/远端CI验收，未提交、不在已发布0.9.6包内，不恢复已取消自动跟进。
+
+**当前未提交：日常沟通与安排（2026-10-24）**。复用既有词，新增三语9语境、18作者句，零新词形/读音；EN6216/909/1782（63层），ZH3442/900/1798，JA638/388/775。独立单次有界回归1215过、0失败、2原ignore，83组零筛除（完整lib+82指定集成目标），10新项只计一次；严格all-target/all-feature Clippy-Dwarnings实际通过（71.93s main process）。旧数据、模型协议、生产算法、25包/SDK、分页配额和0.9.6/46版本不变。仅日常沟通表达，不实际发送消息或安排预约；非本轮全仓/Doc-tests/UI/原生/实模/性能/安装/远端CI验收，未提交、不在已发布0.9.6包内，不恢复已取消自动跟进。
+
+**当前未提交：梳子、手帕与发刷等常用小物（2026-10-24）**。0.10.0前继续以高频中英日作者fallback扩充为主线；本批新增英文comb/handkerchief/hairbrush三个词形、三语9语境18作者句，零新中日读音。三词由既有作者token索引注册，第63层daily_essentials_dialogue的words[]仍为空，不另占层。EN6216/906/1776（63层），ZH3442/897/1792，JA638/385/769。独立单次有界回归1311过、0失败、2原ignore，93组零筛除（完整库+92集成目标），11新项只含一次；严格all-target/all-feature Clippy-Dwarnings实际通过。首整轮1310过1失败2ignore/93组保留；仅撤回新靴下语境/双句换已有レインコート，既有Word/readings与旧回放/hash/权重/预算/runtime不改，修后focused4+11不叠加最终结果。旧6213首现rank、生产逻辑、模型协议、25包/SDK及0.9.6/46版本保持。bare com不提权、不承诺comb首页；具体补全和原文提交按实际边界测试。不是本轮全仓/Doc-tests/原生/UI/实模/性能/安装/远端CI验收；未提交推送、不在已发布0.9.6包内，不改日常安装或已取消自动跟进。
+
+**当前未提交：随身配饰取放与整理（2026-10-24）**。0.10.0前继续以中英日作者fallback词库扩充为主线；本批新增12组语境、24条作者句，零新词形/读音。EN6213/903/1770（63层），ZH3442/894/1786，JA638/382/763。独立单次有界回归1135过、0失败、2原有显式ignore，70组零筛除（完整库+69集成目标），11新项只含一次；严格all-target/all-feature Clippy-Dwarnings实际通过。旧生产算法、模型协议、25包/SDK及0.9.6/46版本保持。只补有限物品交流文本，不感知物品或提供配饰建议；不是本轮全仓/Doc-tests/原生/UI/实模/性能/安装/远端CI验收，未提交推送、未进入已发布0.9.6包，日常安装与已取消自动跟进不变。
+
+**当前未提交：客厅常用小物取放（2026-10-24）**。新增中文Word读音“遥控器”，三语各3组语境、6条作者句，合计9组/18句；英文旧6213词形不增，当前62层/897语境/1758句；ZH3442/891/1780，JA638/379/757。独立有界回归1093过、0失败、2原有显式ignore，66组零筛除（完整库+65集成目标），12新项只含一次；严格all-target/all-feature Clippy-Dwarnings通过。旧数据、历史窗口/hash、生产算法、模型协议、25包/SDK及0.9.6/46版本保持，测试仅精确同步当前总量并严格逆掉新读音。只补有限交流文本，不感知/控制设备或提供电池建议；不是本轮全仓/Doc-tests/原生/UI/实模/性能/安装/远端CI验收，未进入已发布0.9.6包。
+
 <!-- release-0.9.6:start -->
 **0.9.6 / build46 源码准备：日用fallback与候选连续性。** 汇总六批词库：新增20英文内置词形、31中文和16日文Word读音，三语共81语境、162作者句；并包含三处有界中日候选来源/保位修正，不是纯数据版本。本版独立完整Rust2735过、0失败、32原ignore，294唯一组含Doc-tests且零筛除；另19项隔离UI及严格all-target/all-feature Clippy-Dwarnings通过（58.69s），不叠加到完整Rust总数。准确提交的远端八门和accepted安装包仍待独立验收，尚未声称0.9.6标签、下载或发布。25包/SDK、模型协议与12行/6项分页预算不变。不恢复已取消的定时任务，不替换日常安装或输入法配置；下方历史记录原样保留。
 <!-- release-0.9.6:end -->

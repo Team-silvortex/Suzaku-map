@@ -1,6 +1,8 @@
 //! Fixed table-item location dialogue; no sensing, food advice or device control.
 #[path = "support/daily_dialogue.rs"]
 mod daily_dialogue;
+#[path = "support/living_room_reading.rs"]
+mod living_room_reading;
 use daily_dialogue::{EnglishCase, ReadingCase, Suite};
 use std::collections::HashSet;
 use suzaku_map::{
@@ -112,16 +114,21 @@ fn table_items_preserves_exact_old_resources_readings_flags_rank_sources_and_aut
             "119355914f5df3f2c73d2423f7e78c4ed833f81547b7ca09fcfafe7212a107ba",
         ),
     ] {
-        SUITE.preserve_resource(raw, first, after, hash);
+        SUITE.preserve_resource(
+            &living_room_reading::without_living_room_reading(raw),
+            first,
+            after,
+            hash,
+        );
     }
 }
 
 #[test]
 fn table_items_adds_only_three_contexts_six_authors_per_language_and_no_forms_or_readings() {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 61);
-    assert_eq!(en.next_words().count(), 894);
-    assert_eq!(en.sentences().count(), 1752);
+    assert_eq!(en.word_layers().len(), 63);
+    assert_eq!(en.next_words().count(), 915);
+    assert_eq!(en.sentences().count(), 1794);
     let layer = &en.word_layers()[60];
     assert_eq!(layer.id, "daily_table_items");
     assert!(layer.words.is_empty());
@@ -157,8 +164,8 @@ fn table_items_adds_only_three_contexts_six_authors_per_language_and_no_forms_or
         assert_eq!(&layer.sentences[2 * i..2 * i + 2], authors);
     }
     for (language, entries, reads, contexts, authors, old_contexts) in [
-        ("zh-Hans", ZH, 3441, 888, 1774, 885),
-        ("ja", JA, 638, 376, 751, 373),
+        ("zh-Hans", ZH, 3442, 906, 1810, 885),
+        ("ja", JA, 638, 394, 787, 373),
     ] {
         let data = builtin(language).unwrap();
         assert_eq!(data.readings().len(), reads);

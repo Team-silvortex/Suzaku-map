@@ -12898,6 +12898,211 @@
         "the spare napkins are in the basket next to the cups.",
         "the spare napkins are in the cupboard above the sink."
       ]
+    },
+    {
+      "id": "daily_living_room",
+      "words": [],
+      "next_words": [
+        [
+          "the remote is still on the",
+          [
+            "sofa",
+            "table"
+          ]
+        ],
+        [
+          "i put the spare batteries in the",
+          [
+            "drawer",
+            "box"
+          ]
+        ],
+        [
+          "the magazines are together in the",
+          [
+            "basket",
+            "tray"
+          ]
+        ]
+      ],
+      "sentences": [
+        "the remote is still on the sofa next to the blanket.",
+        "the remote is still on the table next to the lamp.",
+        "i put the spare batteries in the drawer by the sofa.",
+        "i put the spare batteries in the box with the cables.",
+        "the magazines are together in the basket by the sofa.",
+        "the magazines are together in the tray on the table."
+      ]
+    },
+    {
+      "id": "daily_essentials_dialogue",
+      "words": [],
+      "next_words": [
+        [
+          "my scarf is still on the",
+          [
+            "chair",
+            "rack"
+          ]
+        ],
+        [
+          "the gloves are together in the",
+          [
+            "drawer",
+            "basket"
+          ]
+        ],
+        [
+          "i left my cap on the",
+          [
+            "shelf",
+            "chair"
+          ]
+        ],
+        [
+          "my belt is still in the",
+          [
+            "wardrobe",
+            "drawer"
+          ]
+        ],
+        [
+          "i put my watch in the",
+          [
+            "pouch",
+            "drawer"
+          ]
+        ],
+        [
+          "the spare buttons are in the",
+          [
+            "box",
+            "pouch"
+          ]
+        ],
+        [
+          "the comb is still in the",
+          [
+            "drawer",
+            "pouch"
+          ]
+        ],
+        [
+          "my handkerchief is still in the",
+          [
+            "pocket",
+            "drawer"
+          ]
+        ],
+        [
+          "i left the hairbrush on the",
+          [
+            "shelf",
+            "table"
+          ]
+        ],
+        [
+          "give me a moment to",
+          [
+            "finish",
+            "check"
+          ]
+        ],
+        [
+          "we can talk again",
+          [
+            "later",
+            "tomorrow"
+          ]
+        ],
+        [
+          "tell me when you are",
+          [
+            "ready",
+            "free"
+          ]
+        ],
+        [
+          "before we start, i want to confirm",
+          [
+            "what",
+            "where"
+          ]
+        ],
+        [
+          "by later, do you mean",
+          [
+            "tonight",
+            "tomorrow"
+          ]
+        ],
+        [
+          "for our next meeting, would you prefer",
+          [
+            "morning",
+            "afternoon"
+          ]
+        ],
+        [
+          "the first part is",
+          [
+            "done",
+            "ready"
+          ]
+        ],
+        [
+          "one detail is still",
+          [
+            "missing",
+            "wrong"
+          ]
+        ],
+        [
+          "once this part is done, we can",
+          [
+            "review",
+            "start"
+          ]
+        ]
+      ],
+      "sentences": [
+        "my scarf is still on the chair by the door.",
+        "my scarf is still on the rack next to my coat.",
+        "the gloves are together in the drawer with my scarf.",
+        "the gloves are together in the basket next to my bag.",
+        "i left my cap on the shelf above my shoes.",
+        "i left my cap on the chair by the bed.",
+        "my belt is still in the wardrobe next to my coat.",
+        "my belt is still in the drawer with my gloves.",
+        "i put my watch in the pouch next to my keys.",
+        "i put my watch in the drawer with the spare key.",
+        "the spare buttons are in the box on the shelf.",
+        "the spare buttons are in the pouch in the top drawer.",
+        "the comb is still in the drawer with my hairbrush.",
+        "the comb is still in the pouch with my handkerchief.",
+        "my handkerchief is still in the pocket of my jacket.",
+        "my handkerchief is still in the drawer with my scarf.",
+        "i left the hairbrush on the shelf next to the shampoo.",
+        "i left the hairbrush on the table by the bed.",
+        "give me a moment to finish this message before we leave.",
+        "give me a moment to check the address before we go.",
+        "we can talk again later when you have time.",
+        "we can talk again tomorrow after lunch.",
+        "tell me when you are ready to leave.",
+        "tell me when you are free for a quick call.",
+        "before we start, i want to confirm what you need.",
+        "before we start, i want to confirm where we should meet.",
+        "by later, do you mean tonight after dinner?",
+        "by later, do you mean tomorrow morning?",
+        "for our next meeting, would you prefer morning or afternoon?",
+        "for our next meeting, would you prefer afternoon or evening?",
+        "the first part is done, and i'm checking the rest.",
+        "the first part is ready, but the last part still needs work.",
+        "one detail is still missing, so i can't finish this part yet.",
+        "one detail is still wrong, so i'll fix it before we continue.",
+        "once this part is done, we can review it together.",
+        "once this part is done, we can start the next one."
+      ]
     }
   ],
   "phrase_endings": [

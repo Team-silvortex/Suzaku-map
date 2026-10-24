@@ -220,11 +220,11 @@ fn recycling_adds_exactly_twelve_words_six_contexts_and_twelve_authors() {
     let zh = lexicon::builtin("zh-Hans").unwrap();
     assert_eq!(
         (zh.readings().len(), zh.continuations().count()),
-        (3441, 888)
+        (3442, 906)
     );
     assert_eq!(
         zh.continuations().map(|(_, vs)| vs.len()).sum::<usize>(),
-        1774
+        1810
     );
     assert_eq!((WORDS.len(), TONES.len(), PARTIALS.len()), (12, 12, 6));
     for (e, &(reading, text)) in zh.readings()[3410..3422].iter().zip(WORDS) {

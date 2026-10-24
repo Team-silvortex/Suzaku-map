@@ -211,9 +211,9 @@ fn bedding_preserves_all_54_prior_layers_6187_first_seen_ranks_endings_and_raw_b
 #[test]
 fn bedding_fixed_layer_adds_only_six_forms_in_exact_first_occurrence_order() {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 61);
-    assert_eq!(en.next_words().count(), 894);
-    assert_eq!(en.sentences().count(), 1752);
+    assert_eq!(en.word_layers().len(), 63);
+    assert_eq!(en.next_words().count(), 915);
+    assert_eq!(en.sentences().count(), 1794);
     let layer = &en.word_layers()[54];
     assert_eq!(layer.id, "daily_bedding");
     assert_eq!(
@@ -238,7 +238,7 @@ fn bedding_fixed_layer_adds_only_six_forms_in_exact_first_occurrence_order() {
     );
     let old = indexed_occurrences(&en.word_layers()[..54]);
     let all = indexed_occurrences(en.word_layers());
-    assert_eq!(all.len(), 6213);
+    assert_eq!(all.len(), 6216);
     assert_eq!(&all[..6187], old.as_slice());
     assert_eq!(
         all[6187..6193]

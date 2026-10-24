@@ -102,11 +102,11 @@ fn signature(ime: &XRTabletImeEngine) -> u64 {
 #[test]
 fn four_action_readings_append_without_rewriting_previous_words_or_adding_canned_sentences() {
     let zh = lexicon::builtin("zh-Hans").unwrap();
-    assert_eq!(zh.readings().len(), 3441);
-    assert_eq!(zh.continuations().count(), 888);
+    assert_eq!(zh.readings().len(), 3442);
+    assert_eq!(zh.continuations().count(), 906);
     assert_eq!(
         zh.continuations().map(|(_, v)| v.len()).sum::<usize>(),
-        1774
+        1810
     );
     for (entry, &(reading, text, _)) in zh.readings()[3166..3170].iter().zip(ACTIONS) {
         assert_eq!((&*entry.reading, &*entry.text), (reading, text));
