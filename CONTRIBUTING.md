@@ -928,7 +928,40 @@ large incremental trees. For an interactive debugger, temporarily use
 afterwards; `CARGO_INCREMENTAL=1` explicitly opts back into the larger incremental cache.
 
 Version and feature changes can still leave several generations of project binaries and tests.
-After stopping builds and processes using those artifacts, first preview a package-scoped cleanup:
+Local precompiled artifacts now follow a graduated, manual retention policy:
+
+- Keep the newest known version's complete working set. For the previous version, keep main
+  programs, library artifacts and explicitly chosen representative regressions; older versions
+  keep main-program samples. Pin compatibility baselines when their complete artifacts matter.
+- Record version, target, profile, features and source identity separately. A dirty build and a
+  published build with the same version are not interchangeable. Cargo unit fingerprints are
+  local cache identities, not Git revisions or proof that a release passed CI.
+- Deduplicate only within an equivalent artifact identity using actual size and SHA-256,
+  preferring an explicitly canonical copy. A shared stem, modification date or Cargo filename
+  suffix is not proof of either the version or duplicate contents. Unknown provenance is kept.
+- Preserve third-party caches, local build headers, historical logs/failures, source snapshots,
+  manifests and checksum records. Do not prune remote releases, personal installations, input
+  data, model files or global caches as part of this local policy.
+
+`scripts/local-artifacts.py` consumes an explicit, reviewed inventory; it does not guess
+versions or run package binaries. Its default operation only plans. Use `plan --help` and
+`apply --help` for the inventory/report options. Before applying a plan, stop builds using
+the affected cache and check live executable, file-descriptor and mapping references. The
+explicit inactivity acknowledgement is not an automatic process detector. Review the exact
+plan and its SHA-256, then apply that digest, retaining the result report. Apply rechecks the
+whole batch (including retained files) and takes the Cargo profile locks; it unlinks only
+listed, unchanged regular files, never directory trees. Shared inodes and unknown artifacts
+are retained. Do not restore a cancelled automation to run this policy.
+
+For release packages, keep complete newest installers and checksums, a previous-version
+rollback set, and pinned compatibility representatives. An older representative tar archive
+does not imply a complete installer set. Cross-version retirement is retention, not byte
+deduplication. Preserve acceptance/provenance records even when an old rebuildable payload
+or a re-download copy is retired; original CI ZIPs are evidence containers, not byte-identical
+copies of a tar/deb merely because their member contents match.
+
+If instead you explicitly want to discard the project's caches and rebuild, first preview
+a package-scoped cleanup after stopping builds and processes using those artifacts:
 
 ```bash
 cargo clean --locked --offline -p suzaku-map --profile dev --dry-run

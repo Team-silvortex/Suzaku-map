@@ -13103,6 +13103,149 @@
         "once this part is done, we can review it together.",
         "once this part is done, we can start the next one."
       ]
+    },
+    {
+      "id": "daily_presence_dialogue",
+      "words": [],
+      "next_words": [
+        [
+          "i need to step away from the",
+          [
+            "chat",
+            "screen"
+          ]
+        ],
+        [
+          "i'm back and can",
+          [
+            "continue",
+            "listen"
+          ]
+        ],
+        [
+          "let's continue this after",
+          [
+            "lunch",
+            "dinner"
+          ]
+        ],
+        [
+          "are you ready to",
+          [
+            "order",
+            "leave"
+          ]
+        ],
+        [
+          "if you need a hand with the",
+          [
+            "bags",
+            "dishes"
+          ]
+        ],
+        [
+          "while we're waiting, we could",
+          [
+            "sit",
+            "walk"
+          ]
+        ],
+        [
+          "actually, i meant",
+          [
+            "tomorrow",
+            "tonight"
+          ]
+        ],
+        [
+          "let me put that a little more",
+          [
+            "clearly",
+            "simply"
+          ]
+        ],
+        [
+          "could we check the",
+          [
+            "details",
+            "times"
+          ]
+        ],
+        [
+          "if that does not work, we could",
+          [
+            "try",
+            "wait"
+          ]
+        ],
+        [
+          "would you be happy with",
+          [
+            "tea",
+            "coffee"
+          ]
+        ],
+        [
+          "we could go with the",
+          [
+            "first",
+            "second"
+          ]
+        ],
+        [
+          "something came up, could we meet",
+          [
+            "tomorrow",
+            "later"
+          ]
+        ],
+        [
+          "if you are running late, we can",
+          [
+            "wait",
+            "start"
+          ]
+        ],
+        [
+          "let's keep the same place and change the",
+          [
+            "time",
+            "day"
+          ]
+        ]
+      ],
+      "sentences": [
+        "i need to step away from the chat for a few minutes.",
+        "i need to step away from the screen until after lunch.",
+        "i'm back and can continue where we left off.",
+        "i'm back and can listen to the rest now.",
+        "let's continue this after lunch when we're both free.",
+        "let's continue this after dinner if you have time.",
+        "are you ready to order or do you need another minute?",
+        "are you ready to leave or should we wait a little longer?",
+        "if you need a hand with the bags, i can carry one.",
+        "if you need a hand with the dishes, just let me know.",
+        "while we're waiting, we could sit over there.",
+        "while we're waiting, we could walk around for a few minutes.",
+        "actually, i meant tomorrow morning, not today.",
+        "actually, i meant tonight after dinner, not tomorrow.",
+        "let me put that a little more clearly: we can start after lunch.",
+        "let me put that a little more simply: we should wait here.",
+        "could we check the details before we leave?",
+        "could we check the times again before we make plans?",
+        "if that does not work, we could try a different place.",
+        "if that does not work, we could wait until tomorrow.",
+        "would you be happy with tea instead of coffee?",
+        "would you be happy with coffee while we wait?",
+        "we could go with the first option if that works for you.",
+        "we could go with the second option and leave a little later.",
+        "something came up, could we meet tomorrow at the same time?",
+        "something came up, could we meet later this week?",
+        "if you are running late, we can wait here for a few minutes.",
+        "if you are running late, we can start a little later.",
+        "let's keep the same place and change the time to three instead.",
+        "let's keep the same place and change the day to friday."
+      ]
     }
   ],
   "phrase_endings": [

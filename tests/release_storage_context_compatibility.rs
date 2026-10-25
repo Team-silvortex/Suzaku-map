@@ -1,4 +1,6 @@
 //! Release-only context withdrawals; original legacy oracles stay unchanged.
+#[path = "support/presence_resource.rs"]
+mod presence_resource;
 #[path = "support/release_storage_context.rs"]
 mod release_storage_context;
 
@@ -75,11 +77,14 @@ fn with_contexts(raw: &str, contexts: &serde_json::Value) -> String {
 
 #[test]
 fn release_storage_exact_six_string_inverse_preserves_readings_and_all_other_contexts() {
-    assert_eq!(sha(ZH), CURRENT_SHA);
-    let previous = restore(ZH);
+    // Preserve this release's exact 906-context snapshot, not runtime candidates.
+    let published = presence_resource::without_presence(ZH);
+    let zh = published.as_str();
+    assert_eq!(sha(zh), CURRENT_SHA);
+    let previous = restore(zh);
     assert_eq!(sha(&previous), BEFORE_SHA);
     let old: serde_json::Value = serde_json::from_str(&previous).unwrap();
-    let new: serde_json::Value = serde_json::from_str(ZH).unwrap();
+    let new: serde_json::Value = serde_json::from_str(zh).unwrap();
     assert_eq!(old["readings"], new["readings"]);
     assert_eq!(new["readings"].as_array().unwrap().len(), 3442);
     assert_eq!(new["continuations"].as_array().unwrap().len(), 906);
@@ -104,8 +109,8 @@ fn release_storage_exact_six_string_inverse_preserves_readings_and_all_other_con
         new["continuations"][903],
         serde_json::json!(["未完成", PROGRESS_AUTHORS])
     );
-    let storage: serde_json::Value = serde_json::from_str(&storage_only(ZH)).unwrap();
-    let progress: serde_json::Value = serde_json::from_str(&progress_only(ZH)).unwrap();
+    let storage: serde_json::Value = serde_json::from_str(&storage_only(zh)).unwrap();
+    let progress: serde_json::Value = serde_json::from_str(&progress_only(zh)).unwrap();
     let mut expected_storage = new.clone();
     expected_storage["continuations"][896] = old["continuations"][896].clone();
     assert_eq!(storage, expected_storage);
@@ -127,7 +132,7 @@ fn release_storage_exact_six_string_inverse_preserves_readings_and_all_other_con
             PROGRESS_AUTHORS[1],
             1,
         );
-    assert_eq!(roundtrip, ZH);
+    assert_eq!(roundtrip, zh);
 }
 
 #[test]
@@ -232,6 +237,9 @@ fn release_storage_new_words_four_authors_and_literals_commit_exactly_once() {
 #[test]
 fn release_storage_inverse_preserves_other_languages_future_tails_and_strict_slot_readings_guards()
 {
+    // Preserve this release's exact 906-context snapshot, not runtime candidates.
+    let published = presence_resource::without_presence(ZH);
+    let zh = published.as_str();
     for raw in [
         include_str!("../data/lexicons/en.json"),
         include_str!("../data/lexicons/ja.json"),
@@ -240,7 +248,7 @@ fn release_storage_inverse_preserves_other_languages_future_tails_and_strict_slo
         assert_eq!(progress_only(raw), raw);
         assert_eq!(restore(raw), raw);
     }
-    let current: serde_json::Value = serde_json::from_str(ZH).unwrap();
+    let current: serde_json::Value = serde_json::from_str(zh).unwrap();
     let base = current["continuations"].clone();
     let mut extra = base.clone();
     extra
@@ -248,31 +256,31 @@ fn release_storage_inverse_preserves_other_languages_future_tails_and_strict_slo
         .unwrap()
         .push(serde_json::json!(["以后追加", ["仅用于原文保真检查。"]]));
     let future_old: serde_json::Value =
-        serde_json::from_str(&restore(&with_contexts(ZH, &extra))).unwrap();
+        serde_json::from_str(&restore(&with_contexts(zh, &extra))).unwrap();
     assert_eq!(
         future_old["continuations"].as_array().unwrap().last(),
         extra.as_array().unwrap().last()
     );
     let mut unrelated = base.clone();
     unrelated[0][1][0] = "旧语境被篡改，必须由调用方完整旧hash发现。".into();
-    assert_ne!(sha(&restore(&with_contexts(ZH, &unrelated))), BEFORE_SHA);
+    assert_ne!(sha(&restore(&with_contexts(zh, &unrelated))), BEFORE_SHA);
     let mut invalid = Vec::new();
     let mut contexts = base.clone();
     contexts.as_array_mut().unwrap().pop();
-    invalid.push(with_contexts(ZH, &contexts));
+    invalid.push(with_contexts(zh, &contexts));
     for slot in [896, 903] {
         let mut contexts = base.clone();
         contexts.as_array_mut().unwrap().swap(slot - 1, slot);
-        invalid.push(with_contexts(ZH, &contexts));
+        invalid.push(with_contexts(zh, &contexts));
         let mut contexts = base.clone();
         contexts.as_array_mut().unwrap().push(base[slot].clone());
-        invalid.push(with_contexts(ZH, &contexts));
+        invalid.push(with_contexts(zh, &contexts));
         let mut contexts = base.clone();
         contexts[slot][1].as_array_mut().unwrap().pop();
-        invalid.push(with_contexts(ZH, &contexts));
+        invalid.push(with_contexts(zh, &contexts));
         let mut contexts = base.clone();
         contexts[slot][1].as_array_mut().unwrap().swap(0, 1);
-        invalid.push(with_contexts(ZH, &contexts));
+        invalid.push(with_contexts(zh, &contexts));
     }
     for text in ["耳塞", "收纳袋", "未完成", "卡住"] {
         let mut changed = current.clone();
@@ -285,7 +293,7 @@ fn release_storage_inverse_preserves_other_languages_future_tails_and_strict_slo
         entry["kind"] = "sentence".into();
         invalid.push(serde_json::to_string_pretty(&changed).unwrap());
     }
-    invalid.push(ZH.replacen("  \"readings\": [", "  \"readings\":  [", 1));
+    invalid.push(zh.replacen("  \"readings\": [", "  \"readings\":  [", 1));
     invalid.push("{\"language\":\"zh\"}".into());
     for raw in invalid {
         assert!(

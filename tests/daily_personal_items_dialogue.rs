@@ -148,9 +148,9 @@ fn personal_items_preserves_exact_old_resources_readings_flags_rank_sources_and_
 #[test]
 fn personal_items_adds_twelve_contexts_twenty_four_authors_without_new_forms_or_readings() {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 63);
-    assert_eq!(en.next_words().count(), 915);
-    assert_eq!(en.sentences().count(), 1794);
+    assert_eq!(en.word_layers().len(), 64);
+    assert_eq!(en.next_words().count(), 930);
+    assert_eq!(en.sentences().count(), 1824);
     let layer = &en.word_layers()[62];
     assert_eq!(layer.id, "daily_essentials_dialogue");
     assert!(layer.words.is_empty());
@@ -189,8 +189,8 @@ fn personal_items_adds_twelve_contexts_twenty_four_authors_without_new_forms_or_
         assert_eq!(&layer.sentences[2 * i..2 * i + 2], authors);
     }
     for (language, entries, reads, contexts, authors, old_contexts) in [
-        ("zh-Hans", ZH, 3442, 906, 1810, 891),
-        ("ja", JA, 638, 394, 787, 379),
+        ("zh-Hans", ZH, 3442, 921, 1840, 891),
+        ("ja", JA, 638, 409, 817, 379),
     ] {
         let data = builtin(language).unwrap();
         assert_eq!(data.readings().len(), reads);
@@ -220,7 +220,7 @@ fn personal_items_historical_reading_inverse_freezes_all_three_old_context_recor
     );
     let previous: serde_json::Value = serde_json::from_str(&projected).unwrap();
     assert_eq!(previous["readings"].as_array().unwrap().len(), 3441);
-    assert_eq!(previous["continuations"].as_array().unwrap().len(), 906);
+    assert_eq!(previous["continuations"].as_array().unwrap().len(), 921);
     // These fixed old strings test the inverse itself, not candidate discovery.
     for old in [
         "\"遥控器\",\n      [",

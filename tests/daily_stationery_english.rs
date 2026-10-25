@@ -205,9 +205,9 @@ fn stationery_preserves_all_50_prior_layers_6159_first_seen_ranks_and_phrase_end
 #[test]
 fn stationery_fixed_layer_adds_only_eight_forms_in_exact_first_occurrence_order() {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 63);
-    assert_eq!(en.next_words().count(), 915);
-    assert_eq!(en.sentences().count(), 1794);
+    assert_eq!(en.word_layers().len(), 64);
+    assert_eq!(en.next_words().count(), 930);
+    assert_eq!(en.sentences().count(), 1824);
     let layer = &en.word_layers()[50];
     assert_eq!(layer.id, "daily_stationery");
     assert_eq!(

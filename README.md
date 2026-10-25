@@ -2,6 +2,34 @@
 
 **Published baseline: [0.9.7 / build 47](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.7), exact source `354030b1107b20ad2447a9f93aaa6cf6beba1c40`.** All eight gates of [CI 40081142818](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/40081142818) passed; accepted artifact `12556460951` and all four uploaded Linux assets were independently validated and re-downloaded for byte comparison before publication. Linux Alpha prerelease, not latest stable. The source-preparation pending and earlier uncommitted labels below are historical. The personal installation is unchanged and the cancelled automation remains cancelled.
 
+<!-- release-0.9.8-source:start -->
+**0.9.8 / build48 源码版本准备：只提交与推送，不创建对外发行。** 五批日常交流新增45组三语语境、90条作者句，零新词形或读音。EN6216/930/1824（64层）、ZH3442/921/1840、JA638/409/817；全部6216英文首次rank、既有中日读音/flags/顺序保持。新版本独立完整Rust实际2865过、0失败、32原ignore，306唯一组含Doc-tests且零筛除，60新项只计一次。另19项隔离UI门禁、严格locked/offline全target/all-feature Clippy-Dwarnings实际通过（60.24s），Python合计100项（含17项临时文件工具测试）独立记录，不加Rust总数。手工本地产物保留工具及文档纳入源码，不执行清理；生产输入算法、模型协议、25包/SDK和分页配额保持。远端准确提交CI尚待独立确认；不声明新包验收、实模、物理键盘、性能或个人安装。不创建0.9.8标签、GitHub Release或安装包，不恢复定时任务；已发布0.9.7仍是下载基线。
+
+## Earlier development records (historical)
+
+The pending and uncommitted labels below describe their recorded snapshots; they are not the current0.9.8 source-validation status.
+<!-- release-0.9.8-source:end -->
+
+<!-- daily-rescheduling:start -->
+**当前未提交：日常临时变动、改期与计划调整（2026-10-25）**。复用既有词形和读音，新增三语9组语境、18条作者句：EN6216/930/1824（64层），ZH3442/921/1840，JA638/409/817。英文继续扩充第64层daily_presence_dialogue，words仍为空，本层现15语境30作者句，不增第65层；全部6216首次rank保持。独立有界回归1318过、0失败、2原ignore，93唯一组零筛除（完整lib+92集成目标），新12项只计一次；严格locked/offline全target/all-feature Clippy-Dwarnings实际main/owning均0（72.87s main process）。终局QA实际Cargo主进程/独立核验均0，父等待进程实际0，与Cargo主退出码分别记录。本轮真实before为4过8失败，main/owning实际101/1；before、独立预检及私有子进程结果不加终局总数。有限作者输入，不读取日历或代为改约；生产算法、模型协议、25包/SDK及分页配额保持。本轮不是全仓/Doc-tests/UI/原生键盘/实模/性能/安装/远端CI验收。仍0.9.7/47未提交，不在已发布0.9.7包内；不提交推送、发布、替换日常安装或恢复定时任务。下方旧记录完整保留为历史。
+<!-- daily-rescheduling:end -->
+
+<!-- daily-alternatives:start -->
+**当前未提交：日常备选、选择与商量（2026-10-25）**。复用既有词形和读音，新增三语9组语境、18条作者句：EN6216/927/1818（64层），ZH3442/918/1834，JA638/406/811。英文继续扩充第64层`daily_presence_dialogue`，`words`仍为空，不增第65层；全部6216首次rank保持。独立有界回归1280过、0失败、2原ignore，87唯一组零筛除（完整lib+86集成目标），新12项只计一次；严格locked/offline全target/all-feature Clippy-Dwarnings实际main/owning均0（70.63s main process）。终局QA实际Cargo主进程/独立核验均0，父等待进程实际0，与Cargo主退出码分别记录。真实before为4过8失败，main/owning实际101/1；另保留首RED3过9失败：新fixture把作者句子串误认成独立JSON值，仅精确修该guard，作者常量、test名字和旧断言不动后重跑before。before、独立预检及私有子进程结果不加终局总数。有限作者输入，不推断真实偏好或代做决定；生产算法、模型协议、25包/SDK及分页配额保持。本轮不是全仓/Doc-tests/UI/原生键盘/实模/性能/安装/远端CI验收。仍0.9.7/47未提交，不在已发布0.9.7包内；不提交推送、发布、替换日常安装或恢复定时任务。下方旧记录完整保留为历史。
+<!-- daily-alternatives:end -->
+
+<!-- daily-rephrasing:start -->
+**当前未提交：日常改口、换述与不确定表达（2026-10-25）**。复用既有词形和读音，新增三语9组语境、18条作者句：EN6216/924/1812（64层），ZH3442/915/1828，JA638/403/805。英文继续扩充现有第64层`daily_presence_dialogue`，`words`仍为空，不增第65层；全部6216首次rank保持。独立有界回归1242过、0失败、2原ignore，82唯一组零筛除（完整lib+81集成目标），新12项只计一次；严格locked/offline全target/all-feature Clippy-Dwarnings实际main/owning均0（58.68s main process）。终局QA实际Cargo主进程/独立核验均0，父等待进程实际0；父等待进程状态与Cargo退出码分别记录。首有界轮父等待进程143且Cargo主退出码未获证实，保留为未验收；真实before为4过8失败（main/tool101）；before、5目标预检、首未验收轮及子进程结果不加终局总数。仅有限作者输入，不是硬编码翻译、状态感知或事实核查，也不验证内容真伪；生产算法、模型协议、25包/SDK及分页配额保持。本轮不是全仓/Doc-tests/UI/原生键盘/实模/性能/安装/远端CI验收。仍0.9.7/47未提交，不在已发布0.9.7包内；不提交推送、发布、替换日常安装或恢复定时任务。下方旧记录完整保留为历史。
+<!-- daily-rephrasing:end -->
+
+<!-- daily-turntaking:start -->
+**当前未提交：日常接话与配合（2026-10-25）**。复用既有词形和读音，新增三语9组语境、18条作者句：EN6216/921/1806（64层），ZH3442/912/1822，JA638/400/799。英文扩充现有第64层`daily_presence_dialogue`，`words`仍为空，不增第65层；全部6216首次rank保持。首次独立有界回归1406过、0失败、2原ignore，110组零筛除（完整lib+109集成目标），属于测试模块接线修正前的源码。首次严格Clippy因重复加载测试helper失败（exit101）；仅修两处测试模块引用。修正后的独立终局8集成目标/8组零筛除，75过、0失败、0ignore，新12项已含一次；严格locked/offline全target/all-feature Clippy-Dwarnings实际通过（10.52s）。两次测试结果分别记录，不相加，也不把修正前1406项称为修正后完整源码验收。仅有限接话、等候与配合输入表达；生产算法、模型协议、25包/SDK及分页配额保持。本轮不是全仓/Doc-tests/UI/原生键盘/实模/性能/安装/远端CI验收。仍0.9.7/47未提交，不在已发布0.9.7包内；不感知状态、不执行任务、不发送消息，不提交推送、发布、替换日常安装或恢复定时任务。下方旧记录完整保留为历史。
+<!-- daily-turntaking:end -->
+
+<!-- daily-presence:start -->
+**当前未提交：暂离与回来继续交流（2026-10-25）**。新增三语9组语境、18条作者句，零新词形/读音：EN6216/918/1800（64层），ZH3442/909/1816，JA638/397/793。英文追加独立末层，原63层及全部6216首次rank保持；25包/SDK、生产算法、模型协议和分页配额不变。独立有界回归1316过、0失败、2原ignore，100唯一组（完整lib+99集成目标）零筛除，新12项只计一次；严格全target/all-feature Clippy-Dwarnings通过（58.49s）。仅有限输入表达，不探测在线状态、发送消息或安排任务；不是全仓/Doc-tests/UI/原生键盘/实模/性能/安装/远端CI验收。仍0.9.7/47未提交，不在已发布0.9.7包内，不替换日常安装、不恢复定时任务。下方旧准备期pending和未提交记录保留为历史。
+<!-- daily-presence:end -->
+
 <!-- release-0.9.7:start -->
 **New source candidate: 0.9.7 / build 47 — Everyday dialogue fallback.** Six batches add 57 trilingual contexts / 114 authored sentences, three English forms and one Chinese Word reading. One independent versioned full Rust run passes 2,805 tests / zero failures / 32 original ignores in 301 unfiltered groups including Doc-tests; all 70 new cases occur once. Separately, 19 isolated UI gates and strict all-target/all-feature locked-offline Clippy with warnings denied pass (61.25s main process), not added to the Rust total. Only six data strings were withdrawn to restore old Chinese pools; production algorithms, model protocols, 25 packs/SDK and candidate budgets remain unchanged. Exact-commit remote CI and accepted-package validation remain pending; no 0.9.7 tag, download or publication is claimed. The six uncommitted batch records below remain historical. The personal installation and cancelled automation remain unchanged. See [0.9.7 preparation](docs/releases/0.9.7.md).
 <!-- release-0.9.7:end -->

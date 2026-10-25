@@ -230,9 +230,9 @@ fn accessories_preserves_56_prior_layers_6201_first_seen_ranks_endings_and_raw_b
 #[test]
 fn accessories_fixed_layer_adds_six_forms_six_contexts_and_twelve_authors_only() {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 63);
-    assert_eq!(en.next_words().count(), 915);
-    assert_eq!(en.sentences().count(), 1794);
+    assert_eq!(en.word_layers().len(), 64);
+    assert_eq!(en.next_words().count(), 930);
+    assert_eq!(en.sentences().count(), 1824);
     let layer = &en.word_layers()[56];
     assert_eq!(layer.id, "daily_accessories");
     assert_eq!(

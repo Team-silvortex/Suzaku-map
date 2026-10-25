@@ -3,6 +3,8 @@
 mod living_room_reading;
 #[path = "support/offline_pack_sets.rs"]
 mod offline_pack_sets;
+#[path = "support/presence_resource.rs"]
+mod presence_resource;
 #[path = "support/release_storage_context.rs"]
 mod release_storage_context;
 use ring::digest::{SHA256, digest};
@@ -2806,7 +2808,9 @@ fn japanese_internet_preserves_all_eighteen_source_bytes_and_catalog_positions()
         );
     }
     for (language, source, expected) in BUILTIN {
-        let before_release_contexts = release_storage_context::restore_pre_release_contexts(source);
+        let before_presence = presence_resource::without_presence(source);
+        let before_release_contexts =
+            release_storage_context::restore_pre_release_contexts(&before_presence);
         let before_progress = builtin_before_daily_progress(language, &before_release_contexts);
         let before_clarity = builtin_before_daily_clarity(language, &before_progress);
         let before_coordination = builtin_before_daily_coordination(language, &before_clarity);

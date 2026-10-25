@@ -126,9 +126,9 @@ fn table_items_preserves_exact_old_resources_readings_flags_rank_sources_and_aut
 #[test]
 fn table_items_adds_only_three_contexts_six_authors_per_language_and_no_forms_or_readings() {
     let en = builtin("en").unwrap();
-    assert_eq!(en.word_layers().len(), 63);
-    assert_eq!(en.next_words().count(), 915);
-    assert_eq!(en.sentences().count(), 1794);
+    assert_eq!(en.word_layers().len(), 64);
+    assert_eq!(en.next_words().count(), 930);
+    assert_eq!(en.sentences().count(), 1824);
     let layer = &en.word_layers()[60];
     assert_eq!(layer.id, "daily_table_items");
     assert!(layer.words.is_empty());
@@ -164,8 +164,8 @@ fn table_items_adds_only_three_contexts_six_authors_per_language_and_no_forms_or
         assert_eq!(&layer.sentences[2 * i..2 * i + 2], authors);
     }
     for (language, entries, reads, contexts, authors, old_contexts) in [
-        ("zh-Hans", ZH, 3442, 906, 1810, 885),
-        ("ja", JA, 638, 394, 787, 373),
+        ("zh-Hans", ZH, 3442, 921, 1840, 885),
+        ("ja", JA, 638, 409, 817, 373),
     ] {
         let data = builtin(language).unwrap();
         assert_eq!(data.readings().len(), reads);
