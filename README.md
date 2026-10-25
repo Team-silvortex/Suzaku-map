@@ -1,6 +1,6 @@
 # Suzaku Map · 朱雀
 
-**Published baseline: [0.9.6 / build 46](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.6), exact source `c5604aaff8bc6121f318ca846da6f058866c4d25`.** All eight gates of [CI 40056999646](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/40056999646) passed; accepted artifact `12546279679` and all four uploaded Linux assets were independently validated and re-downloaded for byte comparison before publication. Linux Alpha prerelease, not latest stable. The source-preparation pending and earlier uncommitted labels below are historical. The personal installation is unchanged and the cancelled automation remains cancelled.
+**Published baseline: [0.9.7 / build 47](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.7), exact source `354030b1107b20ad2447a9f93aaa6cf6beba1c40`.** All eight gates of [CI 40081142818](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/40081142818) passed; accepted artifact `12556460951` and all four uploaded Linux assets were independently validated and re-downloaded for byte comparison before publication. Linux Alpha prerelease, not latest stable. The source-preparation pending and earlier uncommitted labels below are historical. The personal installation is unchanged and the cancelled automation remains cancelled.
 
 <!-- release-0.9.7:start -->
 **New source candidate: 0.9.7 / build 47 — Everyday dialogue fallback.** Six batches add 57 trilingual contexts / 114 authored sentences, three English forms and one Chinese Word reading. One independent versioned full Rust run passes 2,805 tests / zero failures / 32 original ignores in 301 unfiltered groups including Doc-tests; all 70 new cases occur once. Separately, 19 isolated UI gates and strict all-target/all-feature locked-offline Clippy with warnings denied pass (61.25s main process), not added to the Rust total. Only six data strings were withdrawn to restore old Chinese pools; production algorithms, model protocols, 25 packs/SDK and candidate budgets remain unchanged. Exact-commit remote CI and accepted-package validation remain pending; no 0.9.7 tag, download or publication is claimed. The six uncommitted batch records below remain historical. The personal installation and cancelled automation remain unchanged. See [0.9.7 preparation](docs/releases/0.9.7.md).
@@ -25,11 +25,11 @@
 A local-first, continuous-writing input method with word and sentence candidates,
 optional language models, and a compact floating companion panel.
 
-**[0.9.5 · Linux / IBus Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.5), not latest stable.** Current validation targets **Ubuntu 24.04,
+**[0.9.7 · Linux / IBus Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.7), not latest stable.** Current validation targets **Ubuntu 24.04,
 amd64, IBus, X11 or GNOME with XWayland**. Keep your usual input method available
 as a fallback. Other platforms remain experimental.
 
-**Published baseline: 0.9.5 / build 45, source `de42d39`.** The exact-commit
+**Historical publication record: 0.9.5 / build 45, source `de42d39`.** The exact-commit
 [CI run 39894489515](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/39894489515)
 passed all eight required gates. Accepted artifact `12476299897` supplied the Linux
 `.tar.gz`, `.deb` and their two `.sha256` files; the four release assets were independently
@@ -37,6 +37,9 @@ validated and re-downloaded for byte comparison before publication. This is a no
 Linux Alpha prerelease; the personal installation was not changed and the cancelled
 publication automation was not restored. Preparation-time pending statuses below are historical,
 not the current publication status. See [0.9.5 preparation scope](docs/releases/0.9.5.md).
+This intermediate Release is selected for retirement under the
+[selective release policy](docs/linux-packaging-data.md#从-080-开始的发布要求);
+its source tag and release notes remain. Use the 0.9.7 download linked above.
 
 **Uncommitted follow-up — thermos and table-item locations (2026-10-24).** Adds nine contexts and 18 authored sentences across EN/ZH/JA, with no new word forms/readings. Totals: EN 6,213 / 894 / 1,752 (61 layers); ZH 3,441 / 888 / 1,774; JA 638 / 376 / 751. One independent bounded run passes 1021 tests, zero failures and two original ignores, in 60 unfiltered groups (complete library plus 59 integration targets). Strict all-target/all-feature Clippy passes with warnings denied (1m 07s). New tests share a test-only helper; old suites are not migrated. Production algorithms, candidate budgets, models/protocols, 25 packs/SDK and versions stay unchanged. These are finite location expressions, not item sensing/control. Not full-repository, native, UI, real-model, installation, performance or CI acceptance. Earlier records remain historical.
 
@@ -395,10 +398,10 @@ development-time status, not separate current releases. Exact commit
 `4108bc0deb8d08d9c421cfbd9c47cd8ed45e3883` passed all eight required gates in
 [CI 39084362121](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/39084362121).
 Its accepted `.deb`, `.tar.gz` and both checksum files passed package acceptance and
-post-upload download verification. They are published as the
-[0.9.2 Linux Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.2),
-not latest stable. The [release notes](docs/releases/0.9.2.md) retain their source-preparation record;
-the later publication result is recorded here. Subsequent route, call, storage and restocking data is not included.
+post-upload download verification. They were published as a Linux Alpha prerelease,
+not latest stable. The [historical release notes](docs/releases/0.9.2.md) retain their source-preparation record;
+this intermediate Release is selected for retirement, while its source tag and notes remain.
+The later publication result is recorded here. Subsequent route, call, storage and restocking data is not included.
 Historical local preparation of that exact 0.9.2 source passed **2,313 Rust checks / zero failures / 32 explicit ignores**,
 the separate **19/19 private UI gates**, strict Clippy and formatting. Those local results
 did not replace remote CI, clean-container installation or accepted-package checks, and do not
@@ -533,16 +536,18 @@ broader Japanese morphology and non-Linux native behavior remain outside current
 ## Install the Linux preview
 
 Get the matching `.deb` and `.sha256` from the
-[0.9.2 Linux Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.2).
+[0.9.7 Linux Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.7).
 For 0.7.x, source tags can precede downloadable packages; use a release with attached packages or
-build from source. Starting with **0.8.0**, downloadable Linux packages and checksums are a
-[release requirement](docs/linux-packaging-data.md#从-080-开始的发布要求).
-Use the verified 0.9.2 assets in the download directory on Ubuntu 24.04 amd64;
-the later uncommitted vocabulary follow-ups are not included in these packages:
+build from source. A commit, version bump or source tag does not automatically create a Release.
+Routine patches can accumulate toward selected milestones; each selected Release still needs
+[complete, verified packages](docs/linux-packaging-data.md#从-080-开始的发布要求).
+Use the verified 0.9.7 assets in the download directory on Ubuntu 24.04 amd64.
+A working tree can contain later follow-ups absent from those packages; the Release notes
+and source tag identify the shipped data:
 
 ```bash
-sha256sum -c suzaku_0.9.2_amd64.deb.sha256
-sudo apt install ./suzaku_0.9.2_amd64.deb
+sha256sum -c suzaku_0.9.7_amd64.deb.sha256
+sudo apt install ./suzaku_0.9.7_amd64.deb
 ```
 
 Installation alone does not activate an input method or start a user service. Register once

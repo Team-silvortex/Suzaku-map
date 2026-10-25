@@ -893,6 +893,31 @@ The source-only graph check is `/usr/bin/python3 -B scripts/test-ci-release-grap
 and requires PyYAML (`python3-yaml` on the Ubuntu baseline); CI installs it
 explicitly for that interpreter.
 
+## Release cadence and published-history retention
+
+A commit, push, version bump or source tag does not automatically create a GitHub Release.
+Routine vocabulary changes and small patches normally accumulate toward a milestone. Publish
+for substantial capabilities, reliability improvements, security hotfixes, or an explicit user
+choice. This replaces any expectation that every source version needs a new, permanent Release.
+The accepted artifact described above is a CI handoff, not a published GitHub Release.
+
+Every selected Release still requires all eight exact-commit CI checks to succeed, that run's
+accepted packages with safe inventories/checksums and source binding, and clean-container
+installation, upgrade and removal acceptance. Upload the complete four assets to a draft,
+re-download and compare their actual bytes, then publish as Linux Alpha prerelease, not latest
+stable. A smaller release cadence does not permit partial, skipped, neutral or older results.
+
+Retain the newest complete Release, its direct rollback, older-minor representatives and
+explicitly pinned compatibility baselines; each retained Release keeps all four assets. Before
+retiring an entire Release and its assets, review the exact list and reasons, export its ID,
+body, tag/commit and asset identities/checksums, and verify a complete recovery backup of the
+actual assets. Recheck remote IDs, tags and byte hashes before an explicitly authorized manual
+retirement. Never delete or move Git tags/commits or remove documentation history; record which
+download links were retired and where recovery evidence lives. Do not add automatic bulk cleanup
+or revive cancelled timers. This remote policy is separate from local cache retention below
+and never changes personal installations, IME services or user data. See
+[Linux packaging and release policy](docs/linux-packaging-data.md#从-080-开始的发布要求).
+
 ## Keeping local disk use bounded
 
 Development and test profiles omit debug symbols and disable incremental compilation, matching
