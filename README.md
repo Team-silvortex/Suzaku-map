@@ -1,5 +1,7 @@
 # Suzaku Map · 朱雀
 
+**Published baseline: [0.10.0 / build 50](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.10.0), exact source `05ca67930b2a6784860f98954248c2b6663d4617`.** All eight gates of [CI 40676977245](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/40676977245) passed. Accepted artifact `12813215443` supplied all four Linux package/checksum assets; safe archive inspection, source/manifest checks and independent upload re-download byte/hash comparison passed before publication as Release `426593249` on 2026-10-28. Linux Alpha prerelease, not latest stable. See the [publication receipt and asset fingerprints](docs/releases/0.10.0.md#publication-receipt-2026-10-28). The personal installation and cancelled automation remain unchanged.
+
 <!-- release-0.10.0-preparation:start -->
 **0.10.0 / build 50 源码准备：三语日常与工作交流里程碑。** 相对 0.9.9 汇总七批词库补充，共新增 66 个语境、132 条作者句，复用已有词形和读音。当前总量：英文 6216 词形 / 968 语境 / 1900 句；中文 3442 读音 / 959 语境 / 1916 句；日文 638 读音 / 447 语境 / 893 句。包含 Linux 偏好锁的持锁进程归属修复；此前偶发 `Busy` 的原因仍未完全确定，启动后自动恢复持久化的行为不变。详见 [0.10.0 说明](docs/releases/0.10.0.md)。
 
@@ -7,11 +9,11 @@
 **本版本本地验收完成：**完整 Rust **2982 通过 / 0 失败 / 32 项原有显式忽略**，321 个唯一、零筛除结果组，含 Doc-tests；53 项新增测试各计一次。另有 **19/19 隔离 UI**、严格全目标全功能 Clippy、315 项 Python 检查、250 个审计链接、五处版本权威来源与 shell 语法检查通过。默认/行内 IBus 四分区和自定义快捷键门禁也分别通过，独立于 Rust/UI 计数；本机缺少 ShellCheck，该检查留待远端 CI。下方各批次的“当前未提交”、旧版本号和有界结果均保留为历史快照；完整证据与验收边界见 [0.10.0 说明](docs/releases/0.10.0.md)。
 <!-- release-0.10.0-local-validation:end -->
 <!-- release-0.10.0-remote-validation:start -->
-**发布验收 pending：**准确提交的远端 CI、accepted artifact 和四个安装资产仍待验收；已发布 0.9.7 继续作为下载基线，待 0.10.0 实际发布后再更新。计划保持 Linux Alpha prerelease、非 latest stable。
+**发布验收完成：**准确源码 `05ca67930b2a6784860f98954248c2b6663d4617` 的 [CI 40676977245](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/40676977245) 八门全部成功；accepted artifact `12813215443` 的两个安装包及两个校验文件完成归档/manifest/源码校验，上传后重新下载的实际字节和 SHA-256 全部一致。[0.10.0 / build 50](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.10.0) 已作为 Linux Alpha prerelease（非 latest stable）发布，Release ID `426593249`；旧 0.9.7 回执及下方准备期 pending 均保留为历史。
 <!-- release-0.10.0-remote-validation:end -->
 <!-- release-0.10.0-preparation:end -->
 
-**Published baseline: [0.9.7 / build 47](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.7), exact source `354030b1107b20ad2447a9f93aaa6cf6beba1c40`.** All eight gates of [CI 40081142818](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/40081142818) passed; accepted artifact `12556460951` and all four uploaded Linux assets were independently validated and re-downloaded for byte comparison before publication. Linux Alpha prerelease, not latest stable. The source-preparation pending and earlier uncommitted labels below are historical. The personal installation is unchanged and the cancelled automation remains cancelled.
+**Previous published baseline: [0.9.7 / build 47](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.7), exact source `354030b1107b20ad2447a9f93aaa6cf6beba1c40`.** All eight gates of [CI 40081142818](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/40081142818) passed; accepted artifact `12556460951` and all four uploaded Linux assets were independently validated and re-downloaded for byte comparison before publication. Linux Alpha prerelease, not latest stable. The source-preparation pending and earlier uncommitted labels below are historical. The personal installation is unchanged and the cancelled automation remains cancelled.
 
 <!-- day-coordination-followup:start -->
 **当前未提交：日常安排与协调跟进（2026-10-28）。** 三语各新增 4 个语境、8 条候选句，共 12 个语境、24 条句子：英文涵盖快速通话、预留时间、链接反馈和时间协调；中文涵盖日程、集合点、预计到达和提醒；日文涵盖返信待ち、予約確認、合流地点和延長。复用已有词形和读音。当前总量：英文 6216 词形 / 968 语境 / 1900 句；中文 3442 读音 / 959 语境 / 1916 句；日文 638 读音 / 447 语境 / 893 句。完整库及 99 个相关集成目标的同轮回归为 1350 通过、0 失败、2 项原有忽略；覆盖候选提交、拼音声调、日语假名、模拟模型不可用及推荐离线包共存。下方各批次及偏好锁修复记录保留为历史快照；版本仍为 0.9.9，本轮改动未提交。
@@ -124,7 +126,7 @@ The pending and uncommitted labels below describe their recorded snapshots; they
 A local-first, continuous-writing input method with word and sentence candidates,
 optional language models, and a compact floating companion panel.
 
-**[0.9.7 · Linux / IBus Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.7), not latest stable.** Current validation targets **Ubuntu 24.04,
+**[0.10.0 · Linux / IBus Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.10.0), not latest stable.** Current validation targets **Ubuntu 24.04,
 amd64, IBus, X11 or GNOME with XWayland**. Keep your usual input method available
 as a fallback. Other platforms remain experimental.
 
@@ -138,7 +140,7 @@ publication automation was not restored. Preparation-time pending statuses below
 not the current publication status. See [0.9.5 preparation scope](docs/releases/0.9.5.md).
 This intermediate Release is selected for retirement under the
 [selective release policy](docs/linux-packaging-data.md#从-080-开始的发布要求);
-its source tag and release notes remain. Use the 0.9.7 download linked above.
+its source tag and release notes remain. Use the 0.10.0 download linked above.
 
 **Uncommitted follow-up — thermos and table-item locations (2026-10-24).** Adds nine contexts and 18 authored sentences across EN/ZH/JA, with no new word forms/readings. Totals: EN 6,213 / 894 / 1,752 (61 layers); ZH 3,441 / 888 / 1,774; JA 638 / 376 / 751. One independent bounded run passes 1021 tests, zero failures and two original ignores, in 60 unfiltered groups (complete library plus 59 integration targets). Strict all-target/all-feature Clippy passes with warnings denied (1m 07s). New tests share a test-only helper; old suites are not migrated. Production algorithms, candidate budgets, models/protocols, 25 packs/SDK and versions stay unchanged. These are finite location expressions, not item sensing/control. Not full-repository, native, UI, real-model, installation, performance or CI acceptance. Earlier records remain historical.
 
@@ -635,18 +637,18 @@ broader Japanese morphology and non-Linux native behavior remain outside current
 ## Install the Linux preview
 
 Get the matching `.deb` and `.sha256` from the
-[0.9.7 Linux Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.7).
+[0.10.0 Linux Alpha prerelease](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.10.0).
 For 0.7.x, source tags can precede downloadable packages; use a release with attached packages or
 build from source. A commit, version bump or source tag does not automatically create a Release.
 Routine patches can accumulate toward selected milestones; each selected Release still needs
 [complete, verified packages](docs/linux-packaging-data.md#从-080-开始的发布要求).
-Use the verified 0.9.7 assets in the download directory on Ubuntu 24.04 amd64.
+Use the verified 0.10.0 assets in the download directory on Ubuntu 24.04 amd64.
 A working tree can contain later follow-ups absent from those packages; the Release notes
 and source tag identify the shipped data:
 
 ```bash
-sha256sum -c suzaku_0.9.7_amd64.deb.sha256
-sudo apt install ./suzaku_0.9.7_amd64.deb
+sha256sum -c suzaku_0.10.0_amd64.deb.sha256
+sudo apt install ./suzaku_0.10.0_amd64.deb
 ```
 
 Installation alone does not activate an input method or start a user service. Register once

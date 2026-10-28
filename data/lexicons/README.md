@@ -7,11 +7,11 @@
 **本版本本地验收完成：**完整 Rust 2982 通过、0 失败、32 项原有显式忽略，321 个唯一零筛除结果组，含 Doc-tests；53 项新增测试各计一次。隔离 UI 19/19、严格 Clippy、315 项 Python 检查及版本/链接/格式检查通过；默认与行内 IBus 四分区及自定义快捷键门禁独立通过，不叠加 Rust/UI 数量。本机缺少 ShellCheck，该项待远端 CI。下方旧未提交标记、旧总量和有界结果均保留为历史快照；详情见 [验收记录](../../docs/releases/0.10.0.md)。
 <!-- release-0.10.0-local-validation:end -->
 <!-- release-0.10.0-remote-validation:start -->
-**发布验收 pending：**准确提交的远端 CI、accepted 包与四个安装资产待验收；实际发布完成前，0.9.7 仍是已发布下载基线。
+**发布验收完成：**[0.10.0 / build 50](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.10.0) 已发布为 Linux Alpha prerelease、非 latest stable，Release ID `426593249`。准确源码 `05ca67930b2a6784860f98954248c2b6663d4617` 的 [CI 40676977245](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/40676977245) 八门成功；accepted artifact `12813215443` 的四个包/校验资产完成安全归档、manifest/源码及上传重下载实际字节验证。[完整回执与资产指纹](../../docs/releases/0.10.0.md#publication-receipt-2026-10-28)已记录；旧 0.9.7 为前一下载基线，个人安装和取消的自动化保持。
 <!-- release-0.10.0-remote-validation:end -->
 <!-- release-0.10.0-preparation:end -->
 
-**已发布基线：[0.9.7 / build47](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.7)，准确源码 `354030b1107b20ad2447a9f93aaa6cf6beba1c40`。** [CI40081142818](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/40081142818)八门成功，accepted artifact `12556460951` 与四个Release资产已验收并重新下载逐字节比对。仍为非latest的Linux Alpha prerelease；下方准备期pending和旧未提交标签保留为历史。日常安装未变，已取消自动跟进未恢复。
+**前一已发布基线：[0.9.7 / build47](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.7)，准确源码 `354030b1107b20ad2447a9f93aaa6cf6beba1c40`。** [CI40081142818](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/40081142818)八门成功，accepted artifact `12556460951` 与四个Release资产已验收并重新下载逐字节比对。仍为非latest的Linux Alpha prerelease；下方准备期pending和旧未提交标签保留为历史。日常安装未变，已取消自动跟进未恢复。
 
 <!-- day-coordination-followup:start -->
 **当前未提交：日常安排与协调跟进（2026-10-28）。** 三语各新增 4 个语境、8 条候选句，共 12 个语境、24 条句子：英文涵盖快速通话、预留时间、链接反馈和时间协调；中文涵盖日程、集合点、预计到达和提醒；日文涵盖返信待ち、予約確認、合流地点和延長。复用已有词形和读音。当前总量：英文 6216 词形 / 968 语境 / 1900 句；中文 3442 读音 / 959 语境 / 1916 句；日文 638 读音 / 447 语境 / 893 句。完整库及 99 个相关集成目标的同轮回归为 1350 通过、0 失败、2 项原有忽略；覆盖候选提交、拼音声调、日语假名、模拟模型不可用及推荐离线包共存。下方各批次及偏好锁修复记录保留为历史快照；版本仍为 0.9.9，本轮改动未提交。
