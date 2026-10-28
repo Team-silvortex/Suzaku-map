@@ -103,10 +103,10 @@ fn signature(ime: &XRTabletImeEngine) -> u64 {
 fn three_missing_readings_and_one_homophone_append_without_authored_contexts() {
     let zh = lexicon::builtin("zh-Hans").unwrap();
     assert_eq!(zh.readings().len(), 3442);
-    assert_eq!(zh.continuations().count(), 921);
+    assert_eq!(zh.continuations().count(), 937);
     assert_eq!(
         zh.continuations().map(|(_, v)| v.len()).sum::<usize>(),
-        1840
+        1872
     );
     for (entry, &(reading, text, _)) in zh.readings()[3170..3174].iter().zip(RESULTS) {
         assert_eq!((&*entry.reading, &*entry.text), (reading, text));

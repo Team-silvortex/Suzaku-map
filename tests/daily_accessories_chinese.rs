@@ -192,11 +192,11 @@ fn accessories_adds_ten_words_six_contexts_and_twelve_authors_without_duplicatin
     let zh = lexicon::builtin("zh-Hans").unwrap();
     assert_eq!(
         (zh.readings().len(), zh.continuations().count()),
-        (3442, 921)
+        (3442, 937)
     );
     assert_eq!(
         zh.continuations().map(|(_, vs)| vs.len()).sum::<usize>(),
-        1840
+        1872
     );
     assert_eq!((WORDS.len(), TONES.len(), PARTIALS.len()), (10, 10, 6));
     for (e, &(reading, text)) in zh.readings()[3422..3432].iter().zip(WORDS) {

@@ -4,6 +4,10 @@
 mod daily_reading_replay;
 #[path = "support/daily_recycling_replay.rs"]
 mod daily_recycling_replay;
+#[path = "support/farewell_replay.rs"]
+mod farewell_replay;
+#[path = "support/work_communication_replay.rs"]
+mod work_communication_replay;
 
 fn corpus(language: &str) -> Vec<String> {
     let phrases: &[&str] = match language {
@@ -114,10 +118,18 @@ fn fingerprint(
         for byte in seed.bytes().chain([0]) {
             hash = (hash ^ u64::from(byte)).wrapping_mul(0x100000001b3);
         }
-        let before_recycling = daily_recycling_replay::before_daily_recycling(
+        let before_work = work_communication_replay::before_work_communication(
             language,
             seed,
             ime.candidates(),
+            with_packs,
+        );
+        let before_farewell =
+            farewell_replay::before_farewell(language, seed, &before_work, with_packs);
+        let before_recycling = daily_recycling_replay::before_daily_recycling(
+            language,
+            seed,
+            &before_farewell,
             with_packs,
         );
         let before_reading = daily_reading_replay::before_daily_reading(

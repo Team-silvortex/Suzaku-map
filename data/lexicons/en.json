@@ -13212,6 +13212,118 @@
             "time",
             "day"
           ]
+        ],
+        [
+          "thanks for the offer, but i'd rather",
+          [
+            "wait",
+            "stay"
+          ]
+        ],
+        [
+          "you can take your time and",
+          [
+            "reply",
+            "decide"
+          ]
+        ],
+        [
+          "please don't feel bad about",
+          [
+            "saying",
+            "asking"
+          ]
+        ],
+        [
+          "i should let you get back to",
+          [
+            "work",
+            "dinner"
+          ]
+        ],
+        [
+          "i have to go now, but let's",
+          [
+            "keep",
+            "talk"
+          ]
+        ],
+        [
+          "thanks for the chat, have a",
+          [
+            "good",
+            "safe"
+          ]
+        ],
+        [
+          "when you get home, send me a",
+          [
+            "message",
+            "text"
+          ]
+        ],
+        [
+          "did you make it",
+          [
+            "home",
+            "back"
+          ]
+        ],
+        [
+          "just letting you know we're",
+          [
+            "home",
+            "safe"
+          ]
+        ],
+        [
+          "sorry for the late reply, i was",
+          [
+            "busy",
+            "away"
+          ]
+        ],
+        [
+          "thanks for pointing that out, i'll",
+          [
+            "check",
+            "fix"
+          ]
+        ],
+        [
+          "that was my fault, i'll",
+          [
+            "correct",
+            "explain"
+          ]
+        ],
+        [
+          "we're on track, but we still need",
+          [
+            "approval",
+            "feedback"
+          ]
+        ],
+        [
+          "before we begin, can we agree on the",
+          [
+            "scope",
+            "deadline"
+          ]
+        ],
+        [
+          "for the next team meeting, should we",
+          [
+            "invite",
+            "share"
+          ]
+        ],
+        [
+          "once you have reviewed the handover, could you",
+          [
+            "confirm",
+            "flag"
+          ]
         ]
       ],
       "sentences": [
@@ -13244,7 +13356,39 @@
         "if you are running late, we can wait here for a few minutes.",
         "if you are running late, we can start a little later.",
         "let's keep the same place and change the time to three instead.",
-        "let's keep the same place and change the day to friday."
+        "let's keep the same place and change the day to friday.",
+        "thanks for the offer, but i'd rather wait until later.",
+        "thanks for the offer, but i'd rather stay home tonight.",
+        "you can take your time and reply when you are free.",
+        "you can take your time and decide when you are ready.",
+        "please don't feel bad about saying no if you are busy.",
+        "please don't feel bad about asking for help when you need it.",
+        "i should let you get back to work now, thanks for the chat.",
+        "i should let you get back to dinner, we'll talk another time.",
+        "i have to go now, but let's keep in touch.",
+        "i have to go now, but let's talk again soon.",
+        "thanks for the chat, have a good evening.",
+        "thanks for the chat, have a safe trip home.",
+        "when you get home, send me a message so i know you're safe.",
+        "when you get home, send me a text when you have a moment.",
+        "did you make it home safely after the long trip?",
+        "did you make it back okay, or do you need a hand?",
+        "just letting you know we're home and the trip went well.",
+        "just letting you know we're safe and everyone is fine.",
+        "sorry for the late reply, i was busy with work and missed your message.",
+        "sorry for the late reply, i was away from my phone all afternoon.",
+        "thanks for pointing that out, i'll check the details again.",
+        "thanks for pointing that out, i'll fix that and send it again.",
+        "that was my fault, i'll correct the time and send an update.",
+        "that was my fault, i'll explain what happened so it is clear.",
+        "we're on track, but we still need approval before we can continue.",
+        "we're on track, but we still need feedback on the latest draft.",
+        "before we begin, can we agree on the scope so everyone knows what to expect?",
+        "before we begin, can we agree on the deadline and what needs to be ready?",
+        "for the next team meeting, should we invite everyone who needs to be there?",
+        "for the next team meeting, should we share the draft before we talk?",
+        "once you have reviewed the handover, could you confirm that everything is clear?",
+        "once you have reviewed the handover, could you flag anything that is missing?"
       ]
     }
   ],

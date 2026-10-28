@@ -226,13 +226,13 @@ fn bedding_appends_only_eight_words_and_four_exact_authored_contexts() {
     let vocabulary = lexicon::builtin("zh-Hans").unwrap();
     assert_eq!((WORDS.len(), PARTIALS.len(), SENTENCES.len()), (8, 4, 4));
     assert_eq!(vocabulary.readings().len(), 3442);
-    assert_eq!(vocabulary.continuations().count(), 921);
+    assert_eq!(vocabulary.continuations().count(), 937);
     assert_eq!(
         vocabulary
             .continuations()
             .map(|(_, vs)| vs.len())
             .sum::<usize>(),
-        1840
+        1872
     );
     for (entry, &(reading, text)) in vocabulary.readings()[3402..3410].iter().zip(WORDS) {
         assert_eq!((&*entry.reading, &*entry.text), (reading, text));

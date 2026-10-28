@@ -18,8 +18,8 @@ android {
         applicationId = "dev.suzaku.android.ime"
         minSdk = 29
         targetSdk = 35
-        versionCode = 48
-        versionName = "0.9.8"
+        versionCode = 49
+        versionName = "0.9.9"
     }
 
     buildTypes {

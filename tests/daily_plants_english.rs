@@ -206,8 +206,8 @@ fn plants_preserves_all_52_prior_layers_6171_first_seen_ranks_and_phrase_endings
 fn plants_fixed_layer_adds_only_eight_forms_in_exact_first_occurrence_order() {
     let en = builtin("en").unwrap();
     assert_eq!(en.word_layers().len(), 64);
-    assert_eq!(en.next_words().count(), 930);
-    assert_eq!(en.sentences().count(), 1824);
+    assert_eq!(en.next_words().count(), 946);
+    assert_eq!(en.sentences().count(), 1856);
     let layer = &en.word_layers()[52];
     assert_eq!(layer.id, "daily_plants");
     assert_eq!(

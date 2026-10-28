@@ -2,6 +2,32 @@
 
 **Published baseline: [0.9.7 / build 47](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.7), exact source `354030b1107b20ad2447a9f93aaa6cf6beba1c40`.** All eight gates of [CI 40081142818](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/40081142818) passed; accepted artifact `12556460951` and all four uploaded Linux assets were independently validated and re-downloaded for byte comparison before publication. Linux Alpha prerelease, not latest stable. The source-preparation pending and earlier uncommitted labels below are historical. The personal installation is unchanged and the cancelled automation remains cancelled.
 
+<!-- release-0.9.9-source:start -->
+**0.9.9 / build 49 源码更新：仅提交与推送，不创建对外发行。** 五批日常及工作交流新增三语 48 个语境、96 条作者句，零新词形或读音。总量 EN 6216 / 946 / 1856（64 层）、ZH 3442 / 937 / 1872、JA 638 / 425 / 849；英文空 words 末层 31 语境、62 作者句，6216 首次 rank 与旧读音保持。本版独立完整 Rust 实际 2929 过、0 失败、32 原 ignore，313 唯一组，包含完整 lib、10 个 binary/main、301 个集成套件及 Doc-tests，零筛除；七个新套件的 64 项各计一次。另 19 项私有 Xvfb/D-Bus/XDG 隔离 UI 门禁和严格全 target/all-feature Clippy -D warnings 实际通过（64.19 秒），不加完整 Rust 总数。原候选短池可随作者数据变化；旧 goldens、语料与算法保持，精确 test-only 逆回不冒称旧尾项仍在短池。先前 pending/未提交与有界记录原样保留为历史，不借作本版通过。准确提交的远端 CI 另行确认；不声明实模、原生 IBus/Wayland、物理键盘、性能、包或安装验收。不创建 0.9.9 tag、GitHub Release、安装包，不更改个人安装/服务/配置，不恢复已取消 timer；已发布 0.9.7 仍是下载基线。
+
+Earlier pending/uncommitted and bounded labels below describe their original snapshots, not the current 0.9.9 source-validation status.
+<!-- release-0.9.9-source:end -->
+
+<!-- work-communication:start -->
+**当前未提交：工作进度、需求范围、会议协调与交接反馈（2026-10-26）**。每语新增 4 个语境、8 条作者句，共 12 语境、24 作者句，零新词形或读音。总量 EN 6216 / 946 / 1856（64 层）、ZH 3442 / 937 / 1872、JA 638 / 425 / 849；英文空 words 末层 31 语境、62 作者句。独立有界回归实际 1470 过、0 失败、2 原 ignore，114 唯一组（完整 lib + 113 集成目标），新 work 12 项与严格兼容 2 项各计一次；严格全 target/all-feature Clippy -D warnings 通过（64.94 秒）。真实 before 4 过 / 8 失败、首轮预检真实 180 过 / 4 失败 / 25 组原证据保留；独立最终预检 186 过 / 26 组及私有子进程不叠加。日语 A/B 182 条有序记录中 180 条不变，仅两模式 henk 池改变；旧返却/返金 Word 被挤出短输入池，不能称原池保持。xu'qi 保留旧续期 Word 歧义；担当保留旧担当者 Word，均不为旧 Word 虚增作者句。かい 仅作宽根/literal 边界，会議的纯假名正例使用完整かいぎ；不宣称任意短英文候选池不变。仍为 0.9.8 / build 48，未提交；不声明全仓、Doc-tests、UI/原生、实模、安装、远端 CI 或性能验收，不提交推送、不执行工作/日历/消息或启用自动化。
+<!-- work-communication:end -->
+
+<!-- daily-apology:start -->
+**当前未提交：认错、迟回、漏看与更正说明（2026-10-26）**。新增三语 9 个语境、18 条作者句，零新词形或读音。总量 EN 6216 / 942 / 1848（64 层）、ZH 3442 / 933 / 1864、JA 638 / 421 / 841；英文空 words 末层 27 语境、54 作者句。独立有界回归实际 1446 过、0 失败、2 原 ignore，110 唯一组（完整 lib + 109 集成目标），新 12 项各计一次；严格全 target/all-feature Clippy -D warnings 通过（71.49 秒）。真实 before 4 过 / 8 失败、独立预检 146 过 / 19 组及私有子进程不叠加。日文謝罪偏正式书面表达；saiso 等短输入保留旧再送信 Word 歧义，不为旧 Word 虚增作者句，也不实际发送/重发消息。仍为 0.9.8 / build 48，未提交；不声明全仓、Doc-tests、UI/原生、实模、安装、远端 CI 或性能验收，不升版、提交、安装或启用自动化。
+<!-- daily-apology:end -->
+
+<!-- daily-reassurance:start -->
+**当前未提交：报平安、关心近况与慢慢来（2026-10-26）**。新增三语 9 个语境、18 条作者句，零新词形或读音。总量 EN 6216 / 939 / 1842（64 层）、ZH 3442 / 930 / 1858、JA 638 / 418 / 835；英文空 words 末层 24 语境、48 作者句。独立有界回归实际 1413 过、0 失败、2 原 ignore，106 唯一组（完整 lib + 105 集成目标），新 12 项各计一次；严格全 target/all-feature Clippy -D warnings 通过（59.91 秒）。真实 before 4 过 / 8 缺、独立预检 113 过 / 15 组及私有子进程不叠加。日文居眠り仅为诚实的疲倦/迟回说明，不是诊疗、状态检测或自动消息。仍为 0.9.8 / build 48，未提交；不声明全仓、Doc-tests、UI/原生、实模、安装、远端 CI 或性能验收，不升版、提交、安装或启用自动化。
+<!-- daily-reassurance:end -->
+
+<!-- daily-farewell:start -->
+**当前未提交：聊天收尾与告别（2026-10-26）**。本批新增三语 9 个语境、18 条作者句，不增词形或读音。总量为 EN 6216 / 936 / 1836（64 层）、ZH 3442 / 927 / 1852、JA 638 / 415 / 829；英文空 words 末层现有 21 个语境、42 条作者句。独立有界回归实际 1384 过、0 失败、2 原 ignore，103 唯一组（完整 lib + 102 集成目标），新 12 项与独立兼容性 2 项各计一次；严格 Clippy -D warnings 通过（65.06 秒）。首轮 11 组预检 80 过 / 2 失败如实保留；完整 130 向量 A/B 中 129 不变，仅 i s 合理新增一个 Word，严格断言当前全向量后仅作 test-only 历史投影，旧 golden、语料、配额和运行时不改。before 4 过 8 缺、独立重跑 12 组预检 84 过及诊断/私有子进程不叠加。日文包含拜访结束和面对面送别，并非聊天逐句翻译。仍为 0.9.8 / build 48，未提交；不声明本轮全仓、Doc-tests、UI、原生、实模、性能、安装或 CI 验收，不发包、不改个人配置或自动化。
+<!-- daily-farewell:end -->
+
+<!-- daily-consideration:start -->
+**当前未提交：婉拒、体谅与不给压力（2026-10-26）**。新增三语9组语境、18条作者句，零新词形/读音：EN6216/933/1830（64层）、ZH3442/924/1846、JA638/412/823。英文末层words仍为空，现18语境36作者句，6216首次rank及全部中日读音保持。独立有界回归实际1343过、0失败、2原ignore，96唯一组零筛除（完整lib+95集成目标），新12项只计一次；严格locked/offline全target/all-feature Clippy-Dwarnings通过（60.94s）。Cargo/父等待/独立核验均实际0。真实before4过8缺、独立7组预检57过与私有子进程均不叠加。仅有限作者输入，不推断偏好、发送消息或执行任务；生产算法、模型协议、25包/SDK及分页配额不变。仍0.9.8/build48，未提交；不是本轮全仓/Doc-tests/UI/原生/实模/性能/安装/CI验收，不升版、发包、替换个人安装或恢复自动化。下方旧发布与研发记录原样保留。
+<!-- daily-consideration:end -->
+
 <!-- release-0.9.8-source:start -->
 **0.9.8 / build48 源码版本准备：只提交与推送，不创建对外发行。** 五批日常交流新增45组三语语境、90条作者句，零新词形或读音。EN6216/930/1824（64层）、ZH3442/921/1840、JA638/409/817；全部6216英文首次rank、既有中日读音/flags/顺序保持。新版本独立完整Rust实际2865过、0失败、32原ignore，306唯一组含Doc-tests且零筛除，60新项只计一次。另19项隔离UI门禁、严格locked/offline全target/all-feature Clippy-Dwarnings实际通过（60.24s），Python合计100项（含17项临时文件工具测试）独立记录，不加Rust总数。手工本地产物保留工具及文档纳入源码，不执行清理；生产输入算法、模型协议、25包/SDK和分页配额保持。远端准确提交CI尚待独立确认；不声明新包验收、实模、物理键盘、性能或个人安装。不创建0.9.8标签、GitHub Release或安装包，不恢复定时任务；已发布0.9.7仍是下载基线。
 

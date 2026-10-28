@@ -213,8 +213,8 @@ fn hygiene_preserves_all_47_prior_layers_first_seen_ranks_and_phrase_endings() {
 fn hygiene_fixed_layer_adds_exactly_eight_forms_and_recognizes_complete_words() {
     let en = builtin("en").unwrap();
     assert_eq!(en.word_layers().len(), 64);
-    assert_eq!(en.next_words().count(), 930);
-    assert_eq!(en.sentences().count(), 1824);
+    assert_eq!(en.next_words().count(), 946);
+    assert_eq!(en.sentences().count(), 1856);
     let layer = &en.word_layers()[47];
     assert_eq!(layer.id, "daily_hygiene");
     assert_eq!(

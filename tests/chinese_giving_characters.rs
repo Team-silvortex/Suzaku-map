@@ -96,10 +96,10 @@ fn signature(ime: &XRTabletImeEngine) -> u64 {
 fn exactly_two_words_append_after_the_previous_character_window_without_authored_sentences() {
     let zh = lexicon::builtin("zh-Hans").unwrap();
     assert_eq!(zh.readings().len(), 3442);
-    assert_eq!(zh.continuations().count(), 921);
+    assert_eq!(zh.continuations().count(), 937);
     assert_eq!(
         zh.continuations().map(|(_, v)| v.len()).sum::<usize>(),
-        1840
+        1872
     );
     for (entry, (reading, word)) in zh.readings()[3162..3166].iter().zip([
         ("jie", "借"),

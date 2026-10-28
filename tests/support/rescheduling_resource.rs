@@ -1,5 +1,7 @@
 //! Exact test-only inverse of the finite rescheduling append.
 use ring::digest::{SHA256, digest};
+#[path = "consideration_resource.rs"]
+mod consideration_resource;
 
 fn sha(raw: &str) -> String {
     digest(&SHA256, raw.as_bytes())
@@ -31,6 +33,9 @@ pub fn without_rescheduling(raw: &str) -> String {
     if sha(raw) == expected {
         return raw.to_owned();
     }
+    let previous = consideration_resource::without_consideration(raw);
+    let raw = previous.as_str();
+    let value: serde_json::Value = serde_json::from_str(raw).unwrap();
     let mut previous = raw.to_owned();
     match language {
         "en" => {

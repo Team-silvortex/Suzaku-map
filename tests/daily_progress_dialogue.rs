@@ -171,8 +171,8 @@ fn progress_preserves_exact_previous_resource_bytes_flags_order_and_authors() {
 fn progress_adds_only_nine_contexts_and_eighteen_authors_no_forms_or_readings() {
     let en = builtin("en").unwrap();
     assert_eq!(en.word_layers().len(), 64);
-    assert_eq!(en.next_words().count(), 930);
-    assert_eq!(en.sentences().count(), 1824);
+    assert_eq!(en.next_words().count(), 946);
+    assert_eq!(en.sentences().count(), 1856);
     let layer = &en.word_layers()[62];
     assert_eq!(layer.id, "daily_essentials_dialogue");
     assert!(layer.words.is_empty());
@@ -185,8 +185,8 @@ fn progress_adds_only_nine_contexts_and_eighteen_authors_no_forms_or_readings() 
         assert_eq!(&layer.sentences[30 + 2 * i..32 + 2 * i], authors);
     }
     for (language, entries, reads, contexts, authors, start) in [
-        ("zh-Hans", ZH, 3442, 921, 1840, 903),
-        ("ja", JA, 638, 409, 817, 391),
+        ("zh-Hans", ZH, 3442, 937, 1872, 903),
+        ("ja", JA, 638, 425, 849, 391),
     ] {
         let data = builtin(language).unwrap();
         assert_eq!(data.readings().len(), reads);
