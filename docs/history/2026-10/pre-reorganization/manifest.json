@@ -1,0 +1,4296 @@
+{
+  "format": 1,
+  "source_commit": "e3ce76e1620fd52ece28d2fe88dedd2bee0e1938",
+  "date": "2026-10-28",
+  "method": "Original Git bytes; only Markdown link targets rebased with a reversible byte-offset ledger.",
+  "documents": [
+    {
+      "original_path": "README.md",
+      "archive_path": "docs/history/2026-10/pre-reorganization/project-readme.md",
+      "source_sha256": "542a4ac6267c7b12463c5c77c03d336519949b7a0e169929cbcd67493a64c3ff",
+      "archive_sha256": "679e49a4ff4bcf8e772d307cac6a65886d29180de3eeab8adb2c55c5fc367c32",
+      "source_bytes": 86597,
+      "archive_bytes": 86875,
+      "link_rewrites": [
+        {
+          "at": 651,
+          "old": "docs/releases/0.10.0.md#publication-receipt-2026-10-28",
+          "new": "../../../releases/0.10.0.md#publication-receipt-2026-10-28"
+        },
+        {
+          "at": 1336,
+          "old": "docs/releases/0.10.0.md",
+          "new": "../../../releases/0.10.0.md"
+        },
+        {
+          "at": 2064,
+          "old": "docs/releases/0.10.0.md",
+          "new": "../../../releases/0.10.0.md"
+        },
+        {
+          "at": 25846,
+          "old": "docs/releases/0.9.7.md",
+          "new": "../../../releases/0.9.7.md"
+        },
+        {
+          "at": 32384,
+          "old": "docs/releases/0.9.6.md",
+          "new": "../../../releases/0.9.6.md"
+        },
+        {
+          "at": 33591,
+          "old": "docs/releases/0.9.5.md",
+          "new": "../../../releases/0.9.5.md"
+        },
+        {
+          "at": 33710,
+          "old": "docs/linux-packaging-data.md#从-080-开始的发布要求",
+          "new": "../../../linux-packaging-data.md#从-080-开始的发布要求"
+        },
+        {
+          "at": 38583,
+          "old": "DEVELOPMENT.md#daily-entryway-and-leaving-home--2026-10-23",
+          "new": "development.md#daily-entryway-and-leaving-home--2026-10-23"
+        },
+        {
+          "at": 40047,
+          "old": "DEVELOPMENT.md#daily-desk-accessories-and-cable-storage--2026-10-23",
+          "new": "development.md#daily-desk-accessories-and-cable-storage--2026-10-23"
+        },
+        {
+          "at": 42310,
+          "old": "DEVELOPMENT.md#daily-recycling-and-household-coordination--2026-10-23",
+          "new": "development.md#daily-recycling-and-household-coordination--2026-10-23"
+        },
+        {
+          "at": 43214,
+          "old": "docs/releases/0.9.3.md",
+          "new": "../../../releases/0.9.3.md"
+        },
+        {
+          "at": 44589,
+          "old": "docs/releases/0.9.5.md",
+          "new": "../../../releases/0.9.5.md"
+        },
+        {
+          "at": 45808,
+          "old": "docs/releases/0.9.4.md",
+          "new": "../../../releases/0.9.4.md"
+        },
+        {
+          "at": 46830,
+          "old": "DEVELOPMENT.md#daily-bedding-and-bedtime-preparation--2026-10-23",
+          "new": "development.md#daily-bedding-and-bedtime-preparation--2026-10-23"
+        },
+        {
+          "at": 48308,
+          "old": "DEVELOPMENT.md#daily-kitchen-preparation-tableware-and-clearing-up--2026-10-23",
+          "new": "development.md#daily-kitchen-preparation-tableware-and-clearing-up--2026-10-23"
+        },
+        {
+          "at": 50548,
+          "old": "DEVELOPMENT.md#daily-plants-and-balcony-dialogue--2026-10-20",
+          "new": "development.md#daily-plants-and-balcony-dialogue--2026-10-20"
+        },
+        {
+          "at": 51901,
+          "old": "DEVELOPMENT.md#daily-reading-pages-and-bookmarks--2026-10-20",
+          "new": "development.md#daily-reading-pages-and-bookmarks--2026-10-20"
+        },
+        {
+          "at": 53503,
+          "old": "DEVELOPMENT.md#daily-stationery-and-writing--2026-10-20",
+          "new": "development.md#daily-stationery-and-writing--2026-10-20"
+        },
+        {
+          "at": 55364,
+          "old": "DEVELOPMENT.md#daily-room-comfort-and-terminal-nasal-completion--2026-10-20",
+          "new": "development.md#daily-room-comfort-and-terminal-nasal-completion--2026-10-20"
+        },
+        {
+          "at": 56722,
+          "old": "DEVELOPMENT.md#daily-dressing-fit-and-accessories--2026-10-20",
+          "new": "development.md#daily-dressing-fit-and-accessories--2026-10-20"
+        },
+        {
+          "at": 57311,
+          "old": "data/lexicons/README.md",
+          "new": "lexicons.md"
+        },
+        {
+          "at": 57613,
+          "old": "docs/linux-packaging-data.md#离线词库包与制包-sdk",
+          "new": "../../../linux-packaging-data.md#离线词库包与制包-sdk"
+        },
+        {
+          "at": 60044,
+          "old": "DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 60681,
+          "old": "DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 61391,
+          "old": "DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 63308,
+          "old": "data/lexicons/README.md",
+          "new": "lexicons.md"
+        },
+        {
+          "at": 64326,
+          "old": "data/lexicons/README.md",
+          "new": "lexicons.md"
+        },
+        {
+          "at": 64914,
+          "old": "data/lexicons/README.md",
+          "new": "lexicons.md"
+        },
+        {
+          "at": 64979,
+          "old": "DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 65765,
+          "old": "DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 66832,
+          "old": "docs/releases/0.9.2.md",
+          "new": "../../../releases/0.9.2.md"
+        },
+        {
+          "at": 67952,
+          "old": "docs/shortcuts.md",
+          "new": "../../../shortcuts.md"
+        },
+        {
+          "at": 69547,
+          "old": "examples/input_hotpath_bench.rs",
+          "new": "../../../../examples/input_hotpath_bench.rs"
+        },
+        {
+          "at": 69612,
+          "old": "tests/input_hotpath_equivalence.rs",
+          "new": "../../../../tests/input_hotpath_equivalence.rs"
+        },
+        {
+          "at": 69690,
+          "old": "DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 70946,
+          "old": "tests/daily_aftercare_english.rs",
+          "new": "../../../../tests/daily_aftercare_english.rs"
+        },
+        {
+          "at": 71003,
+          "old": "tests/daily_aftercare_chinese.rs",
+          "new": "../../../../tests/daily_aftercare_chinese.rs"
+        },
+        {
+          "at": 71061,
+          "old": "tests/daily_aftercare_japanese.rs",
+          "new": "../../../../tests/daily_aftercare_japanese.rs"
+        },
+        {
+          "at": 71134,
+          "old": "tests/daily_aftercare_compatibility.rs",
+          "new": "../../../../tests/daily_aftercare_compatibility.rs"
+        },
+        {
+          "at": 71211,
+          "old": "tests/daily_aftercare_packs.rs",
+          "new": "../../../../tests/daily_aftercare_packs.rs"
+        },
+        {
+          "at": 71962,
+          "old": "DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 73257,
+          "old": "tests/daily_messaging_english.rs",
+          "new": "../../../../tests/daily_messaging_english.rs"
+        },
+        {
+          "at": 73314,
+          "old": "tests/daily_messaging_chinese.rs",
+          "new": "../../../../tests/daily_messaging_chinese.rs"
+        },
+        {
+          "at": 73372,
+          "old": "tests/daily_messaging_japanese.rs",
+          "new": "../../../../tests/daily_messaging_japanese.rs"
+        },
+        {
+          "at": 73448,
+          "old": "tests/daily_messaging_compatibility.rs",
+          "new": "../../../../tests/daily_messaging_compatibility.rs"
+        },
+        {
+          "at": 74936,
+          "old": "tests/daily_appointments_english.rs",
+          "new": "../../../../tests/daily_appointments_english.rs"
+        },
+        {
+          "at": 74996,
+          "old": "tests/daily_appointments_chinese.rs",
+          "new": "../../../../tests/daily_appointments_chinese.rs"
+        },
+        {
+          "at": 75057,
+          "old": "tests/daily_appointments_japanese.rs",
+          "new": "../../../../tests/daily_appointments_japanese.rs"
+        },
+        {
+          "at": 75133,
+          "old": "tests/daily_appointments_compatibility.rs",
+          "new": "../../../../tests/daily_appointments_compatibility.rs"
+        },
+        {
+          "at": 75213,
+          "old": "tests/daily_appointments_packs.rs",
+          "new": "../../../../tests/daily_appointments_packs.rs"
+        },
+        {
+          "at": 75642,
+          "old": "DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 77706,
+          "old": "docs/releases/0.9.2.md",
+          "new": "../../../releases/0.9.2.md"
+        },
+        {
+          "at": 77751,
+          "old": "data/lexicons/README.md",
+          "new": "lexicons.md"
+        },
+        {
+          "at": 77788,
+          "old": "docs/known-limitations.md",
+          "new": "../../../known-limitations.md"
+        },
+        {
+          "at": 78505,
+          "old": "docs/linux-packaging-data.md#从-080-开始的发布要求",
+          "new": "../../../linux-packaging-data.md#从-080-开始的发布要求"
+        },
+        {
+          "at": 79841,
+          "old": "docs/linux-packaging-data.md",
+          "new": "../../../linux-packaging-data.md"
+        },
+        {
+          "at": 81695,
+          "old": "docs/shortcuts.md",
+          "new": "../../../shortcuts.md"
+        },
+        {
+          "at": 81968,
+          "old": "docs/ibus-candidates.md",
+          "new": "../../../ibus-candidates.md"
+        },
+        {
+          "at": 83846,
+          "old": "docs/model-providers.md",
+          "new": "../../../model-providers.md"
+        },
+        {
+          "at": 84896,
+          "old": "docs/ibus-candidates.md#偏好频率缓存",
+          "new": "../../../ibus-candidates.md#偏好频率缓存"
+        },
+        {
+          "at": 84970,
+          "old": "docs/privacy.md",
+          "new": "../../../privacy.md"
+        },
+        {
+          "at": 85155,
+          "old": "CONTRIBUTING.md",
+          "new": "../../../../CONTRIBUTING.md"
+        },
+        {
+          "at": 85723,
+          "old": "SECURITY.md",
+          "new": "../../../../SECURITY.md"
+        },
+        {
+          "at": 85850,
+          "old": "docs/functional-network.md#当前-rust-模块与职责",
+          "new": "functional-network.md#当前-rust-模块与职责"
+        },
+        {
+          "at": 86047,
+          "old": "docs/functional-network.md",
+          "new": "functional-network.md"
+        },
+        {
+          "at": 86164,
+          "old": "docs/ibus-candidates.md",
+          "new": "../../../ibus-candidates.md"
+        },
+        {
+          "at": 86214,
+          "old": "docs/model-providers.md",
+          "new": "../../../model-providers.md"
+        },
+        {
+          "at": 86278,
+          "old": "docs/shortcuts.md",
+          "new": "../../../shortcuts.md"
+        },
+        {
+          "at": 86386,
+          "old": "docs/translation.md",
+          "new": "../../../translation.md"
+        },
+        {
+          "at": 86436,
+          "old": "docs/interface-languages.md",
+          "new": "../../../interface-languages.md"
+        },
+        {
+          "at": 86497,
+          "old": "docs/linux-packaging-data.md",
+          "new": "../../../linux-packaging-data.md"
+        },
+        {
+          "at": 86554,
+          "old": "docs/known-limitations.md",
+          "new": "../../../known-limitations.md"
+        },
+        {
+          "at": 86609,
+          "old": "docs/releases/0.9.1.md",
+          "new": "../../../releases/0.9.1.md"
+        },
+        {
+          "at": 86679,
+          "old": "DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 86724,
+          "old": "LICENSE",
+          "new": "../../../../LICENSE"
+        }
+      ]
+    },
+    {
+      "original_path": "DEVELOPMENT.md",
+      "archive_path": "docs/history/2026-10/pre-reorganization/development.md",
+      "source_sha256": "625eae98b838772202de04fe829b56d2c31c6a884c46154600776517340147a6",
+      "archive_sha256": "3929dc5a6d27c2dfd0616904d496d61c22f77bd4cf94e2cb454d291fe1954ae6",
+      "source_bytes": 897287,
+      "archive_bytes": 899215,
+      "link_rewrites": [
+        {
+          "at": 578,
+          "old": "docs/releases/0.10.0.md",
+          "new": "../../../releases/0.10.0.md"
+        },
+        {
+          "at": 4042,
+          "old": "docs/releases/0.10.0.md#publication-receipt-2026-10-28",
+          "new": "../../../releases/0.10.0.md#publication-receipt-2026-10-28"
+        },
+        {
+          "at": 28824,
+          "old": "docs/releases/0.9.7.md",
+          "new": "../../../releases/0.9.7.md"
+        },
+        {
+          "at": 35362,
+          "old": "docs/releases/0.9.6.md",
+          "new": "../../../releases/0.9.6.md"
+        },
+        {
+          "at": 35952,
+          "old": "README.md",
+          "new": "project-readme.md"
+        },
+        {
+          "at": 35995,
+          "old": "docs/known-limitations.md",
+          "new": "../../../known-limitations.md"
+        },
+        {
+          "at": 39651,
+          "old": "docs/releases/0.9.2.md",
+          "new": "../../../releases/0.9.2.md"
+        },
+        {
+          "at": 40791,
+          "old": "data/lexicons/README.md",
+          "new": "lexicons.md"
+        },
+        {
+          "at": 41267,
+          "old": "tests/english_completion_quality.rs",
+          "new": "../../../../tests/english_completion_quality.rs"
+        },
+        {
+          "at": 41330,
+          "old": "tests/chinese_completion_quality.rs",
+          "new": "../../../../tests/chinese_completion_quality.rs"
+        },
+        {
+          "at": 41573,
+          "old": "docs/bug-audit-bilingual-core-2026-09-24.md",
+          "new": "../../../bug-audit-bilingual-core-2026-09-24.md"
+        },
+        {
+          "at": 101526,
+          "old": "docs/releases/0.9.7.md",
+          "new": "../../../releases/0.9.7.md"
+        },
+        {
+          "at": 151773,
+          "old": "tests/daily_recycling_english.rs",
+          "new": "../../../../tests/daily_recycling_english.rs"
+        },
+        {
+          "at": 151846,
+          "old": "tests/daily_recycling_chinese.rs",
+          "new": "../../../../tests/daily_recycling_chinese.rs"
+        },
+        {
+          "at": 151919,
+          "old": "tests/daily_recycling_japanese.rs",
+          "new": "../../../../tests/daily_recycling_japanese.rs"
+        },
+        {
+          "at": 152008,
+          "old": "tests/daily_recycling_packs.rs",
+          "new": "../../../../tests/daily_recycling_packs.rs"
+        },
+        {
+          "at": 154044,
+          "old": "tests/support/daily_recycling_replay.rs",
+          "new": "../../../../tests/support/daily_recycling_replay.rs"
+        },
+        {
+          "at": 161768,
+          "old": "docs/releases/0.9.5.md",
+          "new": "../../../releases/0.9.5.md"
+        },
+        {
+          "at": 164228,
+          "old": "tests/daily_bedding_english.rs",
+          "new": "../../../../tests/daily_bedding_english.rs"
+        },
+        {
+          "at": 164298,
+          "old": "tests/daily_bedding_chinese.rs",
+          "new": "../../../../tests/daily_bedding_chinese.rs"
+        },
+        {
+          "at": 164369,
+          "old": "tests/daily_bedding_japanese.rs",
+          "new": "../../../../tests/daily_bedding_japanese.rs"
+        },
+        {
+          "at": 164456,
+          "old": "tests/daily_bedding_packs.rs",
+          "new": "../../../../tests/daily_bedding_packs.rs"
+        },
+        {
+          "at": 170669,
+          "old": "tests/daily_kitchen_english.rs",
+          "new": "../../../../tests/daily_kitchen_english.rs"
+        },
+        {
+          "at": 170726,
+          "old": "tests/daily_kitchen_chinese.rs",
+          "new": "../../../../tests/daily_kitchen_chinese.rs"
+        },
+        {
+          "at": 170782,
+          "old": "tests/daily_kitchen_japanese.rs",
+          "new": "../../../../tests/daily_kitchen_japanese.rs"
+        },
+        {
+          "at": 170856,
+          "old": "tests/daily_kitchen_packs.rs",
+          "new": "../../../../tests/daily_kitchen_packs.rs"
+        },
+        {
+          "at": 177638,
+          "old": "docs/releases/0.9.4.md",
+          "new": "../../../releases/0.9.4.md"
+        },
+        {
+          "at": 179969,
+          "old": "tests/daily_plants_english.rs",
+          "new": "../../../../tests/daily_plants_english.rs"
+        },
+        {
+          "at": 180023,
+          "old": "tests/daily_plants_chinese.rs",
+          "new": "../../../../tests/daily_plants_chinese.rs"
+        },
+        {
+          "at": 180117,
+          "old": "tests/daily_plants_japanese.rs",
+          "new": "../../../../tests/daily_plants_japanese.rs"
+        },
+        {
+          "at": 180199,
+          "old": "tests/daily_plants_packs.rs",
+          "new": "../../../../tests/daily_plants_packs.rs"
+        },
+        {
+          "at": 185595,
+          "old": "tests/japanese_spare_parent_words.rs",
+          "new": "../../../../tests/japanese_spare_parent_words.rs"
+        },
+        {
+          "at": 192752,
+          "old": "tests/daily_reading_english.rs",
+          "new": "../../../../tests/daily_reading_english.rs"
+        },
+        {
+          "at": 192807,
+          "old": "tests/daily_reading_chinese.rs",
+          "new": "../../../../tests/daily_reading_chinese.rs"
+        },
+        {
+          "at": 192902,
+          "old": "tests/daily_reading_japanese.rs",
+          "new": "../../../../tests/daily_reading_japanese.rs"
+        },
+        {
+          "at": 192985,
+          "old": "tests/daily_reading_packs.rs",
+          "new": "../../../../tests/daily_reading_packs.rs"
+        },
+        {
+          "at": 198350,
+          "old": "tests/support/daily_reading_replay.rs",
+          "new": "../../../../tests/support/daily_reading_replay.rs"
+        },
+        {
+          "at": 200362,
+          "old": "tests/daily_stationery_english.rs",
+          "new": "../../../../tests/daily_stationery_english.rs"
+        },
+        {
+          "at": 200420,
+          "old": "tests/daily_stationery_chinese.rs",
+          "new": "../../../../tests/daily_stationery_chinese.rs"
+        },
+        {
+          "at": 200481,
+          "old": "tests/daily_stationery_japanese.rs",
+          "new": "../../../../tests/daily_stationery_japanese.rs"
+        },
+        {
+          "at": 200556,
+          "old": "tests/daily_stationery_compatibility.rs",
+          "new": "../../../../tests/daily_stationery_compatibility.rs"
+        },
+        {
+          "at": 200642,
+          "old": "tests/daily_stationery_packs.rs",
+          "new": "../../../../tests/daily_stationery_packs.rs"
+        },
+        {
+          "at": 208564,
+          "old": "tests/daily_room_comfort_english.rs",
+          "new": "../../../../tests/daily_room_comfort_english.rs"
+        },
+        {
+          "at": 208626,
+          "old": "tests/daily_room_comfort_chinese.rs",
+          "new": "../../../../tests/daily_room_comfort_chinese.rs"
+        },
+        {
+          "at": 208687,
+          "old": "tests/daily_room_comfort_japanese.rs",
+          "new": "../../../../tests/daily_room_comfort_japanese.rs"
+        },
+        {
+          "at": 208766,
+          "old": "tests/daily_room_comfort_compatibility.rs",
+          "new": "../../../../tests/daily_room_comfort_compatibility.rs"
+        },
+        {
+          "at": 208865,
+          "old": "tests/daily_room_comfort_packs.rs",
+          "new": "../../../../tests/daily_room_comfort_packs.rs"
+        },
+        {
+          "at": 209377,
+          "old": "tests/japanese_nasal_completion_slots.rs",
+          "new": "../../../../tests/japanese_nasal_completion_slots.rs"
+        },
+        {
+          "at": 211074,
+          "old": "tests/japanese_nasal_stem_boundaries.rs",
+          "new": "../../../../tests/japanese_nasal_stem_boundaries.rs"
+        },
+        {
+          "at": 211684,
+          "old": "tests/offline_pack_layer_budgets.rs",
+          "new": "../../../../tests/offline_pack_layer_budgets.rs"
+        },
+        {
+          "at": 224037,
+          "old": "docs/linux-packaging-data.md",
+          "new": "../../../linux-packaging-data.md"
+        },
+        {
+          "at": 237894,
+          "old": "tests/japanese_progress_sentence_slots.rs",
+          "new": "../../../../tests/japanese_progress_sentence_slots.rs"
+        },
+        {
+          "at": 243605,
+          "old": "tests/input_catalog_index_equivalence.rs",
+          "new": "../../../../tests/input_catalog_index_equivalence.rs"
+        },
+        {
+          "at": 244228,
+          "old": "tests/input_hotpath_equivalence.rs",
+          "new": "../../../../tests/input_hotpath_equivalence.rs"
+        },
+        {
+          "at": 244804,
+          "old": "examples/input_hotpath_bench.rs",
+          "new": "../../../../examples/input_hotpath_bench.rs"
+        },
+        {
+          "at": 278683,
+          "old": "examples/input_hotpath_bench.rs",
+          "new": "../../../../examples/input_hotpath_bench.rs"
+        },
+        {
+          "at": 280176,
+          "old": "tests/input_hotpath_equivalence.rs",
+          "new": "../../../../tests/input_hotpath_equivalence.rs"
+        },
+        {
+          "at": 285606,
+          "old": "tests/daily_aftercare_english.rs",
+          "new": "../../../../tests/daily_aftercare_english.rs"
+        },
+        {
+          "at": 285665,
+          "old": "tests/daily_aftercare_chinese.rs",
+          "new": "../../../../tests/daily_aftercare_chinese.rs"
+        },
+        {
+          "at": 285725,
+          "old": "tests/daily_aftercare_japanese.rs",
+          "new": "../../../../tests/daily_aftercare_japanese.rs"
+        },
+        {
+          "at": 285791,
+          "old": "tests/daily_aftercare_compatibility.rs",
+          "new": "../../../../tests/daily_aftercare_compatibility.rs"
+        },
+        {
+          "at": 285861,
+          "old": "tests/daily_aftercare_packs.rs",
+          "new": "../../../../tests/daily_aftercare_packs.rs"
+        },
+        {
+          "at": 293444,
+          "old": "tests/daily_appointments_english.rs",
+          "new": "../../../../tests/daily_appointments_english.rs"
+        },
+        {
+          "at": 293506,
+          "old": "tests/daily_appointments_chinese.rs",
+          "new": "../../../../tests/daily_appointments_chinese.rs"
+        },
+        {
+          "at": 293572,
+          "old": "tests/daily_appointments_japanese.rs",
+          "new": "../../../../tests/daily_appointments_japanese.rs"
+        },
+        {
+          "at": 294276,
+          "old": "tests/daily_appointments_compatibility.rs",
+          "new": "../../../../tests/daily_appointments_compatibility.rs"
+        },
+        {
+          "at": 295186,
+          "old": "tests/daily_appointments_packs.rs",
+          "new": "../../../../tests/daily_appointments_packs.rs"
+        },
+        {
+          "at": 300919,
+          "old": "tests/daily_messaging_english.rs",
+          "new": "../../../../tests/daily_messaging_english.rs"
+        },
+        {
+          "at": 300978,
+          "old": "tests/daily_messaging_chinese.rs",
+          "new": "../../../../tests/daily_messaging_chinese.rs"
+        },
+        {
+          "at": 301041,
+          "old": "tests/daily_messaging_japanese.rs",
+          "new": "../../../../tests/daily_messaging_japanese.rs"
+        },
+        {
+          "at": 301753,
+          "old": "tests/daily_messaging_compatibility.rs",
+          "new": "../../../../tests/daily_messaging_compatibility.rs"
+        },
+        {
+          "at": 550917,
+          "old": "scripts/test-held-language-coverage.py",
+          "new": "../../../../scripts/test-held-language-coverage.py"
+        },
+        {
+          "at": 556560,
+          "old": "scripts/test-keypad-navigation-coverage.py",
+          "new": "../../../../scripts/test-keypad-navigation-coverage.py"
+        },
+        {
+          "at": 561121,
+          "old": "scripts/test-language-workflow-coverage.py",
+          "new": "../../../../scripts/test-language-workflow-coverage.py"
+        },
+        {
+          "at": 564757,
+          "old": "tests/chinese_mixed_boundary.rs",
+          "new": "../../../../tests/chinese_mixed_boundary.rs"
+        },
+        {
+          "at": 569158,
+          "old": "tests/chinese_function_words.rs",
+          "new": "../../../../tests/chinese_function_words.rs"
+        },
+        {
+          "at": 575097,
+          "old": "tests/chinese_partial_sentence_probe.rs",
+          "new": "../../../../tests/chinese_partial_sentence_probe.rs"
+        },
+        {
+          "at": 576143,
+          "old": "tests/chinese_partial_continuation.rs",
+          "new": "../../../../tests/chinese_partial_continuation.rs"
+        },
+        {
+          "at": 580852,
+          "old": "tests/daily_care_english.rs",
+          "new": "../../../../tests/daily_care_english.rs"
+        },
+        {
+          "at": 580906,
+          "old": "tests/daily_care_chinese.rs",
+          "new": "../../../../tests/daily_care_chinese.rs"
+        },
+        {
+          "at": 580964,
+          "old": "tests/daily_care_japanese.rs",
+          "new": "../../../../tests/daily_care_japanese.rs"
+        },
+        {
+          "at": 589421,
+          "old": "tests/daily_carry_english.rs",
+          "new": "../../../../tests/daily_carry_english.rs"
+        },
+        {
+          "at": 589476,
+          "old": "tests/daily_carry_chinese.rs",
+          "new": "../../../../tests/daily_carry_chinese.rs"
+        },
+        {
+          "at": 589535,
+          "old": "tests/daily_carry_japanese.rs",
+          "new": "../../../../tests/daily_carry_japanese.rs"
+        },
+        {
+          "at": 596443,
+          "old": "tests/daily_requests_english.rs",
+          "new": "../../../../tests/daily_requests_english.rs"
+        },
+        {
+          "at": 596501,
+          "old": "tests/daily_requests_chinese.rs",
+          "new": "../../../../tests/daily_requests_chinese.rs"
+        },
+        {
+          "at": 596563,
+          "old": "tests/daily_requests_japanese.rs",
+          "new": "../../../../tests/daily_requests_japanese.rs"
+        },
+        {
+          "at": 598730,
+          "old": "scripts/test-vocabulary-partitions.py",
+          "new": "../../../../scripts/test-vocabulary-partitions.py"
+        },
+        {
+          "at": 602419,
+          "old": "tests/daily_routine_english.rs",
+          "new": "../../../../tests/daily_routine_english.rs"
+        },
+        {
+          "at": 602476,
+          "old": "tests/daily_routine_chinese.rs",
+          "new": "../../../../tests/daily_routine_chinese.rs"
+        },
+        {
+          "at": 602537,
+          "old": "tests/daily_routine_japanese.rs",
+          "new": "../../../../tests/daily_routine_japanese.rs"
+        },
+        {
+          "at": 613417,
+          "old": "docs/shortcuts.md",
+          "new": "../../../shortcuts.md"
+        },
+        {
+          "at": 617495,
+          "old": "docs/install-audit-0.8.6-2026-10-11.md",
+          "new": "../../../install-audit-0.8.6-2026-10-11.md"
+        },
+        {
+          "at": 618397,
+          "old": "tests/release_japanese_tail.rs",
+          "new": "../../../../tests/release_japanese_tail.rs"
+        },
+        {
+          "at": 622957,
+          "old": "docs/install-audit-0.8.6-2026-10-11.md",
+          "new": "../../../install-audit-0.8.6-2026-10-11.md"
+        },
+        {
+          "at": 623926,
+          "old": "tests/daily_contact_english.rs",
+          "new": "../../../../tests/daily_contact_english.rs"
+        },
+        {
+          "at": 623983,
+          "old": "tests/daily_contact_chinese.rs",
+          "new": "../../../../tests/daily_contact_chinese.rs"
+        },
+        {
+          "at": 624044,
+          "old": "tests/daily_contact_japanese.rs",
+          "new": "../../../../tests/daily_contact_japanese.rs"
+        },
+        {
+          "at": 631505,
+          "old": "tests/daily_transit_english.rs",
+          "new": "../../../../tests/daily_transit_english.rs"
+        },
+        {
+          "at": 631562,
+          "old": "tests/daily_transit_chinese.rs",
+          "new": "../../../../tests/daily_transit_chinese.rs"
+        },
+        {
+          "at": 631623,
+          "old": "tests/daily_transit_japanese.rs",
+          "new": "../../../../tests/daily_transit_japanese.rs"
+        },
+        {
+          "at": 639146,
+          "old": "tests/daily_shopping_english.rs",
+          "new": "../../../../tests/daily_shopping_english.rs"
+        },
+        {
+          "at": 639204,
+          "old": "tests/daily_shopping_chinese.rs",
+          "new": "../../../../tests/daily_shopping_chinese.rs"
+        },
+        {
+          "at": 639266,
+          "old": "tests/daily_shopping_japanese.rs",
+          "new": "../../../../tests/daily_shopping_japanese.rs"
+        },
+        {
+          "at": 645762,
+          "old": "tests/daily_time_english.rs",
+          "new": "../../../../tests/daily_time_english.rs"
+        },
+        {
+          "at": 645816,
+          "old": "tests/daily_time_chinese.rs",
+          "new": "../../../../tests/daily_time_chinese.rs"
+        },
+        {
+          "at": 645874,
+          "old": "tests/daily_time_japanese.rs",
+          "new": "../../../../tests/daily_time_japanese.rs"
+        },
+        {
+          "at": 652118,
+          "old": "tests/daily_location_english.rs",
+          "new": "../../../../tests/daily_location_english.rs"
+        },
+        {
+          "at": 652176,
+          "old": "tests/daily_location_chinese.rs",
+          "new": "../../../../tests/daily_location_chinese.rs"
+        },
+        {
+          "at": 652238,
+          "old": "tests/daily_location_japanese.rs",
+          "new": "../../../../tests/daily_location_japanese.rs"
+        },
+        {
+          "at": 654007,
+          "old": "tests/japanese_completion_boundaries.rs",
+          "new": "../../../../tests/japanese_completion_boundaries.rs"
+        },
+        {
+          "at": 660838,
+          "old": "tests/daily_courtesy_english.rs",
+          "new": "../../../../tests/daily_courtesy_english.rs"
+        },
+        {
+          "at": 660896,
+          "old": "tests/daily_courtesy_chinese.rs",
+          "new": "../../../../tests/daily_courtesy_chinese.rs"
+        },
+        {
+          "at": 660958,
+          "old": "tests/daily_courtesy_japanese.rs",
+          "new": "../../../../tests/daily_courtesy_japanese.rs"
+        },
+        {
+          "at": 734464,
+          "old": "docs/releases/0.8.3.md",
+          "new": "../../../releases/0.8.3.md"
+        },
+        {
+          "at": 741038,
+          "old": "docs/model-providers.md",
+          "new": "../../../model-providers.md"
+        },
+        {
+          "at": 755579,
+          "old": "docs/releases/0.8.2.md",
+          "new": "../../../releases/0.8.2.md"
+        },
+        {
+          "at": 793984,
+          "old": "data/lexicons/README.md",
+          "new": "lexicons.md"
+        },
+        {
+          "at": 794014,
+          "old": "docs/linux-packaging-data.md#离线词库包与制包-sdk",
+          "new": "../../../linux-packaging-data.md#离线词库包与制包-sdk"
+        },
+        {
+          "at": 797867,
+          "old": "docs/releases/0.8.1.md",
+          "new": "../../../releases/0.8.1.md"
+        },
+        {
+          "at": 799698,
+          "old": "docs/releases/0.8.0.md",
+          "new": "../../../releases/0.8.0.md"
+        },
+        {
+          "at": 799755,
+          "old": "docs/linux-packaging-data.md#离线词库包与制包-sdk",
+          "new": "../../../linux-packaging-data.md#离线词库包与制包-sdk"
+        },
+        {
+          "at": 801326,
+          "old": "docs/releases/0.7.5.md",
+          "new": "../../../releases/0.7.5.md"
+        },
+        {
+          "at": 801389,
+          "old": "docs/bug-audit-sentence-progress-2026-09-27.md",
+          "new": "../../../bug-audit-sentence-progress-2026-09-27.md"
+        },
+        {
+          "at": 801469,
+          "old": "docs/bug-audit-english-context-2026-09-28.md",
+          "new": "../../../bug-audit-english-context-2026-09-28.md"
+        },
+        {
+          "at": 802768,
+          "old": "docs/releases/0.7.4.md",
+          "new": "../../../releases/0.7.4.md"
+        },
+        {
+          "at": 802826,
+          "old": "docs/ibus-candidates.md#模型不可用时的本地兜底词库",
+          "new": "../../../ibus-candidates.md#模型不可用时的本地兜底词库"
+        },
+        {
+          "at": 802928,
+          "old": "docs/bug-audit-preference-model-2026-09-27.md",
+          "new": "../../../bug-audit-preference-model-2026-09-27.md"
+        },
+        {
+          "at": 804338,
+          "old": "docs/releases/0.7.3.md",
+          "new": "../../../releases/0.7.3.md"
+        },
+        {
+          "at": 804389,
+          "old": "data/lexicons/README.md",
+          "new": "lexicons.md"
+        },
+        {
+          "at": 804435,
+          "old": "docs/ibus-candidates.md#偏好频率缓存",
+          "new": "../../../ibus-candidates.md#偏好频率缓存"
+        },
+        {
+          "at": 805646,
+          "old": "docs/releases/0.7.2.md",
+          "new": "../../../releases/0.7.2.md"
+        },
+        {
+          "at": 805696,
+          "old": "docs/shortcuts.md",
+          "new": "../../../shortcuts.md"
+        },
+        {
+          "at": 805748,
+          "old": "docs/bug-audit-settings-io-2026-09-27.md",
+          "new": "../../../bug-audit-settings-io-2026-09-27.md"
+        },
+        {
+          "at": 806720,
+          "old": "docs/releases/0.7.1.md",
+          "new": "../../../releases/0.7.1.md"
+        },
+        {
+          "at": 806772,
+          "old": "docs/ci-activation-followup-2026-09-27.md",
+          "new": "../../../ci-activation-followup-2026-09-27.md"
+        },
+        {
+          "at": 806844,
+          "old": "docs/install-audit-0.7.0-2026-09-27.md",
+          "new": "../../../install-audit-0.7.0-2026-09-27.md"
+        },
+        {
+          "at": 807220,
+          "old": "docs/bug-audit-adopted-continuation-2026-09-27.md",
+          "new": "../../../bug-audit-adopted-continuation-2026-09-27.md"
+        },
+        {
+          "at": 807562,
+          "old": "docs/bug-audit-continuation-threshold-2026-09-27.md",
+          "new": "../../../bug-audit-continuation-threshold-2026-09-27.md"
+        },
+        {
+          "at": 808190,
+          "old": "docs/releases/0.7.0.md",
+          "new": "../../../releases/0.7.0.md"
+        },
+        {
+          "at": 809177,
+          "old": "docs/bug-audit-long-draft-window-2026-09-25.md",
+          "new": "../../../bug-audit-long-draft-window-2026-09-25.md"
+        },
+        {
+          "at": 809548,
+          "old": "docs/ergonomics-audit-2026-09-25.md",
+          "new": "../../../ergonomics-audit-2026-09-25.md"
+        },
+        {
+          "at": 809965,
+          "old": "docs/releases/0.6.9.md",
+          "new": "../../../releases/0.6.9.md"
+        },
+        {
+          "at": 810347,
+          "old": "docs/releases/0.6.8.md",
+          "new": "../../../releases/0.6.8.md"
+        },
+        {
+          "at": 811519,
+          "old": "docs/bug-audit-editor-save-2026-09-24.md",
+          "new": "../../../bug-audit-editor-save-2026-09-24.md"
+        },
+        {
+          "at": 812383,
+          "old": "docs/bug-audit-english-next-word-2026-09-24.md",
+          "new": "../../../bug-audit-english-next-word-2026-09-24.md"
+        },
+        {
+          "at": 813090,
+          "old": "docs/bug-audit-pinyin-tone-punctuation-2026-09-24.md",
+          "new": "../../../bug-audit-pinyin-tone-punctuation-2026-09-24.md"
+        },
+        {
+          "at": 813823,
+          "old": "docs/bug-audit-model-prefix-spacing-2026-09-25.md",
+          "new": "../../../bug-audit-model-prefix-spacing-2026-09-25.md"
+        },
+        {
+          "at": 814518,
+          "old": "docs/bug-audit-long-pinyin-continuation-2026-09-25.md",
+          "new": "../../../bug-audit-long-pinyin-continuation-2026-09-25.md"
+        },
+        {
+          "at": 815225,
+          "old": "docs/shortcuts.md",
+          "new": "../../../shortcuts.md"
+        },
+        {
+          "at": 815504,
+          "old": "docs/bug-audit-shortcut-repeat-2026-09-24.md",
+          "new": "../../../bug-audit-shortcut-repeat-2026-09-24.md"
+        },
+        {
+          "at": 815796,
+          "old": "docs/bug-audit-shortcut-focus-2026-09-24.md",
+          "new": "../../../bug-audit-shortcut-focus-2026-09-24.md"
+        },
+        {
+          "at": 816460,
+          "old": "docs/bug-audit-chinese-literal-boundaries-2026-09-24.md",
+          "new": "../../../bug-audit-chinese-literal-boundaries-2026-09-24.md"
+        },
+        {
+          "at": 816554,
+          "old": "docs/releases/0.6.7.md",
+          "new": "../../../releases/0.6.7.md"
+        },
+        {
+          "at": 817742,
+          "old": "docs/releases/0.6.6.md",
+          "new": "../../../releases/0.6.6.md"
+        },
+        {
+          "at": 818771,
+          "old": "docs/releases/0.6.5.md",
+          "new": "../../../releases/0.6.5.md"
+        },
+        {
+          "at": 819507,
+          "old": "docs/releases/0.6.4.md",
+          "new": "../../../releases/0.6.4.md"
+        },
+        {
+          "at": 820206,
+          "old": "docs/releases/0.6.3.md",
+          "new": "../../../releases/0.6.3.md"
+        },
+        {
+          "at": 821060,
+          "old": "docs/releases/0.6.2.md",
+          "new": "../../../releases/0.6.2.md"
+        },
+        {
+          "at": 821878,
+          "old": "docs/releases/0.6.1.md",
+          "new": "../../../releases/0.6.1.md"
+        },
+        {
+          "at": 822657,
+          "old": "docs/releases/0.6.0.md",
+          "new": "../../../releases/0.6.0.md"
+        },
+        {
+          "at": 823402,
+          "old": "docs/releases/0.5.9.md",
+          "new": "../../../releases/0.5.9.md"
+        },
+        {
+          "at": 824019,
+          "old": "docs/releases/0.5.8.md",
+          "new": "../../../releases/0.5.8.md"
+        },
+        {
+          "at": 824283,
+          "old": "docs/releases/0.5.7.md",
+          "new": "../../../releases/0.5.7.md"
+        },
+        {
+          "at": 824542,
+          "old": "docs/releases/0.5.6.md",
+          "new": "../../../releases/0.5.6.md"
+        },
+        {
+          "at": 825997,
+          "old": "docs/interface-languages.md",
+          "new": "../../../interface-languages.md"
+        },
+        {
+          "at": 826729,
+          "old": "docs/translation.md",
+          "new": "../../../translation.md"
+        },
+        {
+          "at": 834253,
+          "old": "docs/model-providers.md",
+          "new": "../../../model-providers.md"
+        },
+        {
+          "at": 834913,
+          "old": "docs/ibus-candidates.md",
+          "new": "../../../ibus-candidates.md"
+        },
+        {
+          "at": 836433,
+          "old": "docs/linux-packaging-data.md",
+          "new": "../../../linux-packaging-data.md"
+        },
+        {
+          "at": 852731,
+          "old": "docs/model-providers.md",
+          "new": "../../../model-providers.md"
+        },
+        {
+          "at": 868826,
+          "old": "src/ime.rs",
+          "new": "../../../../src/ime.rs"
+        },
+        {
+          "at": 868893,
+          "old": "src/ime_host.rs",
+          "new": "../../../../src/ime_host.rs"
+        },
+        {
+          "at": 868958,
+          "old": "src/platform",
+          "new": "../../../../src/platform"
+        },
+        {
+          "at": 869028,
+          "old": "src/bin/panel.rs",
+          "new": "../../../../src/bin/panel.rs"
+        },
+        {
+          "at": 869087,
+          "old": "android",
+          "new": "../../../../android"
+        },
+        {
+          "at": 869329,
+          "old": "src/ime/core_engine.rs",
+          "new": "../../../../src/ime/core_engine.rs"
+        },
+        {
+          "at": 869390,
+          "old": "src/languages/mod.rs",
+          "new": "../../../../src/languages/mod.rs"
+        },
+        {
+          "at": 869453,
+          "old": "src/languages/english.rs",
+          "new": "../../../../src/languages/english.rs"
+        },
+        {
+          "at": 869516,
+          "old": "src/languages/llm.rs",
+          "new": "../../../../src/languages/llm.rs"
+        },
+        {
+          "at": 869577,
+          "old": "src/languages/llama.rs",
+          "new": "../../../../src/languages/llama.rs"
+        },
+        {
+          "at": 869767,
+          "old": "src/ime_host.rs",
+          "new": "../../../../src/ime_host.rs"
+        },
+        {
+          "at": 869867,
+          "old": "src/platform/ime_host_adapter.rs",
+          "new": "../../../../src/platform/ime_host_adapter.rs"
+        },
+        {
+          "at": 869968,
+          "old": "src/platform/mod.rs",
+          "new": "../../../../src/platform/mod.rs"
+        },
+        {
+          "at": 870038,
+          "old": "src/platform/ime_host_adapter.rs",
+          "new": "../../../../src/platform/ime_host_adapter.rs"
+        },
+        {
+          "at": 870122,
+          "old": "src/platform/ime_host_dispatch.rs",
+          "new": "../../../../src/platform/ime_host_dispatch.rs"
+        },
+        {
+          "at": 870206,
+          "old": "src/platform/ime_host_runtime.rs",
+          "new": "../../../../src/platform/ime_host_runtime.rs"
+        },
+        {
+          "at": 870297,
+          "old": "src/platform/panel_companion_dispatch.rs",
+          "new": "../../../../src/platform/panel_companion_dispatch.rs"
+        },
+        {
+          "at": 870818,
+          "old": "src/ime/gpu",
+          "new": "../../../../src/ime/gpu"
+        },
+        {
+          "at": 870907,
+          "old": "src/platform/companion_style.rs",
+          "new": "../../../../src/platform/companion_style.rs"
+        },
+        {
+          "at": 871005,
+          "old": "src/lib.rs",
+          "new": "../../../../src/lib.rs"
+        },
+        {
+          "at": 871044,
+          "old": "src/ime.rs",
+          "new": "../../../../src/ime.rs"
+        },
+        {
+          "at": 871088,
+          "old": "src/ime_host.rs",
+          "new": "../../../../src/ime_host.rs"
+        },
+        {
+          "at": 871154,
+          "old": "src/platform/ime_host_adapter.rs",
+          "new": "../../../../src/platform/ime_host_adapter.rs"
+        },
+        {
+          "at": 871237,
+          "old": "src/platform/ime_host_runtime.rs",
+          "new": "../../../../src/platform/ime_host_runtime.rs"
+        },
+        {
+          "at": 871308,
+          "old": "src/panel_support.rs",
+          "new": "../../../../src/panel_support.rs"
+        },
+        {
+          "at": 871383,
+          "old": "src/bin/panel.rs",
+          "new": "../../../../src/bin/panel.rs"
+        },
+        {
+          "at": 871431,
+          "old": "src/bin/panel",
+          "new": "../../../../src/bin/panel"
+        },
+        {
+          "at": 871500,
+          "old": "src/platform/macos_ime.rs",
+          "new": "../../../../src/platform/macos_ime.rs"
+        },
+        {
+          "at": 871571,
+          "old": "src/macos/ime_host_bridge.m",
+          "new": "../../../../src/macos/ime_host_bridge.m"
+        },
+        {
+          "at": 871642,
+          "old": "src/macos/speech_bridge.m",
+          "new": "../../../../src/macos/speech_bridge.m"
+        },
+        {
+          "at": 871716,
+          "old": "src/macos/text_output_bridge.m",
+          "new": "../../../../src/macos/text_output_bridge.m"
+        },
+        {
+          "at": 871806,
+          "old": "src/platform/android_ime.rs",
+          "new": "../../../../src/platform/android_ime.rs"
+        },
+        {
+          "at": 871886,
+          "old": "src/platform/android_jni_bridge.rs",
+          "new": "../../../../src/platform/android_jni_bridge.rs"
+        },
+        {
+          "at": 871987,
+          "old": "android/app/src/main/java/dev/suzaku/android/ime",
+          "new": "../../../../android/app/src/main/java/dev/suzaku/android/ime"
+        },
+        {
+          "at": 872193,
+          "old": "src/00-Map.md",
+          "new": "../../../../src/00-Map.md"
+        },
+        {
+          "at": 872241,
+          "old": "src/01-Signal.md",
+          "new": "../../../../src/01-Signal.md"
+        },
+        {
+          "at": 872293,
+          "old": "src/02-Control.md",
+          "new": "../../../../src/02-Control.md"
+        },
+        {
+          "at": 872349,
+          "old": "src/03-Resilience.md",
+          "new": "../../../../src/03-Resilience.md"
+        },
+        {
+          "at": 872410,
+          "old": "src/04-Coordination.md",
+          "new": "../../../../src/04-Coordination.md"
+        },
+        {
+          "at": 872471,
+          "old": "src/05-Expression.md",
+          "new": "../../../../src/05-Expression.md"
+        },
+        {
+          "at": 872533,
+          "old": "src/06-IME-XR-Tablet.md",
+          "new": "../../../../src/06-IME-XR-Tablet.md"
+        },
+        {
+          "at": 890846,
+          "old": "docs/bug-audit-ordinal-click-2026-09-23.md",
+          "new": "../../../bug-audit-ordinal-click-2026-09-23.md"
+        },
+        {
+          "at": 891370,
+          "old": "docs/bug-audit-native-popup-2026-09-23.md",
+          "new": "../../../bug-audit-native-popup-2026-09-23.md"
+        },
+        {
+          "at": 891631,
+          "old": "docs/bug-audit-cross-app-fixes-2026-09-23.md",
+          "new": "../../../bug-audit-cross-app-fixes-2026-09-23.md"
+        }
+      ]
+    },
+    {
+      "original_path": "data/lexicons/README.md",
+      "archive_path": "docs/history/2026-10/pre-reorganization/lexicons.md",
+      "source_sha256": "bc348ea9db049c07f5a24be6ef1b26926fddd7526aeceb408d7e55172df4112e",
+      "archive_sha256": "1d9522a977d7e5ad6957eae8c640793140485e1387e3b98ee2f584f945d312bf",
+      "source_bytes": 191140,
+      "archive_bytes": 191774,
+      "link_rewrites": [
+        {
+          "at": 605,
+          "old": "../../docs/releases/0.10.0.md",
+          "new": "../../../releases/0.10.0.md"
+        },
+        {
+          "at": 1208,
+          "old": "../../docs/releases/0.10.0.md",
+          "new": "../../../releases/0.10.0.md"
+        },
+        {
+          "at": 1851,
+          "old": "../../docs/releases/0.10.0.md#publication-receipt-2026-10-28",
+          "new": "../../../releases/0.10.0.md#publication-receipt-2026-10-28"
+        },
+        {
+          "at": 24922,
+          "old": "../../docs/releases/0.9.7.md",
+          "new": "../../../releases/0.9.7.md"
+        },
+        {
+          "at": 35440,
+          "old": "../../DEVELOPMENT.md#daily-entryway-and-leaving-home--2026-10-23",
+          "new": "development.md#daily-entryway-and-leaving-home--2026-10-23"
+        },
+        {
+          "at": 36841,
+          "old": "../../DEVELOPMENT.md#daily-desk-accessories-and-cable-storage--2026-10-23",
+          "new": "development.md#daily-desk-accessories-and-cable-storage--2026-10-23"
+        },
+        {
+          "at": 39147,
+          "old": "../../DEVELOPMENT.md#daily-recycling-and-household-coordination--2026-10-23",
+          "new": "development.md#daily-recycling-and-household-coordination--2026-10-23"
+        },
+        {
+          "at": 40334,
+          "old": "../../docs/releases/0.9.5.md",
+          "new": "../../../releases/0.9.5.md"
+        },
+        {
+          "at": 41391,
+          "old": "../../DEVELOPMENT.md#daily-bedding-and-bedtime-preparation--2026-10-23",
+          "new": "development.md#daily-bedding-and-bedtime-preparation--2026-10-23"
+        },
+        {
+          "at": 42901,
+          "old": "../../DEVELOPMENT.md#daily-kitchen-preparation-tableware-and-clearing-up--2026-10-23",
+          "new": "development.md#daily-kitchen-preparation-tableware-and-clearing-up--2026-10-23"
+        },
+        {
+          "at": 44095,
+          "old": "../../docs/releases/0.9.4.md",
+          "new": "../../../releases/0.9.4.md"
+        },
+        {
+          "at": 44436,
+          "old": "en.json",
+          "new": "../../../../data/lexicons/en.json"
+        },
+        {
+          "at": 44551,
+          "old": "zh-Hans.json",
+          "new": "../../../../data/lexicons/zh-Hans.json"
+        },
+        {
+          "at": 44693,
+          "old": "ja.json",
+          "new": "../../../../data/lexicons/ja.json"
+        },
+        {
+          "at": 44836,
+          "old": "../../src/lexicon.rs",
+          "new": "../../../../src/lexicon.rs"
+        },
+        {
+          "at": 46314,
+          "old": "../../DEVELOPMENT.md#daily-plants-and-balcony-dialogue--2026-10-20",
+          "new": "development.md#daily-plants-and-balcony-dialogue--2026-10-20"
+        },
+        {
+          "at": 47308,
+          "old": "../../DEVELOPMENT.md#daily-reading-pages-and-bookmarks--2026-10-20",
+          "new": "development.md#daily-reading-pages-and-bookmarks--2026-10-20"
+        },
+        {
+          "at": 48546,
+          "old": "../../DEVELOPMENT.md#daily-stationery-and-writing--2026-10-20",
+          "new": "development.md#daily-stationery-and-writing--2026-10-20"
+        },
+        {
+          "at": 49938,
+          "old": "../../DEVELOPMENT.md#daily-room-comfort-and-terminal-nasal-completion--2026-10-20",
+          "new": "development.md#daily-room-comfort-and-terminal-nasal-completion--2026-10-20"
+        },
+        {
+          "at": 50787,
+          "old": "../../DEVELOPMENT.md#daily-dressing-fit-and-accessories--2026-10-20",
+          "new": "development.md#daily-dressing-fit-and-accessories--2026-10-20"
+        },
+        {
+          "at": 51731,
+          "old": "../../docs/releases/0.9.3.md",
+          "new": "../../../releases/0.9.3.md"
+        },
+        {
+          "at": 52240,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 52807,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 54500,
+          "old": "../../docs/releases/0.9.2.md",
+          "new": "../../../releases/0.9.2.md"
+        },
+        {
+          "at": 56169,
+          "old": "../../docs/releases/0.9.0.md",
+          "new": "../../../releases/0.9.0.md"
+        },
+        {
+          "at": 56921,
+          "old": "../../docs/releases/0.8.9.md",
+          "new": "../../../releases/0.8.9.md"
+        },
+        {
+          "at": 57273,
+          "old": "../../docs/releases/0.8.8.md",
+          "new": "../../../releases/0.8.8.md"
+        },
+        {
+          "at": 57878,
+          "old": "../../docs/releases/0.8.7.md",
+          "new": "../../../releases/0.8.7.md"
+        },
+        {
+          "at": 58595,
+          "old": "../../docs/releases/0.8.6.md",
+          "new": "../../../releases/0.8.6.md"
+        },
+        {
+          "at": 59357,
+          "old": "../../tests/daily_plants_english.rs",
+          "new": "../../../../tests/daily_plants_english.rs"
+        },
+        {
+          "at": 59411,
+          "old": "../../tests/daily_plants_chinese.rs",
+          "new": "../../../../tests/daily_plants_chinese.rs"
+        },
+        {
+          "at": 59481,
+          "old": "../../tests/daily_plants_japanese.rs",
+          "new": "../../../../tests/daily_plants_japanese.rs"
+        },
+        {
+          "at": 59545,
+          "old": "../../tests/daily_plants_packs.rs",
+          "new": "../../../../tests/daily_plants_packs.rs"
+        },
+        {
+          "at": 60534,
+          "old": "../../tests/daily_reading_english.rs",
+          "new": "../../../../tests/daily_reading_english.rs"
+        },
+        {
+          "at": 60589,
+          "old": "../../tests/daily_reading_chinese.rs",
+          "new": "../../../../tests/daily_reading_chinese.rs"
+        },
+        {
+          "at": 60660,
+          "old": "../../tests/daily_reading_japanese.rs",
+          "new": "../../../../tests/daily_reading_japanese.rs"
+        },
+        {
+          "at": 60725,
+          "old": "../../tests/daily_reading_packs.rs",
+          "new": "../../../../tests/daily_reading_packs.rs"
+        },
+        {
+          "at": 61817,
+          "old": "../../tests/daily_stationery_english.rs",
+          "new": "../../../../tests/daily_stationery_english.rs"
+        },
+        {
+          "at": 61875,
+          "old": "../../tests/daily_stationery_chinese.rs",
+          "new": "../../../../tests/daily_stationery_chinese.rs"
+        },
+        {
+          "at": 61934,
+          "old": "../../tests/daily_stationery_japanese.rs",
+          "new": "../../../../tests/daily_stationery_japanese.rs"
+        },
+        {
+          "at": 61996,
+          "old": "../../tests/daily_stationery_compatibility.rs",
+          "new": "../../../../tests/daily_stationery_compatibility.rs"
+        },
+        {
+          "at": 62064,
+          "old": "../../tests/daily_stationery_packs.rs",
+          "new": "../../../../tests/daily_stationery_packs.rs"
+        },
+        {
+          "at": 64567,
+          "old": "../../tests/daily_room_comfort_english.rs",
+          "new": "../../../../tests/daily_room_comfort_english.rs"
+        },
+        {
+          "at": 64627,
+          "old": "../../tests/daily_room_comfort_chinese.rs",
+          "new": "../../../../tests/daily_room_comfort_chinese.rs"
+        },
+        {
+          "at": 64688,
+          "old": "../../tests/daily_room_comfort_japanese.rs",
+          "new": "../../../../tests/daily_room_comfort_japanese.rs"
+        },
+        {
+          "at": 64758,
+          "old": "../../tests/daily_room_comfort_compatibility.rs",
+          "new": "../../../../tests/daily_room_comfort_compatibility.rs"
+        },
+        {
+          "at": 64834,
+          "old": "../../tests/daily_room_comfort_packs.rs",
+          "new": "../../../../tests/daily_room_comfort_packs.rs"
+        },
+        {
+          "at": 65156,
+          "old": "../../tests/japanese_nasal_completion_slots.rs",
+          "new": "../../../../tests/japanese_nasal_completion_slots.rs"
+        },
+        {
+          "at": 65577,
+          "old": "../../tests/japanese_nasal_stem_boundaries.rs",
+          "new": "../../../../tests/japanese_nasal_stem_boundaries.rs"
+        },
+        {
+          "at": 65796,
+          "old": "../../tests/offline_pack_layer_budgets.rs",
+          "new": "../../../../tests/offline_pack_layer_budgets.rs"
+        },
+        {
+          "at": 68077,
+          "old": "../../tests/daily_dressing_english.rs",
+          "new": "../../../../tests/daily_dressing_english.rs"
+        },
+        {
+          "at": 68133,
+          "old": "../../tests/daily_dressing_chinese.rs",
+          "new": "../../../../tests/daily_dressing_chinese.rs"
+        },
+        {
+          "at": 68190,
+          "old": "../../tests/daily_dressing_japanese.rs",
+          "new": "../../../../tests/daily_dressing_japanese.rs"
+        },
+        {
+          "at": 68256,
+          "old": "../../tests/daily_dressing_compatibility.rs",
+          "new": "../../../../tests/daily_dressing_compatibility.rs"
+        },
+        {
+          "at": 68328,
+          "old": "../../tests/daily_dressing_packs.rs",
+          "new": "../../../../tests/daily_dressing_packs.rs"
+        },
+        {
+          "at": 70754,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 72450,
+          "old": "../../tests/daily_restock_english.rs",
+          "new": "../../../../tests/daily_restock_english.rs"
+        },
+        {
+          "at": 72505,
+          "old": "../../tests/daily_restock_chinese.rs",
+          "new": "../../../../tests/daily_restock_chinese.rs"
+        },
+        {
+          "at": 72561,
+          "old": "../../tests/daily_restock_japanese.rs",
+          "new": "../../../../tests/daily_restock_japanese.rs"
+        },
+        {
+          "at": 72626,
+          "old": "../../tests/daily_restock_compatibility.rs",
+          "new": "../../../../tests/daily_restock_compatibility.rs"
+        },
+        {
+          "at": 72694,
+          "old": "../../tests/daily_restock_packs.rs",
+          "new": "../../../../tests/daily_restock_packs.rs"
+        },
+        {
+          "at": 73195,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 74896,
+          "old": "../../tests/daily_storage_english.rs",
+          "new": "../../../../tests/daily_storage_english.rs"
+        },
+        {
+          "at": 74951,
+          "old": "../../tests/daily_storage_chinese.rs",
+          "new": "../../../../tests/daily_storage_chinese.rs"
+        },
+        {
+          "at": 75007,
+          "old": "../../tests/daily_storage_japanese.rs",
+          "new": "../../../../tests/daily_storage_japanese.rs"
+        },
+        {
+          "at": 75072,
+          "old": "../../tests/daily_storage_compatibility.rs",
+          "new": "../../../../tests/daily_storage_compatibility.rs"
+        },
+        {
+          "at": 75140,
+          "old": "../../tests/daily_storage_packs.rs",
+          "new": "../../../../tests/daily_storage_packs.rs"
+        },
+        {
+          "at": 75560,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 77380,
+          "old": "../../tests/daily_call_english.rs",
+          "new": "../../../../tests/daily_call_english.rs"
+        },
+        {
+          "at": 77432,
+          "old": "../../tests/daily_call_chinese.rs",
+          "new": "../../../../tests/daily_call_chinese.rs"
+        },
+        {
+          "at": 77485,
+          "old": "../../tests/daily_call_japanese.rs",
+          "new": "../../../../tests/daily_call_japanese.rs"
+        },
+        {
+          "at": 77547,
+          "old": "../../tests/daily_call_compatibility.rs",
+          "new": "../../../../tests/daily_call_compatibility.rs"
+        },
+        {
+          "at": 77612,
+          "old": "../../tests/daily_call_packs.rs",
+          "new": "../../../../tests/daily_call_packs.rs"
+        },
+        {
+          "at": 78904,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 80967,
+          "old": "../../tests/daily_route_english.rs",
+          "new": "../../../../tests/daily_route_english.rs"
+        },
+        {
+          "at": 81020,
+          "old": "../../tests/daily_route_chinese.rs",
+          "new": "../../../../tests/daily_route_chinese.rs"
+        },
+        {
+          "at": 81074,
+          "old": "../../tests/daily_route_japanese.rs",
+          "new": "../../../../tests/daily_route_japanese.rs"
+        },
+        {
+          "at": 81303,
+          "old": "../../tests/daily_route_compatibility.rs",
+          "new": "../../../../tests/daily_route_compatibility.rs"
+        },
+        {
+          "at": 81503,
+          "old": "../../tests/daily_route_packs.rs",
+          "new": "../../../../tests/daily_route_packs.rs"
+        },
+        {
+          "at": 85732,
+          "old": "../../tests/daily_aftercare_english.rs",
+          "new": "../../../../tests/daily_aftercare_english.rs"
+        },
+        {
+          "at": 85789,
+          "old": "../../tests/daily_aftercare_chinese.rs",
+          "new": "../../../../tests/daily_aftercare_chinese.rs"
+        },
+        {
+          "at": 85847,
+          "old": "../../tests/daily_aftercare_japanese.rs",
+          "new": "../../../../tests/daily_aftercare_japanese.rs"
+        },
+        {
+          "at": 86040,
+          "old": "../../tests/daily_aftercare_compatibility.rs",
+          "new": "../../../../tests/daily_aftercare_compatibility.rs"
+        },
+        {
+          "at": 86259,
+          "old": "../../tests/daily_aftercare_packs.rs",
+          "new": "../../../../tests/daily_aftercare_packs.rs"
+        },
+        {
+          "at": 86468,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 89720,
+          "old": "../../tests/daily_appointments_english.rs",
+          "new": "../../../../tests/daily_appointments_english.rs"
+        },
+        {
+          "at": 89781,
+          "old": "../../tests/daily_appointments_chinese.rs",
+          "new": "../../../../tests/daily_appointments_chinese.rs"
+        },
+        {
+          "at": 89842,
+          "old": "../../tests/daily_appointments_japanese.rs",
+          "new": "../../../../tests/daily_appointments_japanese.rs"
+        },
+        {
+          "at": 90072,
+          "old": "../../tests/daily_appointments_compatibility.rs",
+          "new": "../../../../tests/daily_appointments_compatibility.rs"
+        },
+        {
+          "at": 90381,
+          "old": "../../tests/daily_appointments_packs.rs",
+          "new": "../../../../tests/daily_appointments_packs.rs"
+        },
+        {
+          "at": 91502,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 93398,
+          "old": "../../tests/daily_messaging_english.rs",
+          "new": "../../../../tests/daily_messaging_english.rs"
+        },
+        {
+          "at": 93462,
+          "old": "../../tests/daily_messaging_chinese.rs",
+          "new": "../../../../tests/daily_messaging_chinese.rs"
+        },
+        {
+          "at": 93526,
+          "old": "../../tests/daily_messaging_japanese.rs",
+          "new": "../../../../tests/daily_messaging_japanese.rs"
+        },
+        {
+          "at": 94062,
+          "old": "../../tests/daily_messaging_compatibility.rs",
+          "new": "../../../../tests/daily_messaging_compatibility.rs"
+        },
+        {
+          "at": 95950,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 97120,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 98824,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 100031,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 101749,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 103454,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 105143,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 107445,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 109014,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 110627,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 112449,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 114526,
+          "old": "../../tests/daily_sharing_english.rs",
+          "new": "../../../../tests/daily_sharing_english.rs"
+        },
+        {
+          "at": 114581,
+          "old": "../../tests/daily_sharing_chinese.rs",
+          "new": "../../../../tests/daily_sharing_chinese.rs"
+        },
+        {
+          "at": 114637,
+          "old": "../../tests/daily_sharing_japanese.rs",
+          "new": "../../../../tests/daily_sharing_japanese.rs"
+        },
+        {
+          "at": 115145,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 115583,
+          "old": "../../tests/chinese_prefix_priority.rs",
+          "new": "../../../../tests/chinese_prefix_priority.rs"
+        },
+        {
+          "at": 116965,
+          "old": "../../tests/daily_cleaning_japanese.rs",
+          "new": "../../../../tests/daily_cleaning_japanese.rs"
+        },
+        {
+          "at": 117168,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 117705,
+          "old": "../../tests/japanese_cleaning_coexistence.rs",
+          "new": "../../../../tests/japanese_cleaning_coexistence.rs"
+        },
+        {
+          "at": 119346,
+          "old": "../../tests/daily_weather_japanese.rs",
+          "new": "../../../../tests/daily_weather_japanese.rs"
+        },
+        {
+          "at": 120142,
+          "old": "../../tests/japanese_authored_backfill.rs",
+          "new": "../../../../tests/japanese_authored_backfill.rs"
+        },
+        {
+          "at": 120344,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 121883,
+          "old": "../../tests/daily_errands_japanese.rs",
+          "new": "../../../../tests/daily_errands_japanese.rs"
+        },
+        {
+          "at": 122463,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 123693,
+          "old": "../../tests/daily_devices_english.rs",
+          "new": "../../../../tests/daily_devices_english.rs"
+        },
+        {
+          "at": 123748,
+          "old": "../../tests/daily_devices_chinese.rs",
+          "new": "../../../../tests/daily_devices_chinese.rs"
+        },
+        {
+          "at": 123804,
+          "old": "../../tests/daily_devices_japanese.rs",
+          "new": "../../../../tests/daily_devices_japanese.rs"
+        },
+        {
+          "at": 124392,
+          "old": "../../tests/offline_pack_quality.rs",
+          "new": "../../../../tests/offline_pack_quality.rs"
+        },
+        {
+          "at": 124589,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 125761,
+          "old": "../../tests/daily_laundry_english.rs",
+          "new": "../../../../tests/daily_laundry_english.rs"
+        },
+        {
+          "at": 125816,
+          "old": "../../tests/daily_laundry_chinese.rs",
+          "new": "../../../../tests/daily_laundry_chinese.rs"
+        },
+        {
+          "at": 125872,
+          "old": "../../tests/daily_laundry_japanese.rs",
+          "new": "../../../../tests/daily_laundry_japanese.rs"
+        },
+        {
+          "at": 126554,
+          "old": "../../tests/japanese_completion_backfill.rs",
+          "new": "../../../../tests/japanese_completion_backfill.rs"
+        },
+        {
+          "at": 126629,
+          "old": "../../tests/family_pack_japanese.rs",
+          "new": "../../../../tests/family_pack_japanese.rs"
+        },
+        {
+          "at": 127072,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 128308,
+          "old": "../../tests/daily_repairs_english.rs",
+          "new": "../../../../tests/daily_repairs_english.rs"
+        },
+        {
+          "at": 128363,
+          "old": "../../tests/daily_repairs_chinese.rs",
+          "new": "../../../../tests/daily_repairs_chinese.rs"
+        },
+        {
+          "at": 128419,
+          "old": "../../tests/daily_repairs_japanese.rs",
+          "new": "../../../../tests/daily_repairs_japanese.rs"
+        },
+        {
+          "at": 129210,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 130360,
+          "old": "../../tests/daily_delivery_english.rs",
+          "new": "../../../../tests/daily_delivery_english.rs"
+        },
+        {
+          "at": 130416,
+          "old": "../../tests/daily_delivery_chinese.rs",
+          "new": "../../../../tests/daily_delivery_chinese.rs"
+        },
+        {
+          "at": 131201,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 132990,
+          "old": "../../tests/daily_visits_english.rs",
+          "new": "../../../../tests/daily_visits_english.rs"
+        },
+        {
+          "at": 133044,
+          "old": "../../tests/daily_visits_chinese.rs",
+          "new": "../../../../tests/daily_visits_chinese.rs"
+        },
+        {
+          "at": 133099,
+          "old": "../../tests/daily_mealtime_japanese.rs",
+          "new": "../../../../tests/daily_mealtime_japanese.rs"
+        },
+        {
+          "at": 133205,
+          "old": "../../tests/offline_pack_quality.rs",
+          "new": "../../../../tests/offline_pack_quality.rs"
+        },
+        {
+          "at": 133332,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 134628,
+          "old": "../../tests/daily_mealtime_english.rs",
+          "new": "../../../../tests/daily_mealtime_english.rs"
+        },
+        {
+          "at": 134684,
+          "old": "../../tests/daily_mealtime_chinese.rs",
+          "new": "../../../../tests/daily_mealtime_chinese.rs"
+        },
+        {
+          "at": 135040,
+          "old": "../../tests/offline_pack_quality.rs",
+          "new": "../../../../tests/offline_pack_quality.rs"
+        },
+        {
+          "at": 135262,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 136570,
+          "old": "../../tests/daily_household_english.rs",
+          "new": "../../../../tests/daily_household_english.rs"
+        },
+        {
+          "at": 136640,
+          "old": "../../tests/daily_household_chinese.rs",
+          "new": "../../../../tests/daily_household_chinese.rs"
+        },
+        {
+          "at": 136998,
+          "old": "../../tests/offline_pack_quality.rs",
+          "new": "../../../../tests/offline_pack_quality.rs"
+        },
+        {
+          "at": 137198,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 138215,
+          "old": "../../tests/chinese_function_words.rs",
+          "new": "../../../../tests/chinese_function_words.rs"
+        },
+        {
+          "at": 138396,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 139770,
+          "old": "../../tests/daily_care_english.rs",
+          "new": "../../../../tests/daily_care_english.rs"
+        },
+        {
+          "at": 139823,
+          "old": "../../tests/daily_care_chinese.rs",
+          "new": "../../../../tests/daily_care_chinese.rs"
+        },
+        {
+          "at": 139875,
+          "old": "../../tests/daily_care_japanese.rs",
+          "new": "../../../../tests/daily_care_japanese.rs"
+        },
+        {
+          "at": 141110,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 142580,
+          "old": "../../tests/daily_carry_english.rs",
+          "new": "../../../../tests/daily_carry_english.rs"
+        },
+        {
+          "at": 142634,
+          "old": "../../tests/daily_carry_chinese.rs",
+          "new": "../../../../tests/daily_carry_chinese.rs"
+        },
+        {
+          "at": 142687,
+          "old": "../../tests/daily_carry_japanese.rs",
+          "new": "../../../../tests/daily_carry_japanese.rs"
+        },
+        {
+          "at": 142924,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 144260,
+          "old": "../../tests/daily_requests_english.rs",
+          "new": "../../../../tests/daily_requests_english.rs"
+        },
+        {
+          "at": 144317,
+          "old": "../../tests/daily_requests_chinese.rs",
+          "new": "../../../../tests/daily_requests_chinese.rs"
+        },
+        {
+          "at": 144373,
+          "old": "../../tests/daily_requests_japanese.rs",
+          "new": "../../../../tests/daily_requests_japanese.rs"
+        },
+        {
+          "at": 144695,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 146301,
+          "old": "../../tests/daily_routine_english.rs",
+          "new": "../../../../tests/daily_routine_english.rs"
+        },
+        {
+          "at": 146357,
+          "old": "../../tests/daily_routine_chinese.rs",
+          "new": "../../../../tests/daily_routine_chinese.rs"
+        },
+        {
+          "at": 146412,
+          "old": "../../tests/daily_routine_japanese.rs",
+          "new": "../../../../tests/daily_routine_japanese.rs"
+        },
+        {
+          "at": 146518,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 157704,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 160627,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 162327,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 163724,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 167098,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 169283,
+          "old": "../../tests/japanese_completion_boundaries.rs",
+          "new": "../../../../tests/japanese_completion_boundaries.rs"
+        },
+        {
+          "at": 169607,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 171272,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 172943,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 174628,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 176326,
+          "old": "../../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 179178,
+          "old": "../../docs/bug-audit-sentence-progress-2026-09-27.md",
+          "new": "../../../bug-audit-sentence-progress-2026-09-27.md"
+        },
+        {
+          "at": 180599,
+          "old": "../../docs/linux-packaging-data.md#离线词库包与制包-sdk",
+          "new": "../../../linux-packaging-data.md#离线词库包与制包-sdk"
+        },
+        {
+          "at": 180701,
+          "old": "../offline-packs/en-outdoors.json",
+          "new": "../../../../data/offline-packs/en-outdoors.json"
+        },
+        {
+          "at": 180774,
+          "old": "../offline-packs/zh-Hans-outdoors.json",
+          "new": "../../../../data/offline-packs/zh-Hans-outdoors.json"
+        },
+        {
+          "at": 180851,
+          "old": "../offline-packs/ja-rail.json",
+          "new": "../../../../data/offline-packs/ja-rail.json"
+        },
+        {
+          "at": 180978,
+          "old": "../offline-packs/en-study.json",
+          "new": "../../../../data/offline-packs/en-study.json"
+        },
+        {
+          "at": 181047,
+          "old": "../offline-packs/zh-Hans-study.json",
+          "new": "../../../../data/offline-packs/zh-Hans-study.json"
+        },
+        {
+          "at": 181122,
+          "old": "../offline-packs/en-cooking.json",
+          "new": "../../../../data/offline-packs/en-cooking.json"
+        },
+        {
+          "at": 181193,
+          "old": "../offline-packs/zh-Hans-cooking.json",
+          "new": "../../../../data/offline-packs/zh-Hans-cooking.json"
+        },
+        {
+          "at": 182159,
+          "old": "../offline-packs/en-travel.json",
+          "new": "../../../../data/offline-packs/en-travel.json"
+        },
+        {
+          "at": 182230,
+          "old": "../offline-packs/zh-Hans-travel.json",
+          "new": "../../../../data/offline-packs/zh-Hans-travel.json"
+        },
+        {
+          "at": 182305,
+          "old": "../offline-packs/en-work.json",
+          "new": "../../../../data/offline-packs/en-work.json"
+        },
+        {
+          "at": 182374,
+          "old": "../offline-packs/zh-Hans-work.json",
+          "new": "../../../../data/offline-packs/zh-Hans-work.json"
+        },
+        {
+          "at": 183646,
+          "old": "../offline-packs/en-family.json",
+          "new": "../../../../data/offline-packs/en-family.json"
+        },
+        {
+          "at": 183704,
+          "old": "../offline-packs/zh-Hans-family.json",
+          "new": "../../../../data/offline-packs/zh-Hans-family.json"
+        },
+        {
+          "at": 183768,
+          "old": "../offline-packs/ja-family.json",
+          "new": "../../../../data/offline-packs/ja-family.json"
+        },
+        {
+          "at": 185103,
+          "old": "../offline-packs/en-shopping.json",
+          "new": "../../../../data/offline-packs/en-shopping.json"
+        },
+        {
+          "at": 185174,
+          "old": "../offline-packs/zh-Hans-shopping.json",
+          "new": "../../../../data/offline-packs/zh-Hans-shopping.json"
+        },
+        {
+          "at": 185279,
+          "old": "../offline-packs/README.md",
+          "new": "../../../../data/offline-packs/README.md"
+        },
+        {
+          "at": 188653,
+          "old": "../../tests/lexicon_resources.rs",
+          "new": "../../../../tests/lexicon_resources.rs"
+        },
+        {
+          "at": 190112,
+          "old": "../../tests/fallback_vocabulary.rs",
+          "new": "../../../../tests/fallback_vocabulary.rs"
+        },
+        {
+          "at": 190286,
+          "old": "../../scripts/test-linux-vocabulary.py",
+          "new": "../../../../scripts/test-linux-vocabulary.py"
+        },
+        {
+          "at": 190356,
+          "old": "../../scripts/test-native-sync.py",
+          "new": "../../../../scripts/test-native-sync.py"
+        },
+        {
+          "at": 190554,
+          "old": "../../tests/offline_pack_quality.rs",
+          "new": "../../../../tests/offline_pack_quality.rs"
+        }
+      ]
+    },
+    {
+      "original_path": "docs/functional-network.md",
+      "archive_path": "docs/history/2026-10/pre-reorganization/functional-network.md",
+      "source_sha256": "d2d4702eb583e97866e41f059cb912df4395f10b849e2c02996633e3de5e9fc5",
+      "archive_sha256": "9398fba440ada28dabb2a01509bc05133c54f84be56f1b4846c8cf15e7a9cee3",
+      "source_bytes": 251708,
+      "archive_bytes": 254273,
+      "link_rewrites": [
+        {
+          "at": 555,
+          "old": "releases/0.10.0.md",
+          "new": "../../../releases/0.10.0.md"
+        },
+        {
+          "at": 1288,
+          "old": "releases/0.10.0.md",
+          "new": "../../../releases/0.10.0.md"
+        },
+        {
+          "at": 1898,
+          "old": "releases/0.10.0.md#publication-receipt-2026-10-28",
+          "new": "../../../releases/0.10.0.md#publication-receipt-2026-10-28"
+        },
+        {
+          "at": 25908,
+          "old": "releases/0.9.7.md",
+          "new": "../../../releases/0.9.7.md"
+        },
+        {
+          "at": 36649,
+          "old": "../DEVELOPMENT.md#daily-entryway-and-leaving-home--2026-10-23",
+          "new": "development.md#daily-entryway-and-leaving-home--2026-10-23"
+        },
+        {
+          "at": 38100,
+          "old": "../DEVELOPMENT.md#daily-desk-accessories-and-cable-storage--2026-10-23",
+          "new": "development.md#daily-desk-accessories-and-cable-storage--2026-10-23"
+        },
+        {
+          "at": 39743,
+          "old": "../DEVELOPMENT.md#daily-recycling-and-household-coordination--2026-10-23",
+          "new": "development.md#daily-recycling-and-household-coordination--2026-10-23"
+        },
+        {
+          "at": 41152,
+          "old": "releases/0.9.5.md",
+          "new": "../../../releases/0.9.5.md"
+        },
+        {
+          "at": 41877,
+          "old": "../DEVELOPMENT.md#daily-bedding-and-bedtime-preparation--2026-10-23",
+          "new": "development.md#daily-bedding-and-bedtime-preparation--2026-10-23"
+        },
+        {
+          "at": 43022,
+          "old": "../DEVELOPMENT.md#daily-kitchen-preparation-tableware-and-clearing-up--2026-10-23",
+          "new": "development.md#daily-kitchen-preparation-tableware-and-clearing-up--2026-10-23"
+        },
+        {
+          "at": 43995,
+          "old": "releases/0.9.4.md",
+          "new": "../../../releases/0.9.4.md"
+        },
+        {
+          "at": 44900,
+          "old": "../scripts/functional-tensor.py",
+          "new": "../../../../scripts/functional-tensor.py"
+        },
+        {
+          "at": 45740,
+          "old": "../DEVELOPMENT.md#daily-plants-and-balcony-dialogue--2026-10-20",
+          "new": "development.md#daily-plants-and-balcony-dialogue--2026-10-20"
+        },
+        {
+          "at": 46967,
+          "old": "../DEVELOPMENT.md#daily-reading-pages-and-bookmarks--2026-10-20",
+          "new": "development.md#daily-reading-pages-and-bookmarks--2026-10-20"
+        },
+        {
+          "at": 49521,
+          "old": "../DEVELOPMENT.md#daily-stationery-and-writing--2026-10-20",
+          "new": "development.md#daily-stationery-and-writing--2026-10-20"
+        },
+        {
+          "at": 51676,
+          "old": "../DEVELOPMENT.md#daily-room-comfort-and-terminal-nasal-completion--2026-10-20",
+          "new": "development.md#daily-room-comfort-and-terminal-nasal-completion--2026-10-20"
+        },
+        {
+          "at": 53075,
+          "old": "../DEVELOPMENT.md#daily-dressing-fit-and-accessories--2026-10-20",
+          "new": "development.md#daily-dressing-fit-and-accessories--2026-10-20"
+        },
+        {
+          "at": 53868,
+          "old": "releases/0.9.3.md",
+          "new": "../../../releases/0.9.3.md"
+        },
+        {
+          "at": 55025,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 68646,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 70319,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 72772,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 73698,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 74766,
+          "old": "../DEVELOPMENT.md#091-source-candidate--2026-10-15",
+          "new": "development.md#091-source-candidate--2026-10-15"
+        },
+        {
+          "at": 86269,
+          "old": "../data/lexicons/README.md",
+          "new": "lexicons.md"
+        },
+        {
+          "at": 89129,
+          "old": "../src/lib.rs",
+          "new": "../../../../src/lib.rs"
+        },
+        {
+          "at": 89211,
+          "old": "../src/00-Map.md",
+          "new": "../../../../src/00-Map.md"
+        },
+        {
+          "at": 89362,
+          "old": "../src/ime.rs",
+          "new": "../../../../src/ime.rs"
+        },
+        {
+          "at": 89594,
+          "old": "../src/languages/mod.rs",
+          "new": "../../../../src/languages/mod.rs"
+        },
+        {
+          "at": 89843,
+          "old": "../src/lexicon.rs",
+          "new": "../../../../src/lexicon.rs"
+        },
+        {
+          "at": 89881,
+          "old": "../src/lexicon/packs.rs",
+          "new": "../../../../src/lexicon/packs.rs"
+        },
+        {
+          "at": 90089,
+          "old": "../src/prediction/mod.rs",
+          "new": "../../../../src/prediction/mod.rs"
+        },
+        {
+          "at": 90314,
+          "old": "../src/model.rs",
+          "new": "../../../../src/model.rs"
+        },
+        {
+          "at": 90593,
+          "old": "../src/languages/translation.rs",
+          "new": "../../../../src/languages/translation.rs"
+        },
+        {
+          "at": 90799,
+          "old": "../src/ime_host.rs",
+          "new": "../../../../src/ime_host.rs"
+        },
+        {
+          "at": 91043,
+          "old": "../src/platform/mod.rs",
+          "new": "../../../../src/platform/mod.rs"
+        },
+        {
+          "at": 91090,
+          "old": "../src/linux/ibus_engine_bridge.c",
+          "new": "../../../../src/linux/ibus_engine_bridge.c"
+        },
+        {
+          "at": 91306,
+          "old": "../src/bin/panel.rs",
+          "new": "../../../../src/bin/panel.rs"
+        },
+        {
+          "at": 91351,
+          "old": "../src/ime/gpu/mod.rs",
+          "new": "../../../../src/ime/gpu/mod.rs"
+        },
+        {
+          "at": 91401,
+          "old": "../src/panel_support.rs",
+          "new": "../../../../src/panel_support.rs"
+        },
+        {
+          "at": 91596,
+          "old": "../src/ui.rs",
+          "new": "../../../../src/ui.rs"
+        },
+        {
+          "at": 91647,
+          "old": "../src/preferences.rs",
+          "new": "../../../../src/preferences.rs"
+        },
+        {
+          "at": 91688,
+          "old": "../src/data.rs",
+          "new": "../../../../src/data.rs"
+        },
+        {
+          "at": 92431,
+          "old": "../src/model/legacy.rs",
+          "new": "../../../../src/model/legacy.rs"
+        },
+        {
+          "at": 93372,
+          "old": "../src/lexicon/packs/format.rs",
+          "new": "../../../../src/lexicon/packs/format.rs"
+        },
+        {
+          "at": 93571,
+          "old": "../src/lexicon/packs/catalog.rs",
+          "new": "../../../../src/lexicon/packs/catalog.rs"
+        },
+        {
+          "at": 93743,
+          "old": "../src/lexicon/packs/store.rs",
+          "new": "../../../../src/lexicon/packs/store.rs"
+        },
+        {
+          "at": 93982,
+          "old": "../src/lexicon/packs/runtime.rs",
+          "new": "../../../../src/lexicon/packs/runtime.rs"
+        },
+        {
+          "at": 95900,
+          "old": "../Cargo.toml",
+          "new": "../../../../Cargo.toml"
+        },
+        {
+          "at": 95986,
+          "old": "../build.rs",
+          "new": "../../../../build.rs"
+        },
+        {
+          "at": 96240,
+          "old": "../CONTRIBUTING.md",
+          "new": "../../../../CONTRIBUTING.md"
+        },
+        {
+          "at": 101921,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 102614,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 103174,
+          "old": "releases/0.8.1.md",
+          "new": "../../../releases/0.8.1.md"
+        },
+        {
+          "at": 103959,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 104429,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 104995,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 105537,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 107256,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 108209,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 109231,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 109613,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 110101,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 110783,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 111474,
+          "old": "model-providers.md",
+          "new": "../../../model-providers.md"
+        },
+        {
+          "at": 111536,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 112161,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 113047,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 114708,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 115858,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 117241,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 118071,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 119735,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 121328,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 122431,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 123194,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 124315,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 125392,
+          "old": "../DEVELOPMENT.md",
+          "new": "development.md"
+        },
+        {
+          "at": 126504,
+          "old": "../tests/input_edge_audit_chinese.rs",
+          "new": "../../../../tests/input_edge_audit_chinese.rs"
+        },
+        {
+          "at": 126569,
+          "old": "../tests/input_edge_audit_english.rs",
+          "new": "../../../../tests/input_edge_audit_english.rs"
+        },
+        {
+          "at": 126636,
+          "old": "../tests/input_edge_audit_packs.rs",
+          "new": "../../../../tests/input_edge_audit_packs.rs"
+        },
+        {
+          "at": 126714,
+          "old": "../tests/input_edge_audit_budget.rs",
+          "new": "../../../../tests/input_edge_audit_budget.rs"
+        },
+        {
+          "at": 127489,
+          "old": "releases/0.5.7.md",
+          "new": "../../../releases/0.5.7.md"
+        },
+        {
+          "at": 127580,
+          "old": "releases/0.5.8.md",
+          "new": "../../../releases/0.5.8.md"
+        },
+        {
+          "at": 127677,
+          "old": "releases/0.5.9.md",
+          "new": "../../../releases/0.5.9.md"
+        },
+        {
+          "at": 127774,
+          "old": "releases/0.6.0.md",
+          "new": "../../../releases/0.6.0.md"
+        },
+        {
+          "at": 127874,
+          "old": "releases/0.6.1.md",
+          "new": "../../../releases/0.6.1.md"
+        },
+        {
+          "at": 128025,
+          "old": "releases/0.6.2.md",
+          "new": "../../../releases/0.6.2.md"
+        },
+        {
+          "at": 128177,
+          "old": "releases/0.6.3.md",
+          "new": "../../../releases/0.6.3.md"
+        },
+        {
+          "at": 128351,
+          "old": "releases/0.6.4.md",
+          "new": "../../../releases/0.6.4.md"
+        },
+        {
+          "at": 128478,
+          "old": "releases/0.6.5.md",
+          "new": "../../../releases/0.6.5.md"
+        },
+        {
+          "at": 128642,
+          "old": "releases/0.6.6.md",
+          "new": "../../../releases/0.6.6.md"
+        },
+        {
+          "at": 128784,
+          "old": "releases/0.6.7.md",
+          "new": "../../../releases/0.6.7.md"
+        },
+        {
+          "at": 128904,
+          "old": "releases/0.6.8.md",
+          "new": "../../../releases/0.6.8.md"
+        },
+        {
+          "at": 129058,
+          "old": "releases/0.6.9.md",
+          "new": "../../../releases/0.6.9.md"
+        },
+        {
+          "at": 129180,
+          "old": "releases/0.7.0.md",
+          "new": "../../../releases/0.7.0.md"
+        },
+        {
+          "at": 129410,
+          "old": "releases/0.7.1.md",
+          "new": "../../../releases/0.7.1.md"
+        },
+        {
+          "at": 129835,
+          "old": "releases/0.7.2.md",
+          "new": "../../../releases/0.7.2.md"
+        },
+        {
+          "at": 129947,
+          "old": "bug-audit-settings-io-2026-09-27.md",
+          "new": "../../../bug-audit-settings-io-2026-09-27.md"
+        },
+        {
+          "at": 130032,
+          "old": "ibus-candidates.md#中英日常写作词库",
+          "new": "../../../ibus-candidates.md#中英日常写作词库"
+        },
+        {
+          "at": 130279,
+          "old": "ibus-candidates.md#本机实装词库验收",
+          "new": "../../../ibus-candidates.md#本机实装词库验收"
+        },
+        {
+          "at": 130523,
+          "old": "../data/lexicons/README.md",
+          "new": "lexicons.md"
+        },
+        {
+          "at": 130743,
+          "old": "ibus-candidates.md#偏好频率缓存",
+          "new": "../../../ibus-candidates.md#偏好频率缓存"
+        },
+        {
+          "at": 131114,
+          "old": "bug-audit-preference-model-2026-09-27.md",
+          "new": "../../../bug-audit-preference-model-2026-09-27.md"
+        },
+        {
+          "at": 131234,
+          "old": "releases/0.7.4.md",
+          "new": "../../../releases/0.7.4.md"
+        },
+        {
+          "at": 131567,
+          "old": "../data/lexicons/README.md",
+          "new": "lexicons.md"
+        },
+        {
+          "at": 131831,
+          "old": "bug-audit-sentence-progress-2026-09-27.md",
+          "new": "../../../bug-audit-sentence-progress-2026-09-27.md"
+        },
+        {
+          "at": 132093,
+          "old": "bug-audit-english-context-2026-09-28.md",
+          "new": "../../../bug-audit-english-context-2026-09-28.md"
+        },
+        {
+          "at": 132197,
+          "old": "releases/0.7.5.md",
+          "new": "../../../releases/0.7.5.md"
+        },
+        {
+          "at": 132679,
+          "old": "ibus-candidates.md#数字生活兜底词库未发布2026-10-02",
+          "new": "../../../ibus-candidates.md#数字生活兜底词库未发布2026-10-02"
+        },
+        {
+          "at": 133399,
+          "old": "ibus-candidates.md#居家生活兜底词库未发布2026-10-02",
+          "new": "../../../ibus-candidates.md#居家生活兜底词库未发布2026-10-02"
+        },
+        {
+          "at": 134602,
+          "old": "ibus-candidates.md#日常办事兜底词库未发布2026-10-02",
+          "new": "../../../ibus-candidates.md#日常办事兜底词库未发布2026-10-02"
+        },
+        {
+          "at": 139175,
+          "old": "ergonomics-audit-2026-09-25.md",
+          "new": "../../../ergonomics-audit-2026-09-25.md"
+        },
+        {
+          "at": 139827,
+          "old": "install-audit-0.7.0-2026-09-27.md",
+          "new": "../../../install-audit-0.7.0-2026-09-27.md"
+        },
+        {
+          "at": 140292,
+          "old": "ci-activation-followup-2026-09-27.md",
+          "new": "../../../ci-activation-followup-2026-09-27.md"
+        },
+        {
+          "at": 140765,
+          "old": "linux-packaging-data.md#离线词库包与制包-sdk",
+          "new": "../../../linux-packaging-data.md#离线词库包与制包-sdk"
+        },
+        {
+          "at": 144045,
+          "old": "linux-packaging-data.md#原生候选分页与光标定位2026-10-03",
+          "new": "../../../linux-packaging-data.md#原生候选分页与光标定位2026-10-03"
+        },
+        {
+          "at": 144232,
+          "old": "linux-packaging-data.md",
+          "new": "../../../linux-packaging-data.md"
+        },
+        {
+          "at": 144625,
+          "old": "../tests/daily_social_english.rs",
+          "new": "../../../../tests/daily_social_english.rs"
+        },
+        {
+          "at": 144685,
+          "old": "../tests/daily_social_chinese.rs",
+          "new": "../../../../tests/daily_social_chinese.rs"
+        },
+        {
+          "at": 172103,
+          "old": "ibus-candidates.md#中英词库扩充0692026-09-27",
+          "new": "../../../ibus-candidates.md#中英词库扩充0692026-09-27"
+        },
+        {
+          "at": 173022,
+          "old": "bug-audit-adopted-continuation-2026-09-27.md",
+          "new": "../../../bug-audit-adopted-continuation-2026-09-27.md"
+        },
+        {
+          "at": 173684,
+          "old": "bug-audit-continuation-threshold-2026-09-27.md",
+          "new": "../../../bug-audit-continuation-threshold-2026-09-27.md"
+        },
+        {
+          "at": 174316,
+          "old": "bug-audit-settings-io-2026-09-27.md",
+          "new": "../../../bug-audit-settings-io-2026-09-27.md"
+        },
+        {
+          "at": 174966,
+          "old": "ibus-candidates.md#中英日常写作词库",
+          "new": "../../../ibus-candidates.md#中英日常写作词库"
+        },
+        {
+          "at": 176768,
+          "old": "ibus-candidates.md#本机实装词库验收",
+          "new": "../../../ibus-candidates.md#本机实装词库验收"
+        },
+        {
+          "at": 177274,
+          "old": "../data/lexicons/README.md",
+          "new": "lexicons.md"
+        },
+        {
+          "at": 178025,
+          "old": "ibus-candidates.md#词库数据与实现分层",
+          "new": "../../../ibus-candidates.md#词库数据与实现分层"
+        },
+        {
+          "at": 178140,
+          "old": "bug-audit-preference-model-2026-09-27.md",
+          "new": "../../../bug-audit-preference-model-2026-09-27.md"
+        },
+        {
+          "at": 178617,
+          "old": "ibus-candidates.md#模型不可用时的本地兜底词库",
+          "new": "../../../ibus-candidates.md#模型不可用时的本地兜底词库"
+        },
+        {
+          "at": 179503,
+          "old": "ibus-candidates.md#模型不可用时的本地兜底词库",
+          "new": "../../../ibus-candidates.md#模型不可用时的本地兜底词库"
+        },
+        {
+          "at": 180071,
+          "old": "bug-audit-sentence-progress-2026-09-27.md",
+          "new": "../../../bug-audit-sentence-progress-2026-09-27.md"
+        },
+        {
+          "at": 180732,
+          "old": "bug-audit-english-context-2026-09-28.md",
+          "new": "../../../bug-audit-english-context-2026-09-28.md"
+        },
+        {
+          "at": 181748,
+          "old": "shortcuts.md",
+          "new": "../../../shortcuts.md"
+        },
+        {
+          "at": 182510,
+          "old": "shortcuts.md",
+          "new": "../../../shortcuts.md"
+        },
+        {
+          "at": 182550,
+          "old": "../src/linux/ibus_language.inc.c",
+          "new": "../../../../src/linux/ibus_language.inc.c"
+        },
+        {
+          "at": 196344,
+          "old": "../src/linux/ibus_language.inc.c",
+          "new": "../../../../src/linux/ibus_language.inc.c"
+        },
+        {
+          "at": 199045,
+          "old": "../src/preferences.rs",
+          "new": "../../../../src/preferences.rs"
+        },
+        {
+          "at": 199137,
+          "old": "../src/ime/preferences.rs",
+          "new": "../../../../src/ime/preferences.rs"
+        },
+        {
+          "at": 199553,
+          "old": "ibus-candidates.md#偏好频率缓存",
+          "new": "../../../ibus-candidates.md#偏好频率缓存"
+        },
+        {
+          "at": 209467,
+          "old": "../src/bin/panel/input.rs",
+          "new": "../../../../src/bin/panel/input.rs"
+        },
+        {
+          "at": 212271,
+          "old": "../src/ime_host/control.rs",
+          "new": "../../../../src/ime_host/control.rs"
+        },
+        {
+          "at": 212330,
+          "old": "bug-audit-settings-io-2026-09-27.md",
+          "new": "../../../bug-audit-settings-io-2026-09-27.md"
+        },
+        {
+          "at": 218544,
+          "old": "../src/lexicon/packs.rs",
+          "new": "../../../../src/lexicon/packs.rs"
+        },
+        {
+          "at": 218586,
+          "old": "../sdk/offline-packs/suzaku_pack.py",
+          "new": "../../../../sdk/offline-packs/suzaku_pack.py"
+        },
+        {
+          "at": 218880,
+          "old": "../src/bin/suzaku_tool/pack.rs",
+          "new": "../../../../src/bin/suzaku_tool/pack.rs"
+        },
+        {
+          "at": 218932,
+          "old": "../tests/offline_packs.rs",
+          "new": "../../../../tests/offline_packs.rs"
+        },
+        {
+          "at": 219238,
+          "old": "../src/lexicon/packs.rs",
+          "new": "../../../../src/lexicon/packs.rs"
+        },
+        {
+          "at": 219289,
+          "old": "../scripts/test-native-sync.py",
+          "new": "../../../../scripts/test-native-sync.py"
+        },
+        {
+          "at": 219725,
+          "old": "../src/ime/gpu/panel_scene_native_candidates_block.rs",
+          "new": "../../../../src/ime/gpu/panel_scene_native_candidates_block.rs"
+        },
+        {
+          "at": 219800,
+          "old": "../src/bin/panel/controller.rs",
+          "new": "../../../../src/bin/panel/controller.rs"
+        },
+        {
+          "at": 219858,
+          "old": "../src/bin/panel/input.rs",
+          "new": "../../../../src/bin/panel/input.rs"
+        },
+        {
+          "at": 220095,
+          "old": "../src/bin/panel/native_position.rs",
+          "new": "../../../../src/bin/panel/native_position.rs"
+        },
+        {
+          "at": 220324,
+          "old": "../src/bin/panel/bottom_layout.rs",
+          "new": "../../../../src/bin/panel/bottom_layout.rs"
+        },
+        {
+          "at": 220540,
+          "old": "../src/platform/panel_layout.rs",
+          "new": "../../../../src/platform/panel_layout.rs"
+        },
+        {
+          "at": 220599,
+          "old": "../src/bin/panel/app_state.rs",
+          "new": "../../../../src/bin/panel/app_state.rs"
+        },
+        {
+          "at": 220862,
+          "old": "../src/languages/draft.rs",
+          "new": "../../../../src/languages/draft.rs"
+        },
+        {
+          "at": 220909,
+          "old": "../src/ime/core_engine.rs",
+          "new": "../../../../src/ime/core_engine.rs"
+        },
+        {
+          "at": 221217,
+          "old": "../src/ime/candidate_mix.rs",
+          "new": "../../../../src/ime/candidate_mix.rs"
+        },
+        {
+          "at": 221266,
+          "old": "../src/ime/companion.rs",
+          "new": "../../../../src/ime/companion.rs"
+        },
+        {
+          "at": 221475,
+          "old": "../src/preferences.rs",
+          "new": "../../../../src/preferences.rs"
+        },
+        {
+          "at": 221524,
+          "old": "../src/ime/preferences.rs",
+          "new": "../../../../src/ime/preferences.rs"
+        },
+        {
+          "at": 221803,
+          "old": "../src/lexicon.rs",
+          "new": "../../../../src/lexicon.rs"
+        },
+        {
+          "at": 221848,
+          "old": "../data/lexicons/README.md",
+          "new": "lexicons.md"
+        },
+        {
+          "at": 222028,
+          "old": "../src/ime/shortcuts.rs",
+          "new": "../../../../src/ime/shortcuts.rs"
+        },
+        {
+          "at": 222079,
+          "old": "shortcuts.md",
+          "new": "../../../shortcuts.md"
+        },
+        {
+          "at": 222340,
+          "old": "../src/preferences/persistence.rs",
+          "new": "../../../../src/preferences/persistence.rs"
+        },
+        {
+          "at": 222395,
+          "old": "../src/preferences/store.rs",
+          "new": "../../../../src/preferences/store.rs"
+        },
+        {
+          "at": 222444,
+          "old": "../src/preferences/worker.rs",
+          "new": "../../../../src/preferences/worker.rs"
+        },
+        {
+          "at": 222506,
+          "old": "../src/ime_host/persistence.rs",
+          "new": "../../../../src/ime_host/persistence.rs"
+        },
+        {
+          "at": 236432,
+          "old": "../scripts/test-linux-gtk3.py",
+          "new": "../../../../scripts/test-linux-gtk3.py"
+        },
+        {
+          "at": 237341,
+          "old": "../tests/chinese_sentence_continuation.rs",
+          "new": "../../../../tests/chinese_sentence_continuation.rs"
+        },
+        {
+          "at": 237416,
+          "old": "../tests/lexicon_resources.rs",
+          "new": "../../../../tests/lexicon_resources.rs"
+        },
+        {
+          "at": 237796,
+          "old": "../tests/daily_chinese_vocabulary.rs",
+          "new": "../../../../tests/daily_chinese_vocabulary.rs"
+        },
+        {
+          "at": 237860,
+          "old": "../tests/daily_english_vocabulary.rs",
+          "new": "../../../../tests/daily_english_vocabulary.rs"
+        },
+        {
+          "at": 237924,
+          "old": "../tests/daily_needs_chinese.rs",
+          "new": "../../../../tests/daily_needs_chinese.rs"
+        },
+        {
+          "at": 237983,
+          "old": "../tests/daily_needs_english.rs",
+          "new": "../../../../tests/daily_needs_english.rs"
+        },
+        {
+          "at": 238042,
+          "old": "../tests/daily_coordination_chinese.rs",
+          "new": "../../../../tests/daily_coordination_chinese.rs"
+        },
+        {
+          "at": 238108,
+          "old": "../tests/daily_coordination_english.rs",
+          "new": "../../../../tests/daily_coordination_english.rs"
+        },
+        {
+          "at": 238174,
+          "old": "../tests/daily_social_chinese.rs",
+          "new": "../../../../tests/daily_social_chinese.rs"
+        },
+        {
+          "at": 238234,
+          "old": "../tests/daily_social_english.rs",
+          "new": "../../../../tests/daily_social_english.rs"
+        },
+        {
+          "at": 238300,
+          "old": "../tests/fallback_vocabulary.rs",
+          "new": "../../../../tests/fallback_vocabulary.rs"
+        },
+        {
+          "at": 238363,
+          "old": "../scripts/test-linux-vocabulary.py",
+          "new": "../../../../scripts/test-linux-vocabulary.py"
+        },
+        {
+          "at": 238930,
+          "old": "../scripts/fixtures/editor_observer.py",
+          "new": "../../../../scripts/fixtures/editor_observer.py"
+        },
+        {
+          "at": 238999,
+          "old": "../scripts/test-editor-observer.py",
+          "new": "../../../../scripts/test-editor-observer.py"
+        },
+        {
+          "at": 239067,
+          "old": "../scripts/test-linux-editor-observer.py",
+          "new": "../../../../scripts/test-linux-editor-observer.py"
+        },
+        {
+          "at": 242539,
+          "old": "../tests/offline_packs.rs",
+          "new": "../../../../tests/offline_packs.rs"
+        },
+        {
+          "at": 242592,
+          "old": "../tests/offline_pack_quality.rs",
+          "new": "../../../../tests/offline_pack_quality.rs"
+        },
+        {
+          "at": 242670,
+          "old": "../scripts/test-offline-pack-shipping.py",
+          "new": "../../../../scripts/test-offline-pack-shipping.py"
+        },
+        {
+          "at": 244591,
+          "old": "bug-audit-2026-09-13.md",
+          "new": "../../../bug-audit-2026-09-13.md"
+        },
+        {
+          "at": 244646,
+          "old": "bug-audit-native-popup-2026-09-23.md",
+          "new": "../../../bug-audit-native-popup-2026-09-23.md"
+        },
+        {
+          "at": 244713,
+          "old": "../scripts/test-linux-candidate-window.py",
+          "new": "../../../../scripts/test-linux-candidate-window.py"
+        },
+        {
+          "at": 244787,
+          "old": "bug-audit-app-lifecycle-2026-09-23.md",
+          "new": "../../../bug-audit-app-lifecycle-2026-09-23.md"
+        },
+        {
+          "at": 244856,
+          "old": "../scripts/test-linux-input-lifecycle.py",
+          "new": "../../../../scripts/test-linux-input-lifecycle.py"
+        },
+        {
+          "at": 244929,
+          "old": "bug-audit-ordinal-click-2026-09-23.md",
+          "new": "../../../bug-audit-ordinal-click-2026-09-23.md"
+        },
+        {
+          "at": 244997,
+          "old": "bug-audit-bus-restart-2026-09-24.md",
+          "new": "../../../bug-audit-bus-restart-2026-09-24.md"
+        },
+        {
+          "at": 245062,
+          "old": "../scripts/test-linux-bus-restart.py",
+          "new": "../../../../scripts/test-linux-bus-restart.py"
+        },
+        {
+          "at": 245134,
+          "old": "bug-audit-service-recovery-2026-09-24.md",
+          "new": "../../../bug-audit-service-recovery-2026-09-24.md"
+        },
+        {
+          "at": 245211,
+          "old": "../scripts/test-linux-service.sh",
+          "new": "../../../../scripts/test-linux-service.sh"
+        },
+        {
+          "at": 245278,
+          "old": "../scripts/test-linux-service.py",
+          "new": "../../../../scripts/test-linux-service.py"
+        },
+        {
+          "at": 245345,
+          "old": "bug-audit-engine-recovery-2026-09-24.md",
+          "new": "../../../bug-audit-engine-recovery-2026-09-24.md"
+        },
+        {
+          "at": 245413,
+          "old": "../src/platform/linux_ibus_recovery.rs",
+          "new": "../../../../src/platform/linux_ibus_recovery.rs"
+        },
+        {
+          "at": 245486,
+          "old": "bug-audit-keyboard-layouts-2026-09-24.md",
+          "new": "../../../bug-audit-keyboard-layouts-2026-09-24.md"
+        },
+        {
+          "at": 245560,
+          "old": "../scripts/test-linux-keyboard.py",
+          "new": "../../../../scripts/test-linux-keyboard.py"
+        },
+        {
+          "at": 245626,
+          "old": "bug-audit-browser-model-2026-09-24.md",
+          "new": "../../../bug-audit-browser-model-2026-09-24.md"
+        },
+        {
+          "at": 245696,
+          "old": "bug-audit-model-latency-2026-09-24.md",
+          "new": "../../../bug-audit-model-latency-2026-09-24.md"
+        },
+        {
+          "at": 245771,
+          "old": "bug-audit-model-cancellation-2026-09-24.md",
+          "new": "../../../bug-audit-model-cancellation-2026-09-24.md"
+        },
+        {
+          "at": 245847,
+          "old": "bug-audit-bilingual-core-2026-09-24.md",
+          "new": "../../../bug-audit-bilingual-core-2026-09-24.md"
+        },
+        {
+          "at": 245920,
+          "old": "bug-audit-chinese-literal-boundaries-2026-09-24.md",
+          "new": "../../../bug-audit-chinese-literal-boundaries-2026-09-24.md"
+        },
+        {
+          "at": 246005,
+          "old": "bug-audit-shortcut-repeat-2026-09-24.md",
+          "new": "../../../bug-audit-shortcut-repeat-2026-09-24.md"
+        },
+        {
+          "at": 246078,
+          "old": "bug-audit-shortcut-focus-2026-09-24.md",
+          "new": "../../../bug-audit-shortcut-focus-2026-09-24.md"
+        },
+        {
+          "at": 246147,
+          "old": "bug-audit-editor-save-2026-09-24.md",
+          "new": "../../../bug-audit-editor-save-2026-09-24.md"
+        },
+        {
+          "at": 246219,
+          "old": "bug-audit-english-next-word-2026-09-24.md",
+          "new": "../../../bug-audit-english-next-word-2026-09-24.md"
+        },
+        {
+          "at": 246291,
+          "old": "bug-audit-pinyin-tone-punctuation-2026-09-24.md",
+          "new": "../../../bug-audit-pinyin-tone-punctuation-2026-09-24.md"
+        },
+        {
+          "at": 246370,
+          "old": "bug-audit-model-prefix-spacing-2026-09-25.md",
+          "new": "../../../bug-audit-model-prefix-spacing-2026-09-25.md"
+        },
+        {
+          "at": 246445,
+          "old": "bug-audit-long-pinyin-continuation-2026-09-25.md",
+          "new": "../../../bug-audit-long-pinyin-continuation-2026-09-25.md"
+        },
+        {
+          "at": 246524,
+          "old": "bug-audit-long-draft-window-2026-09-25.md",
+          "new": "../../../bug-audit-long-draft-window-2026-09-25.md"
+        },
+        {
+          "at": 246591,
+          "old": "../src/languages/draft.rs",
+          "new": "../../../../src/languages/draft.rs"
+        },
+        {
+          "at": 246647,
+          "old": "../tests/long_draft_completion.rs",
+          "new": "../../../../tests/long_draft_completion.rs"
+        },
+        {
+          "at": 246709,
+          "old": "../tests/chinese_completion_quality.rs",
+          "new": "../../../../tests/chinese_completion_quality.rs"
+        },
+        {
+          "at": 246772,
+          "old": "../scripts/test-linux-vscode.py",
+          "new": "../../../../scripts/test-linux-vscode.py"
+        },
+        {
+          "at": 246832,
+          "old": "../scripts/test-linux-model-live.py",
+          "new": "../../../../scripts/test-linux-model-live.py"
+        },
+        {
+          "at": 246892,
+          "old": "bug-audit-tools-2026-09-13.md",
+          "new": "../../../bug-audit-tools-2026-09-13.md"
+        },
+        {
+          "at": 246949,
+          "old": "bug-audit-settings-2026-09-13.md",
+          "new": "../../../bug-audit-settings-2026-09-13.md"
+        },
+        {
+          "at": 247010,
+          "old": "bug-audit-packaging-2026-09-13.md",
+          "new": "../../../bug-audit-packaging-2026-09-13.md"
+        },
+        {
+          "at": 247062,
+          "old": "../src/bin/panel.rs",
+          "new": "../../../../src/bin/panel.rs"
+        },
+        {
+          "at": 247103,
+          "old": "../src/bin/panel/instance.rs",
+          "new": "../../../../src/bin/panel/instance.rs"
+        },
+        {
+          "at": 247149,
+          "old": "../src/bin/panel/tray.rs",
+          "new": "../../../../src/bin/panel/tray.rs"
+        },
+        {
+          "at": 247194,
+          "old": "../src/bin/panel/input_method_service.rs",
+          "new": "../../../../src/bin/panel/input_method_service.rs"
+        },
+        {
+          "at": 247258,
+          "old": "../src/bin/panel/input_method.rs",
+          "new": "../../../../src/bin/panel/input_method.rs"
+        },
+        {
+          "at": 247313,
+          "old": "../src/bin/panel/windowing.rs",
+          "new": "../../../../src/bin/panel/windowing.rs"
+        },
+        {
+          "at": 247360,
+          "old": "../src/bin/suzaku_tool.rs",
+          "new": "../../../../src/bin/suzaku_tool.rs"
+        },
+        {
+          "at": 247411,
+          "old": "../src/platform/linux_ime_cache.rs",
+          "new": "../../../../src/platform/linux_ime_cache.rs"
+        },
+        {
+          "at": 247473,
+          "old": "../src/platform/ime_host_runtime.rs",
+          "new": "../../../../src/platform/ime_host_runtime.rs"
+        },
+        {
+          "at": 247526,
+          "old": "../src/linux/ibus_engine_bridge.c",
+          "new": "../../../../src/linux/ibus_engine_bridge.c"
+        },
+        {
+          "at": 247580,
+          "old": "../src/linux/ibus_compose.inc.c",
+          "new": "../../../../src/linux/ibus_compose.inc.c"
+        },
+        {
+          "at": 247630,
+          "old": "../build.rs",
+          "new": "../../../../build.rs"
+        },
+        {
+          "at": 247670,
+          "old": "../scripts/fixtures/compose.XCompose",
+          "new": "../../../../scripts/fixtures/compose.XCompose"
+        },
+        {
+          "at": 247724,
+          "old": "../src/ime_host.rs",
+          "new": "../../../../src/ime_host.rs"
+        },
+        {
+          "at": 247760,
+          "old": "../src/ime/core_engine.rs",
+          "new": "../../../../src/ime/core_engine.rs"
+        },
+        {
+          "at": 247810,
+          "old": "../src/bin/panel/native_sync.rs",
+          "new": "../../../../src/bin/panel/native_sync.rs"
+        },
+        {
+          "at": 247874,
+          "old": "../src/bin/panel/native_presentation.rs",
+          "new": "../../../../src/bin/panel/native_presentation.rs"
+        },
+        {
+          "at": 247941,
+          "old": "../src/linux/ibus_presentation.inc.c",
+          "new": "../../../../src/linux/ibus_presentation.inc.c"
+        },
+        {
+          "at": 248000,
+          "old": "../src/languages/mod.rs",
+          "new": "../../../../src/languages/mod.rs"
+        },
+        {
+          "at": 248044,
+          "old": "../src/languages/english.rs",
+          "new": "../../../../src/languages/english.rs"
+        },
+        {
+          "at": 248092,
+          "old": "../src/lexicon.rs",
+          "new": "../../../../src/lexicon.rs"
+        },
+        {
+          "at": 248138,
+          "old": "../tests/english_completion_quality.rs",
+          "new": "../../../../tests/english_completion_quality.rs"
+        },
+        {
+          "at": 248197,
+          "old": "../src/languages/chinese.rs",
+          "new": "../../../../src/languages/chinese.rs"
+        },
+        {
+          "at": 248246,
+          "old": "../src/languages/japanese.rs",
+          "new": "../../../../src/languages/japanese.rs"
+        },
+        {
+          "at": 248291,
+          "old": "../src/ime/candidate_mix.rs",
+          "new": "../../../../src/ime/candidate_mix.rs"
+        },
+        {
+          "at": 248345,
+          "old": "ibus-candidates.md",
+          "new": "../../../ibus-candidates.md"
+        },
+        {
+          "at": 248381,
+          "old": "../src/main.rs",
+          "new": "../../../../src/main.rs"
+        },
+        {
+          "at": 248418,
+          "old": "../src/bin/suzaku_tool/model.rs",
+          "new": "../../../../src/bin/suzaku_tool/model.rs"
+        },
+        {
+          "at": 248468,
+          "old": "../src/model.rs",
+          "new": "../../../../src/model.rs"
+        },
+        {
+          "at": 248500,
+          "old": "../src/languages/llm.rs",
+          "new": "../../../../src/languages/llm.rs"
+        },
+        {
+          "at": 248550,
+          "old": "../src/model/runtime.rs",
+          "new": "../../../../src/model/runtime.rs"
+        },
+        {
+          "at": 248597,
+          "old": "../src/ime/prediction.rs",
+          "new": "../../../../src/ime/prediction.rs"
+        },
+        {
+          "at": 248644,
+          "old": "../src/model/transport.rs",
+          "new": "../../../../src/model/transport.rs"
+        },
+        {
+          "at": 248694,
+          "old": "privacy.md",
+          "new": "../../../privacy.md"
+        },
+        {
+          "at": 248729,
+          "old": "../src/platform/linux_ime_sync.rs",
+          "new": "../../../../src/platform/linux_ime_sync.rs"
+        },
+        {
+          "at": 248787,
+          "old": "../src/linux/ibus_companion.inc.c",
+          "new": "../../../../src/linux/ibus_companion.inc.c"
+        },
+        {
+          "at": 248847,
+          "old": "../src/bin/panel/native_typing.rs",
+          "new": "../../../../src/bin/panel/native_typing.rs"
+        },
+        {
+          "at": 248902,
+          "old": "../src/bin/panel/keyboard.rs",
+          "new": "../../../../src/bin/panel/keyboard.rs"
+        },
+        {
+          "at": 248955,
+          "old": "../src/bin/panel/composition.rs",
+          "new": "../../../../src/bin/panel/composition.rs"
+        },
+        {
+          "at": 249010,
+          "old": "../src/bin/panel/controller.rs",
+          "new": "../../../../src/bin/panel/controller.rs"
+        },
+        {
+          "at": 249065,
+          "old": "../src/platform/text_output_host.rs",
+          "new": "../../../../src/platform/text_output_host.rs"
+        },
+        {
+          "at": 249125,
+          "old": "../src/bin/panel/handwriting.rs",
+          "new": "../../../../src/bin/panel/handwriting.rs"
+        },
+        {
+          "at": 249183,
+          "old": "../src/panel_support.rs",
+          "new": "../../../../src/panel_support.rs"
+        },
+        {
+          "at": 249225,
+          "old": "../src/bin/panel/voice.rs",
+          "new": "../../../../src/bin/panel/voice.rs"
+        },
+        {
+          "at": 249274,
+          "old": "../src/platform/voice_host.rs",
+          "new": "../../../../src/platform/voice_host.rs"
+        },
+        {
+          "at": 249325,
+          "old": "../src/linux/speech_bridge.c",
+          "new": "../../../../src/linux/speech_bridge.c"
+        },
+        {
+          "at": 249384,
+          "old": "../src/bin/panel/translation.rs",
+          "new": "../../../../src/bin/panel/translation.rs"
+        },
+        {
+          "at": 249440,
+          "old": "../src/languages/translation.rs",
+          "new": "../../../../src/languages/translation.rs"
+        },
+        {
+          "at": 249502,
+          "old": "../src/model/translation.rs",
+          "new": "../../../../src/model/translation.rs"
+        },
+        {
+          "at": 249546,
+          "old": "../src/ime/gpu/mod.rs",
+          "new": "../../../../src/ime/gpu/mod.rs"
+        },
+        {
+          "at": 249592,
+          "old": "../src/platform/panel_text_focus.rs",
+          "new": "../../../../src/platform/panel_text_focus.rs"
+        },
+        {
+          "at": 249646,
+          "old": "../src/ime/gpu/brand.rs",
+          "new": "../../../../src/ime/gpu/brand.rs"
+        },
+        {
+          "at": 249688,
+          "old": "../src/bin/panel/font_atlas.rs",
+          "new": "../../../../src/bin/panel/font_atlas.rs"
+        },
+        {
+          "at": 249743,
+          "old": "../src/bin/panel/font_raster.rs",
+          "new": "../../../../src/bin/panel/font_raster.rs"
+        },
+        {
+          "at": 249794,
+          "old": "../src/bin/panel/render.rs",
+          "new": "../../../../src/bin/panel/render.rs"
+        },
+        {
+          "at": 249848,
+          "old": "../src/ime/gpu/settings_scene.rs",
+          "new": "../../../../src/ime/gpu/settings_scene.rs"
+        },
+        {
+          "at": 249903,
+          "old": "../src/bin/panel/app_state.rs",
+          "new": "../../../../src/bin/panel/app_state.rs"
+        },
+        {
+          "at": 249948,
+          "old": "../src/ui.rs",
+          "new": "../../../../src/ui.rs"
+        },
+        {
+          "at": 249981,
+          "old": "../src/ui/catalog.tsv",
+          "new": "../../../../src/ui/catalog.tsv"
+        },
+        {
+          "at": 250022,
+          "old": "interface-languages.md",
+          "new": "../../../interface-languages.md"
+        },
+        {
+          "at": 250077,
+          "old": "../src/bin/panel/prediction_settings.rs",
+          "new": "../../../../src/bin/panel/prediction_settings.rs"
+        },
+        {
+          "at": 250140,
+          "old": "../src/data/paths.rs",
+          "new": "../../../../src/data/paths.rs"
+        },
+        {
+          "at": 250184,
+          "old": "../src/data/files.rs",
+          "new": "../../../../src/data/files.rs"
+        },
+        {
+          "at": 250230,
+          "old": "../src/ime/settings.rs",
+          "new": "../../../../src/ime/settings.rs"
+        },
+        {
+          "at": 250272,
+          "old": "../src/data/backup.rs",
+          "new": "../../../../src/data/backup.rs"
+        },
+        {
+          "at": 250315,
+          "old": "../src/bin/suzaku_tool/data.rs",
+          "new": "../../../../src/bin/suzaku_tool/data.rs"
+        },
+        {
+          "at": 250363,
+          "old": "../src/data.rs",
+          "new": "../../../../src/data.rs"
+        },
+        {
+          "at": 250401,
+          "old": "../src/bin/linux_ime_host.rs",
+          "new": "../../../../src/bin/linux_ime_host.rs"
+        },
+        {
+          "at": 250450,
+          "old": "../scripts/package-linux.sh",
+          "new": "../../../../scripts/package-linux.sh"
+        },
+        {
+          "at": 250503,
+          "old": "../packaging/linux/dev.suzaku.Suzaku.desktop",
+          "new": "../../../../packaging/linux/dev.suzaku.Suzaku.desktop"
+        },
+        {
+          "at": 250573,
+          "old": "../scripts/test-linux-package.sh",
+          "new": "../../../../scripts/test-linux-package.sh"
+        },
+        {
+          "at": 250635,
+          "old": "../tests/linux_package_cli.rs",
+          "new": "../../../../tests/linux_package_cli.rs"
+        },
+        {
+          "at": 250690,
+          "old": "../scripts/test-linux-install.sh",
+          "new": "../../../../scripts/test-linux-install.sh"
+        },
+        {
+          "at": 250747,
+          "old": "linux-packaging-data.md",
+          "new": "../../../linux-packaging-data.md"
+        },
+        {
+          "at": 250786,
+          "old": "../.github/workflows/ci.yml",
+          "new": "../../../../.github/workflows/ci.yml"
+        },
+        {
+          "at": 250840,
+          "old": "../scripts/test-linux-ci.sh",
+          "new": "../../../../scripts/test-linux-ci.sh"
+        },
+        {
+          "at": 250892,
+          "old": "../scripts/test-native-sync.py",
+          "new": "../../../../scripts/test-native-sync.py"
+        },
+        {
+          "at": 250945,
+          "old": "../src/platform/macos_ime.rs",
+          "new": "../../../../src/platform/macos_ime.rs"
+        },
+        {
+          "at": 251003,
+          "old": "../src/macos/ime_host_bridge/controller.inc.m",
+          "new": "../../../../src/macos/ime_host_bridge/controller.inc.m"
+        },
+        {
+          "at": 251074,
+          "old": "../src/bin/macos_bundle.rs",
+          "new": "../../../../src/bin/macos_bundle.rs"
+        },
+        {
+          "at": 251125,
+          "old": "../src/platform/windows_ime.rs",
+          "new": "../../../../src/platform/windows_ime.rs"
+        },
+        {
+          "at": 251184,
+          "old": "../android/app/src/main/java/dev/suzaku/android/ime/SuzakuInputMethodService.kt",
+          "new": "../../../../android/app/src/main/java/dev/suzaku/android/ime/SuzakuInputMethodService.kt"
+        },
+        {
+          "at": 251288,
+          "old": "../src/platform/android_jni_bridge.rs",
+          "new": "../../../../src/platform/android_jni_bridge.rs"
+        },
+        {
+          "at": 251350,
+          "old": "../android/README.md",
+          "new": "../../../../android/README.md"
+        },
+        {
+          "at": 251393,
+          "old": "../src/ime/companion.rs",
+          "new": "../../../../src/ime/companion.rs"
+        },
+        {
+          "at": 251435,
+          "old": "../src/linux/ibus_ipc.inc.c",
+          "new": "../../../../src/linux/ibus_ipc.inc.c"
+        },
+        {
+          "at": 251490,
+          "old": "../android/app/src/main/java/dev/suzaku/android/ime/SuzakuNativeBridge.kt",
+          "new": "../../../../android/app/src/main/java/dev/suzaku/android/ime/SuzakuNativeBridge.kt"
+        },
+        {
+          "at": 251590,
+          "old": "../android/app/src/main/java/dev/suzaku/android/ime/SuzakuVoiceRecognizer.kt",
+          "new": "../../../../android/app/src/main/java/dev/suzaku/android/ime/SuzakuVoiceRecognizer.kt"
+        },
+        {
+          "at": 251699,
+          "old": "../android/app/src/main/java/dev/suzaku/android/ime/SuzakuHandwriteRecognizer.kt",
+          "new": "../../../../android/app/src/main/java/dev/suzaku/android/ime/SuzakuHandwriteRecognizer.kt"
+        },
+        {
+          "at": 251810,
+          "old": "../android/app/src/main/java/dev/suzaku/android/ime/SuzakuClipboardPolicy.kt",
+          "new": "../../../../android/app/src/main/java/dev/suzaku/android/ime/SuzakuClipboardPolicy.kt"
+        },
+        {
+          "at": 251911,
+          "old": "known-limitations.md",
+          "new": "../../../known-limitations.md"
+        },
+        {
+          "at": 251956,
+          "old": "../tests/ime_engine_core.rs",
+          "new": "../../../../tests/ime_engine_core.rs"
+        },
+        {
+          "at": 252012,
+          "old": "../tests/ime_prediction.rs",
+          "new": "../../../../tests/ime_prediction.rs"
+        },
+        {
+          "at": 252066,
+          "old": "../tests/ime_engine_ui_alignment.rs",
+          "new": "../../../../tests/ime_engine_ui_alignment.rs"
+        },
+        {
+          "at": 252123,
+          "old": "../tests/ime_panel_content_fit.rs",
+          "new": "../../../../tests/ime_panel_content_fit.rs"
+        },
+        {
+          "at": 252179,
+          "old": "../tests/ime_panel_drag_regions.rs",
+          "new": "../../../../tests/ime_panel_drag_regions.rs"
+        },
+        {
+          "at": 252237,
+          "old": "../tests/ime_panel_theme.rs",
+          "new": "../../../../tests/ime_panel_theme.rs"
+        },
+        {
+          "at": 252285,
+          "old": "../tests/ui_localization.rs",
+          "new": "../../../../tests/ui_localization.rs"
+        },
+        {
+          "at": 252342,
+          "old": "../tests/ime_translation_ui.rs",
+          "new": "../../../../tests/ime_translation_ui.rs"
+        },
+        {
+          "at": 252395,
+          "old": "../tests/data_management_cli.rs",
+          "new": "../../../../tests/data_management_cli.rs"
+        },
+        {
+          "at": 252450,
+          "old": "../tests/model_provider_cli.rs",
+          "new": "../../../../tests/model_provider_cli.rs"
+        },
+        {
+          "at": 252511,
+          "old": "../tests/linux_registration_cli.rs",
+          "new": "../../../../tests/linux_registration_cli.rs"
+        },
+        {
+          "at": 252570,
+          "old": "../scripts/test-data-folders.py",
+          "new": "../../../../scripts/test-data-folders.py"
+        },
+        {
+          "at": 252636,
+          "old": "../tests/model_translation_live.rs",
+          "new": "../../../../tests/model_translation_live.rs"
+        },
+        {
+          "at": 252694,
+          "old": "bug-audit-data-2026-09-13.md",
+          "new": "../../../bug-audit-data-2026-09-13.md"
+        },
+        {
+          "at": 252747,
+          "old": "bug-audit-model-2026-09-13.md",
+          "new": "../../../bug-audit-model-2026-09-13.md"
+        },
+        {
+          "at": 252806,
+          "old": "bug-audit-completion-2026-09-13.md",
+          "new": "../../../bug-audit-completion-2026-09-13.md"
+        },
+        {
+          "at": 252869,
+          "old": "bug-audit-lifecycle-2026-09-13.md",
+          "new": "../../../bug-audit-lifecycle-2026-09-13.md"
+        },
+        {
+          "at": 252928,
+          "old": "bug-audit-wakeup-2026-09-13.md",
+          "new": "../../../bug-audit-wakeup-2026-09-13.md"
+        },
+        {
+          "at": 252990,
+          "old": "bug-audit-tool-gestures-2026-09-23.md",
+          "new": "../../../bug-audit-tool-gestures-2026-09-23.md"
+        },
+        {
+          "at": 253058,
+          "old": "bug-audit-translation-2026-09-23.md",
+          "new": "../../../bug-audit-translation-2026-09-23.md"
+        },
+        {
+          "at": 253131,
+          "old": "bug-audit-insertion-followup-2026-09-23.md",
+          "new": "../../../bug-audit-insertion-followup-2026-09-23.md"
+        },
+        {
+          "at": 253207,
+          "old": "bug-audit-native-actions-2026-09-23.md",
+          "new": "../../../bug-audit-native-actions-2026-09-23.md"
+        },
+        {
+          "at": 253282,
+          "old": "bug-audit-literal-selection-2026-09-23.md",
+          "new": "../../../bug-audit-literal-selection-2026-09-23.md"
+        },
+        {
+          "at": 253356,
+          "old": "bug-audit-noop-controls-2026-09-23.md",
+          "new": "../../../bug-audit-noop-controls-2026-09-23.md"
+        },
+        {
+          "at": 253431,
+          "old": "bug-audit-engine-destruction-2026-09-23.md",
+          "new": "../../../bug-audit-engine-destruction-2026-09-23.md"
+        },
+        {
+          "at": 253507,
+          "old": "bug-audit-commit-context-2026-09-23.md",
+          "new": "../../../bug-audit-commit-context-2026-09-23.md"
+        },
+        {
+          "at": 253577,
+          "old": "bug-audit-content-type-2026-09-23.md",
+          "new": "../../../bug-audit-content-type-2026-09-23.md"
+        },
+        {
+          "at": 253648,
+          "old": "bug-audit-language-target-2026-09-23.md",
+          "new": "../../../bug-audit-language-target-2026-09-23.md"
+        },
+        {
+          "at": 253720,
+          "old": "bug-audit-cancel-target-2026-09-23.md",
+          "new": "../../../bug-audit-cancel-target-2026-09-23.md"
+        },
+        {
+          "at": 253790,
+          "old": "bug-audit-commit-target-2026-09-23.md",
+          "new": "../../../bug-audit-commit-target-2026-09-23.md"
+        },
+        {
+          "at": 253859,
+          "old": "bug-audit-draft-limits-2026-09-23.md",
+          "new": "../../../bug-audit-draft-limits-2026-09-23.md"
+        },
+        {
+          "at": 253923,
+          "old": "bug-audit-gtk-apps-2026-09-23.md",
+          "new": "../../../bug-audit-gtk-apps-2026-09-23.md"
+        },
+        {
+          "at": 253980,
+          "old": "../scripts/test-linux-apps.sh",
+          "new": "../../../../scripts/test-linux-apps.sh"
+        },
+        {
+          "at": 254032,
+          "old": "../scripts/test-linux-apps.py",
+          "new": "../../../../scripts/test-linux-apps.py"
+        },
+        {
+          "at": 254091,
+          "old": "bug-audit-cross-apps-2026-09-23.md",
+          "new": "../../../bug-audit-cross-apps-2026-09-23.md"
+        },
+        {
+          "at": 254154,
+          "old": "../scripts/test-linux-cross-apps.py",
+          "new": "../../../../scripts/test-linux-cross-apps.py"
+        },
+        {
+          "at": 254224,
+          "old": "bug-audit-cross-app-fixes-2026-09-23.md",
+          "new": "../../../bug-audit-cross-app-fixes-2026-09-23.md"
+        }
+      ]
+    },
+    {
+      "original_path": "docs/functional-network.mmd",
+      "archive_path": "docs/history/2026-10/pre-reorganization/functional-network.mmd",
+      "source_sha256": "574f42231591fa6720370cdbfa5357f4e6a27e2591d5e9b29e50cc124ed3eb66",
+      "archive_sha256": "574f42231591fa6720370cdbfa5357f4e6a27e2591d5e9b29e50cc124ed3eb66",
+      "source_bytes": 69035,
+      "archive_bytes": 69035,
+      "link_rewrites": []
+    },
+    {
+      "original_path": "docs/functional-tensor.json",
+      "archive_path": "docs/history/2026-10/pre-reorganization/functional-tensor.json",
+      "source_sha256": "2587e382220c0e633f4c61bd29baaf8b7150e5e489d5a3235da6175fde09085a",
+      "archive_sha256": "2587e382220c0e633f4c61bd29baaf8b7150e5e489d5a3235da6175fde09085a",
+      "source_bytes": 395226,
+      "archive_bytes": 395226,
+      "link_rewrites": []
+    }
+  ]
+}

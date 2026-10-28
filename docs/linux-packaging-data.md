@@ -79,7 +79,7 @@ bash scripts/package-linux.sh --format tar --output dist-tar
 已有同名产物不会被覆盖；重建时使用新的 `--output` 目录。
 `--skip-build` 供 CI 在完成四个发布程序的构建后复用，不能用来打包过期二进制。
 
-需要现有 Linux 构建依赖，以及 `jq`、`tar`、`gzip`、`binutils`；生成 `.deb` 另需
+需要现有 Linux 构建依赖，以及 `jq`、`tar`、`gzip`、`binutils`、`python3`；生成 `.deb` 另需
 `dpkg-dev`。`.deb` 的链接库依赖由 `dpkg-shlibdeps` 从 ELF 推导，另外声明通过
 运行时加载的图形库和 IBus 工具。CI 在 Ubuntu 24.04 上构建；在更新的系统本机构建
 可能要求更新的 glibc。请检查 `manifest.json` 的 `build_libc` 和 `.deb` 的 `Depends`。
@@ -88,6 +88,18 @@ bash scripts/package-linux.sh --format tar --output dist-tar
 
 压缩包内还有逐文件 `SHA256SUMS`、版本/架构/源码提交/工作区是否有改动的清单、
 项目许可证、锁定依赖的许可证声明和其源码目录提供的 LICENSE/COPYING/NOTICE 文件。
+
+文档入口位于 `share/doc/suzaku/README.md`，完整导航位于
+`share/doc/suzaku/docs/README.md`；`.deb` 的对应位置在 `/usr/share/doc/suzaku/` 下。
+后续打包统一保留 `docs/` 下普通 `.md`、`.mmd`、`.json` 文件的目录和字节，包含使用与开发手册、
+历史归档和全部源码版本说明；源码版本说明不等于该版本曾对外发布安装包。
+打包拒绝符号链接、特殊文件和其他扩展名，不遍历仓库外目录或个人数据。
+根目录的安装、模型、候选、翻译及界面语言五个兼容说明副本继续保留，
+其相对链接按新位置重定位，支持子目录与片段；归档和主文档本身不改写。
+`data/lexicons/README.md` 同时保留在文档根目录的相同相对位置，源码或测试链接仍需源码树。
+离线包目录和 SDK 指南在文档根目录另有镜像，其同级资源链接指向现有 `share/suzaku/` 内容，
+不重复复制 JSON 或 Python 程序，也不改动原便携指南和资源的字节。
+这只改变后续构建的文档布局，不改写已有标签或已发布安装包。
 校验和用于完整性检查，不是签名；不要把来源不明的包当成可信发布。
 `SOURCE_DATE_EPOCH` 控制归档时间；这里不宣称跨工具链的二进制可重现。
 
@@ -963,7 +975,8 @@ timeout --kill-after=3s 25s dbus-run-session -- env SUZAKU_DATA_QA=1 /usr/bin/py
 
 包装检查逐个要求包与校验文件配对，随后检查解压内容；不能只凭一个孤立校验文件通过。
 打包包含功能网络引用的审计报告，验收同时检查这些报告，以及安装、模型、输入、翻译和
-界面语言说明的所有扁平副本中的审计链接；这些副本的同级文档链接统一指向包内 `docs/`。
+界面语言说明的所有扁平副本中的审计链接；这些副本的相对文档链接统一定位到包内静态文档树。
+文档验收还逐字节核对完整静态树、归档和导航，并检查兼容副本的链接重定位结果。
 安装验收在全新的 Ubuntu 24.04 容器中进行：无 Recommends 安装、运行库/字体检查、
 从合成旧包升级、启动已安装的面板、remove/purge，并逐字节检查用户设置和备份保留。
 合成旧包用于验证包管理器的升级行为，不等于覆盖所有历史版本的数据迁移。

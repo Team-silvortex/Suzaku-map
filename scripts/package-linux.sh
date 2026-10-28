@@ -22,7 +22,7 @@ while (($#)); do
 done
 [[ $(uname -s) == Linux ]] || { printf 'Linux is required.\n' >&2; exit 1; }
 [[ $suzaku_package_format =~ ^(tar|deb|all)$ ]] || { printf 'Invalid format.\n' >&2; exit 1; }
-for suzaku_package_command in cargo rustc jq tar gzip sha256sum readelf; do
+for suzaku_package_command in cargo rustc jq tar gzip sha256sum readelf python3; do
   command -v "$suzaku_package_command" >/dev/null || { printf 'Missing tool: %s\n' "$suzaku_package_command" >&2; exit 1; }
 done
 if [[ $suzaku_package_format != tar ]]; then
@@ -60,58 +60,12 @@ for suzaku_package_bin in panel linux_ime_host linux_ime_probe suzaku_tool; do
   readelf -h "$suzaku_package_bins/$suzaku_package_bin" >/dev/null
   install -m 755 -- "$suzaku_package_bins/$suzaku_package_bin" "$suzaku_package_tree/bin/$suzaku_package_bin"
 done
-install -m 644 -- README.md LICENSE Cargo.lock "$suzaku_package_tree/share/doc/suzaku/"
-# Keep the public support/privacy docs in packages, with their repository-relative links.
-install -m 644 -- SECURITY.md CONTRIBUTING.md DEVELOPMENT.md "$suzaku_package_tree/share/doc/suzaku/"
-mkdir -p -- "$suzaku_package_tree/share/doc/suzaku/docs/releases"
-install -m 644 -- docs/linux-packaging-data.md docs/model-providers.md docs/ibus-candidates.md \
-  docs/translation.md docs/interface-languages.md docs/known-limitations.md docs/privacy.md docs/shortcuts.md \
-  docs/ergonomics-audit-2026-09-25.md \
-  docs/install-audit-0.7.0-2026-09-27.md \
-  docs/install-audit-0.8.6-2026-10-11.md \
-  docs/ci-activation-followup-2026-09-27.md \
-  docs/functional-network.md docs/functional-network.mmd docs/functional-tensor.json \
-  docs/bug-audit-2026-09-13.md \
-  docs/bug-audit-tools-2026-09-13.md docs/bug-audit-settings-2026-09-13.md \
-  docs/bug-audit-data-2026-09-13.md docs/bug-audit-packaging-2026-09-13.md \
-  docs/bug-audit-model-2026-09-13.md \
-  docs/bug-audit-completion-2026-09-13.md docs/bug-audit-lifecycle-2026-09-13.md \
-  docs/bug-audit-wakeup-2026-09-13.md docs/bug-audit-tool-gestures-2026-09-23.md \
-  docs/bug-audit-translation-2026-09-23.md docs/bug-audit-insertion-followup-2026-09-23.md \
-  docs/bug-audit-native-actions-2026-09-23.md docs/bug-audit-literal-selection-2026-09-23.md \
-  docs/bug-audit-noop-controls-2026-09-23.md docs/bug-audit-engine-destruction-2026-09-23.md \
-  docs/bug-audit-commit-context-2026-09-23.md docs/bug-audit-content-type-2026-09-23.md \
-  docs/bug-audit-language-target-2026-09-23.md docs/bug-audit-cancel-target-2026-09-23.md \
-  docs/bug-audit-commit-target-2026-09-23.md docs/bug-audit-draft-limits-2026-09-23.md \
-  docs/bug-audit-gtk-apps-2026-09-23.md docs/bug-audit-cross-apps-2026-09-23.md \
-  docs/bug-audit-cross-app-fixes-2026-09-23.md docs/bug-audit-native-popup-2026-09-23.md \
-  docs/bug-audit-app-lifecycle-2026-09-23.md \
-  docs/bug-audit-ordinal-click-2026-09-23.md \
-  docs/bug-audit-bus-restart-2026-09-24.md \
-  docs/bug-audit-service-recovery-2026-09-24.md \
-  docs/bug-audit-engine-recovery-2026-09-24.md \
-  docs/bug-audit-keyboard-layouts-2026-09-24.md \
-  docs/bug-audit-browser-model-2026-09-24.md \
-  docs/bug-audit-model-latency-2026-09-24.md \
-  docs/bug-audit-model-cancellation-2026-09-24.md \
-  docs/bug-audit-bilingual-core-2026-09-24.md \
-  docs/bug-audit-chinese-literal-boundaries-2026-09-24.md \
-  docs/bug-audit-shortcut-repeat-2026-09-24.md \
-  docs/bug-audit-shortcut-focus-2026-09-24.md \
-  docs/bug-audit-editor-save-2026-09-24.md \
-  docs/bug-audit-english-next-word-2026-09-24.md \
-  docs/bug-audit-pinyin-tone-punctuation-2026-09-24.md \
-  docs/bug-audit-model-prefix-spacing-2026-09-25.md \
-  docs/bug-audit-long-pinyin-continuation-2026-09-25.md \
-  docs/bug-audit-long-draft-window-2026-09-25.md \
-  docs/bug-audit-adopted-continuation-2026-09-27.md \
-  docs/bug-audit-continuation-threshold-2026-09-27.md \
-  docs/bug-audit-settings-io-2026-09-27.md \
-  docs/bug-audit-preference-model-2026-09-27.md \
-  docs/bug-audit-sentence-progress-2026-09-27.md \
-  docs/bug-audit-english-context-2026-09-28.md \
-  "$suzaku_package_tree/share/doc/suzaku/docs/"
-install -m 644 -- "docs/releases/$suzaku_package_version.md" "$suzaku_package_tree/share/doc/suzaku/docs/releases/"
+install -m 644 -- LICENSE Cargo.lock "$suzaku_package_tree/share/doc/suzaku/"
+test -s "docs/releases/$suzaku_package_version.md"
+# One static-document policy preserves nested navigation, histories and every
+# source-version note. It also maintains the five historical flat guide copies.
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/package-docs.py stage --repo "$suzaku_package_root" \
+  --tree "$suzaku_package_tree"
 install -m 644 -- packaging/linux/dev.suzaku.Suzaku.desktop "$suzaku_package_tree/share/applications/"
 install -m 644 -- src/assets/icons/suzaku-bird.svg "$suzaku_package_tree/share/icons/hicolor/scalable/apps/dev.suzaku.Suzaku.svg"
 # Ship only authored SDK/examples, never the installed per-user pack registry.
@@ -131,17 +85,6 @@ install -m 644 -- data/offline-packs/en-outdoors.json data/offline-packs/zh-Hans
   data/offline-packs/ja-shopping.json data/offline-packs/ja-travel.json data/offline-packs/ja-work.json \
   data/offline-packs/ja-study.json data/offline-packs/ja-cooking.json data/offline-packs/ja-outdoors.json \
   "$suzaku_package_tree/share/suzaku/offline-packs/"
-# Every guide also appears outside docs/. Resolve sibling documentation from
-# the canonical docs directory in both flat layouts, including model audits.
-for suzaku_package_guide in linux-packaging-data.md model-providers.md ibus-candidates.md translation.md interface-languages.md; do
-  sed -E 's@\]\(([A-Za-z0-9_.-]+\.md)(#[^)]*)?\)@](docs/\1\2)@g' \
-    "docs/$suzaku_package_guide" > "$suzaku_package_tree/share/doc/suzaku/$suzaku_package_guide"
-  suzaku_package_root_guide=$suzaku_package_guide
-  [[ $suzaku_package_guide != linux-packaging-data.md ]] || suzaku_package_root_guide=README.md
-  sed -E 's@\]\(([A-Za-z0-9_.-]+\.md)(#[^)]*)?\)@](share/doc/suzaku/docs/\1\2)@g' \
-    "docs/$suzaku_package_guide" > "$suzaku_package_tree/$suzaku_package_root_guide"
-done
-
 # Include declared licenses and the license/notice files supplied by all Cargo dependencies.
 # This includes patched path dependencies, not just crates with a registry source.
 # The inventory covers the resolved lockfile, including other-platform dependencies.

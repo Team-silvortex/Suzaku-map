@@ -58,6 +58,12 @@ print("PASS: every required regression and installation gate succeeded")
 PY
 """,
 }
+DOCUMENTATION_STEP = {
+    "name": "Check documentation structure, history and package navigation",
+    "run": "python3 -B scripts/check-documentation.py\n"
+           "python3 -B scripts/test-documentation.py\n"
+           "python3 -B scripts/test-package-docs.py\n",
+}
 
 
 class UniqueBaseLoader(yaml.BaseLoader):
@@ -122,7 +128,15 @@ def validate(workflow):
             "Workflow triggers, permissions, defaults, concurrency and global environment changed")
     jobs = workflow["jobs"]
     require(set(jobs) == set(NEEDS + ["linux-artifacts"]), "Unexpected, duplicate or missing jobs")
-    require(digest({name: jobs[name] for name in ["secrets", "format", "desktop-check"]}) == OTHER_JOBS_HASH,
+    # This is the only addition to these frozen jobs. Validate every key and
+    # command before removing exactly this final step from the legacy projection;
+    # the original hash still protects all prior commands, fields and ordering.
+    format_steps = jobs["format"]["steps"]
+    require(bool(format_steps) and format_steps[-1] == DOCUMENTATION_STEP,
+            "Exact, unconditional documentation checks must finish the format job")
+    legacy_other_jobs = copy.deepcopy({name: jobs[name] for name in ["secrets", "format", "desktop-check"]})
+    legacy_other_jobs["format"]["steps"].pop()
+    require(digest(legacy_other_jobs) == OTHER_JOBS_HASH,
             "Secret, formatting or desktop checks changed")
     for name, (role, display_name, count) in PRODUCERS.items():
         job = jobs[name]
@@ -328,6 +342,35 @@ class ReleaseGraphTests(unittest.TestCase):
         for name in ["secrets", "format", "desktop-check"]:
             with self.subTest(job=name):
                 self.reject(lambda w: w["jobs"][name].__setitem__("continue-on-error", "true"))
+
+    def test_documentation_addition_is_exact_and_only_it_is_removed_from_the_old_projection(self):
+        self.assertEqual(WORKFLOW["jobs"]["format"]["steps"][-1], DOCUMENTATION_STEP)
+        before = copy.deepcopy(WORKFLOW)
+        validate(WORKFLOW)
+        self.assertEqual(WORKFLOW, before, "validation must not mutate the source workflow")
+        legacy = copy.deepcopy({name: WORKFLOW["jobs"][name]
+                                for name in ["secrets", "format", "desktop-check"]})
+        self.assertEqual(legacy["format"]["steps"].pop(), DOCUMENTATION_STEP)
+        self.assertEqual(digest(legacy), OTHER_JOBS_HASH)
+
+    def test_documentation_checks_cannot_be_missing_changed_reordered_or_bypassed(self):
+        self.reject(lambda w: w["jobs"]["format"]["steps"].pop())
+        self.reject(lambda w: w["jobs"]["format"]["steps"].append(copy.deepcopy(DOCUMENTATION_STEP)))
+        self.reject(lambda w: w["jobs"]["format"]["steps"].insert(0, w["jobs"]["format"]["steps"].pop()))
+        for field, value in [("name", "Different documentation checks"), ("run", "true"),
+                             ("if", "false"), ("continue-on-error", "true"), ("timeout-minutes", "60"),
+                             ("env", {"SKIP_CHECKS": "1"}), ("working-directory", "elsewhere")]:
+            with self.subTest(field=field):
+                self.reject(lambda w: w["jobs"]["format"]["steps"][-1].__setitem__(field, value))
+        commands = DOCUMENTATION_STEP["run"].splitlines(keepends=True)
+        for command in commands:
+            with self.subTest(removed_command=command):
+                self.reject(lambda w: w["jobs"]["format"]["steps"][-1].__setitem__(
+                    "run", DOCUMENTATION_STEP["run"].replace(command, "")))
+        for changed in ["".join(reversed(commands)), DOCUMENTATION_STEP["run"] + "true\n",
+                        DOCUMENTATION_STEP["run"].replace("\n", " || true\n")]:
+            with self.subTest(commands=changed):
+                self.reject(lambda w: w["jobs"]["format"]["steps"][-1].__setitem__("run", changed))
 
     def test_duplicate_yaml_keys_cannot_hide_jobs_or_conditions(self):
         with self.assertRaisesRegex(AssertionError, "Duplicate YAML key"):

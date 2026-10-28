@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "date": "2026-10-23",
-    "head": "de42d39a0b9b24799f45fd5424a10e5859b37532",
+    "date": "2026-10-28",
+    "head": "e3ce76e1620fd52ece28d2fe88dedd2bee0e1938",
     "dirty": true,
-    "source_sha256": "b8b540959b1d3e2fa9fd17ccd256afe0597f3583ed3287b15cc819d05b4d2284",
-    "note": "**0.9.6 / build46 源码准备：日用fallback与候选连续性。** 汇总六批词库：新增20英文内置词形、31中文和16日文Word读音，三语共81语境、162作者句；并包含三处有界中日候选来源/保位修正，不是纯数据版本。本版独立完整Rust2735过、0失败、32原ignore，294唯一组含Doc-tests且零筛除；另19项隔离UI及严格all-target/all-feature Clippy-Dwarnings通过（58.69s），不叠加到完整Rust总数。准确提交的远端八门和accepted安装包仍待独立验收，尚未声称0.9.6标签、下载或发布。25包/SDK、模型协议与12行/6项分页预算不变。不恢复已取消的定时任务，不替换日常安装或输入法配置；下方历史记录原样保留。 以下完整旧记录原样保留：**当前未提交：保温杯、餐具与小碟子的取放（2026-10-24）**。新增9组语境、18条中英日候选句，不增词形或读音。EN6213/894/1752（61层）、ZH3441/888/1774、JA638/376/751。独立定向回归1021过、0失败、2原ignore，60组零筛除（完整库与59集成target）；严格Clippy-Dwarnings通过（1m 07s）。新测试复用测试辅助层，旧套件不迁移；旧pocket作者窗口固定ZH882/JA370取3，washroom窗口不动。原生产算法、权重、候选预算、模型协议、25包SDK及版本保持。不感知或控制物品，非本轮全仓/原生/UI/实模/性能/安装/CI验收；未提交推送。下方为历史快照。 真实dirty981基线0f19fb8a，冻结新fixture与support后before3过7缺，首after原10项全过；新10项只计一次。38路径103当前数字维护，另pocket历史窗口一处封边，975旧非文档=933字节模式不变+38精确维护+3raw逆回+1新catalog外wrapper。添加E-daily-table-items、F16-F19四refs与三个语言的新套件/helper索引，138旧证据、49实现、79cells/评分/路由保留。 以下完整旧记录原样保留：2026-10-24钱包零钱票据取放：从真实dirty980快照ead110d8开始，仍de42d39/0.9.5-build45未提交。零新forms/读音，新增9语境18作者句；EN6213/891/1746(60层)、ZH3441/885/1768、JA638/373/745。英文wallet/coins/receipts用既有词构成三个具体语境；中文钱包/零钱包/卡包，日语財布/小銭/鞄补双句。保留kozen原文，不误变kozeni；仅位置交流，不是付款处理、金融建议或真实物品探测。固定新fixture63d1276f的真实before3过7缺，首after10项全过，不改新oracle凑绿；独立定向服务实际exit0：完整lib+54集成target，55唯一组983过0失败2原ignore0filter，新10只计一次。54个旧selected target/test名字顺序status/ignore细节同；不拼child、focused或借上轮929/之前2705充新版完整验收。本轮strict locked-offline-alltarget-allfeature Clippy-Dwarnings实际exit0/1m 06s。37路径98 current数字精确维护；旧washroom窗口另1处固定ZH879/JA367取3，原作者及hash不动。974旧非doc=933整体byte/mode同+37精确重建+3raw逆回+1catalog外wrapper；旧生产逻辑、模型协议、25包SDK、依赖和版本不动。新增E-daily-pocket-items、F16-F19四refs与ENZHJA各一test索引；137旧证据/49实现/79cells/评分/路由和完整oldnote保留。本轮不是全repo/Doc-tests/人工UI/原生键盘/真实模型/性能/安装/CI验收，不提交推送或恢复取消自动化。 以下完整旧记录原样保留：2026-10-24洗漱用品位置与收纳：真实dirty979基线924f17d2，仍de42d39/0.9.5-build45未提交。零新词形/读音，新增9语境18作者句；EN6213/888/1740(59层)、ZH3441/882/1762、JA638/370/739。既有毛巾/沐浴露/洗漱包与歯ブラシ/石鹸/タオル补双句，英文新daily_washroom全词元已知、旧first-rank全同；仅有限位置交流，不是库存感知或物品控制。真实before3过7缺，首after8过2失败保留；仅新fixture修空草稿raw前提及可选包短mao-ji分页oracle：完整reading仍双句首页，partial锁旧anchor和新作者index5/6并可逐字提交；不以推广新句为由改旧权重/容量。另加固定JA假名独立oracle及3词六横空白守卫。独立定向运行真实进程exit0：完整lib+47集成target，48唯一组929过0失败2原ignore0filter，新10只计一次；旧47组逐个test名字/顺序/status/ignore细节同，不把此前2705完整轮借成新版通过，也不加child或局部重试。首Clippy仅报新fixture类型复杂，保留红记录；仅提取两类型别名并严格逆回此前fixture全部字节，新10项再测通过、不累加929。严格全target/allfeature Clippy-Dwarnings实际exit0/18.67s。36路径93current数字精确维护、3raw逆回、catalog新最外wrapper以外旧973非doc中933完整byte/mode同；旧decoder/生产运行逻辑/模型协议/25包SDK/依赖版本不变。仅新E-daily-washroom、F16-F19四refs、ENZHJA各一test索引；136旧证据/49实现/79cells/评分/路由及旧note完整保留。本轮不是完整repo/Doc-tests/人工UI/原生键盘/真实模型/性能/安装/CI验收，不提交推送或恢复取消自动化。 以下完整旧记录原样保留：2026-10-24玄关批次兼容性收尾：基于真实dirty970快照72eeb192，仍de42d39/0.9.5-build45未提交；新增6ENforms/9ZH5JA Word读音、18语境36作者句，EN6213/885/1734(58层)、ZH3441/879/1756、JA638/367/733。A仅为旧完整mixed/base都缺失且原decoder已有真实finished读音的作者提供新身份，保持旧care/carry页2，拒绝Prefix-only jiu推断；共享长稿窗口与原字节前缀，不承诺上下文多音字消歧。B保留旧单字规则，仅唯一Word终音ng缺g且实际完成分支出处可证时保留双句。日语只在默认12容量、唯一近完整kana+ん短Word且更长同源compound真实竞争、发布前2Word可证、实际两个音形/Word/双作者身份存在时保留短词原作者；假名原文项可为Literal，不能只认Unspecified。既有日语补全helpers、底层decoder、模型协议、容量及25包SDK不变；新增窄分页策略不改变候选文本或Word分数。kutsu新增靴箱/靴べら和四作者各-1索引权重是合法数据变化；测试先核当前完整12 tuple再精确逆回真实旧10及旧hash，非泛化过滤。保留before、首after15/4、A/B独立before和中间修复红；143中断轮实际也有4中文失败，早先tail误判已更正。完整失败轮289组2674过22失败32ignore0filter：7真实词库兼容case及15重复UI断言；后者来自服务未继承LC_ALL，现每次测试显式C.UTF-8，不改UI。新固定专项实际owner97606工具exit0：805过0失败2原ignore，20唯一组0filter，44本轮新增项已含一次，不加child或旧轮结果。独立完整回归实际2705过、零失败、32原ignore，291唯一组含Doc-tests、零筛除。严格全target/all-feature Clippy-Dwarnings通过（55.99s）。原135证据/49实现/79cells/评分/路由/历史note保持，仅E-daily-entryway、四refs和EN2/ZH4/JA4十索引。不新增原生键盘/人工UI/真实模型/性能/安装/CI验收，不恢复已取消自动化，不在已发布包内。 以下完整旧记录原样保留：当前未提交E-daily-accessories，基于含recycling的真实dirty966文件快照d9a733bc（HEAD仍de42d39/0.9.5-build45），新增6ENforms/10ZH5JA Word读音/18contexts36作者句，EN6207/879/1722(57层)、ZH3432/873/1744、JA633/361/721。充电器/转接头/耳机盒等复用不重计，JA充電器の置き場所为既有词组合、不是新增整词reading；保留显式长音与n+a撇号边界。仅配件位置与收纳输入，不提供供电/接线/电气操作建议。真实before三语各2pass4missing、私有16包旧controls先过后0/1；首after18pass1fail仅新EN connec短根oracle过宽，保留失败日志后只改两新tuple为connecto，旧配额/rank/hash不动。最终独立定向回归实际owner1392工具0：23唯一顶层组=完整lib+22相关集成套件，735pass0fail3原ignore0filter，新19只计一次，8旧golden过；不含Doc-tests/其他bins或全量，不借旧2642/32ignore。严格locked-offline-alltarget-allfeature Clippy-Dwarnings实际工具0/58.85s；本轮83Python/250links/fmt/源码和功能结构保真通过。仅新E/F16-F19四refs与五test索引，旧134E/49实现/79cells/评分/路由/完整历史note、模型协议/生产runtime/25包SDK/预算/版本保持。无新UI/native/实模/性能/安装/CI验收，本批未提交，不在已发布0.9.5资产中，不恢复取消自动化。 以下完整旧记录原样保留：当前未提交E-daily-recycling，基于已发布de42d39/0.9.5-build45；新增8builtin ENforms/12ZH6JA Word读音/18contexts36作者句，EN6201/873/1710(56层)、ZH3422/867/1732、JA628/355/709。bins原optional-family已有；仅有限回收物整理协作表达，不提供地方规则或实际收集服务。真实before三语各2pass4missing、私有16pack旧controls先过后0/1；首focused65pass1fail的JA当前总数697→709精确同步，红日志保留。首full279组2640pass2fail/工具101保留；actual probe确认one\\nline仅增加liner/liners尾Word88/86、旧3Word100/92/90原样，test-only窄投影先assert完整五字段向量后移末2Word，旧golden/corpus不动。fresh final-full实际工具0且独立审计通过：279唯一顶层组含Doc-tests、2642pass0fail32原ignore0filter，275旧roster/status/ignore细节精确保留、新19仅计一次；严格locked-offline-alltarget-allfeature Clippy-Dwarnings实际工具0/1m01s，83Python/250links/fmt/源码及结构保真通过。仅新E、F16-F19四refs与六test索引；133旧E/49实现/79cells/成熟度、路由、模型协议、生产runtime、旧rank/flags/作者源、25包SDK/预算/版本不变，不保证所有短根池恒定。无新UI/native/实模/性能/安装/CI验收；本批未提交、不在已发布0.9.5资产中、不恢复取消自动化，详见DEVELOPMENT。 以下完整旧记录按原样保留：0.9.5/build45源码准备：只纳入d2b0a1a/0.9.4源码后的kitchen和bedding数据两批，新增14builtin ENforms/20ZH8JA Word读音/30ctx60作者句，当前EN6193/867/1698(55层)、ZH3410/861/1720、JA622/349/697；旧rank/资源flags顺序/作者源、运行logic/模型协议/25packsSDK/预算不变，短根池可随新增数据变化并非全部候选保留。实际升版前961regular归档8c8e2be2a00f57f8c75f9d2feb81cdb76d225c4d26908584d61a2c8d69f78fa9已含pending release note和五doc摘要；允许7文档路径与5metadata8版本值，954非doc包含5metadata不冒称954全不可变。新版独立versionedfull实际工具exit0，275唯一组含Doc-tests/2623pass0fail32原ignore0filter，logSHA db479ff88ec6d36e04690515c4c653538b075b128c76357e6893e232a1a2ad09；terminal receipt及audit-release-full核全275旧test名字顺序status/32ignore身份同，非旧同数bedding重标/不加focusedprobechild。83Python/250links/release-preservation实际过；新版fresh精确隔离UI19实际工具0，18panel单门1pass270显式filter加1launch1pass0filter，不把未选中算pass/ignore且不加full2623。首临时wrapper误用未安装1.95.0alias触发setup下载，0test结果，Root仅自有scope SIGINT/exit130留log及原wrapper；只/tmp alias改installedstable(actualrustc1.95)，repo runner/assert/90s/isolation及个人默认toolchain/IBus不动，非产品失败/不拼前次0test。新版strictlocked-offline-alltarget-allfeatureClippy-Dwarnings实际工具exit0/1分03秒，非旧52.51秒重标；最终precommit格式/保真另行检查，准确新commit八CI/accepted四资产仍待独立完成，旧419不充新版验收/不宣称tag发布安装。用户授权提交推送及全部通过后Ubuntu24.04amd64/glibc2.39 LinuxAlpha prerelease非latest，annotated不可移动tag/draft-first/远端资产重下bytes验证；此摘要不表示已tag/发布/安装，不恢复已取消定时跟进。133旧E/49impl/79cells/评分语义/axes/limits/routes及完整旧note后缀原样，snapshotHEAD/date/dirty不改，source_digest由主代理真实终算。此前厨房、床品及全部历史原文：当前未提交E-daily-bedding，从含kitchen的实际956文件脏快照开始，非clean HEAD；archive9c6959fa3cfa79d163e674f65f1d0c39b08121599b875c48c1575dee0fd753f2，head仍d2b0a1a/0.9.4-build44。新增6builtinENforms/8ZH3JA Word读音/12ctx24作者句，当前EN6193/867/1698(55层)、ZH3410/861/1720、JA622/349/697；复用目覚まし及旧床单被套枕套等，不计重复。四冻target真before三语各2pass4missing、私有16pack0pass1missing且BEDDING_OLD_CONTROLS_OK:16先过；16是包数，不借kitchen首filter失败。focused-after实际工具0为8组46pass0fail0ignore0filter，新19+oldgolden8+catalog4+resource15，不与终局叠加；独立final-full实际工具exit0，275唯一组含Doc-tests/2623pass0fail32原ignore0filter，旧271test名字顺序status与ignore身份同，新19已含一次，不加focused46/419probes/child。真实before7edc/after1b08新编同probe无mock，fixed328+91=419全tuple+JSONL原字节同；每0/9JA目录20full/specificpartial双作者首页、15protectedま池全同、4partial6/9/12作者3/4。邻域每目录82中42同40变，mou12唯一旧生成tail Word builtinも受付/9包も受け取り退场，源词作者未删，不泛称allshort根稳定。83Python(29+11+25+18)/250links/fmt/diff/source-schema过；956baseline50维护wholefileinverse/3rawappend/catalogwrapper+routeinverse/896其它旧文件bytesmodes/types/25packsSDK/5versions/4freeze保持，无额外增删。临时source审计器初错macOS路径仅改审计lookup保留日志，非产品失败/放宽守卫。最终strictClippy locked/offline/alltarget/allfeature-Dwarnings实际工具exit0/52.51秒，finalfmt/83Python(29+11+25+18)/250links/source-preserve/tensorcheck/diff再验均工具0；full-audit报告SHAdd570acc35e153e5b394e0c86314e4c3ac3da5085cdeebff9e808e516385f74a。32原ignore身份保持，不借旧kitchen2604/UI19/50.42秒，不新增UI/原生键盘/实模/安装/性能验收。中文问句实际？边界与wo尾保真，不改成逗号；四specificpartial不等任意短根稳定。有限床品整理输入，非医疗/睡眠功效建议/闹钟或设备控制。旧rank/flags/作者源、运行logic/模型/25packsSDK/预算及版本不变，不commit/install/查CI或恢复取消发布自动化。仅本新E、F16-F19四refs、EN2ZH2JA1五index；132旧E/49impl/79cells/评分语义/axes/limits/routes与oldnote完整suffix保持。以下完整保留厨房及更早历史摘要：当前未提交E-daily-kitchen，干净d2b0a1a458a47054a94a2eb55afa23971da69a5e/0.9.4-build44，实际952文件before-source.tar SHA5a6e641d01a62696e993db367994372e910302fe85f5ea28968d770ef2926eb2。新增8builtin ENforms/12ZH5JA Word读音/18ctx36作者句；当前EN6187/863/1690(54层)、ZH3402/857/1712、JA619/345/689。bowls/spoons已有optional cooking只算新builtin，其他6forms跨builtin+8ENpacks无旧独立词；JA箸复用/5新reading，supu-n明确长音不承诺supuun，hash显式6一作者旧边界保留。四targets先冻，真before EN1pass5missing/ZH2pass4missing/JA2pass4missing；私有16包初a47…陈旧child过滤名空跑被running1断言抓住，日志保留，仅改过滤名125e…后真before0pass1missing，KITCHEN_OLD_CONTROLS_OK:16先过，16是包数非controls数。mock提案非after证据；八targetfocused实际46pass0fail不与终局叠加；final-full.log工具exit0，独立audit确认271唯一组含Doc-tests/2604pass0fail32原ignore0filter，旧267test名字顺序status及ignore身份同，新19已含一次，不加focused46/419probes/child。StrictalltargetallfeatureClippy-Dwarnings工具exit0/50.42秒；source-schema/250links/48maintenance整文件inverse/3rawappendinverse/catalogwrapper+route/894其它旧bytes及6docs保真通过。真实savedbefore0547和after7edc各自新编同probe，无mock注入，fixed328+91=419全tuple及JSONL原bytes同；0/9JA目录各30完整/具体partial双作者首页与15受保护ま池保持，hash显式6仍一作者。邻域不是全恒定：九包fur保留旧フライパンWord，但两作者从该短根11行池退场，非末12截断/源作者删除。actual-japanese-audit-report.json与final-full-audit-report.json留存；旧2585/UI19/51.90秒不是本批验收，不新增UI/原生键盘/实模/安装/性能声明。旧rank/flags/数据顺序保留不等任意shortprefix池不变，kuai ji可加筷架而旧快捷键仍可选。仅数据append，不改runtime/模型协议/25packsSDK/预算/版本/个人安装，不提交查CI或重启取消的发布自动跟进。仅此新证据、F16-F19四refs及EN2ZH2JA1五testindex，131旧evidence/成熟度/结构/路由保持；非食谱/健康建议/设备控制/UI/原生/实模/性能/安装/发布验收。此前0.9.4准备及全部历史摘要原文：0.9.4/build44源码准备：收录6edfa3e后dressing/room/stationery/reading/plants五批，新增28ENforms/60ZH22JA Word读音/90语境180作者句，当前EN6179/857/1678(53层)、ZH3390/851/1700、JA614/339/677；有界日语nasal进度与default12末槽父词、单源和合并catalog层数修正，25包SDK/模型协议/默认预算保持。实际951文件升版前归档9002c03d…；五权威metadata八值精确同步，其余939文件、257Rustfixtures、原131E/cells/impl/评分/axes/完整旧note后缀保持。新版完整工具exit0：267组含Doc-tests/2585过0失败32原ignore0filter；原进程2026-10-23恢复确认退出，全roster及ignore身份同，SHA33ea888ce546a622936f0b548233280a578fe5e67bcfa8182c9b050f8b505725。独立隔离UI19/19、严格Clippy51.90秒工具exit0，83Python/250links/fmt/source/保真过，不将UI/child/旧2585或51.34秒加成新版结果，无实模/新时延/个人安装验收。用户授权准确新commit八CI与accepted四产物验收全部通过后发布LinuxAlpha prerelease非latest，远端仍待验，不先打tag/发布/安装，不碰个人服务配置。以下均保留原研发快照：当前未提交E-daily-plants，actual946文件reading脏基线ef8eb346e21755292bb2d1c34b4522ae673183d597bc65431872b1bfca944435；新增8builtinENforms/12ZH5JA Word读音/18语境36作者句，EN6179/857/1678(53层)、ZH3390/851/1700、JA614/339/677。初data-only完整2578过2失败/266组及首wide-repair53过1失败保留；旧mad仅精确扩充逆投影保旧hash，family+railま基础Word不可达由generic仅默认12的spare末槽父词保留修复，0..11/>12旧行为保持，不改旧family断言/早前rows/raw/槽metadata/配额。最终独立full-fixed工具exit0：267唯一组含Doc-tests/2585过0失败32原ignore0filter；新22集成+2cfg已含一次，不加focused54/child/失败轮。旧262test/status与32ignore身份同，strict全target/allfeatureClippy51.34秒/fmt/83Python/250links/source/53inverse887bytes6docs5freeze保真过；native-core静态9另列非原生输入。真7812db…库hash-match、同冻结probe重采419/419实际全cmp0，stale旧probe不计，419不代替两故障专项；最终42邻域同data-only，原before16/42同26变化仍披露。仅本新E/F16-F20五refs/EN2ZH2JA2mix1七索引，130旧E/成熟度/axes/limits/routes与完整旧note后缀不变。有限植物交流非科学指导/传感/控水，无UI/native/实模/时延/安装验收；仍0.9.3/43未commit/install，不在发布资产内。此前reading及更早历史摘要原文：当前未提交E-daily-reading，基于含stationery实际941文件脏快照3c9d8b5c69059d3affcc0739d82c15765bcdb9dac1c9a9fc6ca0f99c7e064be5；新增4ENforms/12ZH4JA Word读音/18语境36作者句，EN6171/851/1666(52层)、ZH3378/845/1688、JA609/333/665。有限阅读/书页/书签表达，非书籍检索/书签管理/阅读进度跟踪；旧英文首现rank/读音flags/作者数据顺序/25包SDK/模型协议/配额及runtime算法不变。四tests-first的真实before、新oracle复核和最终after/full/Clippy独立记DEVELOPMENT，不借stationery2542/49.91s或旧UI/native/实模/timing。仅新本证据、F16-F19四refs及EN2/ZH3/JA1测试索引，129旧evidence/成熟度/路由保持；仍0.9.3/43未commit/install、不在发布资产内。固定source独立完整full-regression工具exit0：262唯一顶层组含Doc-tests/2561过0失败32原有ignore0filter，新4targets19已含不加focused38/旧golden8/child，独立逐项旧258group/test/status与32ignoreidentity同。strict全target/allfeatureClippy-Dwarnings实际exit0/50.58秒，fmt工具0、83Python/250links/source-schema/postfull保真过；不借旧UI/native/实模/安装/timing。此前stationery及更早历史摘要原文：当前未提交E-daily-stationery，含room实际dirty936文件c3e3377fbb51df1a65ac0cb7db7c546c16049b50cc26e26684f4aee7c48cc1f9基线；新增8ENforms/12ZH4JA Word读音/18语境/36作者句，EN6167/845/1654(51层)、ZH3366/839/1676、JA605/327/653。旧6159rank/flags/作者顺序/25包SDK/模型协议及配额保持，纯数据不改runtime转换/混排。五新fixture真实before EN1过5缺/ZH2过4缺/JA2过4缺/compat4过/packs0过2缺；EN9cc…误认optional-onlybeside为builtin，留原spec/log后批准next to同义替换，faf1…重冻/before同1过5缺。首after23过1失败为新ENadoptoracle假定out后空格，真实作者out, so…；只修row2 following=', '、其它' '，保ou/out/完整comma作者/adoptcommitundo，2e6e976ca4fe83e8bd248851ded2c329cbaab050ba6cec980fddd724176d06a3重冻/再before同1过5缺，非prod故障，原失败与其它23原spec通过留存。修后英target对afterlib独立6过0ignore0filter/exit0，同spec before仍1过5缺exit101，不拼首23/1为24单命令全绿。实际固定raw419/419全tuple同(328+91)，58邻接仅31同/27扩充；zheji原这继续Word/两拼接句75.5/75及xianna原先闹钟Word/两拼接句79/78.5(首句原首页index5)因同take4被新整词分支替换，非作者源记录删改，不能称全部旧作者候选/首页项保留。固定final5targets后独立完整full-regression.log工具exit0：2542过0失败32旧ignore/258唯一顶层组含Doc-tests/0filter，24新已含一次，不加初23/1+英6/child或旧room2518；strict全target/allfeatureClippy-Dwarnings工具exit0/49.91秒、fmt工具exit0，当前120ef45f…source摘要/schema/83Python(29+11+25+18)/250links/diff已过，不预报24firstgreen，不借旧room2518/32/UI19/历史timing。仅新1stationery证据、F16-F19四refs、ENZHJA九test索引；128旧evidence/评分/运行路由不动。0.9.3/43不变，未commit/install、不在已发布0.9.3包内。此前room及更早完整历史摘要原文：当前未提交E-daily-room-comfort，实际dirty928文件dressing基线ab91737d6bc77c97b9457f9605b9c28bfbfd367fe3dab1094347fa60363943cd；新增8ENforms/12ZH5JA Word读音/18语境/36作者句，EN6159/839/1642(50层)、ZH3354/833/1664、JA601/321/641。五新fixture24项首after23过1失败kankise第二作者index8；广末拨音方案完整full2509过2失败32旧ignore/252组，保留旧transit第二页回归及merged误用单source64拒有效包的失败，非最终结果。广方案seirikepositive新fixture/顺序inverse撤回，日志和redgreen实验保留；最终stem须已有双distinct作者，守旧joushake/seirike12tuple/六槽策略，4新boundary，旧family仅limit6以77.5第二作者替Unknown，其余0..5/7..12tuple同。单source64/单pack8层2048units/lang4096/16installed不扩；运行aggregate64+16*8=192，directCatalog也计disabled/invalid16；新4packtests真实red1过3失败→4过。narrowfocused15targets93过0失败0ignore0filter，不与独立full/Clippy重复累计；最终独立完整full-narrow-regression.log工具exit0，2518过0失败32旧ignore/253唯一顶层组含Doc-tests/零筛除，38新(room24+nasal3+boundary4+layer4+cfg3)已含，不加focused93/redgreen/撤positive/child；旧两fail/fulln7/releasetail8/两4golden通过，strict全target/allfeature Clippy-Dwarnings49.21秒实际exit0无warning/error，fmt/diff/83Python(29+11+25+18)/250auditlinks/最终source摘要过。窄raw before418/419全字段同、dataonly419/419同，adj before21/38/dataonly38/38，17真实扩充；fangjian原take4使放键盘退场，三旧Word既有权重各-2，不说所有旧候选可达/分数不变。原6151rank/旧资源/25包SDK/模型协议/6-12-256候选窗/127旧evidence/评分/路由保持；50inverse/872其它bytes/6doc/8新freeze且928typesmodes同，83静态与250链接已过。仅本证据扩F16-F20/F57/F58/F67及实现索引；版本0.9.3/43不变，已发布0.9.3排除dirtydressing+room，不操作安装/个人服务，不借旧2480/2456/UI19/性能时间。以下完整保留此前dressing与发布准备历史摘要：当前未提交E-daily-dressing，位于准确6edfa3e之后；新增12ZH/4JA Word读音、18语境、36三语作者句、零EN词形；EN6151/833/1630(49层)、ZH3342/827/1652、JA596/315/629。旧48层/6151rank/读音flags/25packsSDK/模型协议/配额/成熟度/路由保持。新24已含在独立完整all-feature2480过0失败32原有ignore/245唯一顶层组/零筛除内，含fulln7/releasetail8/两套旧4golden；不加focused或capturedchild计数。首次full2479过1失败仅遗漏旧privatecompound总数3331→3343，原失败保留，仅该数值同步；20维护路径58literal精确逆回。早先专项23过1失败为root同文JA要求Word的错误oracle，仅按既有Literal原文规则纠正identity-spelling，不改production/限额；3语言+compat冻结原字节。419实际旧池全同，独立邻接24中21全同，三根新增仍保留旧选项，旧靴双句首页分各-0.5是旧indexweight。923baseline中893其它bytes/modes相同，3raw追加/catalog新inverse/20metadata/6docs以外保持；127evidence保留126旧，仅新4ref/9testindex。仍0.9.3/43，未提交安装，不替换已锁定验收SHA，无借旧2456/UI19或新native/UI/实模/性能/发布声明。严格全target/allfeature Clippy-Dwarnings46.05秒、83Python守卫/250源码审计链接/格式diff/源码digest/精确保真审计通过。此前源码准备摘要原文：0.9.3/build43源码候选收口，纳入route/call/storage/restock/hygiene五批，相对4108bc0新增8EN forms、122CJK读音、188三语作者句；三语总量6151/827/1618(48层)、3330/821/1640、592/309/617。25包SDK/模型协议/成熟度旧评分保持。新增2项模型+RAM偏好实际管线回归；最初提前限12诊断非实际Engine路径，原失败保留，不改production来满足错误oracle。首次versioned全量发现新hygiene whether泛语境挤出既有privatepack首页，红日志保留；只改新作者if同义语境和两新fixture精确常量，六语境12分支/旧edge断言/生产配额原样，13项修复回归过；独立full后发现catalog新增hygiene精确tuple遗漏3处同步，第二失败同样保留；四文件共13处literal改词精确逆回，历史hash/oracle不变，再从头完整验证。最终独立完整all-feature2456过0失败32原有ignore，240唯一顶层结果组含Doc-tests全零筛除，含fulln7/releasetail8及两套四golden；另私有UI19/19、严格全target全featureClippy49.76秒、83Python/250源码链接/格式/五版本一致性/严格保持审计过。560releasebefore内543其它字节同；17预期差异、229Rusttests226字节同加3处新hygiene证明文字可逆；126旧evidence/cells/成熟度/25包SDK保持。第一full边界失败和第二full 2455过1失败目录tuple不同于最终全量，日志都保留，不组合重试充零失败。远端新提交CI与accepted四资产仍待独立完成，不计旧1872 scoped、focused13、父调child或0.9.2结果为新增通过；用户授权新提交全部CI及accepted四资产验收后发布LinuxAlpha prerelease非latest，个人安装不改。以下为先前研发阶段的原始摘要：当前未提交E-daily-hygiene：追加8EN forms、8ZH/6JA Word读音、36三语作者句，EN6151/827/1618(48层)、ZH3330/821/1640、JA592/309/617。旧47层/6143rank/flags/25packsSDK原样；数据模型宿主解耦。先冻20词库/pack测试，before EN1/5 ZH2/4 JA2/4和pack0/2，after19/1保留senganryo真实index8失败。新3集成0/3、新3mix unit1/2之后独立窄修：唯一offset0整Word末长元音补全、strict同根、真实旧转换和首Word、双distinct作者及actual LocalWord/2LocalSentence，>=6复用rawreserve；旧root/progress helpers/分数/Word序/模型偏好竞争/6/12/4/256/16包保持。新26原样过，完整同范围重跑1872过0失败5旧ignore/188唯一组，605lib+187集成1267全部无筛除；含fulln7/releasetail8/oldcleaning10/旧两套四golden。before源b099a2e0556a54415894f1aa3583d5bd0accd50b11bb074c6beb698f98025319含555文件224旧Rusttests，非HEAD安装；3JSONraw、36计数与历史epoch维护、2prod叶子/catalog投影可逆，507其它文件字节同。实际before与data-only419vectors全同，最终旧goldens另原样通过；不可称所有新短前缀池无变。仍0.9.2/42、未提交发布安装，不碰个人服务；无新性能/native/UI/实模声明。全部旧评分/证据/路由不改。 历史阶段原始记录保留在下方全部旧evidence对象，snapshot.note只摘要本轮。"
+    "source_sha256": "4c6799d9ca0c3057bd3446b9c50a50fef2af8567307aa835a44359e431bb23d5",
+    "note": "文档整理工作区快照，基于 e3ce76e1620fd52ece28d2fe88dedd2bee0e1938。仅导航、历史归档、打包文档工具与 CI 静态守卫调整；运行时、词库数据、模型协议、评分、关联和限制不变。source_sha256 覆盖实现与测试路径，包含本轮文档工具变更，不表示新的原生/UI/模型/安装验收或已发布包摘要。旧 snapshot 及全部历史证据原文保存在 docs/history/2026-10/pre-reorganization/functional-tensor.json，文档证据路径改指对应的完整历史归档，不从入口瘦身推导成熟度提升。"
   },
   "architectures": [
     {
@@ -1278,11 +1278,13 @@
       "paths": [
         "scripts/package-linux.sh",
         "packaging/linux/dev.suzaku.Suzaku.desktop",
-        "scripts/check-package-audit-links.py"
+        "scripts/check-package-audit-links.py",
+        "scripts/package-docs.py"
       ],
       "tests": [
         "tests/linux_package_cli.rs",
-        "scripts/test-linux-package.sh"
+        "scripts/test-linux-package.sh",
+        "scripts/test-package-docs.py"
       ]
     },
     {
@@ -1310,7 +1312,8 @@
         "scripts/test-linux-apps.sh",
         "scripts/functional-tensor.py",
         "scripts/fixtures/native_partition_projection.py",
-        ".github/workflows/ci.yml"
+        ".github/workflows/ci.yml",
+        "scripts/check-documentation.py"
       ],
       "tests": [
         "scripts/test-functional-tensor.py",
@@ -1332,7 +1335,8 @@
         "scripts/test-native-probe-teardown.py",
         "scripts/test-gtk3-event-observer.py",
         "scripts/test-ibus-signal-lifetime.py",
-        "scripts/fixtures/native_probe_cleanup.py"
+        "scripts/fixtures/native_probe_cleanup.py",
+        "scripts/test-documentation.py"
       ]
     },
     {
@@ -1768,8 +1772,8 @@
       "id": "E-daily-entryway",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -1793,8 +1797,8 @@
       "id": "E-daily-accessories",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -1810,8 +1814,8 @@
       "id": "E-daily-recycling",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -1830,8 +1834,8 @@
       "id": "E-daily-bedding",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -1847,8 +1851,8 @@
       "id": "E-daily-kitchen",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -1864,8 +1868,8 @@
       "id": "E-daily-plants",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -1886,8 +1890,8 @@
       "id": "E-daily-reading",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -1905,8 +1909,8 @@
       "id": "E-daily-stationery",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -1924,8 +1928,8 @@
       "id": "E-daily-room-comfort",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -1950,8 +1954,8 @@
       "id": "E-daily-dressing",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -1969,8 +1973,8 @@
       "id": "E-daily-hygiene",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -1990,7 +1994,7 @@
       "id": "E-panel-held-rewind",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/known-limitations.md",
         "src/panel_support.rs",
         "src/bin/panel.rs",
@@ -2005,7 +2009,7 @@
       "id": "E-panel-suspended-adoption-history",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/known-limitations.md",
         "src/bin/panel.rs",
         "src/bin/panel/functional_network_audit_test.rs"
@@ -2017,7 +2021,7 @@
       "id": "E-panel-number-adoption-history",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/known-limitations.md",
         "src/bin/panel/composition.rs",
         "src/bin/panel/candidates_native_test.rs"
@@ -2029,7 +2033,7 @@
       "id": "E-japanese-punctuation-progress",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/known-limitations.md",
         "src/languages/japanese.rs",
         "tests/japanese_punctuation_progress.rs"
@@ -2041,7 +2045,7 @@
       "id": "E-japanese-reading-token-progress",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/known-limitations.md",
         "src/languages/japanese.rs",
         "tests/japanese_romaji_token_boundaries.rs",
@@ -2054,7 +2058,7 @@
       "id": "E-japanese-romaji-progress",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/known-limitations.md",
         "src/languages/japanese.rs",
         "tests/japanese_romaji_aliases.rs",
@@ -2067,7 +2071,7 @@
       "id": "E-japanese-learning-packs",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "data/offline-packs/README.md",
         "data/offline-packs/ja-study.json",
         "data/offline-packs/ja-cooking.json",
@@ -2086,7 +2090,7 @@
       "id": "E-japanese-theme-packs",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "data/offline-packs/README.md",
         "data/offline-packs/ja-shopping.json",
         "data/offline-packs/ja-travel.json",
@@ -2105,7 +2109,7 @@
       "id": "E-japanese-internet-pack",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "data/offline-packs/README.md",
         "data/offline-packs/ja-internet.json",
         "tests/internet_pack_japanese.rs",
@@ -2120,7 +2124,7 @@
       "id": "E-internet-packs",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "data/offline-packs/README.md",
         "data/offline-packs/en-internet.json",
         "data/offline-packs/zh-Hans-internet.json",
@@ -2137,7 +2141,7 @@
       "id": "E-shopping-packs",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "data/offline-packs/README.md",
         "data/offline-packs/en-shopping.json",
         "data/offline-packs/zh-Hans-shopping.json",
@@ -2153,7 +2157,7 @@
       "id": "E-model-legacy",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/model-providers.md",
         "src/model.rs",
         "src/model/legacy.rs",
@@ -2171,7 +2175,7 @@
       "id": "E-model-boundaries",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/model-providers.md",
         "src/lib.rs",
         "src/model.rs",
@@ -2193,8 +2197,8 @@
       "id": "E-pack-boundaries",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md",
         "src/lexicon/packs.rs",
         "src/lexicon/packs/format.rs",
         "src/lexicon/packs/catalog.rs",
@@ -2210,7 +2214,7 @@
       "id": "E-pack-organization",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "data/offline-packs/README.md",
         "sdk/offline-packs/README.md",
         "docs/linux-packaging-data.md",
@@ -2225,9 +2229,9 @@
       "id": "E-japanese-progress-slots",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "README.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/project-readme.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "src/ime/candidate_mix.rs",
         "src/languages/japanese.rs",
         "tests/japanese_progress_sentence_slots.rs",
@@ -2243,9 +2247,9 @@
       "id": "E-catalog-index-performance",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "README.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/project-readme.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "src/languages/english.rs",
         "src/languages/chinese.rs",
         "src/languages/japanese.rs",
@@ -2262,8 +2266,8 @@
       "id": "E-input-hotpath-performance",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/project-readme.md",
         "src/languages/english.rs",
         "src/languages/japanese.rs",
         "tests/input_hotpath_equivalence.rs",
@@ -2276,8 +2280,8 @@
       "id": "E-daily-restock",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -2296,8 +2300,8 @@
       "id": "E-daily-storage",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -2316,8 +2320,8 @@
       "id": "E-daily-call",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -2336,8 +2340,8 @@
       "id": "E-daily-route",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -2357,8 +2361,8 @@
       "id": "E-daily-aftercare",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -2378,8 +2382,8 @@
       "id": "E-daily-appointments",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -2399,8 +2403,8 @@
       "id": "E-daily-messaging",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -2419,8 +2423,8 @@
       "id": "E-chinese-compound-sources",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "src/languages/chinese.rs",
         "tests/chinese_compound_sources.rs",
         "tests/chinese_compound_boundaries.rs",
@@ -2434,8 +2438,8 @@
       "id": "E-chinese-prefix-sources",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "src/languages/chinese.rs",
         "tests/chinese_continuation_provenance.rs",
         "tests/chinese_reference_characters.rs"
@@ -2447,8 +2451,8 @@
       "id": "E-chinese-reference-chars",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/zh-Hans.json",
         "src/languages/chinese.rs",
         "tests/chinese_reference_characters.rs",
@@ -2468,8 +2472,8 @@
       "id": "E-chinese-arrival-chars",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/zh-Hans.json",
         "src/languages/chinese.rs",
         "tests/chinese_arrival_characters.rs",
@@ -2488,8 +2492,8 @@
       "id": "E-chinese-result-chars",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/zh-Hans.json",
         "src/languages/chinese.rs",
         "tests/chinese_result_characters.rs",
@@ -2507,8 +2511,8 @@
       "id": "E-chinese-action-chars",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/zh-Hans.json",
         "src/languages/chinese.rs",
         "tests/chinese_action_characters.rs",
@@ -2525,8 +2529,8 @@
       "id": "E-chinese-giving-chars",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/zh-Hans.json",
         "src/languages/chinese.rs",
         "src/ime/candidate_mix.rs",
@@ -2543,8 +2547,8 @@
       "id": "E-chinese-lending-chars",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/zh-Hans.json",
         "src/languages/chinese.rs",
         "tests/chinese_lending_characters.rs",
@@ -2559,8 +2563,8 @@
       "id": "E-daily-borrowing",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -2579,8 +2583,8 @@
       "id": "E-daily-belongings",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -2599,8 +2603,8 @@
       "id": "E-daily-sharing",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -2621,8 +2625,8 @@
       "id": "E-japanese-cleaning",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/ja.json",
         "src/languages/japanese.rs",
         "tests/daily_cleaning_japanese.rs",
@@ -2639,8 +2643,8 @@
       "id": "E-japanese-weather",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/ja.json",
         "src/languages/japanese.rs",
         "tests/daily_weather_japanese.rs",
@@ -2658,8 +2662,8 @@
       "id": "E-japanese-errands",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/ja.json",
         "tests/daily_errands_japanese.rs",
         "tests/lexicon_resources.rs",
@@ -2674,8 +2678,8 @@
       "id": "E-daily-devices",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -2696,8 +2700,8 @@
       "id": "E-daily-laundry",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "tests/daily_laundry_english.rs",
         "tests/daily_laundry_chinese.rs",
         "tests/daily_laundry_japanese.rs",
@@ -2710,7 +2714,7 @@
       "id": "E-japanese-backfill",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "src/languages/japanese.rs",
         "src/ime/candidate_mix.rs",
         "tests/japanese_completion_backfill.rs",
@@ -2724,8 +2728,8 @@
       "id": "E-daily-repairs",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "tests/daily_repairs_english.rs",
         "tests/daily_repairs_chinese.rs",
         "tests/daily_repairs_japanese.rs",
@@ -2738,8 +2742,8 @@
       "id": "E-daily-delivery",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "tests/daily_delivery_english.rs",
         "tests/daily_delivery_chinese.rs",
         "tests/offline_pack_quality.rs"
@@ -2751,8 +2755,8 @@
       "id": "E-daily-visits-ja-mealtime",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "tests/daily_visits_english.rs",
         "tests/daily_visits_chinese.rs",
         "tests/daily_mealtime_japanese.rs",
@@ -2765,8 +2769,8 @@
       "id": "E-daily-mealtime",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "tests/daily_mealtime_english.rs",
         "tests/daily_mealtime_chinese.rs",
         "tests/offline_pack_quality.rs"
@@ -2778,8 +2782,8 @@
       "id": "E-daily-household",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "tests/daily_household_english.rs",
         "tests/daily_household_chinese.rs",
         "tests/offline_pack_quality.rs"
@@ -2791,7 +2795,7 @@
       "id": "E-preference-restart-fixture",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "scripts/test-preference-host.py",
         "scripts/test-preference-restart.py",
         "tests/preference_host.rs"
@@ -2803,7 +2807,7 @@
       "id": "E-settings-focus-fixture",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "scripts/test-linux-native-candidates.py",
         "scripts/test-native-settings-focus.py",
         "tests/native_settings_focus.rs"
@@ -2815,7 +2819,7 @@
       "id": "E-preference-feedback",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/ibus-candidates.md",
         "docs/known-limitations.md",
         "src/bin/panel/tray.rs",
@@ -2829,7 +2833,7 @@
       "id": "E-preference-lifecycle",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/ibus-candidates.md",
         "docs/known-limitations.md",
         "src/data/files.rs",
@@ -2846,7 +2850,7 @@
       "id": "E-native-preference",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/ibus-candidates.md",
         "docs/known-limitations.md",
         "tests/preference_host.rs",
@@ -2860,7 +2864,7 @@
       "id": "E-preference-persistence",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/ibus-candidates.md",
         "docs/known-limitations.md",
         "tests/preference_persistence.rs"
@@ -2872,7 +2876,7 @@
       "id": "E-native-core-sessions",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "scripts/test-linux-ci.sh",
         "scripts/test-native-sync.py",
         "scripts/fixtures/native_partition_projection.py",
@@ -2891,7 +2895,7 @@
       "id": "E-ci-vocabulary-sessions",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "CONTRIBUTING.md",
         "scripts/test-linux-apps.sh",
         "scripts/test-linux-vocabulary.py",
@@ -2904,7 +2908,7 @@
       "id": "E-ci-lanes",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         ".github/workflows/ci.yml",
         "scripts/test-ci-release-graph.py"
       ],
@@ -2915,7 +2919,7 @@
       "id": "E-python-ast-format",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "scripts/run-ast-guard.py",
         "scripts/test-ast-guard.py"
       ],
@@ -2926,7 +2930,7 @@
       "id": "E-shared-noop-controls",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "src/ime/core_engine.rs",
         "tests/ime_noop_controls.rs",
         "tests/prediction_edit_conflicts.rs"
@@ -2938,7 +2942,7 @@
       "id": "E-prediction-error-boundaries",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "CONTRIBUTING.md",
         "tests/prediction_edit_conflicts.rs"
       ],
@@ -2949,7 +2953,7 @@
       "id": "E-prediction-edit-conflicts",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "CONTRIBUTING.md",
         "tests/prediction_edit_conflicts.rs"
       ],
@@ -2960,7 +2964,7 @@
       "id": "E-custom-language-continuation",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "CONTRIBUTING.md",
         "docs/shortcuts.md"
       ],
@@ -2971,7 +2975,7 @@
       "id": "E-custom-language-boundaries",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "CONTRIBUTING.md",
         "docs/shortcuts.md"
       ],
@@ -2982,7 +2986,7 @@
       "id": "E-custom-language-long",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "CONTRIBUTING.md",
         "docs/shortcuts.md"
       ],
@@ -2993,7 +2997,7 @@
       "id": "E-held-language-transitions",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "CONTRIBUTING.md",
         "docs/shortcuts.md"
       ],
@@ -3004,7 +3008,7 @@
       "id": "E-keypad-navigation",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "CONTRIBUTING.md",
         "docs/shortcuts.md"
       ],
@@ -3015,7 +3019,7 @@
       "id": "E-language-adoption-workflows",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "CONTRIBUTING.md"
       ],
       "scope": "2026-10-11 私有 Linux IBus 切语言、词句采用及受控慢保存组合",
@@ -3025,7 +3029,7 @@
       "id": "E-chinese-mixed-boundary",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/ibus-candidates.md"
       ],
       "scope": "2026-10-11短中文草稿中的literal混合前文与关闭引号边界",
@@ -3035,8 +3039,8 @@
       "id": "E-chinese-adopted-flow",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "docs/ibus-candidates.md"
       ],
       "scope": "2026-10-11中文基础连接字与物理拼音/数字构造的有限连续采用流程",
@@ -3046,7 +3050,7 @@
       "id": "E-chinese-partial-progress",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/ibus-candidates.md"
       ],
       "scope": "2026-10-11已采用汉字语境与半拼音的有限整句衔接，以及独立原生翻页诊断",
@@ -3056,8 +3060,8 @@
       "id": "E-daily-care",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-11中英日洗漱、整理和出门收尾；有限原创离线fallback及中文整词续句修复",
       "note": "英文仅补wash/hair/hands三词形及8搭配16句，6143严格小于6144且6140旧词首次位置不变；中文24读音8语境16句，日语12读音6语境12句。独立预期先实际RED，全部旧29英文层/685搭配/1334句、中文2896读音/679语境、日语354读音/178语境内容、标记、顺序及14包字节不变。修复中文已有whole-reading Word在decoder前五之外漏续句：首选尚未命中Word时，最多五个已验证Word在原输出后仅补自身exact语境，不改beam/评分/候选12/page6；完整回归发现的shijian旧世间首屏回退用生产门槛修复，不放松旧断言。新歧义保留原首选、同音词与明确第二页选择。六新GTK tuple加入builtin及all-pack门禁，原240s、旧tuple及物理断言不变。准确实跑范围、保留初失败与日志见开发记录。typed错误不冒充HTTP/实模；不读取个人历史、不提供医疗建议、不绑定模型。未安装/提交/推送/发布，不外推实体键盘/个人桌面/全原生矩阵/远端CI，77评分不提升。"
@@ -3066,8 +3070,8 @@
       "id": "E-daily-carry",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-11中英日穿着与出门随身准备；有限原创离线fallback",
       "note": "英文8搭配16句仅补glasses一词，当前6140严格小于6144，所有旧6139词首次位置不变；中文24读音8语境16句，日语12读音6语境12句。独立预期先实际RED，旧28英文层/677搭配/1318句、中文2872读音/671语境、日语342读音/172语境全文与标记/顺序指纹继续冻结，14推荐包字节不变。历史零增量断言限定各自追加窗口并另外保护全部旧词当前位置；新的中文同音/前缀歧义明确保留旧首屏词与后页句，不扩大候选容量。准确实跑范围、首轮失败和日志见开发记录。六新GTK tuple加入完整与pack门禁，原240s/物理断言/旧tuple不变。新typed模型失败不是HTTP/实模验收；不读取历史、随身物品或执行请求，不绑定模型或改变解码/预算。未安装/提交/推送/发布，不外推实体键盘/个人桌面/完整原生矩阵/远端CI，77评分不提升。"
@@ -3076,8 +3080,8 @@
       "id": "E-daily-requests",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-11中英日借用、寻物和日常小请求；有限原创离线fallback",
       "note": "英文8搭配16句且6139索引零增长，中文24读音8语境16句，日语12读音6语境12句；独立预期先真实RED，全部旧27英文层/669搭配/1302句与首次索引位置、中文2848读音/663语境、日语330读音/166语境的完整内容、类型、标记和序列锁定，所有历史指纹不替换。准确代码/隔离编辑器验证及保留失败见开发记录。新增六GTKtuple保留旧断言，pack全量守恒拆为两新私有会话，每片14包与真实panel、原240s不变，单片不冒充完整门禁。新模型失败为类型化合成错误，不冒充新HTTP/实模/实体键盘/个人桌面或远端CI验收；不读取历史或执行请求，不绑定模型或改解码/候选上限，未安装/提交/推送/发布，77评分不提升。"
@@ -3086,8 +3090,8 @@
       "id": "E-daily-routine",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-11中英日作息、休息及日常状态回应；有限原创离线fallback",
       "note": "英文12搭配24句且6139索引净增长零，中文32读音12语境24句，日语16读音8语境16句。固定预期先复现缺项，旧26层英文/657搭配/1278句、中文2816读音/651语境、日语314读音/158语境全文内容、标志、顺序及全部旧英文首次排名继续锁定。首轮修正新测试误写的旧英文late tonight句；日语kib短拼写与旧希望竞争，保持旧首屏及新気分句后页可选，明确kibu首屏，不修改旧数据、排名或容量。实际回归、隔离GTK和旧106受控HTTP范围及首轮失败见开发记录；新模型错误检查为类型化合成provider，不冒充实际HTTP或实模。无作息/输入历史读取，不做健康建议，不改变模型协议、解码规则、容量或6144索引上限。未升级个人安装、提交、推送或发布，不外推实体键盘/完整原生矩阵/远端CI，不提升77评分。"
@@ -3096,7 +3100,7 @@
       "id": "E-installed-custom-shortcuts",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/install-audit-0.8.6-2026-10-11.md"
       ],
       "scope": "10-11有界六动作快捷键的0.8.6开发包安装、实际运行文件与私有应用复测",
@@ -3106,7 +3110,7 @@
       "id": "E-custom-long-workflows",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "CONTRIBUTING.md",
         "docs/shortcuts.md"
       ],
@@ -3117,7 +3121,7 @@
       "id": "E-custom-shortcuts",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/shortcuts.md"
       ],
       "scope": "2026-10-11开发版有界六动作绑定、设置窗录入及私有IBus保存/按键链",
@@ -3127,8 +3131,8 @@
       "id": "E-daily-contact",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-11中英日电话、网络状态与消息联系；有限原创离线fallback",
       "note": "英文12搭配24句且6139索引净增长零，中文32读音12语境24句，日语16读音8语境16句。独立固定期望先复现缺项，旧25层英文/645搭配/1254句、中文2784读音/639语境、日语298读音/150语境全文内容、标志和顺序及全部旧英文首次排名继续锁定。中文这个/这边/在哪里/neng首屏保留，日语bango保留旧晩ご飯在番号之前，旧kanji/kou/shit候选页序可达；不改模型协议、解码规则、候选容量或6144索引上限。实际回归与隔离GTK/受控HTTP范围见开发记录；不读取通讯录或消息记录，不拨号、发消息、探测或修改网络，不外推实模质量、个人安装、实体键盘或完整原生矩阵，不提升评分。"
@@ -3137,8 +3141,8 @@
       "id": "E-daily-transit",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-11中英日乘车、换乘、站台与车票；有限原创离线fallback",
       "note": "英文12搭配24句且6139索引净增长零，中文32读音12语境24句，日语16读音8语境16句。固定期望先复现缺项，旧24层英文/633搭配/1230句、中文2752读音/627语境、日语282读音/142语境全文顺序及全部旧英文首次排名继续锁定。歧义bas保留旧場所首屏，新バス句在第二页可选择并精确撤销；joushake保留乗車け默认和旧け补词，词与首句在第一页、次句在第二页，完整拼写两句仍在首屏。英文连续草稿测试使用宿主同类原文seed流程，不误将整词append接口当按键。不改模型协议、解码规则、候选容量或6144索引上限；实际回归和隔离GTK/受控HTTP范围见开发记录。不查询位置、线路、时刻表或票价，不购票，不外推实模质量、个人安装、实体键盘或完整原生矩阵，不提升评分。"
@@ -3147,8 +3151,8 @@
       "id": "E-daily-shopping",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-11中英日购物、价格、尺码、付款与退换货；有限原创离线fallback",
       "note": "英文12搭配24句且6139索引净增长零，中文32读音12语境24句，日语16读音8语境16句。独立固定期望先复现缺项，旧23层英文/621搭配/1206句、中文2720读音/615语境、日语266读音/134语境全文顺序及全部旧英文首次排名继续锁定。首次完整回归发现新这个前缀挤掉旧首屏词，仅将两条新表达改为自然的这件并先复现新期望缺失，旧测试/排序容量不放宽；歧义比较简拼显式验证后页选择。具体回归和隔离GTK/受控HTTP范围见开发记录；不改模型协议、解码规则、候选容量或6144索引上限。不查询实时价格、读取购买记录或执行支付，不外推实模质量、个人安装、实体键盘或完整原生矩阵，不提升评分。"
@@ -3157,8 +3161,8 @@
       "id": "E-daily-time",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-11中英日时间、等候、改约和时段；有限原创离线fallback",
       "note": "英文12搭配24句且6139索引净增长零，中文32读音12语境24句，日语16读音8语境16句。固定期望在追加前复现缺项，旧22层英文/609搭配/1182句、中文2688读音/603语境、日语250读音/126语境全文顺序及英文每个首次排名继续保护；具体回归与隔离GTK/受控HTTP范围见开发记录，不改模型协议、解码规则、候选容量或6144索引上限。不接入日历提醒，不外推实模质量、个人安装、实体键盘或完整原生矩阵，不提升成熟度评分。"
@@ -3167,8 +3171,8 @@
       "id": "E-daily-location",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-08中英日位置、方位、找路和碰面；数据与宿主/模型解耦的有限fallback",
       "note": "英文5高频词形16搭配32句，6134到6139仍守6144上限，所有旧词首次排名不变；中文48读音16语境32句，日语24读音12语境24句。旧21层英文/593搭配/1150句、中文2640读音/587语境、日语226读音/114语境全文顺序锁定。固定测试先复现缺口；courtesy断言限定原固定批次，不修改旧词句/排名/指纹/限额；日语kou旧词优先且交差点后页可达。新下/中央暴露旧句尾误切与重复拆词；共享完整作者句尾保护和深层重拆过滤保留新词及旧同音/页序，不是通用形态分析。所有实际执行与原失败日志见开发记录；不读取位置、不做真实导航，不外推实模质量、个人桌面、完整原生矩阵或安装验收，不提升评分。"
@@ -3177,8 +3181,8 @@
       "id": "E-daily-courtesy",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-08中英日感谢、道歉、礼貌请求与回应；独立数据和固定fallback回归",
       "note": "英文16搭配32句，净新增索引零且全部6134首次词序保留；中文48读音16语境32句，日语24读音12语境24句。旧20层英文/577搭配/1118句、中文2592读音/571语境、日语202读音/102语境的完整内容顺序另加历史指纹。新增前固定期望并复现缺口；旧首屏、同音、翻页及6144预算不放宽，不改语言算法或模型协议。具体测试、私有GTK和受控HTTP故障执行范围见开发记录；不是实模质量、个人桌面或新安装包验收，不提升评分。"
@@ -3187,9 +3191,9 @@
       "id": "E-daily-clarification",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-07中英澄清确认与日语解释接续；固定数据期望与历史全量前缀保护、GTK全十四包共存",
       "note": "英文16搭配32句，净新增索引零；中文48读音16语境32句，日语24读音12语境24句。旧19层英文权重/561搭配/1086句、中文2544读音/555语境、日语178读音/90语境全量内容顺序保护；新词挤走zheg旧首屏回归仅通过更换新增表达修复，旧断言/排序/容量不变。不改语言算法、6144内置预算或模型协议。家庭包量词更正及日语同音大小写/假名补测；红绿日志与实际执行范围见开发记录。合成提供器非实模质量，隔离编辑器非个人桌面/实体键盘；不提升评分。"
@@ -3198,9 +3202,9 @@
       "id": "E-family-packs",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "docs/linux-packaging-data.md"
       ],
       "scope": "2026-10-07中英日可选家庭生活包；十四包共存、固定数据测试和启停",
@@ -3210,8 +3214,8 @@
       "id": "E-chinese-partial-spacing",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md"
       ],
       "scope": "2026-10-04未完成拼音尾水平空白与词句候选衔接",
       "note": "Chinese partial-reading spacing：七个独立集成测试先得五失败二通过，匹配视图只去除尾水平空白，Exact偏移和原文不变；汉字间距、内部音节、required_separator、引号及竖直边界仍保留。追加模型失败、全推荐包、原生Space/数字采用/撤回/单次提交；具体执行见开发记录，数据、容量、模型协议不变。不外推个人安装或完整原生门禁，不提升评分；偶发daemon崩溃按用户要求暂缓而非已修复。"
@@ -3220,7 +3224,7 @@
       "id": "E-japanese-alias-tail",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/releases/0.8.6.md"
       ],
       "scope": "2026-10-11日语已支持片假名Word表记的已采用/中段语法尾保护",
@@ -3230,8 +3234,8 @@
       "id": "E-japanese-boundaries",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md",
         "docs/ibus-candidates.md"
       ],
       "scope": "2026-10-04日语未完成读音的尾部空白及已采用表记边界",
@@ -3241,9 +3245,9 @@
       "id": "E-daily-leisure",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-07中英休闲兴趣/周末安排与日语休闲词句；独立fallback和旧序指纹",
       "note": "英文16搭配32句和五词形，中文48读音16语境32句，日语24读音12语境24句；追加前固定独立期望，锁定全部已有内容与权重。模型协议、语言算法、候选容量及6144索引预算不变；日语宽前缀保护旧词与后页选择。合成故障、全推荐包兼容和GTK的确切执行范围及失败记录见开发记录，不外推个人安装、实体键盘、完整日语形态分析或实模质量，评分不变。"
@@ -3252,9 +3256,9 @@
       "id": "E-daily-followup",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-07中英日常进度/接续与日语消息协作；独立词库、旧序指纹和有界候选分页",
       "note": "中英各24语境48句、中文64读音，英文仅having/stuck两索引；日语32读音16语境32句。独立期望先复现缺口，保留全部旧数据/排名指纹、候选容量和6144索引预算，不绑定模型或改解码排序。新日语测试两个歧义前缀的过强首屏前提由实际候选诊断纠正，完整读音仍首屏、宽前缀严格验证后页选择与旧优先级。模型失败仍是合成提供器；确切执行及失败日志见开发记录，不外推个人安装、实体键盘、通用日语形态分析或真实模型质量，评分不变。"
@@ -3263,9 +3267,9 @@
       "id": "E-japanese-choices",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-04日语比较、偏好、条件与替代方案；罗马音词句、采用后助词续写与IBus平假名起笔",
       "note": "Japanese choices fallback：追加独立日语数据，锁定原74条读音和38组语境，保留旧同音顺序；中英、模型接口、候选预算不变。原生回归补齐仅JA平假名字母起笔，并检查其他语言、非读音字符、快捷键、硬隐私用途及失焦透传；扩词挤走旧续句的红测促使仅降低日语次级基础Sentence转换权重，保留主转换、Word/Unspecified权重和原文。固定期望覆盖变体拼写、部分罗马音、词句候选、已采用表记与助词、原文及提交撤回；错误提供器、全包兼容与原生执行范围见开发记录，不外推完整形态分析、JIS布局、长稿、个人装机或真实模型质量，评分不变。"
@@ -3274,9 +3278,9 @@
       "id": "E-daily-choices",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-04中英比较、偏好、条件和替代方案；独立词库与离线输入回归",
       "note": "Daily choices bilingual fallback：独立固定期望先复现缺词句，只追加数据并锁定0.8.2旧词权重、读音及语境全文；6144索引预算、模型/语言算法、候选容量不变。确切新增数量、红绿测试、推荐包兼容及原生执行结果见开发记录；不外推个人安装、GTK/实体键盘或真实模型质量，不提高评分。"
@@ -3285,8 +3289,8 @@
       "id": "E-japanese-progress",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md"
       ],
       "scope": "2026-10-04日语完整草稿前缀续句与行边界",
       "note": "Japanese sentence progress：沿active词库续句匹配整个转换草稿，保留exact trigger顺序，不裁掉未知首尾；水平分隔契约不变，竖直行边界不再吞掉。全包回归发现并修复nn接辅音重复ん。独立固定进展/包/原生/GTK入口及红测执行记录见开发记录；不声称句子级读音推断、完整形态分析或个人装机验收，评分不变。"
@@ -3295,9 +3299,9 @@
       "id": "E-japanese-daily",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-04渐进日语支持；日常独立词库、罗马音边界与已采用表记后续词",
       "note": "Gradual Japanese everyday input：48读音、24语境48句，仅追加且锁定旧数据；修复nn边界、n’、jya/jyu/jyo、非ASCII大小写及尾部同音/片假名前缀补全。新增源码/提供器错误/词库包/私有IBus与GTK入口；确切执行和初始红测见开发记录。单假名宽前缀和原文后页遵守现有候选契约；非完整形态分析、个人装机或真实模型质量验收，不提高评分。"
@@ -3306,9 +3310,9 @@
       "id": "E-daily-objects",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md",
-        "data/lexicons/README.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md"
       ],
       "scope": "2026-10-04中英日用物品/借还/数量尺寸词库；独立固定预期、推荐包共存及输入链路回归",
       "note": "Unreleased — Everyday objects bilingual fallback：中英各24语境48句、中文64读音、英文7索引词形；只追加数据，保留历史排序/全文指纹及6144索引预算。首次全包检查发现 cooking 上下文冲突，仅调整新内置表达；保留红测。确切执行范围见开发记录，不以源码测试冒充实体键盘、个人安装或真实模型质量验收，不提高评分。"
@@ -3317,8 +3321,8 @@
       "id": "E-prose-paging",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md",
         "docs/shortcuts.md"
       ],
       "scope": "2026-10-04英语中英混写边界、词句泛化及EN/ZH候选翻页人机工程；源码和私有IBus回归",
@@ -3328,8 +3332,8 @@
       "id": "E-daemon-abort",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md"
       ],
       "scope": "2026-10-04恢复原私有IBus崩溃现场及10-07有界GDB sender诊断；Ubuntu26.04/IBus1.5.34rc2/GLib2.88，非上游根因修复",
       "note": "原PID/时间/socket精确匹配：已确认daemon SIGABRT；无效sender导致NULL请求入队后GIO断言。具体sender失效原因仍待证，连接名称生命周期竞态仅假设。无Suzaku的600连接/38400合法请求及完整inline门禁通过但未复现；同bus重复N45两轮因面板事件缺失停止、daemon存活，非同故障。后续Japanese reading boundaries完整默认门禁在托盘激活阶段再次出现同样断言，daemon PID3441209/-6、bus断开；未到达日语用例，保留失败及新Apport报告，未以专项绿灯替代全门禁。未安装/升级依赖，原始core未入库，评分未提升。"
@@ -3338,7 +3342,7 @@
       "id": "E-daemon-probe",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "src/linux/ibus_engine_bridge.c",
         "src/platform/linux_ibus_host.rs",
         "scripts/test-native-probe-teardown.py"
@@ -3350,8 +3354,8 @@
       "id": "E-recovery-fixture",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md"
       ],
       "scope": "2026-10-03 N45/N44 私有 IBus 回归夹具与诊断；非生产断连根因修复",
       "note": "Unreleased — Native recovery fixture diagnostics and cleanup：23项Python、6项真实GLib/C、21项矩阵校验及默认/行内双模式完整私有IBus通过；取消自有延迟回调、显式传播异步错误、保留首错和daemon日志。双模式未复现旧断连，但原行内N45断连仍未确认根因；不外推真实桌面或提高评分，未重跑普通Rust/Clippy。"
@@ -3360,8 +3364,8 @@
       "id": "E-window-boundary",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md"
       ],
       "scope": "2026-10-03 长稿窗口边界源码回归；EN/ZH，本地引擎、受控模型提供器和私有IBus双预编辑模式",
       "note": "Unreleased — Exact local-window boundary：38项定向及1116项常规回归通过，27项opt-in另行处理；双模式完整IBus最终各含新增14组通过。行内首轮N45连接断开，独立恢复/原样完整复跑通过但根因未明，保留失败与红测/沙箱日志。只多检查前置分隔符，实际tail/模型仍256；非个人安装/物理键盘验收，评分未提升。"
@@ -3370,8 +3374,8 @@
       "id": "E-pointer-preference",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md"
       ],
       "scope": "2026-10-03 后续源码修复；常规回归、私有 Xvfb/winit 事件分发及 IBus 偏好边界",
       "note": "Unreleased — Pointer deltas and English preference boundaries：1110常规项、70无效/28有效手势分发、默认/行内两种完整IBus含10组英文续写、双传输GTK候选52组及严格Clippy通过。保留红测、沙箱端点拒绝和设置夹具修正记录。不是物理触控、个人安装或整个布局验收，评分未提升。"
@@ -3380,7 +3384,7 @@
       "id": "E-current",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md"
+        "docs/history/2026-10/pre-reorganization/development.md"
       ],
       "scope": "2026-10-03 源码构建，Linux 私有 GTK/IBus/X11；不是本轮重跑",
       "note": "Unreleased — Input and offline-pack boundary fixes：1104常规项在最后单击修复前通过；修复后228面板项、原生动作专项、严格Clippy及三布局双传输190组通过。27项opt-in不是已全跑。"
@@ -3389,8 +3393,8 @@
       "id": "E-native",
       "kind": "historical_run",
       "paths": [
-        "docs/functional-network.md",
-        "DEVELOPMENT.md"
+        "docs/history/2026-10/pre-reorganization/functional-network.md",
+        "docs/history/2026-10/pre-reorganization/development.md"
       ],
       "scope": "2026-10-03 及此前的默认自绘候选、分页、定位、布局开发阶段",
       "note": "按文档各阶段分开读取；底部/自动与最后点击修复仅源码私有X11门禁，不是当前个人安装已验收。"
@@ -3422,7 +3426,7 @@
       "paths": [
         "docs/bug-audit-bilingual-core-2026-09-24.md",
         "docs/bug-audit-english-context-2026-09-28.md",
-        "DEVELOPMENT.md"
+        "docs/history/2026-10/pre-reorganization/development.md"
       ],
       "scope": "中英作者样例、源码常规回归和私有应用门禁",
       "note": "固定词条回归不是独立语料准确率；新增数据不提升开放生成能力的证据。"
@@ -3443,7 +3447,7 @@
       "id": "E-input-boundaries",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/shortcuts.md",
         "scripts/test-linux-gtk3.py",
         "scripts/test-gtk3-event-observer.py"
@@ -3455,7 +3459,7 @@
       "id": "E-compose-quote-boundaries",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "src/linux/ibus_compose.inc.c",
         "src/ime/preferences.rs",
         "tests/preference_learning.rs",
@@ -3468,7 +3472,7 @@
       "id": "E-x11-event-clicks",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "vendor/winit/NOTICE-SUZAKU.md",
         "vendor/winit/src/event.rs",
         "vendor/winit/src/platform_impl/linux/x11/event_processor.rs",
@@ -3489,7 +3493,7 @@
       "id": "E-screen-keys-history",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "src/platform/linux_ime_sync.rs",
         "src/linux/ibus_companion.inc.c",
         "src/bin/panel/native_sync.rs",
@@ -3508,7 +3512,7 @@
       "id": "E-lexicon-index",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "src/languages/english.rs",
         "src/languages/chinese.rs"
       ],
@@ -3519,8 +3523,8 @@
       "id": "E-native-budget",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "docs/functional-network.md"
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/functional-network.md"
       ],
       "scope": "10-07 IBus超预算整稿解码、原生模型夹具重复等待、阶段耗时归因与0.8.3门禁超时",
       "note": "保留CI37462265391的120秒失败；确定性插件调用红灯、分语言72条字节边界与完整门禁实际执行见开发记录。截止时间、原有场景/断言/负向观察不变；非已修复daemon崩溃、个人安装、实模质量或包交付证据，评分不变。"
@@ -3529,7 +3533,7 @@
       "id": "E-prediction-preservation",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/model-providers.md",
         "docs/ibus-candidates.md"
       ],
@@ -3540,7 +3544,7 @@
       "id": "E-prediction-protocol",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/model-providers.md"
       ],
       "scope": "10-04 统一预测协议v1、旧接口桥接、合成provider和受控HTTP验收",
@@ -3631,7 +3635,7 @@
       "kind": "delivery_contract",
       "paths": [
         "docs/linux-packaging-data.md",
-        "DEVELOPMENT.md"
+        "docs/history/2026-10/pre-reorganization/development.md"
       ],
       "scope": "Linux Ubuntu24.04/amd64，IBus X11/GNOME XWayland",
       "note": "0.8.0起要求正式Release安装附件；需同clean提交CI、内容和容器验收。O2只表示流程存在，不宣称本快照已发布。"
@@ -3660,8 +3664,8 @@
       "id": "E-daily-washroom",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3674,8 +3678,8 @@
       "id": "E-daily-pocket-items",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3689,8 +3693,8 @@
       "id": "E-daily-table-items",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3704,8 +3708,8 @@
       "id": "E-daily-living-room",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3720,8 +3724,8 @@
       "id": "E-daily-personal-items",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3736,8 +3740,8 @@
       "id": "E-daily-small-essentials",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3752,8 +3756,8 @@
       "id": "E-daily-coordination-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3767,8 +3771,8 @@
       "id": "E-daily-clarity-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3782,8 +3786,8 @@
       "id": "E-daily-progress-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3798,8 +3802,8 @@
       "kind": "historical_run",
       "paths": [
         "docs/releases/0.9.7.md",
-        "DEVELOPMENT.md",
-        "data/lexicons/README.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
+        "docs/history/2026-10/pre-reorganization/lexicons.md",
         "data/lexicons/zh-Hans.json",
         "tests/release_storage_context_compatibility.rs",
         "tests/support/release_storage_context.rs"
@@ -3811,7 +3815,7 @@
       "id": "E-daily-presence-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3825,7 +3829,7 @@
       "id": "E-daily-turntaking-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3839,7 +3843,7 @@
       "id": "E-daily-rephrasing-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3853,7 +3857,7 @@
       "id": "E-daily-alternatives-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3867,7 +3871,7 @@
       "id": "E-daily-rescheduling-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3881,7 +3885,7 @@
       "id": "E-release-0.9.8-source",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/releases/0.9.8.md",
         "Cargo.toml",
         "Cargo.lock",
@@ -3898,7 +3902,7 @@
       "id": "E-daily-consideration-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3912,7 +3916,7 @@
       "id": "E-daily-farewell-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3928,7 +3932,7 @@
       "id": "E-daily-reassurance-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3942,7 +3946,7 @@
       "id": "E-daily-apology-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3956,7 +3960,7 @@
       "id": "E-work-communication-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "data/lexicons/en.json",
         "data/lexicons/zh-Hans.json",
         "data/lexicons/ja.json",
@@ -3972,7 +3976,7 @@
       "id": "E-release-0.9.9-source",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "docs/releases/0.9.9.md",
         "Cargo.toml",
         "Cargo.lock",
@@ -3988,7 +3992,7 @@
       "id": "E-work-clarification-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "tests/work_clarification_dialogue.rs",
         "tests/support/work_clarification_resource.rs",
         "tests/daily_messaging_compatibility.rs"
@@ -4000,7 +4004,7 @@
       "id": "E-work-followup-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "tests/work_followup_dialogue.rs",
         "tests/support/work_followup_resource.rs"
       ],
@@ -4011,7 +4015,7 @@
       "id": "E-work-access-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "tests/work_access_dialogue.rs",
         "tests/support/work_access_resource.rs"
       ],
@@ -4022,7 +4026,7 @@
       "id": "E-daily-services-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "tests/daily_services_dialogue.rs",
         "tests/support/daily_services_resource.rs"
       ],
@@ -4033,7 +4037,7 @@
       "id": "E-daily-support-dialogue",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "tests/daily_support_dialogue.rs",
         "tests/support/daily_support_resource.rs"
       ],
@@ -4044,7 +4048,7 @@
       "id": "E-daily-errand-followup",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "tests/daily_errand_followup_dialogue.rs",
         "tests/support/daily_errand_followup_resource.rs"
       ],
@@ -4055,7 +4059,7 @@
       "id": "E-preference-fork-lease",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "src/preferences/store.rs",
         "tests/preference_lock_fork.rs"
       ],
@@ -4066,7 +4070,7 @@
       "id": "E-day-coordination-followup",
       "kind": "historical_run",
       "paths": [
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "tests/day_coordination_followup.rs",
         "tests/support/day_coordination_resource.rs"
       ],
@@ -4078,7 +4082,7 @@
       "kind": "source",
       "paths": [
         "docs/releases/0.10.0.md",
-        "DEVELOPMENT.md",
+        "docs/history/2026-10/pre-reorganization/development.md",
         "Cargo.toml",
         "Cargo.lock",
         "data/lexicons/en.json",
@@ -4095,7 +4099,7 @@
       "kind": "delivery_contract",
       "paths": [
         "docs/releases/0.10.0.md",
-        "README.md"
+        "docs/history/2026-10/pre-reorganization/project-readme.md"
       ],
       "scope": "准确05ca679源码的0.10.0 Linux Alpha prerelease已发布；八门CI、accepted包及四资产实际重下载验证；不提升旧评分或扩展平台验收",
       "note": "0.10.0/build50，tag v0.10.0，准确源码05ca67930b2a6784860f98954248c2b6663d4617、epoch1793185398；https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/40676977245 八必需job全部success，accepted artifact12813215443/suzaku-linux-X64-05ca67930b2a6784860f98954248c2b6663d4617经独立安全归档、内部checksum/tar-deb一致manifest、源码与25包/SDK字节核验。四个上传资产实际重新下载逐块字节、独立SHA256及size全等。Release426593249 https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.10.0 于2026-10-28T11:42:04Z发布，draft=false/prerelease=true，非latest stable；最终metadata准确绑定四asset id/size/digest。资产：suzaku-0.10.0-x86_64-unknown-linux-gnu.tar.gz，id684800964，15973755bytes，SHA2567ea4b052a9fe61a45341471914250359d839106c79cefdfe0552b3aa65d3e777；其.sha256，id684800965，112bytes，SHA256c3793f7a57b113a7c4833d64e79f01494291e091a228848ab73e5ee088fed069；suzaku_0.10.0_amd64.deb，id684800970，11621474bytes，SHA256e8f8fb70ebb8362fe5317954ca29d325272b806a6124f50539c4d35f5d78539b；其.sha256，id684800969，90bytes，SHA256cd6fe6e1e3a0a8a817f08db06de11fcee172f72983b9d233da8e2ada262740e7。源码准备evidence与pending/0.9.7记录保留为历史；上传receipt的publication_pending为草稿阶段，最终release-published.json证实已发布。完整回执与资产表在docs/releases/0.10.0.md，原始证据/tmp/suzaku-publish-0.10.0.pfgkks/。仅新增交付证据及F16-F19引用；评分、snapshot日期/head/sourcehash、旧证据、个人安装/输入法服务配置及取消的自动化保持；仍限Ubuntu24.04amd64/glibc2.39的LinuxAlpha，不新增实模/物理键盘/原生Wayland/性能验收。"

@@ -15,6 +15,7 @@ suzaku_package_test_pack_names=(
   ja-study ja-cooking ja-outdoors
 )
 PYTHONDONTWRITEBYTECODE=1 python3 "$suzaku_package_test_scripts/test-offline-pack-shipping.py"
+PYTHONDONTWRITEBYTECODE=1 python3 "$suzaku_package_test_scripts/test-package-docs.py"
 suzaku_package_test_checksums=("$suzaku_package_test_output/"*.sha256)
 suzaku_package_test_artifacts=("$suzaku_package_test_output/"*.tar.gz "$suzaku_package_test_output/"*.deb)
 ((${#suzaku_package_test_artifacts[@]} > 0)) || { printf 'No packages found.\n' >&2; exit 1; }
@@ -39,6 +40,8 @@ for suzaku_package_test_tar in "$suzaku_package_test_output/"*.tar.gz; do
   ((${#suzaku_package_test_roots[@]} == 1))
   suzaku_package_test_tree=${suzaku_package_test_roots[0]}
   (cd -- "$suzaku_package_test_tree" && sha256sum --quiet -c SHA256SUMS)
+  PYTHONDONTWRITEBYTECODE=1 python3 "$suzaku_package_test_scripts/package-docs.py" check \
+    --repo "$suzaku_package_test_scripts/.." --tree "$suzaku_package_test_tree" --layout tar
   jq -e '.format == 1 and .models_bundled == false and .user_data_bundled == false' "$suzaku_package_test_tree/manifest.json" >/dev/null
   for suzaku_package_test_crate in wgpu winit ksni reqwest rustls; do
     jq -e --arg crate "$suzaku_package_test_crate" 'any(.[]; .name == $crate)' "$suzaku_package_test_tree/share/doc/suzaku/dependencies.json" >/dev/null
@@ -92,6 +95,8 @@ for suzaku_package_test_deb in "$suzaku_package_test_output/"*.deb; do
   suzaku_package_test_extract=$(mktemp -d "$suzaku_package_test_tmp/deb.XXXXXX")
   dpkg-deb --extract "$suzaku_package_test_deb" "$suzaku_package_test_extract/root"
   dpkg-deb --control "$suzaku_package_test_deb" "$suzaku_package_test_extract/control"
+  PYTHONDONTWRITEBYTECODE=1 python3 "$suzaku_package_test_scripts/package-docs.py" check \
+    --repo "$suzaku_package_test_scripts/.." --tree "$suzaku_package_test_extract/root/usr" --layout deb
   for suzaku_package_test_hook in preinst postinst prerm postrm; do
     test ! -e "$suzaku_package_test_extract/control/$suzaku_package_test_hook"
   done

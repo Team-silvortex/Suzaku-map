@@ -59,6 +59,11 @@ jobs:
       - name: Install Rust
         run: rustup toolchain install "$RUSTUP_TOOLCHAIN" --profile minimal --component rustfmt
       - run: cargo fmt --all --check
+      - name: Check documentation structure, history and package navigation
+        run: |
+          python3 -B scripts/check-documentation.py
+          python3 -B scripts/test-documentation.py
+          python3 -B scripts/test-package-docs.py
 
   linux:
     name: Linux lint, tests and native input

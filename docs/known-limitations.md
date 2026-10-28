@@ -1,18 +1,21 @@
 # Alpha limitations and support
 
-The published release is **0.9.3 / build 43 Linux Alpha prerelease**, targeting Ubuntu 24.04
-amd64, IBus and X11 / GNOME XWayland. **0.9.4 / build 44 is a source candidate**, not a
-published package or personal-installation update. Cross-platform architecture does not imply
-cross-platform stability. Keep another input method available.
+The current representative release is **0.10.0 / build 50 Linux Alpha prerelease**, targeting
+Ubuntu 24.04 amd64, glibc 2.39, IBus and X11 / GNOME XWayland.
+Its [publication receipt](releases/0.10.0.md#publication-receipt-2026-10-28) records the exact
+accepted source, CI and packages; publication does not update a personal installation.
+Cross-platform architecture does not imply cross-platform stability. Keep another input method available.
+Version-specific preparation results below describe their historical snapshots, not pending
+acceptance of the current release or proof of additional platform/model support.
 
-- **0.9.4 finite scope and pending acceptance:** five further dressing/room/stationery/reading/plants
+- **Historical 0.9.4 preparation and finite scope:** five further dressing/room/stationery/reading/plants
   batches add28 English forms,82 CJK Word readings and180 authored sentences. New compound entries
   can alter short-prefix conversions, score indices and tail choices; the narrow Japanese repairs
   do not promise universal dual-author visibility at six rows or arbitrary prefix conversion.
   Corrected merged-layer accounting does not raise individual-pack,16-installed-pack or candidate
   budgets. Versioned local checks pass2,585 Rust tests with32 original ignores,19 isolated UI
   checks and strict Clippy; these are separate from this exact commit's eight CI/accepted-package
-  gates, which must still complete before publication. No new real-model, UI/native latency or personal-installation
+  gates, which were still pending at that preparation stage. No new real-model, UI/native latency or personal-installation
   acceptance is implied. See [0.9.4 scope and release gates](releases/0.9.4.md).
 
 - **Historical 0.9.3 preparation:** five everyday batches add eight
@@ -56,7 +59,7 @@ cross-platform stability. Keep another input method available.
   acceleration or equal execution time is established. All 419 sampled full
   candidate vectors are byte-identical across the performance-only comparison on
   the same expanded data; this is not coverage of every draft or proof of all
-  pre-expansion rankings. See [measurement method and retained negative result](../DEVELOPMENT.md).
+  pre-expansion rankings. See [measurement method and retained negative result](history/2026-10/pre-reorganization/development.md).
 
 - **0.9.1 finite fallback and branch competition:** builtin Chinese still lacks independent
   里/那 readings. Adding 里 experimentally changed `lian` into 里安; that change was rejected,
@@ -221,7 +224,7 @@ cross-platform stability. Keep another input method available.
   longer authored sentence. This is a small punctuation whitelist, not general
   parsing of arbitrary clauses, quotations or code.
   Katakana-to-Kanji lookup and Japanese local continuation beyond 256 scalars remain outside
-  this phase. See [the Japanese data scope](../data/lexicons/README.md#日语日常基础扩充未发布).
+  this phase. See [the Japanese data scope](history/2026-10/pre-reorganization/lexicons.md#日语日常基础扩充未发布).
   The 0.6.9 source expands the deduplicated English index to 3,906 forms and
   Chinese readings to 602 entries, with more authored collocations and a stable Pinyin
   first-letter index. This is still a curated vocabulary, not a downloaded corpus or learned
