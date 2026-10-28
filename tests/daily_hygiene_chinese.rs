@@ -198,13 +198,13 @@ fn hygiene_appends_only_eight_nouns_and_six_exact_authored_contexts() {
         (8, 6, 6, 6)
     );
     assert_eq!(vocabulary.readings().len(), 3442);
-    assert_eq!(vocabulary.continuations().count(), 937);
+    assert_eq!(vocabulary.continuations().count(), 959);
     assert_eq!(
         vocabulary
             .continuations()
             .map(|(_, values)| values.len())
             .sum::<usize>(),
-        1872
+        1916
     );
     for (entry, &(reading, text)) in vocabulary.readings()[3322..3330].iter().zip(WORDS) {
         assert_eq!((&*entry.reading, &*entry.text), (reading, text));

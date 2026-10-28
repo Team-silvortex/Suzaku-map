@@ -152,8 +152,8 @@ fn small_essentials_preserves_exact_old_resources_flags_order_and_authors() {
 fn small_essentials_adds_nine_contexts_eighteen_authors_and_only_three_english_forms() {
     let en = builtin("en").unwrap();
     assert_eq!(en.word_layers().len(), 64);
-    assert_eq!(en.next_words().count(), 946);
-    assert_eq!(en.sentences().count(), 1856);
+    assert_eq!(en.next_words().count(), 968);
+    assert_eq!(en.sentences().count(), 1900);
     let layer = &en.word_layers()[62];
     assert_eq!(layer.id, "daily_essentials_dialogue");
     assert!(layer.words.is_empty());
@@ -164,8 +164,8 @@ fn small_essentials_adds_nine_contexts_eighteen_authors_and_only_three_english_f
         assert_eq!(&layer.sentences[12 + 2 * i..14 + 2 * i], authors);
     }
     for (language, entries, reads, contexts, authors, start) in [
-        ("zh-Hans", ZH, 3442, 937, 1872, 894),
-        ("ja", JA, 638, 425, 849, 382),
+        ("zh-Hans", ZH, 3442, 959, 1916, 894),
+        ("ja", JA, 638, 447, 893, 382),
     ] {
         let data = builtin(language).unwrap();
         assert_eq!(data.readings().len(), reads);

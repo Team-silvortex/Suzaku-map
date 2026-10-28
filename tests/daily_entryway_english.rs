@@ -231,8 +231,8 @@ fn entryway_preserves_57_prior_layers_6207_first_seen_ranks_endings_and_raw_byte
 fn entryway_fixed_layer_adds_six_forms_six_contexts_and_twelve_authors_only() {
     let en = builtin("en").unwrap();
     assert_eq!(en.word_layers().len(), 64);
-    assert_eq!(en.next_words().count(), 946);
-    assert_eq!(en.sentences().count(), 1856);
+    assert_eq!(en.next_words().count(), 968);
+    assert_eq!(en.sentences().count(), 1900);
     let layer = &en.word_layers()[57];
     assert_eq!(layer.id, "daily_entryway");
     assert_eq!(

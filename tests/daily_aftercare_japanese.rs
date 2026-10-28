@@ -201,8 +201,8 @@ fn aftercare_full_written_katakana_and_five_partials_keep_explicit_commit_choice
             first_page(&ime, word, kind);
             commit_once(&mut engine(&seed), word, kind);
             commit_once(&mut engine(&seed), &seed, CandidateKind::Literal);
-            // Only five contexts have authored sentence pairs. 返金 and the
-            // other supplementary words do not imply store policy or new sentences.
+            // This historical suite checks five authored sentence pairs;
+            // supplementary words do not imply store policy.
             if let Some((_, sentences)) = SENTENCES.iter().find(|(context, _)| *context == word) {
                 for sentence in sentences {
                     first_page(&ime, sentence, CandidateKind::Sentence);

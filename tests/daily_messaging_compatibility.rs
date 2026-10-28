@@ -23,6 +23,43 @@ fn unchanged(language: &str, cases: &[(&str, u64)]) {
         // sentence weights by exactly 0.5. Review that bounded effect explicitly;
         // reversing only these deltas must recover every old vector byte.
         let mut candidates = engine.candidates().to_vec();
+        // Work clarification adds exactly two authored reply continuations.
+        // Verify the complete current vector before removing only these new
+        // rows; the unchanged historical hash below must still match in full.
+        if language == "en" && seed == "reply" {
+            let reviewed = [
+                ("reply", "word", 100.0_f32),
+                ("replying", "word", 92.0_f32),
+                (
+                    "reply when you've had time to check the details with the team.",
+                    "sentence",
+                    79.0_f32,
+                ),
+                (
+                    "reply when you've had time to finish what you're working on.",
+                    "sentence",
+                    78.5_f32,
+                ),
+            ];
+            assert_eq!(
+                candidates
+                    .iter()
+                    .map(|c| (
+                        c.text.as_str(),
+                        c.label.as_str(),
+                        c.kind.id(),
+                        c.source.id(),
+                        c.score.to_bits(),
+                    ))
+                    .collect::<Vec<_>>(),
+                reviewed
+                    .iter()
+                    .map(|&(text, kind, score)| (text, text, kind, "local", score.to_bits(),))
+                    .collect::<Vec<_>>(),
+                "only the fully reviewed reply enrichment may precede the historical hash"
+            );
+            drop(candidates.drain(2..4));
+        }
         // Plant vocabulary fills three spare page-two slots for this exact
         // bounded prefix. Keep both old authors on page one, and accept only
         // the fully reviewed vector before recovering the historical bytes.

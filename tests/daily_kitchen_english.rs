@@ -226,8 +226,8 @@ fn kitchen_preserves_all_53_prior_layers_6179_first_seen_ranks_endings_and_raw_b
 fn kitchen_fixed_layer_adds_only_eight_forms_in_exact_first_occurrence_order() {
     let en = builtin("en").unwrap();
     assert_eq!(en.word_layers().len(), 64);
-    assert_eq!(en.next_words().count(), 946);
-    assert_eq!(en.sentences().count(), 1856);
+    assert_eq!(en.next_words().count(), 968);
+    assert_eq!(en.sentences().count(), 1900);
     let layer = &en.word_layers()[53];
     assert_eq!(layer.id, "daily_kitchen");
     assert_eq!(

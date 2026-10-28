@@ -279,7 +279,7 @@ fn washroom_adds_only_three_contexts_and_six_authors_per_language_without_new_fo
         assert_eq!(&layer.sentences[2 * i..2 * i + 2], authors);
     }
     for (language, entries, reads, contexts, authors) in
-        [("zh-Hans", ZH, 3442, 937, 1872), ("ja", JA, 638, 425, 849)]
+        [("zh-Hans", ZH, 3442, 959, 1916), ("ja", JA, 638, 447, 893)]
     {
         let data = builtin(language).unwrap();
         assert_eq!(data.readings().len(), reads);

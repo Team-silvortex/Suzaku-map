@@ -174,20 +174,20 @@ fn reassurance_appends_nine_contexts_eighteen_authors_with_exact_farewell_invers
             en.next_words().count(),
             en.sentences().count()
         ),
-        (64, 946, 1856)
+        (64, 968, 1900)
     );
     let layer = &en.word_layers()[63];
     assert_eq!(layer.id, "daily_presence_dialogue");
     assert!(layer.words.is_empty());
-    assert_eq!((layer.next_words.len(), layer.sentences.len()), (31, 62));
+    assert_eq!((layer.next_words.len(), layer.sentences.len()), (53, 106));
     for (i, &(context, words, _, authors)) in EN.iter().enumerate() {
         assert_eq!(layer.next_words[21 + i].0, context);
         assert_eq!(layer.next_words[21 + i].1, words);
         assert_eq!(&layer.sentences[42 + 2 * i..44 + 2 * i], authors);
     }
     for (language, entries, readings, start, contexts, authors) in [
-        ("zh-Hans", ZH, 3442, 927, 937, 1872),
-        ("ja", JA, 638, 415, 425, 849),
+        ("zh-Hans", ZH, 3442, 927, 959, 1916),
+        ("ja", JA, 638, 415, 447, 893),
     ] {
         let data = builtin(language).unwrap();
         assert_eq!(

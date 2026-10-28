@@ -96,12 +96,12 @@ fn commit_once(ime: &mut XRTabletImeEngine, text: &str, kind: CandidateKind) {
 fn only_two_readings_are_appended_without_context_or_sentence_growth() {
     let zh = lexicon::builtin("zh-Hans").unwrap();
     assert_eq!(zh.readings().len(), 3442);
-    assert_eq!(zh.continuations().count(), 937);
+    assert_eq!(zh.continuations().count(), 959);
     assert_eq!(
         zh.continuations()
             .map(|(_, values)| values.len())
             .sum::<usize>(),
-        1872
+        1916
     );
     for (entry, (reading, text)) in zh.readings()[3162..3164]
         .iter()

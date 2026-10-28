@@ -130,8 +130,8 @@ fn living_room_preserves_exact_old_resources_readings_flags_rank_sources_and_aut
 fn living_room_adds_three_contexts_six_authors_per_language_and_one_chinese_word_reading() {
     let en = builtin("en").unwrap();
     assert_eq!(en.word_layers().len(), 64);
-    assert_eq!(en.next_words().count(), 946);
-    assert_eq!(en.sentences().count(), 1856);
+    assert_eq!(en.next_words().count(), 968);
+    assert_eq!(en.sentences().count(), 1900);
     let layer = &en.word_layers()[61];
     assert_eq!(layer.id, "daily_living_room");
     assert!(layer.words.is_empty());
@@ -167,8 +167,8 @@ fn living_room_adds_three_contexts_six_authors_per_language_and_one_chinese_word
         assert_eq!(&layer.sentences[2 * i..2 * i + 2], authors);
     }
     for (language, entries, reads, contexts, authors, old_contexts) in [
-        ("zh-Hans", ZH, 3442, 937, 1872, 888),
-        ("ja", JA, 638, 425, 849, 376),
+        ("zh-Hans", ZH, 3442, 959, 1916, 888),
+        ("ja", JA, 638, 447, 893, 376),
     ] {
         let data = builtin(language).unwrap();
         assert_eq!(data.readings().len(), reads);
@@ -197,7 +197,7 @@ fn living_room_reading_projection_rejects_missing_mutated_duplicate_and_misplace
     let projected = living_room_reading::without_living_room_reading(raw);
     let parsed: serde_json::Value = serde_json::from_str(&projected).unwrap();
     assert_eq!(parsed["readings"].as_array().unwrap().len(), 3441);
-    assert_eq!(parsed["continuations"].as_array().unwrap().len(), 937);
+    assert_eq!(parsed["continuations"].as_array().unwrap().len(), 959);
     assert_eq!(
         &raw[raw.find(END).unwrap()..],
         &projected[projected.find(END).unwrap()..],

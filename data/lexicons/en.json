@@ -13324,6 +13324,160 @@
             "confirm",
             "flag"
           ]
+        ],
+        [
+          "before i make the change, could you confirm",
+          [
+            "which",
+            "what"
+          ]
+        ],
+        [
+          "about your feedback, could you",
+          [
+            "show",
+            "explain"
+          ]
+        ],
+        [
+          "reply when you've had time to",
+          [
+            "check",
+            "finish"
+          ]
+        ],
+        [
+          "after the meeting, i'll",
+          [
+            "send",
+            "update"
+          ]
+        ],
+        [
+          "if the deadline changes, please",
+          [
+            "tell",
+            "let"
+          ]
+        ],
+        [
+          "here is a quick update on",
+          [
+            "what",
+            "where"
+          ]
+        ],
+        [
+          "i'm blocked until we receive",
+          [
+            "approval",
+            "feedback"
+          ]
+        ],
+        [
+          "when you have a moment, could you",
+          [
+            "review",
+            "confirm"
+          ]
+        ],
+        [
+          "if you need more time, we can",
+          [
+            "adjust",
+            "discuss"
+          ]
+        ],
+        [
+          "before we leave, could you check the",
+          [
+            "front",
+            "back"
+          ]
+        ],
+        [
+          "please remember to bring your",
+          [
+            "keys",
+            "phone"
+          ]
+        ],
+        [
+          "are you having dinner",
+          [
+            "at",
+            "with"
+          ]
+        ],
+        [
+          "before we order, could you check whether the",
+          [
+            "soup",
+            "sauce"
+          ]
+        ],
+        [
+          "could we take a break and get some",
+          [
+            "fresh",
+            "water"
+          ]
+        ],
+        [
+          "please send me a message when you reach the",
+          [
+            "station",
+            "hotel"
+          ]
+        ],
+        [
+          "when the weather is clear, we can",
+          [
+            "walk",
+            "leave"
+          ]
+        ],
+        [
+          "please put the receipt in the",
+          [
+            "bag",
+            "drawer"
+          ]
+        ],
+        [
+          "i'll charge my phone before",
+          [
+            "leaving",
+            "dinner"
+          ]
+        ],
+        [
+          "i'm free for a quick call",
+          [
+            "after",
+            "before"
+          ]
+        ],
+        [
+          "let's leave a little extra time for",
+          [
+            "questions",
+            "travel"
+          ]
+        ],
+        [
+          "if the link does not work, please",
+          [
+            "send",
+            "tell"
+          ]
+        ],
+        [
+          "would you prefer to meet",
+          [
+            "before",
+            "after"
+          ]
         ]
       ],
       "sentences": [
@@ -13388,7 +13542,51 @@
         "for the next team meeting, should we invite everyone who needs to be there?",
         "for the next team meeting, should we share the draft before we talk?",
         "once you have reviewed the handover, could you confirm that everything is clear?",
-        "once you have reviewed the handover, could you flag anything that is missing?"
+        "once you have reviewed the handover, could you flag anything that is missing?",
+        "before i make the change, could you confirm which version we should use?",
+        "before i make the change, could you confirm what needs to stay the same?",
+        "about your feedback, could you show me which part needs work?",
+        "about your feedback, could you explain why you would prefer a different option?",
+        "reply when you've had time to check the details with the team.",
+        "reply when you've had time to finish what you're working on.",
+        "after the meeting, i'll send the action items to everyone.",
+        "after the meeting, i'll update the action items with the owners.",
+        "if the deadline changes, please tell me as soon as you know.",
+        "if the deadline changes, please let the team know before the end of the day.",
+        "here is a quick update on what is done and what still needs work.",
+        "here is a quick update on where we are and what comes next.",
+        "i'm blocked until we receive approval to move forward.",
+        "i'm blocked until we receive feedback on the latest draft.",
+        "when you have a moment, could you review the updated document?",
+        "when you have a moment, could you confirm that the details are correct?",
+        "if you need more time, we can adjust the schedule together.",
+        "if you need more time, we can discuss what to prioritize.",
+        "before we leave, could you check the front door is locked?",
+        "before we leave, could you check the back window is closed?",
+        "please remember to bring your keys when you go out.",
+        "please remember to bring your phone in case we need to reach you.",
+        "are you having dinner at home tonight?",
+        "are you having dinner with us tonight?",
+        "before we order, could you check whether the soup has milk?",
+        "before we order, could you check whether the sauce has nuts?",
+        "could we take a break and get some fresh air?",
+        "could we take a break and get some water?",
+        "please send me a message when you reach the station.",
+        "please send me a message when you reach the hotel.",
+        "when the weather is clear, we can walk to the station.",
+        "when the weather is clear, we can leave for the park.",
+        "please put the receipt in the bag with the items.",
+        "please put the receipt in the drawer with the keys.",
+        "i'll charge my phone before leaving for the station.",
+        "i'll charge my phone before dinner so it is ready later.",
+        "i'm free for a quick call after lunch if you have time.",
+        "i'm free for a quick call before the meeting starts.",
+        "let's leave a little extra time for questions at the end.",
+        "let's leave a little extra time for travel in case there is traffic.",
+        "if the link does not work, please send me another one.",
+        "if the link does not work, please tell me what you see on the screen.",
+        "would you prefer to meet before lunch tomorrow?",
+        "would you prefer to meet after work on friday?"
       ]
     }
   ],

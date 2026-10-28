@@ -172,20 +172,20 @@ fn farewell_appends_nine_contexts_eighteen_authors_with_exact_consideration_inve
             en.next_words().count(),
             en.sentences().count()
         ),
-        (64, 946, 1856)
+        (64, 968, 1900)
     );
     let layer = &en.word_layers()[63];
     assert_eq!(layer.id, "daily_presence_dialogue");
     assert!(layer.words.is_empty());
-    assert_eq!((layer.next_words.len(), layer.sentences.len()), (31, 62));
+    assert_eq!((layer.next_words.len(), layer.sentences.len()), (53, 106));
     for (i, &(context, words, _, authors)) in EN.iter().enumerate() {
         assert_eq!(layer.next_words[18 + i].0, context);
         assert_eq!(layer.next_words[18 + i].1, words);
         assert_eq!(&layer.sentences[36 + 2 * i..38 + 2 * i], authors);
     }
     for (language, entries, readings, start, contexts, authors) in [
-        ("zh-Hans", ZH, 3442, 924, 937, 1872),
-        ("ja", JA, 638, 412, 425, 849),
+        ("zh-Hans", ZH, 3442, 924, 959, 1916),
+        ("ja", JA, 638, 412, 447, 893),
     ] {
         let data = builtin(language).unwrap();
         assert_eq!(

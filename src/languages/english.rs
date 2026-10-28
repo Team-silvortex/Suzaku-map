@@ -743,7 +743,7 @@ mod tests {
     #[test]
     fn bucketed_context_match_equals_linear_for_every_authored_context() {
         let contexts = next_word_contexts();
-        assert_eq!(contexts.len(), 946);
+        assert_eq!(contexts.len(), 968);
         for (context, _) in vocabulary().next_words() {
             for query in [
                 context.to_owned(),
@@ -2435,8 +2435,8 @@ mod tests {
                 "unreachable sentence: {sentence}"
             );
         }
-        assert_eq!(keys.len(), 946);
-        assert_eq!(sentences.len(), 1856);
+        assert_eq!(keys.len(), 968);
+        assert_eq!(sentences.len(), 1900);
     }
 
     #[test]

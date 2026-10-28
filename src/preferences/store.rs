@@ -6,7 +6,7 @@ use super::{
 };
 use crate::data::files::{StagedFile, private_directory};
 use std::{
-    fs::{self, File, OpenOptions},
+    fs::{self, File, OpenOptions, TryLockError},
     io::{ErrorKind, Read},
     os::unix::fs::{MetadataExt, OpenOptionsExt, PermissionsExt},
     path::{Component, Path, PathBuf},
@@ -27,7 +27,40 @@ pub struct PreferenceStore {
     owner: PreferenceKey,
     accepted_revision: u64,
     cleared_revision: Option<u64>,
-    _lease: File,
+    _lease: PreferenceLease,
+}
+
+/// `flock` is attached to an open file description, which a forked child can
+/// inherit even when the descriptor is close-on-exec. Explicitly unlock when
+/// the owner drops the lease so a child waiting to exec cannot extend it.
+/// Only the process which acquired the lock may unlock it: unlocking from a
+/// forked child would also release its parent's still-active lock.
+struct PreferenceLease {
+    file: File,
+    owner_pid: libc::pid_t,
+}
+
+fn lock_error(error: TryLockError) -> PreferenceError {
+    match error {
+        TryLockError::WouldBlock => PreferenceError::Busy,
+        TryLockError::Error(error) => error.into(),
+    }
+}
+
+impl Drop for PreferenceLease {
+    fn drop(&mut self) {
+        if unsafe { libc::getpid() } != self.owner_pid {
+            return;
+        }
+        // Drop cannot report I/O errors. Retry interruptions; on any other
+        // error closing the file still provides the normal OS cleanup fallback.
+        loop {
+            match self.file.unlock() {
+                Err(error) if error.kind() == ErrorKind::Interrupted => continue,
+                _ => break,
+            }
+        }
+    }
 }
 
 fn private_metadata(metadata: &fs::Metadata) -> Result<(), PreferenceError> {
@@ -143,7 +176,7 @@ fn remove_staging(files: &[PathBuf]) -> Result<(), PreferenceError> {
 }
 
 impl PreferenceStore {
-    fn lease(path: &Path) -> Result<File, PreferenceError> {
+    fn lease(path: &Path) -> Result<PreferenceLease, PreferenceError> {
         prepare_parent(path)?;
         let lease = OpenOptions::new()
             .read(true)
@@ -154,8 +187,14 @@ impl PreferenceStore {
             .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
             .open(path.parent().unwrap().join(LOCK_NAME))?;
         private_metadata(&lease.metadata()?)?;
-        lease.try_lock().map_err(|_| PreferenceError::Busy)?;
-        Ok(lease)
+        let owner_pid = unsafe { libc::getpid() };
+        lease.try_lock().map_err(lock_error)?;
+        // Construct the guard immediately after acquisition so every later
+        // `?` in `open_at` releases the lock under the same ownership rule.
+        Ok(PreferenceLease {
+            file: lease,
+            owner_pid,
+        })
     }
 
     pub fn open(path: impl AsRef<Path>) -> Result<(Self, PreferenceCache), PreferenceError> {
@@ -322,5 +361,130 @@ impl PreferenceStore {
         };
         store.sync_parent()?;
         Ok(store)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::{
+        io::Write,
+        os::unix::fs::DirBuilderExt,
+        sync::atomic::{AtomicU64, Ordering},
+    };
+
+    static NEXT: AtomicU64 = AtomicU64::new(0);
+
+    struct TestDirectory(PathBuf);
+
+    impl TestDirectory {
+        fn new() -> Self {
+            loop {
+                let path = std::env::temp_dir().join(format!(
+                    "szpref-lease-{}-{}",
+                    std::process::id(),
+                    NEXT.fetch_add(1, Ordering::Relaxed)
+                ));
+                match fs::DirBuilder::new().mode(0o700).create(&path) {
+                    Ok(()) => return Self(path),
+                    Err(error) if error.kind() == ErrorKind::AlreadyExists => continue,
+                    Err(error) => panic!("create private test directory: {error}"),
+                }
+            }
+        }
+
+        fn path(&self) -> PathBuf {
+            self.0.join(FILE_NAME)
+        }
+    }
+
+    impl Drop for TestDirectory {
+        fn drop(&mut self) {
+            for name in [FILE_NAME, LOCK_NAME] {
+                match fs::remove_file(self.0.join(name)) {
+                    Ok(()) => {}
+                    Err(error) if error.kind() == ErrorKind::NotFound => {}
+                    Err(error) => panic!("remove test file: {error}"),
+                }
+            }
+            fs::remove_dir(&self.0).unwrap();
+        }
+    }
+
+    #[test]
+    fn inherited_lease_drop_does_not_unlock_the_parent() {
+        let directory = TestDirectory::new();
+        let path = directory.path();
+        let lease = PreferenceStore::lease(&path).unwrap();
+        // In the child, only drop the guard (getpid + close) and _exit. Neither
+        // allocators nor test machinery may run after fork in a threaded process.
+        let child = unsafe { libc::fork() };
+        assert!(child >= 0, "fork failed");
+        if child == 0 {
+            drop(lease);
+            unsafe { libc::_exit(0) }
+        }
+        let mut status = 0;
+        loop {
+            let result = unsafe { libc::waitpid(child, &mut status, 0) };
+            if result == child {
+                break;
+            }
+            assert_eq!(result, -1);
+            assert_eq!(
+                std::io::Error::last_os_error().kind(),
+                ErrorKind::Interrupted
+            );
+        }
+        assert!(libc::WIFEXITED(status));
+        assert_eq!(libc::WEXITSTATUS(status), 0);
+        assert!(matches!(
+            PreferenceStore::lease(&path),
+            Err(PreferenceError::Busy)
+        ));
+        drop(lease);
+        assert!(PreferenceStore::lease(&path).is_ok());
+    }
+
+    #[test]
+    fn opening_errors_and_reset_cancellation_release_the_lease() {
+        let directory = TestDirectory::new();
+        let path = directory.path();
+        OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .mode(0o600)
+            .open(&path)
+            .unwrap()
+            .write_all(b"invalid json")
+            .unwrap();
+        assert!(matches!(
+            PreferenceStore::open(&path),
+            Err(PreferenceError::InvalidDocument)
+        ));
+        drop(PreferenceStore::lease(&path).unwrap());
+        let snapshot = PreferenceCache::default()
+            .snapshot_at(Instant::now(), SystemTime::now())
+            .unwrap();
+        assert!(matches!(
+            PreferenceStore::reset_if(&path, &snapshot, || false),
+            Err(PreferenceError::Cancelled)
+        ));
+        assert!(PreferenceStore::lease(&path).is_ok());
+    }
+
+    #[test]
+    fn lock_errors_preserve_non_contention_io_kind() {
+        assert_eq!(lock_error(TryLockError::WouldBlock), PreferenceError::Busy);
+        assert_eq!(
+            lock_error(TryLockError::Error(std::io::Error::from(
+                ErrorKind::PermissionDenied
+            ))),
+            PreferenceError::Io(ErrorKind::PermissionDenied)
+        );
+        assert_eq!(
+            lock_error(TryLockError::Error(std::io::Error::from(ErrorKind::Other))),
+            PreferenceError::Io(ErrorKind::Other)
+        );
     }
 }

@@ -1,6 +1,67 @@
 # Development notes and history
 
+<!-- release-0.10.0-preparation:start -->
+## 0.10.0 / build 50 preparation — 2026-10-28
+
+This selected Linux Alpha milestone collects seven batches since 0.9.9: 22 contexts and 44 authored sentences per language, **66 contexts / 132 sentences** combined, with no new English forms or Chinese/Japanese readings. Current totals: EN 6216 / 968 / 1900 (64 layers), ZH 3442 / 959 / 1916, JA 638 / 447 / 893. The 6216 English first-seen ranks, complete CJK reading arrays, 25 recommended packs and offline-pack SDK remain unchanged. [Release notes](docs/releases/0.10.0.md) describe the accumulated dialogue and exact candidate-compatibility boundaries.
+
+The Linux preference store explicitly unlocks its lease only in the acquiring process, preventing a fork child awaiting exec from extending the writer's released lease or unlocking an active parent. Contention and other I/O errors are classified separately. Controlled regressions cover the real writer, inherited guard disposal, failed opens and cancelled reset; the earlier intermittent Busy remains unattributed. Drop provides best-effort cleanup, and memory fallback does not automatically return to disk persistence when another writer exits.
+
+<!-- release-0.10.0-local-validation:start -->
+**Completed local acceptance:** the actual independent complete Cargo process exits 0 with **2982 passed / zero failures / 32 original explicit ignores**, in **321 unique unfiltered top-level result groups**: complete lib, ten binary/main targets, 309 integration targets and Doc-tests. All **53 new Rust cases** occur once (48 vocabulary, three unit lock cases, two fork integration cases). Earlier bounded runs, preflights and captured private children are not added to this total. Full log: `/tmp/suzaku-release-0.10.0-1T0Gpc/full-rust.log`.
+
+Separately, **19/19 isolated UI gates** exit 0 (96.709 seconds). The initial sandbox socket-bind refusal ran no UI cases; its evidence is retained. The permitted private-socket run completes all nineteen gates without changing assertions or deadlines. Strict locked/offline all-feature/all-target Clippy with `-D warnings` and two build jobs exits 0 (36.581 seconds wall clock; Cargo reports 36.36 seconds). All 22 Python groups pass **315 tests with zero skips**; 250 packaged audit links, five authoritative version sources/eight values, eleven shell syntax checks, formatting and diff checks pass. ShellCheck is unavailable locally and was not run; it remains required in remote CI.
+
+Private native gates also exit 0 independently: the complete default IBus four-partition run (156.643 seconds), inline-preedit four-partition run (156.893 seconds) and custom-shortcut run (8.487 seconds). Their PASS lines are not case totals and are not added to Rust/UI counts. Static, UI, native and Clippy evidence is retained in `/tmp/suzaku-0.10.0-static.nZImes/`. These isolated runs do not establish physical-keyboard, personal-desktop, full native Wayland, real-model quality or new performance acceptance.
+<!-- release-0.10.0-local-validation:end -->
+<!-- release-0.10.0-remote-validation:start -->
+**Pending publication acceptance:** exact committed revision, all eight remote CI jobs, accepted-artifact inspection, complete four-asset upload and re-download comparison. The published 0.9.7 download remains the installation baseline until 0.10.0 is actually released as a Linux Alpha prerelease, not latest stable. Personal installation/settings/services and the cancelled automation remain unchanged.
+<!-- release-0.10.0-remote-validation:end -->
+
+The older uncommitted/pending labels, source versions and results below describe their recorded snapshots. They are retained without rewriting their assertions or treating them as the current 0.10.0 acceptance status.
+<!-- release-0.10.0-preparation:end -->
+
 **Published baseline: [0.9.7 / build 47](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.9.7), exact source `354030b1107b20ad2447a9f93aaa6cf6beba1c40`.** All eight gates of [CI 40081142818](https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/40081142818) passed; accepted artifact `12556460951` and all four uploaded Linux assets were independently validated and re-downloaded for byte comparison before publication. Linux Alpha prerelease, not latest stable. The source-preparation pending and earlier uncommitted labels below are historical. The personal installation is unchanged and the cancelled automation remains cancelled.
+
+<!-- day-coordination-followup:start -->
+**当前未提交：日常安排与协调跟进（2026-10-28）。** 三语各新增 4 个语境、8 条候选句，共 12 个语境、24 条句子：英文涵盖快速通话、预留时间、链接反馈和时间协调；中文涵盖日程、集合点、预计到达和提醒；日文涵盖返信待ち、予約確認、合流地点和延長。复用已有词形和读音。当前总量：英文 6216 词形 / 968 语境 / 1900 句；中文 3442 读音 / 959 语境 / 1916 句；日文 638 读音 / 447 语境 / 893 句。完整库及 99 个相关集成目标的同轮回归为 1350 通过、0 失败、2 项原有忽略；覆盖候选提交、拼音声调、日语假名、模拟模型不可用及推荐离线包共存。下方各批次及偏好锁修复记录保留为历史快照；版本仍为 0.9.9，本轮改动未提交。
+
+本轮预检捕获两处候选变化：英文新增 which 补全挤掉旧 please let me know 池末句，改用 would you prefer to meet；日语 hos 的新補足説明句挤掉旧保証書句，改用延長。逐字段前后对照及原有哈希保持，调整后的同轮回归独立通过；定向与子进程结果不加总到1350。首轮预检日志位于 /tmp/suzaku-mainline-arrangements-SBDsW5/preflight.log，日语前后向量保存在 /tmp/suzaku-cjk-mainline.hkRrSE/。相关回归日志和目标清单位于 /tmp/suzaku-mainline-arrangements-SBDsW5/。
+严格全目标 Clippy 与格式检查通过。
+<!-- day-coordination-followup:end -->
+
+<!-- preference-fork-lease:start -->
+**当前未提交：Linux 偏好文件锁继承保护。** 偏好租约在持锁进程释放时主动解锁，fork 子进程析构继承的租约不会释放父进程锁；锁竞争与其他 I/O 错误分别归类。针对真实写入器、子进程 exec 前继承、子进程析构、早退和正常互斥的测试，以及私有 D-Bus 偏好宿主回归，共 660 通过、2 项原有忽略。修复前受控隔离实验重现了子进程继承造成的 Busy；此前一次间歇 Busy 是否由此触发仍无法确定。非中断型 unlock 错误和进程异常退出无法由 Drop 保证立即释放；启动失败后的持久化自动恢复未改变。未安装、提交或改变个人配置。
+<!-- preference-fork-lease:end -->
+
+<!-- daily-errands-followup:start -->
+**当前未提交：日常事务与出行跟进（2026-10-28）。** 三语各新增 3 个语境、6 条候选句，共 9 个语境、18 条句子：英文涵盖天气、收据和充电；中文涵盖申请表、备用电池和停车场；日文涵盖申请书、送り状和順序。复用已有词形和读音。当前总量：英文 6216 词形 / 964 语境 / 1892 句；中文 3442 读音 / 955 语境 / 1908 句；日文 638 读音 / 443 语境 / 885 句。全功能库及 89 个相关集成目标的独立回归为 1286 通过、0 失败、2 项原有忽略。首轮因新增英文句子的 clears 和 papers 改变索引，调整句子复用旧词后保留旧断言通过；另一次完整库回归中的偏好临时锁 Busy 失败没有在单独测试及最终回归中重现，原因未确认。下方结果均为历史快照；本轮不代表全仓、真实模型或安装验收。
+严格全目标 Clippy、格式和词库结构检查通过；本批和之前的未提交改动仍在工作区。
+<!-- daily-errands-followup:end -->
+
+<!-- daily-service-followup:start -->
+**当前未提交：生活与服务跟进（2026-10-28）。** 三语各新增 3 个语境、6 条候选句，共 9 个语境、18 条句子：英文涵盖点餐确认成分、休息补水和抵达消息；中文涵盖取件凭证、预约凭证和报修；日文涵盖失物、受付时间和故障。复用已有词形和读音。当前总量：英文 6216 词形 / 961 语境 / 1886 句；中文 3442 读音 / 952 语境 / 1902 句；日文 638 读音 / 440 语境 / 879 句。全功能库及 85 个相关集成目标的独立回归为 1255 通过、0 失败、2 项原有忽略。首轮“售后申请”改变旧中文候选快照，原失败保留；改用“取件凭证”后完整相关回归通过，旧断言和候选规则不变。下方记录为历史快照；本轮不代表全仓、真实模型或安装验收。
+严格全目标 Clippy、格式和词库结构检查通过；本批和之前的未提交改动仍在工作区。
+<!-- daily-service-followup:end -->
+
+<!-- daily-outing-services:start -->
+**当前未提交：日常出门与服务沟通（2026-10-28）。** 三语各新增 3 个语境、6 条候选句，共 9 个语境、18 条句子，涵盖出门检查、随身物品、用餐和服务预约、包裹、服务台。当前总量：英文 6216 词形 / 958 语境 / 1880 句；中文 3442 读音 / 949 语境 / 1896 句；日文 638 读音 / 437 语境 / 873 句。全功能库及 79 个相关集成目标的独立回归为 1217 通过、0 失败、2 项原有忽略。首轮新增“取号”续写改变旧 qu hao 向量，原失败保留；改用“服务台”后重跑通过，旧断言和候选规则不变。以下各批次为历史快照；本轮不代表全仓、真实模型或安装验收。
+严格全目标 Clippy、格式和词库结构检查通过；本批与之前的未提交改动仍在工作区。
+<!-- daily-outing-services:end -->
+
+<!-- work-collaboration:start -->
+**当前未提交：工作协作与文件沟通（2026-10-28）。** 三语各新增 3 个语境、6 条候选句，覆盖工作阻塞、审阅确认、时间调整、文件权限与网络沟通，复用已有词形和读音。当前总量：英文 6216 词形 / 955 语境 / 1874 句；中文 3442 读音 / 946 语境 / 1890 句；日文 638 读音 / 434 语境 / 867 句。全功能库测试及 78 个相关集成目标通过，库测试有 2 项原有忽略；6 项新测试覆盖输入候选、提交、合成模型不可用及离线包共存。严格全目标 Clippy 与格式检查通过。沙箱内首次全功能回归因本地套接字权限失败，允许本地套接字后重跑通过；旧批次结果仍是历史快照，不代表本轮全仓、真实模型或安装验收。
+<!-- work-collaboration:end -->
+
+<!-- work-followup:start -->
+**当前未提交：工作安排与进度跟进（2026-10-28）。** 三语各新增3个语境、6条候选句，覆盖行动项、期限、进度及交接；复用已有词形和读音。当前英文6216词形/952语境/1868句，中文3442读音/943语境/1884句，日文638读音/431语境/861句。本轮有界回归 1205 通过、0失败、2 原有忽略，涵盖完整库与77个相关集成目标；6项新增测试覆盖罗马音、拼音及声调、假名、候选提交、原文保留、模型不可用和推荐离线包共存。严格全目标 Clippy 和格式检查通过。旧数据顺序、模型接口和生产候选预算保持；版本仍为0.9.9，未提交。
+
+本批次及下方各批次的数量和验证结果保留为当时快照，当前总量以最新记录为准。
+<!-- work-followup:end -->
+
+<!-- work-clarification:start -->
+**当前未提交：工作澄清与异步回复（2026-10-28）。** 三语各新增3语境、6条作者句，共9语境、18句，复用已有词形/读音；EN6216/949/1862（64层，末层34/68）、ZH3442/940/1878、JA638/428/855。独立有界回归实际1482过、0失败、2原ignore，共115唯一组（完整lib+114集成目标），新12项各计一次；严格全target/all-feature Clippy -D warnings通过（67.26秒）。原before4过8失败、首预检新套件10过2失败和首115组的reply快照失败证据保留，不叠加为本轮通过；仅新测试纠正xiu gai yi jia同时完整拼出旧“修改衣架”的歧义预期：新两句固定索引5/6、跨六行页界可选择，完整jian和汉字仍双句首页。reply仅追加两新句，完整四项向量逐字段确认后精确逆回，旧hash未改；用語以完整ようご为纯假名正例，宽よう仅测literal与旧要点。旧作者/读音/rank、25包/SDK、生产算法及配额不变；有限作者表达，不执行工作或发消息。版本仍0.9.9/build49，本批不在已推送f3a7417内，未提交/推送/安装；不声明全仓、Doc-tests、UI/原生、实模、CI或性能验收，不恢复自动化。
+<!-- work-clarification:end -->
 
 <!-- release-0.9.9-source:start -->
 **0.9.9 / build 49 源码更新：仅提交与推送，不创建对外发行。** 五批日常及工作交流新增三语 48 个语境、96 条作者句，零新词形或读音。总量 EN 6216 / 946 / 1856（64 层）、ZH 3442 / 937 / 1872、JA 638 / 425 / 849；英文空 words 末层 31 语境、62 作者句，6216 首次 rank 与旧读音保持。本版独立完整 Rust 实际 2929 过、0 失败、32 原 ignore，313 唯一组，包含完整 lib、10 个 binary/main、301 个集成套件及 Doc-tests，零筛除；七个新套件的 64 项各计一次。另 19 项私有 Xvfb/D-Bus/XDG 隔离 UI 门禁和严格全 target/all-feature Clippy -D warnings 实际通过（64.19 秒），不加完整 Rust 总数。原候选短池可随作者数据变化；旧 goldens、语料与算法保持，精确 test-only 逆回不冒称旧尾项仍在短池。先前 pending/未提交与有界记录原样保留为历史，不借作本版通过。准确提交的远端 CI 另行确认；不声明实模、原生 IBus/Wayland、物理键盘、性能、包或安装验收。不创建 0.9.9 tag、GitHub Release、安装包，不更改个人安装/服务/配置，不恢复已取消 timer；已发布 0.9.7 仍是下载基线。
@@ -154,6 +215,28 @@ The paired [English](tests/english_completion_quality.rs) and
 [Chinese](tests/chinese_completion_quality.rs) regression suites provide a reproducible starting point,
 not a general language-quality score. The first follow-up fixes separated Pinyin within existing
 dictionary entries; see the [N47 audit](docs/bug-audit-bilingual-core-2026-09-24.md).
+
+<!-- work-followup-detail:start -->
+## Work follow-up vocabulary — 2026-10-28
+
+Added three authored contexts and six sentences per language for meeting action items, deadlines, progress, handover and consultation. English uses existing word forms; Chinese and Japanese use existing readings. The predecessor includes the uncommitted work-clarification batch, which is retained byte-for-byte after removing this batch.
+
+The independent local regression ran 78 groups (library and 77 integrations): 1205 passed, 0 failed, 2 existing ignores, no filtering. The six new tests are included once. They cover local word and sentence candidates, exact commit/undo, Chinese tone and spacing, Japanese kana, unavailable-model fallback and coexistence with private recommended packs. Strict all-target/all-feature Clippy also passed in 64.10 seconds. The source digest for both checks is 450d66f3e23dc50708da399add002a253d2531e196d36f64e640df20a4d8777a; regression log SHA256 e31d3c4a004a7b4a637218f415fa34b0f251364be2b28b6643c5ff9bb667789b. This is targeted local verification, not full-repository, installed-desktop, native IBus or real-model acceptance.
+
+An earlier broad-test command named two nonexistent targets and ran no tests; the target list was corrected before the independent regression. This batch remains uncommitted and does not change the 0.9.9 source version or published installation.
+<!-- work-followup-detail:end -->
+
+<!-- work-clarification-detail:start -->
+## Work clarification and asynchronous replies — 2026-10-28
+
+This uncommitted data-only batch follows source commit f3a7417d9e16357b550a463da1d0f91b0415e5fc. It adds three contexts and six fixed authors per language: checking version/unchanged scope before edits, asking for concrete feedback and allowing dependency checks before an asynchronous reply. Chinese reuses 待确认 / 修改意见 / 不急着回复; Japanese reuses 役割 / 用語 / 情報. No form, reading, rank, provider, decoder or budget changes.
+
+Actual fresh bounded validation: 1482 passes, zero failures, 2 original ignores, 115 unique groups (complete library plus 114 selected integrations), zero filtered or measured cases. The twelve new cases occur once; child private-pack results, preflights and earlier full runs are not summed. Report 0b908b3816ab42bcaf01225f665efec51b5a4ef3b2abd8423dfeb87e839c7516; log 315eb71fdff440054d7d8d244839996cf402385fe6bec0aeb1b75df1a4a999b0; receipt 5f118056d33248aeb687551530d7d4c7eb53262eb17ae49a3b91a22997a6b976; invocation d212c2a76d9942c3b54941ddf4d0fe58; source path/mode/content digest 3dca9570e33b4e7f267f8d52cf90403e0970ce85a43f3201281a29eeb29f9ca4. Independent strict all-target/all-feature Clippy (-D warnings) completes in 67.255164679 seconds; report 91048095d7598d91fb942d027593c8e2a860fb9e07cc32962658899221148785; log 8542cbaecf1303821242d5d68a3e4a1200eab9befd884a93597e08e165916ef3; invocation 20ad89ab9b1d4957b66bea19e8bd8bd9. Each actual Cargo, owning process and evidence verifier exits zero. This is not all-repository/Doc-tests/UI/native/model/performance/installation/remote-CI acceptance.
+
+The original tests-first run really returned Cargo 101 with four passes/eight failures. The first ten-target preflight retained a 10-pass/2-failure new suite: xiu gai yi jia completely spells older 修改衣架 while also prefixing 修改意见 (jian). Both new sentences exist, at zero-based slots 5 and 6 with scores 78.5/78.0, across the unchanged six-row page boundary. The first fixture 8408b192cb40f5b5b98df24ca40e1033a169465cf729fdbdad20d906d3eb5741 is retained in the task directory with both failing logs; only this exact new-fixture probe was corrected to require the measured ten-slot pool, old 修改衣架 choice, new Word at slot 1, both exact sentence slots/scores, and exact commits. Other tested Chinese and Japanese positive inputs require both authors on page one; each English branch requires its matching author on page one. Full jian and Han forms remain positive. The first complete 115-group bounded run then really failed only the legacy English reply vector: two new sentences at scores 79/78.5 extend the unchanged reply/replying Word pair at 100/92. A 37-line exact test-only guard checks every field and row of that four-item current vector before removing only the two additions; the original b5264003914456ef golden is independently recomputed from the exact old pair and remains unchanged. That failed log is preserved, not combined into the independent final run. No production assertion, limit, old golden or author was relaxed. Japanese よう is only a literal/old-Word boundary, not a promise for both new 用語 authors; full ようご is positive. Existing short pools may evolve with data; a selected frozen replay pass is not a universal arbitrary-prefix invariance claim.
+
+The 55 count-maintenance paths change 157 lines/207 numeric operands only; exact inverse checks restore HEAD bytes. The previous work resource helper receives only five outer-inverse wiring lines, and the messaging fixture only the 37-line exact reply guard. Old readings, data order, English 6216 first-seen ranks and all 25 packs/SDK remain unchanged. Version/build remains 0.9.9/49. This batch is not in pushed f3a7417; no new commit/push/tag/Release/package/install or timer is performed.
+<!-- work-clarification-detail:end -->
 
 <!-- release-0.9.9-source-detail:start -->
 ## 0.9.9 source-only local validation — completed 2026-10-28

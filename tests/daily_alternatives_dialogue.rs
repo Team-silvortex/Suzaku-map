@@ -132,13 +132,13 @@ fn alternatives_appends_nine_contexts_eighteen_authors_with_exact_rephrasing_inv
     }
     let en = builtin("en").unwrap();
     assert_eq!(en.word_layers().len(), 64);
-    assert_eq!(en.next_words().count(), 946);
-    assert_eq!(en.sentences().count(), 1856);
+    assert_eq!(en.next_words().count(), 968);
+    assert_eq!(en.sentences().count(), 1900);
     let layer = &en.word_layers()[63];
     assert_eq!(layer.id, "daily_presence_dialogue");
     assert!(layer.words.is_empty());
-    assert_eq!(layer.next_words.len(), 31);
-    assert_eq!(layer.sentences.len(), 62);
+    assert_eq!(layer.next_words.len(), 53);
+    assert_eq!(layer.sentences.len(), 106);
     assert_eq!(layer.next_words[9..12].len(), EN.len());
     assert_eq!(layer.sentences[18..24].len(), EN.len() * 2);
     for (i, &(context, words, _, authors)) in EN.iter().enumerate() {
@@ -147,8 +147,8 @@ fn alternatives_appends_nine_contexts_eighteen_authors_with_exact_rephrasing_inv
         assert_eq!(&layer.sentences[18 + 2 * i..20 + 2 * i], authors);
     }
     for (language, entries, readings, start, contexts, authors) in [
-        ("zh-Hans", ZH, 3442, 915, 937, 1872),
-        ("ja", JA, 638, 403, 425, 849),
+        ("zh-Hans", ZH, 3442, 915, 959, 1916),
+        ("ja", JA, 638, 403, 447, 893),
     ] {
         let data = builtin(language).unwrap();
         assert_eq!(data.readings().len(), readings);

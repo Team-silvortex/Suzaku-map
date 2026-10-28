@@ -163,8 +163,8 @@ fn indexed_forms(layers: &[WordLayer]) -> Vec<String> {
 fn storage_layer_has_fixed_records_without_new_or_reordered_index_forms() {
     let en = builtin("en").unwrap();
     assert_eq!(en.word_layers().len(), 64);
-    assert_eq!(en.next_words().count(), 946);
-    assert_eq!(en.sentences().count(), 1856);
+    assert_eq!(en.next_words().count(), 968);
+    assert_eq!(en.sentences().count(), 1900);
     let previous = &en.word_layers()[..45];
     assert_eq!(
         previous.iter().map(|l| l.next_words.len()).sum::<usize>(),

@@ -1,5 +1,7 @@
 //! Exact test-only inverse of the finite work_communication append.
 use ring::digest::{SHA256, digest};
+#[path = "work_clarification_resource.rs"]
+mod work_clarification_resource;
 
 fn sha(raw: &str) -> String {
     digest(&SHA256, raw.as_bytes())
@@ -31,6 +33,9 @@ pub fn without_work_communication(raw: &str) -> String {
     if sha(raw) == expected {
         return raw.to_owned();
     }
+    let previous = work_clarification_resource::without_work_clarification(raw);
+    let raw = previous.as_str();
+    let value: serde_json::Value = serde_json::from_str(raw).unwrap();
     let mut previous = raw.to_owned();
     match language {
         "en" => {
