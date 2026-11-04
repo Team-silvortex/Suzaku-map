@@ -7,8 +7,12 @@
 最新代表版本的交付记录见 [0.10.0 发布说明](releases/0.10.0.md)。
 逐批词库扩充、旧测试结果和早期网络快照已归入
 [重整前完整记录](history/2026-10/pre-reorganization/functional-network.md)，不作为当前状态说明。
-本轮只整理文档、归档证据路径与文档工具索引；张量快照摘要相应更新，功能关联与评分不变。
-旧快照及全部原始证据保存在[历史张量](history/2026-10/pre-reorganization/functional-tensor.json)。
+文档整理前的快照及全部原始证据保存在[历史张量](history/2026-10/pre-reorganization/functional-tensor.json)。
+八语界面行为见[界面语言](interface-languages.md)，对应回归范围见
+[界面完善记录](history/2026-10/interface-localization.md)与
+[输入法错误提示记录](history/2026-10/interface-diagnostics.md)，以及
+[提示可用性记录](history/2026-10/feedback-usability.md)与
+[报告详情记录](history/2026-10/report-details.md)。扩充译文和自动化覆盖不自动提高成熟度评分。
 
 ## 当前能力索引
 

@@ -165,6 +165,8 @@ else
     keyboard_native_test::native_custom_shortcut_recording_owns_window_events \
     candidates_native_test::native_candidate_clicks_and_async_refresh_are_safe \
     settings_native_test::native_tone_controls_follow_acknowledgements_and_reload \
+    settings_native_test::native_input_errors_are_visible_in_settings_and_compact_panel \
+    report_native_test::native_report_details_are_read_only_and_require_presented_gestures \
     functional_network_audit_test::audit_provider_change_must_forget_standalone_commit_context \
     functional_network_audit_test::model_configuration_stays_bound_until_confirmed_reload \
     functional_network_audit_test::translation_requests_reject_stale_press_targets \

@@ -260,22 +260,8 @@ impl PanelState {
     }
 
     pub(super) fn sync_text_input_state(&mut self) {
+        let allowed = self.sync_text_input_permission();
         let settings = self.kind == PanelWindowKind::Settings;
-        let allowed = self.is_focused
-            && self.chrome.shortcut_recording.is_none()
-            && if settings {
-                self.chrome.settings_search_focused
-            } else {
-                self.chrome.input_focused && !self.chrome.compact_mode && !self.chrome.settings_open
-            };
-        if self.text_input.allowed != allowed {
-            self.text_input.allowed = allowed;
-            self.text_input.cursor_area = None;
-            if !allowed {
-                self.text_input.clear();
-            }
-            self.window.set_ime_allowed(allowed);
-        }
         if allowed {
             let target = if settings {
                 InteractionKind::SettingsSearchInput
@@ -293,6 +279,29 @@ impl PanelState {
                 }
             }
         }
+    }
+
+    /// Permission changes must not measure a hidden/restored settings scene:
+    /// measuring can clamp navigation before its ordinary frame is requested.
+    pub(super) fn sync_text_input_permission(&mut self) -> bool {
+        let settings = self.kind == PanelWindowKind::Settings;
+        let allowed = self.is_focused
+            && self.report_view.is_none()
+            && self.chrome.shortcut_recording.is_none()
+            && if settings {
+                self.chrome.settings_search_focused
+            } else {
+                self.chrome.input_focused && !self.chrome.compact_mode && !self.chrome.settings_open
+            };
+        if self.text_input.allowed != allowed {
+            self.text_input.allowed = allowed;
+            self.text_input.cursor_area = None;
+            if !allowed {
+                self.text_input.clear();
+            }
+            self.window.set_ime_allowed(allowed);
+        }
+        allowed
     }
 
     pub(super) fn handle_ime_event(&mut self, event: Ime) {

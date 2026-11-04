@@ -1,51 +1,51 @@
 {
+                    let header = super::theme_metrics::ToolHeaderLayout::new(chrome, panel_width, responsive_scale);
                     let keyboard_scale =
-                        (drawer_rect[3] / ((if bottom_dock { 221.6 } else { 150.0 }) * responsive_scale)).clamp(0.74, 1.0);
+                        ((drawer_rect[3] - header.extra_height).max(0.0) / ((if bottom_dock { 221.6 } else { 150.0 }) * responsive_scale)).clamp(0.74, 1.0);
                     let keyboard_padding_x = 7.6 * responsive_scale * keyboard_scale;
                     let keyboard_content_left = drawer_rect[0] + keyboard_padding_x;
                     let keyboard_content_right = drawer_rect[0] + drawer_rect[2] - keyboard_padding_x;
                     let keyboard_content_width = (keyboard_content_right - keyboard_content_left).max(120.0);
                     let keyboard_title_y = drawer_rect[1] + 10.0 * responsive_scale * keyboard_scale;
-                    let keyboard_status_y = keyboard_title_y;
                     let row_h = if bottom_dock { 42.0 } else { 21.0 } * responsive_scale * keyboard_scale;
-                    let keyboard_y = drawer_rect[1] + 37.0 * responsive_scale * keyboard_scale;
+                    let keyboard_y = drawer_rect[1] + 37.0 * responsive_scale * keyboard_scale + header.extra_height;
                     let key_row_gap = if bottom_dock { 4.8 } else { 3.2 } * responsive_scale * keyboard_scale;
                     let mut keyboard_layouts = Vec::new();
                     let keyboard_header_layouts = vec![
                         TextBlock {
-                            text: ui.tr("Keyboard input").to_string(),
-                            origin: [
-                                drawer_rect[0] + 12.0 * responsive_scale * keyboard_scale,
-                                keyboard_title_y,
-                            ],
-                            max_width: (drawer_rect[2] - 142.0 * responsive_scale * keyboard_scale)
-                                .max(110.0 * keyboard_scale),
-                            pixel_size: title_px * keyboard_scale,
-                            letter_spacing: heading_tracking,
-                            line_gap: base_line_gap * keyboard_scale,
-                            max_lines: 1,
+                            text: header.title.clone(),
+                            origin: [0.0; 2],
+                            max_width: header.title_rect[2],
+                            pixel_size: header.title_px,
+                            letter_spacing: header.title_tracking,
+                            line_gap: header.line_gap,
+                            max_lines: 4,
                             color: text_secondary,
                             align: TextAlign::Left,
                             role: TextRole::KeyboardKey,
                         }
-                        .layout(),
+                        .layout_in_rect([
+                            drawer_rect[0] + 12.0 * responsive_scale * keyboard_scale + header.title_rect[0],
+                            keyboard_title_y + header.title_rect[1],
+                            header.title_rect[2], header.title_rect[3],
+                        ], [0.0; 2]),
                         TextBlock {
-                            text: ui.tr("Tap to type").to_string(),
-                            origin: [
-                                drawer_rect[0] + drawer_rect[2]
-                                    - (142.0 * responsive_scale * keyboard_scale),
-                                keyboard_status_y,
-                            ],
-                            max_width: (136.0 * responsive_scale * keyboard_scale).max(76.0),
-                            pixel_size: helper_px * keyboard_scale,
-                            letter_spacing: ui_tracking * keyboard_scale,
-                            line_gap: base_line_gap * keyboard_scale,
-                            max_lines: 1,
+                            text: header.status.clone(),
+                            origin: [0.0; 2],
+                            max_width: header.status_rect[2],
+                            pixel_size: header.status_px,
+                            letter_spacing: header.status_tracking,
+                            line_gap: header.line_gap,
+                            max_lines: 4,
                             color: text_primary,
                             align: TextAlign::Center,
                             role: TextRole::KeyboardKey,
                         }
-                        .layout(),
+                        .layout_in_rect([
+                            drawer_rect[0] + 12.0 * responsive_scale * keyboard_scale + header.status_rect[0],
+                            keyboard_title_y + header.status_rect[1],
+                            header.status_rect[2], header.status_rect[3],
+                        ], [0.0; 2]),
                     ];
                     for layout in &keyboard_header_layouts {
                         text_quads.extend(layout.quads.iter().copied());

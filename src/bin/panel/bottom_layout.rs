@@ -241,7 +241,10 @@ impl PanelState {
             self.bottom_layout.limits = Some(bounds);
         }
         let dpi = monitor.scale_factor();
-        let target = dock_size(bounds, dpi, self.window_scale, &self.chrome);
+        let target =
+            suzaku_map::ime::gpu::with_font_metrics(self.font_atlas.layout_metrics.clone(), || {
+                dock_size(bounds, dpi, self.window_scale, &self.chrome)
+            });
         self.request_panel_size(target);
         let outer = self.window.outer_size();
         let position = dock_position(monitor.position(), bounds, outer);

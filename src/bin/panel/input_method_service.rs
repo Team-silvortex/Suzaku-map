@@ -70,7 +70,8 @@ impl<T: Transport> HostService<T> {
         }
         if state == UnitState::Missing {
             return Err(
-                "Suzaku 输入法服务尚未注册，请先运行 suzaku-tool linux-register install".into(),
+                "Suzaku input service is not registered; run suzaku-tool linux-register install first"
+                    .into(),
             );
         }
         // Even a command timeout may have queued the start; retain cleanup ownership.
@@ -122,7 +123,7 @@ impl<T: Transport> HostService<T> {
 fn remaining(end: Instant) -> Result<Duration, String> {
     let left = end.saturating_duration_since(Instant::now());
     if left.is_zero() {
-        Err("等待 Suzaku 输入法服务就绪或停止超时，请重试并检查服务日志".into())
+        Err("Timed out waiting for the Suzaku input service to start or stop; retry and check service logs".into())
     } else {
         Ok(left)
     }
@@ -175,14 +176,15 @@ impl SystemdTransport {
             Command::new("systemctl").arg("--user").args(arguments),
             timeout,
         )
-        .map_err(|error| format!("无法控制 Suzaku 用户服务：{error}"))?;
+        .map_err(|error| format!("Cannot control the Suzaku user service: {error}"))?;
         if !output.status.success() {
             return Err(
-                "Suzaku 用户服务操作失败，请检查 systemctl --user status suzaku-ibus.service"
+                "Suzaku user service operation failed; check systemctl --user status suzaku-ibus.service"
                     .into(),
             );
         }
-        String::from_utf8(output.stdout).map_err(|_| "用户服务返回了无效状态".into())
+        String::from_utf8(output.stdout)
+            .map_err(|_| "User service returned an invalid status".into())
     }
 }
 
@@ -195,7 +197,7 @@ impl Transport for SystemdTransport {
         let path = self
             .socket
             .as_ref()
-            .ok_or("无法定位本机输入法服务（缺少 XDG_RUNTIME_DIR）")?;
+            .ok_or("Cannot locate the local input service (XDG_RUNTIME_DIR is missing)")?;
         let deadline = Deadline::new(timeout);
         let exchange = || -> std::io::Result<bool> {
             let mut stream = deadline.connect(path)?;
@@ -206,8 +208,10 @@ impl Transport for SystemdTransport {
         };
         match exchange() {
             Ok(true) => Ok(()),
-            Ok(false) => Err("Suzaku 输入法服务尚未就绪，请重试".into()),
-            Err(error) => Err(format!("Suzaku 输入法服务未运行或连接已断开：{error}")),
+            Ok(false) => Err("Suzaku input service is not ready; retry".into()),
+            Err(error) => Err(format!(
+                "Suzaku input service is stopped or disconnected: {error}"
+            )),
         }
     }
 
@@ -230,8 +234,10 @@ fn parse_state(raw: &str) -> Result<UnitState, String> {
             Some("loaded"),
             Some("active" | "activating" | "deactivating" | "reloading" | "refreshing"),
         ) => Ok(UnitState::Running),
-        (Some("masked"), _) => Err("Suzaku 用户服务已被屏蔽，未擅自解除屏蔽".into()),
-        _ => Err("无法确认 Suzaku 用户服务状态，未强制启停".into()),
+        (Some("masked"), _) => {
+            Err("Suzaku user service is masked; it was not unmasked automatically".into())
+        }
+        _ => Err("Cannot determine the Suzaku user service state; it was not forcibly started or stopped".into()),
     }
 }
 
@@ -400,17 +406,20 @@ mod tests {
     #[test]
     fn missing_service_and_failed_or_unready_start_never_report_ready() {
         let mut host = fixture(UnitState::Missing, false);
-        assert!(host.ensure_ready().unwrap_err().contains("注册"));
+        assert_eq!(
+            host.ensure_ready().unwrap_err(),
+            "Suzaku input service is not registered; run suzaku-tool linux-register install first"
+        );
         assert!(!host.managed);
         let mut host = fixture(UnitState::Stopped, false);
         host.transport.fail = true;
         assert!(host.ensure_ready().is_err());
         host.transport.fail = false;
         host.transport.delayed = true;
-        assert!(
+        assert_eq!(
             host.ensure_with_timeout(Duration::from_millis(25))
-                .unwrap_err()
-                .contains("超时")
+                .unwrap_err(),
+            "Timed out waiting for the Suzaku input service to start or stop; retry and check service logs"
         );
         assert!(host.needs_stop().unwrap());
         host.transport.fail = true;
@@ -418,6 +427,27 @@ mod tests {
         assert!(host.managed, "a failed stop must remain retryable");
         host.transport.fail = false;
         host.stop().unwrap();
+    }
+
+    #[test]
+    fn missing_runtime_has_a_canonical_diagnostic_without_touching_a_service() {
+        let mut transport = SystemdTransport {
+            socket: None,
+            can_manage: false,
+        };
+        assert!(!transport.can_manage());
+        assert_eq!(
+            transport.probe(Duration::ZERO).unwrap_err(),
+            "Cannot locate the local input service (XDG_RUNTIME_DIR is missing)"
+        );
+    }
+
+    #[test]
+    fn an_expired_service_deadline_preserves_the_retry_diagnostic() {
+        let end = Instant::now();
+        let expected = "Timed out waiting for the Suzaku input service to start or stop; retry and check service logs";
+        assert_eq!(remaining(end).unwrap_err(), expected);
+        assert_eq!(pause(end).unwrap_err(), expected);
     }
 
     #[test]
@@ -494,11 +524,13 @@ mod tests {
             parse_state("LoadState=not-found\nActiveState=inactive\n").unwrap(),
             UnitState::Missing
         );
-        assert!(
-            parse_state("LoadState=masked\nActiveState=inactive\n")
-                .unwrap_err()
-                .contains("屏蔽")
+        assert_eq!(
+            parse_state("LoadState=masked\nActiveState=inactive\n").unwrap_err(),
+            "Suzaku user service is masked; it was not unmasked automatically"
         );
-        assert!(parse_state("unrecognized response").is_err());
+        assert_eq!(
+            parse_state("unrecognized response").unwrap_err(),
+            "Cannot determine the Suzaku user service state; it was not forcibly started or stopped"
+        );
     }
 }

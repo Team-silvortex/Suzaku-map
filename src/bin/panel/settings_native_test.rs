@@ -801,3 +801,444 @@ fn assert_first_overlay_uses_current_font_metrics(panel: &mut PanelState) {
     panel.chrome.font_face = suzaku_map::ime::gpu::FontFaceChoice::Auto;
     panel.rebuild_font_atlas();
 }
+
+#[test]
+#[ignore = "requires isolated Xvfb and SUZAKU_PANEL_NATIVE_QA=1"]
+fn native_input_errors_are_visible_in_settings_and_compact_panel() {
+    assert_eq!(std::env::var("SUZAKU_PANEL_NATIVE_QA").as_deref(), Ok("1"));
+    let config = std::env::var_os("XDG_CONFIG_HOME").expect("isolated config");
+    assert!(std::path::Path::new(&config).starts_with(std::env::temp_dir()));
+    assert!(std::env::var("DISPLAY").unwrap().split('.').next().unwrap() != ":0");
+    let mut builder = EventLoop::<PanelUserEvent>::with_user_event();
+    builder.with_x11().with_any_thread(true);
+    let event_loop = builder.build().unwrap();
+    let mut probe = InputErrorProbe {
+        proxy: event_loop.create_proxy(),
+        completed: false,
+    };
+    event_loop.run_app(&mut probe).unwrap();
+    assert!(probe.completed);
+}
+
+struct InputErrorProbe {
+    proxy: EventLoopProxy<PanelUserEvent>,
+    completed: bool,
+}
+
+fn input_error_test_viewport(state: &mut PanelState, width: u32) {
+    let requested = PhysicalSize::new(width, 540);
+    let _ = state.window.request_inner_size(requested);
+    let actual = state.window.inner_size();
+    assert_eq!(
+        actual,
+        requested,
+        "the private X11 test viewport must be real: kind={:?} language={:?} text_scale={:?} renderer={}x{}",
+        state.kind,
+        state.chrome.ui_language,
+        state.chrome.text_scale,
+        state.renderer.scene_width,
+        state.renderer.scene_height
+    );
+    state.resize(actual.width, actual.height);
+}
+
+fn assert_native_error_overlay(state: &mut PanelState, raw: &str) -> f32 {
+    let case = format!(
+        "kind={:?} language={:?} text_scale={:?} viewport={}x{} native_size={:?} raw={raw:?}",
+        state.kind,
+        state.chrome.ui_language,
+        state.chrome.text_scale,
+        state.renderer.scene_width,
+        state.renderer.scene_height,
+        state.window.inner_size()
+    );
+    let expected = state
+        .chrome
+        .ui_language
+        .tr("Input method error: {}")
+        .replace("{}", raw);
+    assert_eq!(
+        state.last_commit_feedback.as_deref(),
+        Some(format!("Input method error: {raw}").as_str()),
+        "stored error changed: {case}"
+    );
+    let snapshot = state.engine.snapshot();
+    let (scene, first) = state.current_frame_with_snapshot(&snapshot);
+    let case = format!(
+        "{case} body={:?} overlay_rects={:?} glyph_counts={:?} font_revision={} font_advance_F={:?}",
+        scene.settings_scroll_metadata,
+        first
+            .iter()
+            .map(|overlay| overlay
+                .quads
+                .iter()
+                .map(|quad| quad.rect)
+                .collect::<Vec<_>>())
+            .collect::<Vec<_>>(),
+        first
+            .iter()
+            .map(|overlay| overlay.atlas_glyphs.len())
+            .collect::<Vec<_>>(),
+        state.font_atlas.layout_revision,
+        state.font_atlas.layout_metrics.get(&'F')
+    );
+    assert_eq!(
+        first.len(),
+        1,
+        "the selected window must expose its error: {case}"
+    );
+    let overlay = &first[0];
+    assert!(!overlay.quads.is_empty(), "missing error surface: {case}");
+    assert!(
+        !overlay.atlas_glyphs.is_empty(),
+        "missing error glyphs: {case}"
+    );
+    let visible: String = overlay.atlas_glyphs.iter().map(|glyph| glyph.ch).collect();
+    let expected_visible: String = expected.chars().filter(|ch| !ch.is_whitespace()).collect();
+    assert_eq!(
+        visible, expected_visible,
+        "unknown external error text must remain untranslated and visible: {case}"
+    );
+    let viewport = [state.renderer.scene_width, state.renderer.scene_height];
+    let bounds = overlay.quads[0].rect;
+    if state.kind == PanelWindowKind::Settings {
+        let content = scene
+            .settings_scroll_metadata
+            .expect("settings content viewport");
+        assert!(
+            bounds[1] >= content.track_rect[1] - 0.01,
+            "error overlaps settings header: {case}"
+        );
+        assert!(
+            bounds[1] + bounds[3]
+                <= (content.track_rect[1] + content.visible_height).min(viewport[1]) + 0.01,
+            "the error must stay below the settings header and within its content: {case}"
+        );
+    }
+    for rect in overlay
+        .quads
+        .iter()
+        .map(|quad| quad.rect)
+        .chain(overlay.atlas_glyphs.iter().map(|glyph| glyph.rect))
+    {
+        assert!(
+            rect.iter().all(|value| value.is_finite()),
+            "nonfinite rect={rect:?}: {case}"
+        );
+        assert!(
+            rect[2] > 0.0 && rect[3] > 0.0,
+            "empty rect={rect:?}: {case}"
+        );
+        assert!(
+            rect[0] >= 0.0 && rect[1] >= 0.0,
+            "negative origin rect={rect:?}: {case}"
+        );
+        assert!(
+            rect[0] + rect[2] <= viewport[0] + 0.01,
+            "horizontal overflow rect={rect:?}: {case}"
+        );
+        assert!(
+            rect[1] + rect[3] <= viewport[1] + 0.01,
+            "vertical overflow rect={rect:?}: {case}"
+        );
+    }
+    for glyph in &overlay.atlas_glyphs {
+        assert!(
+            glyph.rect[0] >= bounds[0] - 0.01,
+            "glyph left overflow {glyph:?}: {case}"
+        );
+        assert!(
+            glyph.rect[1] >= bounds[1] - 0.01,
+            "glyph top overflow {glyph:?}: {case}"
+        );
+        assert!(
+            glyph.rect[0] + glyph.rect[2] <= bounds[0] + bounds[2] + 0.01,
+            "glyph right overflow {glyph:?}: {case}"
+        );
+        assert!(
+            glyph.rect[1] + glyph.rect[3] <= bounds[1] + bounds[3] + 0.01,
+            "glyph bottom overflow {glyph:?}: {case}"
+        );
+    }
+    let glyph_height = overlay
+        .atlas_glyphs
+        .iter()
+        .find(|glyph| glyph.ch == 'F')
+        .expect("the unchanged Font parameter is present")
+        .rect[3];
+    let (_, second) = state.current_frame_with_snapshot(&snapshot);
+    assert_eq!(second.len(), 1, "second-frame error disappeared: {case}");
+    assert_eq!(
+        first[0].quads, second[0].quads,
+        "second-frame surface moved: {case}"
+    );
+    assert_eq!(
+        first[0].atlas_glyphs, second[0].atlas_glyphs,
+        "the first error frame must already use the current font metrics: {case}"
+    );
+    state
+        .render()
+        .expect("present the private error fixture frame");
+    glyph_height
+}
+
+impl ApplicationHandler<PanelUserEvent> for InputErrorProbe {
+    fn resumed(&mut self, event_loop: &ActiveEventLoop) {
+        use suzaku_map::ime::gpu::DisplayTextScale;
+        use suzaku_map::ui::UiLanguage;
+        use winit::raw_window_handle::{HasWindowHandle, RawWindowHandle};
+        use x11rb::protocol::xproto::{ConnectionExt, InputFocus};
+
+        let started = Instant::now();
+        let persisted_before = load_display_settings();
+        let window = Arc::new(event_loop.create_window(panel_window_attributes()).unwrap());
+        let mut panel = pollster::block_on(PanelState::new(window)).unwrap();
+        panel.chrome.seed_text = "preserve the working draft 日常".into();
+        panel.chrome.translation.text = "preserve translated output 日本語".into();
+        panel.chrome.translation.message = "preserve translation status".into();
+        let mut app = PanelApp::new(self.proxy.clone(), None);
+        app.panel = Some(panel);
+        app.open_settings(event_loop);
+        assert!(
+            app.tray.is_none(),
+            "the fixture must never start a real tray backend"
+        );
+
+        let focus_guard = event_loop
+            .create_window(
+                Window::default_attributes()
+                    .with_title("Suzaku isolated input-error focus guard")
+                    .with_inner_size(PhysicalSize::new(120, 80)),
+            )
+            .unwrap();
+        let RawWindowHandle::Xlib(focus_handle) = focus_guard.window_handle().unwrap().as_raw()
+        else {
+            panic!("the opt-in fixture must use its private X11 server")
+        };
+        let focus_id = focus_handle.window as u32;
+        let (connection, _) = x11rb::connect(None).unwrap();
+        connection.map_window(focus_id).unwrap().check().unwrap();
+        connection
+            .set_input_focus(InputFocus::PARENT, focus_id, x11rb::CURRENT_TIME)
+            .unwrap()
+            .check()
+            .unwrap();
+        assert_eq!(
+            connection.get_input_focus().unwrap().reply().unwrap().focus,
+            focus_id
+        );
+
+        // A settings failure must not reveal or unfold a different, hidden window.
+        let panel = app.panel.as_mut().unwrap();
+        panel.last_compact_toggle = None;
+        panel.apply_compact_mode(true);
+        panel.last_commit_feedback = Some("Sent to active app: unrelated confirmation".into());
+        panel.is_focused = false;
+        panel.window.set_visible(false);
+        app.panel_visible = false;
+        let languages = UiLanguage::ALL
+            .into_iter()
+            .filter(|language| *language != UiLanguage::System);
+        for language in languages {
+            for (scale, width) in [
+                (DisplayTextScale::Small, 420),
+                (DisplayTextScale::Medium, 520),
+                (DisplayTextScale::Large, 900),
+            ] {
+                assert!(started.elapsed() < Duration::from_secs(90));
+                let settings = app.settings.as_mut().unwrap();
+                settings.is_focused = true;
+                settings.chrome.ui_language = language;
+                settings.chrome.text_scale = scale;
+                input_error_test_viewport(settings, width);
+                let case = format!(
+                    "focused-settings language={language:?} text_scale={scale:?} width={width}"
+                );
+                let draft = settings.chrome.seed_text.clone();
+                let translation = settings.chrome.translation.clone();
+                let preferences = PersistedDisplaySettings::from(&settings.chrome);
+                let main = app.panel.as_ref().unwrap();
+                let main_draft = main.chrome.seed_text.clone();
+                let main_translation = main.chrome.translation.clone();
+                let main_preferences = PersistedDisplaySettings::from(&main.chrome);
+                let main_feedback = main.last_commit_feedback.clone();
+                app.user_event(
+                    event_loop,
+                    PanelUserEvent::InputMethodError("Font: Settings".into()),
+                );
+                let settings = app.settings.as_mut().unwrap();
+                assert_native_error_overlay(settings, "Font: Settings");
+                assert_eq!(settings.chrome.seed_text, draft, "draft changed: {case}");
+                assert_eq!(
+                    settings.chrome.translation, translation,
+                    "translation changed: {case}"
+                );
+                assert_eq!(
+                    PersistedDisplaySettings::from(&settings.chrome),
+                    preferences,
+                    "preferences changed: {case}"
+                );
+                let main = app.panel.as_ref().unwrap();
+                assert!(
+                    main.chrome.compact_mode,
+                    "unrelated main window expanded: {case}"
+                );
+                assert!(
+                    !app.panel_visible,
+                    "unrelated main window became visible: {case}"
+                );
+                assert_eq!(
+                    main.last_commit_feedback, main_feedback,
+                    "main feedback changed: {case}"
+                );
+                assert_eq!(
+                    main.chrome.seed_text, main_draft,
+                    "main draft changed: {case}"
+                );
+                assert_eq!(
+                    main.chrome.translation, main_translation,
+                    "main translation changed: {case}"
+                );
+                assert_eq!(
+                    PersistedDisplaySettings::from(&main.chrome),
+                    main_preferences,
+                    "main preferences changed: {case}"
+                );
+                assert_eq!(
+                    connection.get_input_focus().unwrap().reply().unwrap().focus,
+                    focus_id,
+                    "native focus changed: {case}"
+                );
+            }
+        }
+
+        // Compare the same actual glyph at a fixed viewport: width scaling must
+        // not disguise a text-size preference that has stopped affecting errors.
+        let mut previous_height = 0.0;
+        for scale in [
+            DisplayTextScale::Small,
+            DisplayTextScale::Medium,
+            DisplayTextScale::Large,
+        ] {
+            let settings = app.settings.as_mut().unwrap();
+            settings.chrome.ui_language = UiLanguage::English;
+            settings.chrome.text_scale = scale;
+            input_error_test_viewport(settings, 520);
+            let height = assert_native_error_overlay(settings, "Font: Settings");
+            assert!(
+                height > previous_height,
+                "error glyph size must follow the text preference: language=English text_scale={scale:?} width=520 previous_height={previous_height} height={height}"
+            );
+            previous_height = height;
+        }
+
+        // An ordinary delivery notice is neither an input-service error nor a
+        // reason to open the orb or show submitted text in the settings window.
+        let settings = app.settings.as_mut().unwrap();
+        settings.last_commit_feedback = Some("Sent to active app: private success text".into());
+        let scene = settings.current_scene();
+        assert!(settings.build_commit_feedback(&scene).is_none());
+        let panel = app.panel.as_mut().unwrap();
+        let snapshot = panel.engine.snapshot();
+        let (_, ordinary_feedback) = panel.current_frame_with_snapshot(&snapshot);
+        assert!(ordinary_feedback.is_empty());
+        assert!(panel.chrome.compact_mode);
+
+        for settings_present in [true, false] {
+            if settings_present {
+                app.settings.as_mut().unwrap().is_focused = false;
+            } else {
+                app.settings = None;
+            }
+            for (index, language) in UiLanguage::ALL
+                .into_iter()
+                .filter(|language| *language != UiLanguage::System)
+                .enumerate()
+            {
+                assert!(started.elapsed() < Duration::from_secs(90));
+                let panel = app.panel.as_mut().unwrap();
+                if !panel.chrome.compact_mode {
+                    panel.last_compact_toggle = None;
+                    panel.apply_compact_mode(true);
+                }
+                panel.last_compact_toggle = Some(Instant::now());
+                panel.is_focused = false;
+                panel.chrome.ui_language = language;
+                panel.chrome.text_scale = [
+                    DisplayTextScale::Small,
+                    DisplayTextScale::Medium,
+                    DisplayTextScale::Large,
+                ][index % 3];
+                let case = format!(
+                    "main-fallback settings_present={settings_present} language={language:?} text_scale={:?} width={}",
+                    panel.chrome.text_scale,
+                    [420, 520, 900][index % 3]
+                );
+                let before = (
+                    panel.chrome.seed_text.clone(),
+                    panel.chrome.translation.clone(),
+                    PersistedDisplaySettings::from(&panel.chrome),
+                );
+                let settings_feedback = app
+                    .settings
+                    .as_ref()
+                    .map(|settings| settings.last_commit_feedback.clone());
+                app.user_event(
+                    event_loop,
+                    PanelUserEvent::InputMethodError("Font: Settings".into()),
+                );
+                let panel = app.panel.as_mut().unwrap();
+                assert!(
+                    !panel.chrome.compact_mode,
+                    "an error must bypass the 180 ms toggle debounce: {case}"
+                );
+                assert!(
+                    app.panel_visible,
+                    "main error destination stayed hidden: {case}"
+                );
+                input_error_test_viewport(panel, [420, 520, 900][index % 3]);
+                assert_native_error_overlay(panel, "Font: Settings");
+                assert_eq!(panel.chrome.seed_text, before.0, "draft changed: {case}");
+                assert_eq!(
+                    panel.chrome.translation, before.1,
+                    "translation changed: {case}"
+                );
+                assert_eq!(
+                    PersistedDisplaySettings::from(&panel.chrome),
+                    before.2,
+                    "preferences changed: {case}"
+                );
+                assert!(
+                    !panel.is_focused,
+                    "displaying a failure must not claim keyboard focus: {case}"
+                );
+                assert_eq!(
+                    app.settings
+                        .as_ref()
+                        .map(|settings| settings.last_commit_feedback.clone()),
+                    settings_feedback,
+                    "main-window fallback must not change an unfocused settings report: {case}"
+                );
+                assert_eq!(
+                    connection.get_input_focus().unwrap().reply().unwrap().focus,
+                    focus_id,
+                    "native focus changed: {case}"
+                );
+            }
+        }
+        assert_eq!(
+            load_display_settings(),
+            persisted_before,
+            "errors must not persist preferences"
+        );
+        assert!(app.tray.is_none());
+        assert!(started.elapsed() < Duration::from_secs(90));
+        println!(
+            "PASS: eight-language input failures stay in focused settings, retain opaque text and drafts, render stable bounded GPU frames in three text sizes, and reveal the orb without stealing focus or repeating I/O"
+        );
+        self.completed = true;
+        event_loop.exit();
+    }
+
+    fn window_event(&mut self, _event_loop: &ActiveEventLoop, _id: WindowId, _event: WindowEvent) {}
+}

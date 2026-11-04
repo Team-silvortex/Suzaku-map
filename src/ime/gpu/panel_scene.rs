@@ -1,5 +1,5 @@
 use super::*;
-use crate::platform::voice_host::{voice_status_text, voice_transcript_placeholder};
+use crate::platform::voice_host::voice_transcript_placeholder;
 use std::time::Instant;
 
 impl WgpuCandidateRenderer {
@@ -153,11 +153,7 @@ impl WgpuCandidateRenderer {
         // The window dimensions already include `window_scale`. Applying it again here made
         // controls and text grow quadratically, which squeezed the candidate stack out of view.
         let responsive_scale = (self.responsive_scale() * 1.12).clamp(0.9, 2.4);
-        let label_px = match chrome.text_scale {
-            DisplayTextScale::Small => 2.2,
-            DisplayTextScale::Medium => 2.45,
-            DisplayTextScale::Large => 3.12,
-        } * responsive_scale;
+        let label_px = chrome.text_scale.label_pixel_size() * responsive_scale;
         let tracking = match chrome.text_spacing {
             TextSpacing::Tight => -0.41,
             TextSpacing::Normal => -0.32,
@@ -1388,6 +1384,11 @@ impl WgpuCandidateRenderer {
                 color: compact_divider,
             });
 
+            let tool_quads_start = quads.len();
+            let tool_text_start = text_quads.len();
+            let tool_glyphs_start = atlas_glyphs.len();
+            let tool_sections_start = text_sections.len();
+            let tool_targets_start = interactive_targets.len();
             match chrome.active_input_mode {
                 InputMode::VirtualKeyboard => {
                     include!("panel_scene_keyboard_body_block.rs");
@@ -1412,6 +1413,63 @@ impl WgpuCandidateRenderer {
                     text_sections.extend(tool.text_sections);
                     interactive_targets.extend(tool.interactive_targets);
                 }
+            }
+            if chrome.active_input_mode != InputMode::Translation {
+                // The compositor can keep the old, short size during a language
+                // switch or resize. Keep readable text and clip only the tool's
+                // viewport, including its clickable area; never spill into the
+                // candidates below. Translation already owns this same boundary.
+                let viewport =
+                    intersect_rect(drawer_rect, [0.0, 0.0, self.scene_width, self.scene_height]);
+                let clip = |existing: Option<[f32; 4]>| {
+                    Some(existing.map_or(viewport, |rect| intersect_rect(rect, viewport)))
+                };
+                let bound = |rect: [f32; 4]| {
+                    if rect[0] >= viewport[0]
+                        && rect[1] >= viewport[1]
+                        && rect[0] + rect[2] <= viewport[0] + viewport[2]
+                        && rect[1] + rect[3] <= viewport[1] + viewport[3]
+                    {
+                        // Keep fully visible geometry byte-for-byte stable:
+                        // subtracting absolute endpoints introduces rounding
+                        // changes when paging moves the same keyboard vertically.
+                        rect
+                    } else {
+                        intersect_rect(rect, viewport)
+                    }
+                };
+                for quad in quads[tool_quads_start..]
+                    .iter_mut()
+                    .chain(&mut text_quads[tool_text_start..])
+                {
+                    quad.clip_rect = clip(quad.clip_rect);
+                }
+                for glyph in &mut atlas_glyphs[tool_glyphs_start..] {
+                    glyph.clip_rect = clip(glyph.clip_rect);
+                }
+                for layout in text_sections[tool_sections_start..]
+                    .iter_mut()
+                    .flat_map(|section| &mut section.layouts)
+                {
+                    let bounded = bound(layout.bounds);
+                    layout.truncated |= bounded != layout.bounds;
+                    layout.bounds = bounded;
+                    for quad in &mut layout.quads {
+                        quad.clip_rect = clip(quad.clip_rect);
+                    }
+                    for glyph in &mut layout.atlas_glyphs {
+                        glyph.clip_rect = clip(glyph.clip_rect);
+                    }
+                }
+                let mut index = 0;
+                interactive_targets.retain_mut(|target| {
+                    let is_tool = index >= tool_targets_start;
+                    index += 1;
+                    if is_tool {
+                        target.rect = bound(target.rect);
+                    }
+                    !is_tool || (target.rect[2] > 0.0 && target.rect[3] > 0.0)
+                });
             }
         }
 

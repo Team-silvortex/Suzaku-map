@@ -124,6 +124,9 @@ impl PanelState {
     }
 
     pub(super) fn needs_periodic_frame(&self) -> bool {
+        if self.report_view.is_some() {
+            return false;
+        }
         self.voice_frame_active()
             || self.bottom_render_needs_retry()
             || self.chrome.voice_visual_phase != 0
@@ -132,6 +135,9 @@ impl PanelState {
     }
 
     pub(super) fn advance_periodic_frame(&mut self) {
+        if self.report_view.is_some() {
+            return;
+        }
         if self.voice_frame_active() {
             self.poll_voice_bridge();
         }
@@ -595,7 +601,9 @@ impl PanelState {
         snapshot: &Snapshot,
         include_overlays: bool,
     ) -> (RenderScene, Vec<crate::render::PanelOverlay>) {
-        self.poll_translation();
+        if self.report_view.is_none() {
+            self.poll_translation();
+        }
         use suzaku_map::ime::gpu::with_font_metrics;
         // The scene and floating hints must use one font revision. Learning a glyph
         // from an overlay (or switching languages/evicting the atlas) can change both.
@@ -604,10 +612,10 @@ impl PanelState {
             let (scene, overlays): (_, Vec<crate::render::PanelOverlay>) =
                 with_font_metrics(self.font_atlas.layout_metrics.clone(), || {
                     let scene = self.build_scene_with_snapshot(snapshot);
-                    let overlays = if include_overlays {
+                    let overlays = if include_overlays && self.report_view.is_none() {
                         self.build_hover_tooltip(&scene)
                             .into_iter()
-                            .chain(self.build_commit_feedback())
+                            .chain(self.build_commit_feedback(&scene))
                             .collect()
                     } else {
                         Vec::new()
@@ -631,6 +639,13 @@ impl PanelState {
     }
 
     fn build_scene_with_snapshot(&mut self, snapshot: &Snapshot) -> RenderScene {
+        if let Some(view) = self.report_view.as_mut() {
+            return view.scene(
+                &self.chrome,
+                self.size.width as f32,
+                self.size.height as f32,
+            );
+        }
         let scene = match self.kind {
             PanelWindowKind::Main => {
                 let mut chrome = self.chrome.clone();
@@ -818,7 +833,7 @@ impl PanelState {
         self.surface.configure(&self.device, &self.config);
         self.last_scene = None;
         self.constrain_expanded_window_position();
-        if self.kind == PanelWindowKind::Settings {
+        if self.kind == PanelWindowKind::Settings && self.report_view.is_none() {
             self.reveal_settings_focus();
         }
     }
@@ -835,6 +850,9 @@ impl PanelState {
         self.native.presented = None;
         self.last_scene = None;
         self.presented_pointer_scene = None;
+        if let Some(view) = self.report_view.as_mut() {
+            view.unpresent();
+        }
         if self.defer_bottom_render() {
             // An empty keyboard can gain a full candidate page in one event.
             // Do not present zero-height choices in the old viewport while
@@ -844,12 +862,19 @@ impl PanelState {
         }
         let snapshot = self.view_snapshot();
         let (scene, overlays) = self.current_frame_with_snapshot(&snapshot);
-        let next_window_title = match self.kind {
-            PanelWindowKind::Main => {
-                window_title(self.chrome.ui_language, self.chrome.compact_mode)
-            }
-            PanelWindowKind::Settings => {
-                format!("Suzaku · {}", self.chrome.ui_language.tr("Panel Settings"))
+        let next_window_title = if self.report_view.is_some() {
+            format!(
+                "Suzaku · {}",
+                self.chrome.ui_language.tr("Operation details")
+            )
+        } else {
+            match self.kind {
+                PanelWindowKind::Main => {
+                    window_title(self.chrome.ui_language, self.chrome.compact_mode)
+                }
+                PanelWindowKind::Settings => {
+                    format!("Suzaku · {}", self.chrome.ui_language.tr("Panel Settings"))
+                }
             }
         };
         if next_window_title != self.last_window_title {
@@ -1000,6 +1025,9 @@ impl PanelState {
 
         self.queue.submit([encoder.finish()]);
         output.present();
+        if let Some(view) = self.report_view.as_mut() {
+            view.presented();
+        }
         self.note_native_frame_presented();
         // Read-only QA observation belongs in explicitly enabled private fixture logs,
         // never in public window-manager metadata. Ordinary surface diagnostics omit text.
@@ -1107,6 +1135,9 @@ impl PanelState {
     pub(super) fn invalidate_pointer_scene(&mut self) {
         self.last_scene = None;
         self.presented_pointer_scene = None;
+        if let Some(view) = self.report_view.as_mut() {
+            view.invalidate();
+        }
         // A geometry acknowledgement must not terminate a drag that owns it.
         // Ordinary clicks, including touches, cannot survive a changed viewport.
         if !self.interaction.panel_dragging

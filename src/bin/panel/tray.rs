@@ -5,6 +5,8 @@ use winit::event_loop::EventLoopProxy;
 mod platform {
     use super::{EventLoopProxy, PanelUserEvent};
     use crate::input_method::{IBusBackend, InputMethodController, InputMethodState};
+    use crate::report_view::ReportSnapshot;
+    use crate::tray_data::{self, DataAction, DataReport};
     use ksni::blocking::{Handle, TrayMethods};
     use ksni::menu::{CheckmarkItem, StandardItem, SubMenu};
     use ksni::{Icon, MenuItem, ToolTip, Tray};
@@ -20,6 +22,7 @@ mod platform {
         self, NativeImeStatus, NativePreferenceClearState, NativePreferenceStatus,
         PreferenceClearFailure, PreferenceClearReceipt,
     };
+    use suzaku_map::prediction::PredictionError;
     use suzaku_map::ui::UiLanguage;
 
     const TRAY_ICON_SIZES: [i32; 4] = [22, 32, 48, 64];
@@ -50,36 +53,9 @@ mod platform {
         WarmModel(ModelProviderConfig),
         ModelReport(ModelProviderConfig, Result<String, String>),
         ManageData(DataAction),
-        DataReport(Result<String, String>),
+        DataReport(DataReport),
         Quit,
         Shutdown,
-    }
-
-    #[derive(Clone, Copy)]
-    enum DataAction {
-        Backup,
-        OpenIme,
-        OpenPanel,
-        OpenBackups,
-    }
-
-    fn manage_data(action: DataAction) -> Result<String, String> {
-        use suzaku_map::data::{backup, open_directory, paths::DataPaths};
-        let paths = DataPaths::current()?;
-        if matches!(action, DataAction::Backup) {
-            let path = backup::backup_now(&paths)?;
-            return Ok(format!(
-                "Backup saved: {} (see backup folder)",
-                path.file_name().unwrap_or_default().to_string_lossy()
-            ));
-        }
-        let path = match action {
-            DataAction::OpenIme => paths.ime.parent().ok_or("配置路径无效")?,
-            DataAction::OpenPanel => paths.panel.parent().ok_or("配置路径无效")?,
-            _ => &paths.backups,
-        };
-        open_directory(path)?;
-        Ok(format!("Opened: {}", path.display()))
     }
 
     #[derive(Default)]
@@ -187,7 +163,7 @@ mod platform {
             if let Some(error) = &preferences.error {
                 // message() intentionally preserves template payloads. Translate
                 // this program-owned inner message before localizing the menu.
-                format!("Candidate preferences: {}", ui.message(error))
+                format!("Candidate preferences: {}", ui.diagnostic(error))
             } else if preferences.pending {
                 "Candidate preferences: saving locally…".into()
             } else if preferences.memory_only {
@@ -265,6 +241,18 @@ mod platform {
             !self.busy && self.system.restore_engine.is_some()
         }
 
+        fn error_detail(&self) -> Option<&str> {
+            self.operation_error
+                .as_deref()
+                .or(self.status_error.as_deref())
+                .or(self.native_error.as_deref())
+        }
+
+        fn error_details_snapshot(&self) -> Option<ReportSnapshot> {
+            self.error_detail()
+                .map(|error| ReportSnapshot::InputMethodError(error.to_owned()))
+        }
+
         fn description(&self) -> String {
             if self.busy {
                 return "Updating input method…".into();
@@ -290,6 +278,22 @@ mod platform {
             }
         }
 
+        fn menu_description(&self, ui: UiLanguage) -> String {
+            if !self.busy
+                && let Some(error) = self
+                    .operation_error
+                    .as_deref()
+                    .or(self.status_error.as_deref())
+                    .or(self.native_error.as_deref())
+            {
+                // This canonical outer template is localized by the final menu
+                // pass; the inner diagnostic is translated at most once.
+                format!("Input method error: {}", ui.diagnostic(error))
+            } else {
+                self.description()
+            }
+        }
+
         fn release_label(&self) -> String {
             match self.system.restore_engine.as_deref() {
                 Some(_) if self.system.current_engine.is_some() && !self.system.active() => {
@@ -305,6 +309,13 @@ mod platform {
                 .as_deref()
                 .unwrap_or("Input service not ready; activation starts it automatically")
         }
+
+        fn menu_native_unavailable_hint(&self, ui: UiLanguage) -> String {
+            match self.native_error.as_deref() {
+                Some(error) => format!("Input method error: {}", ui.diagnostic(error)),
+                None => self.native_unavailable_hint().into(),
+            }
+        }
     }
 
     fn input_language_label(language: BuiltinLanguage, ui: UiLanguage) -> &'static str {
@@ -313,6 +324,70 @@ mod platform {
             BuiltinLanguage::ChineseSimplified => "Chinese · Pinyin",
             BuiltinLanguage::Japanese => "Japanese · Romaji",
         })
+    }
+
+    // Keep metadata messages in their canonical form until the menu is drawn.
+    // The CLI's RuntimeStatus::summary() remains independent of UI language, and
+    // a completed check can be redrawn in a new language without another request.
+    fn model_runtime_summary(status: &model_runtime::RuntimeStatus) -> String {
+        if !status.installed {
+            format!("Local model not found: {}", status.model)
+        } else {
+            let payload = format!("{} · {}", status.model, status.endpoint);
+            if status.loaded == Some(true) {
+                format!("Model loaded: {payload}")
+            } else {
+                // Unknown residency must not be presented as a loaded model.
+                format!("Local model available: {payload}")
+            }
+        }
+    }
+
+    fn model_check_error(error: &PredictionError) -> String {
+        let key = match error {
+            PredictionError::Cancelled => "Model check cancelled; local input remains available",
+            PredictionError::InvalidRequest => "Model check request invalid; check model settings",
+            PredictionError::UnsupportedProtocol => {
+                "Model protocol not supported; check model settings"
+            }
+            PredictionError::InvalidEndpoint => "Check the configured model and endpoint.",
+            PredictionError::Unavailable => {
+                "Local model or configured service unavailable. Check model settings."
+            }
+            PredictionError::Timeout => "Model check timed out; try again",
+            PredictionError::MissingCredentials => {
+                "Model authorization failed. Check the configured credentials."
+            }
+            PredictionError::HttpStatus(status @ (401 | 403)) => {
+                return format!(
+                    "Model authorization failed (HTTP {status}); check configured credentials"
+                );
+            }
+            PredictionError::HttpStatus(status @ 404) => {
+                return format!(
+                    "Model or endpoint not found (HTTP {status}); check model settings"
+                );
+            }
+            PredictionError::HttpStatus(status) => {
+                return format!("Model service returned HTTP {status}; check its status");
+            }
+            PredictionError::InvalidResponse => {
+                "Invalid model service response; local input remains available"
+            }
+            PredictionError::ResponseTooLarge => {
+                "Model service response too large; check model settings"
+            }
+            PredictionError::NoCandidates => {
+                "Model returned no usable result; local input remains available"
+            }
+            PredictionError::NoLocalModel => {
+                "No local model found; start a local service or select a model"
+            }
+            PredictionError::CloudConsentRequired => {
+                "Cloud access is not authorized. No text was sent."
+            }
+        };
+        key.into()
     }
 
     fn menu_label(text: &str) -> String {
@@ -377,7 +452,7 @@ mod platform {
         ui_language: UiLanguage,
         input_method: InputMethodMenuState,
         data_busy: bool,
-        data_report: Option<String>,
+        data_report: Option<DataReport>,
     }
 
     // Service lifetime must not depend on a desktop tray extension being installed.
@@ -402,6 +477,28 @@ mod platform {
                 live.shutdown().wait();
             }
         }
+    }
+
+    fn data_details_snapshot(report: Option<&DataReport>) -> Option<ReportSnapshot> {
+        report.cloned().map(ReportSnapshot::Data)
+    }
+
+    fn report_details_item<T>(
+        key: &'static str,
+        snapshot: Option<ReportSnapshot>,
+        send_event: impl Fn(&mut T, PanelUserEvent) + Send + 'static,
+    ) -> MenuItem<T> {
+        StandardItem {
+            label: key.into(),
+            enabled: snapshot.is_some(),
+            activate: Box::new(move |target| {
+                if let Some(snapshot) = &snapshot {
+                    send_event(target, PanelUserEvent::ShowReportDetails(snapshot.clone()));
+                }
+            }),
+            ..Default::default()
+        }
+        .into()
     }
 
     impl SuzakuTray {
@@ -439,7 +536,7 @@ mod platform {
                     .send(TrayControl::ManageData(action))
                     .is_ok();
                 if !self.data_busy {
-                    self.data_report = Some("Data manager unavailable".into());
+                    self.data_report = Some(DataReport::manager_unavailable());
                 }
             }
         }
@@ -475,7 +572,8 @@ mod platform {
                 title: self.title(),
                 description: format!(
                     "{}\n{}",
-                    self.ui_language.message(&self.input_method.description()),
+                    self.ui_language
+                        .message(&self.input_method.menu_description(self.ui_language)),
                     self.ui_language
                         .tr("Right-click for input options; left-click to show or hide")
                 ),
@@ -495,6 +593,15 @@ mod platform {
                     .as_ref()
                     .map(|state| &state.preferences),
             );
+            let data_summary = if self.data_busy {
+                self.ui_language.tr("Managing data…").to_owned()
+            } else if let Some(report) = &self.data_report {
+                report.render(self.ui_language)
+            } else {
+                self.ui_language
+                    .tr("Settings only; no input history or model weights")
+                    .to_owned()
+            };
             let mut menu = vec![
                 CheckmarkItem {
                     label: "Activate Suzaku".into(),
@@ -521,11 +628,16 @@ mod platform {
                 }
                 .into(),
                 StandardItem {
-                    label: self.input_method.description(),
+                    label: self.input_method.menu_description(self.ui_language),
                     enabled: false,
                     ..Default::default()
                 }
                 .into(),
+                report_details_item(
+                    "Input method error details",
+                    self.input_method.error_details_snapshot(),
+                    |tray: &mut Self, event| tray.send(event),
+                ),
                 MenuItem::Separator,
                 SubMenu {
                     label: self
@@ -599,9 +711,15 @@ mod platform {
                         .map(|state| match state.prediction.as_str() {
                             "Pending" => "Generating; local candidates remain available".into(),
                             "Ready" => "Model candidates ready (marked AI)".into(),
-                            "Unavailable" => state.prediction_error.clone().unwrap_or_else(|| {
-                                "Model unavailable; local candidates retained".into()
-                            }),
+                            "Unavailable" => state.prediction_error.as_deref().map_or_else(
+                                || "Model unavailable; local candidates retained".into(),
+                                |error| {
+                                    format!(
+                                        "Model diagnostic: {}",
+                                        self.ui_language.diagnostic(error)
+                                    )
+                                },
+                            ),
                             _ if state.settings.llm_enabled => {
                                 if state.settings.provider.scope == ModelScope::Cloud
                                     && !state.settings.provider.cloud_consent
@@ -613,7 +731,10 @@ mod platform {
                             }
                             _ => "Using local candidates; no model request".into(),
                         })
-                        .unwrap_or_else(|| self.input_method.native_unavailable_hint().into()),
+                        .unwrap_or_else(|| {
+                            self.input_method
+                                .menu_native_unavailable_hint(self.ui_language)
+                        }),
                     enabled: false,
                     ..Default::default()
                 }
@@ -692,7 +813,9 @@ mod platform {
                 }
                 .into(),
                 StandardItem {
-                    label: preference_detail.unwrap_or_default().into(),
+                    label: preference_detail.map_or_else(String::new, |error| {
+                        format!("Preference details: {}", self.ui_language.diagnostic(error))
+                    }),
                     visible: preference_detail.is_some(),
                     enabled: false,
                     ..Default::default()
@@ -786,18 +909,18 @@ mod platform {
                     label: "Data management".into(),
                     submenu: vec![
                         StandardItem {
-                            label: if self.data_busy {
-                                "Managing data…"
-                            } else {
-                                self.data_report
-                                    .as_deref()
-                                    .unwrap_or("Settings only; no input history or model weights")
-                            }
-                            .into(),
+                            // Filled after generic menu localization; a typed
+                            // report's raw detail must never be parsed twice.
+                            label: String::new(),
                             enabled: false,
                             ..Default::default()
                         }
                         .into(),
+                        report_details_item(
+                            "View last data operation",
+                            data_details_snapshot(self.data_report.as_ref()),
+                            |tray: &mut Self, event| tray.send(event),
+                        ),
                         StandardItem {
                             label: "Back up settings now".into(),
                             enabled: !self.data_busy,
@@ -856,7 +979,7 @@ mod platform {
                 }
                 .into(),
             ];
-            localize_menu(&mut menu, self.ui_language);
+            localize_menu_with_data_report(&mut menu, self.ui_language, &data_summary);
             menu
         }
     }
@@ -876,6 +999,30 @@ mod platform {
                 _ => continue,
             };
             *label = menu_label(&language.message(label));
+        }
+    }
+
+    fn localize_menu_with_data_report<T>(
+        menu: &mut [MenuItem<T>],
+        language: UiLanguage,
+        data_summary: &str,
+    ) {
+        for item in menu {
+            // This is the program-owned submenu identifier, never a report,
+            // user path or translated label. Its first row is the typed report.
+            if let MenuItem::SubMenu(submenu) = item
+                && submenu.label == "Data management"
+            {
+                let (status, actions) = submenu.submenu.split_first_mut().expect("data status row");
+                let MenuItem::Standard(status) = status else {
+                    unreachable!("data status is a standard row")
+                };
+                status.label = menu_label(data_summary);
+                localize_menu(actions, language);
+                submenu.label = menu_label(language.tr("Data management"));
+            } else {
+                localize_menu(std::slice::from_mut(item), language);
+            }
         }
     }
 
@@ -1018,9 +1165,9 @@ mod platform {
                                         })
                                     } else {
                                         model_runtime::inspect(&config)
-                                            .map(|status| status.summary())
+                                            .map(|status| model_runtime_summary(&status))
                                     }
-                                    .map_err(|error| error.to_string());
+                                    .map_err(|error| model_check_error(&error));
                                     let _ =
                                         report_tx.send(TrayControl::ModelReport(config, result));
                                 });
@@ -1040,25 +1187,22 @@ mod platform {
                             if thread::Builder::new()
                                 .name("suzaku-data".into())
                                 .spawn(move || {
-                                    let result = std::panic::catch_unwind(|| manage_data(action))
-                                        .unwrap_or_else(|_| {
-                                            Err("Data operation failed; please retry".into())
-                                        });
+                                    let result = std::panic::catch_unwind(|| tray_data::run(action))
+                                        .unwrap_or_else(|_| DataReport::worker_panicked());
                                     let _ = report_tx.send(TrayControl::DataReport(result));
                                 })
                                 .is_err()
                             {
                                 let _ = handle.update(|tray| {
                                     tray.data_busy = false;
-                                    tray.data_report =
-                                        Some("Could not start data operation".into());
+                                    tray.data_report = Some(DataReport::worker_start_failed());
                                 });
                             }
                         }
                         TrayControl::DataReport(result) => {
                             let _ = handle.update(|tray| {
                                 tray.data_busy = false;
-                                tray.data_report = Some(result.unwrap_or_else(|error| error));
+                                tray.data_report = Some(result);
                             });
                         }
                         TrayControl::ActivateInputMethod
@@ -1290,6 +1434,185 @@ mod platform {
         }
 
         #[test]
+        fn input_error_details_use_only_current_errors_in_display_priority_order() {
+            use super::*;
+            let raw = format!(
+                "Font: Settings\n{} / raw_日_ß:{{}}",
+                "long_error_".repeat(30)
+            );
+            let mut state = InputMethodMenuState::default();
+            state.system.current_engine = Some(raw.clone());
+            assert!(state.error_details_snapshot().is_none());
+            state.busy = true;
+            assert!(state.error_details_snapshot().is_none());
+            state.native_error = Some(format!("native: {raw}"));
+            state.status_error = Some(format!("status: {raw}"));
+            state.operation_error = Some(format!("operation: {raw}"));
+            for expected in ["operation", "status", "native"] {
+                let expected = format!("{expected}: {raw}");
+                assert_eq!(state.error_detail(), Some(expected.as_str()));
+                assert_eq!(
+                    state.error_details_snapshot(),
+                    Some(ReportSnapshot::InputMethodError(expected))
+                );
+                if state.operation_error.is_some() {
+                    state.operation_error = None;
+                } else if state.status_error.is_some() {
+                    state.status_error = None;
+                } else {
+                    state.native_error = None;
+                }
+            }
+            assert!(state.error_details_snapshot().is_none());
+            state.busy = false;
+            assert!(state.error_details_snapshot().is_none());
+            assert_eq!(state.system.current_engine, Some(raw));
+        }
+
+        #[test]
+        fn detail_actions_localize_labels_but_send_identical_raw_snapshots_in_eight_languages() {
+            use super::*;
+            use crate::tray_data::DataFailure;
+            let raw = format!(
+                "Font: Settings\n{}\nraw_日_ß:{{}} / Permission denied (os error 13)",
+                "a_very_long_user_path_".repeat(20)
+            );
+            for (key, snapshot) in [
+                (
+                    "Input method error details",
+                    ReportSnapshot::InputMethodError(raw.clone()),
+                ),
+                (
+                    "View last data operation",
+                    ReportSnapshot::Data(DataReport::Failed(DataFailure::Backup(raw.clone()))),
+                ),
+            ] {
+                for ui in UiLanguage::ALL
+                    .into_iter()
+                    .filter(|ui| *ui != UiLanguage::System)
+                {
+                    let mut menu = vec![report_details_item(
+                        key,
+                        Some(snapshot.clone()),
+                        |events: &mut Vec<PanelUserEvent>, event| events.push(event),
+                    )];
+                    localize_menu(&mut menu, ui);
+                    let MenuItem::Standard(item) = &menu[0] else {
+                        panic!("details action")
+                    };
+                    assert!(item.enabled);
+                    assert_eq!(item.label, menu_label(ui.tr(key)), "{ui:?} / {key}");
+                    if ui != UiLanguage::English {
+                        assert_ne!(ui.tr(key), key, "missing {ui:?}: {key}");
+                    }
+                    let mut events = Vec::new();
+                    (item.activate)(&mut events);
+                    assert_eq!(
+                        events,
+                        [PanelUserEvent::ShowReportDetails(snapshot.clone())],
+                        "labels cannot translate or truncate report parameters: {ui:?} / {key}"
+                    );
+                }
+            }
+        }
+
+        #[test]
+        fn last_data_details_are_available_while_busy_without_starting_another_operation() {
+            use super::*;
+            use crate::tray_data::DataFailure;
+            for busy in [false, true] {
+                for old_report in [
+                    None,
+                    Some(DataReport::Failed(DataFailure::Backup(
+                        "Font: Settings\nraw_日_ß:{}".into(),
+                    ))),
+                ] {
+                    let source = old_report.clone();
+                    let item = report_details_item(
+                        "View last data operation",
+                        data_details_snapshot(old_report.as_ref()),
+                        |events: &mut Vec<PanelUserEvent>, event| events.push(event),
+                    );
+                    let MenuItem::Standard(item) = item else {
+                        panic!("data details action")
+                    };
+                    assert_eq!(item.enabled, source.is_some(), "busy={busy}");
+                    let mut events = Vec::new();
+                    (item.activate)(&mut events);
+                    assert_eq!(
+                        events,
+                        source
+                            .clone()
+                            .map(ReportSnapshot::Data)
+                            .map(PanelUserEvent::ShowReportDetails)
+                            .into_iter()
+                            .collect::<Vec<_>>(),
+                        "viewing the old report must be independent of busy={busy}"
+                    );
+                    assert_eq!(old_report, source);
+                }
+            }
+        }
+
+        #[test]
+        fn bounded_data_summary_keeps_an_unmodified_full_details_snapshot() {
+            use super::*;
+            use crate::tray_data::DataFailure;
+            let raw = format!(
+                "Font: Settings\n{} / final_reason_日_ß:{{}}",
+                "long_path_".repeat(40)
+            );
+            let report = DataReport::Failed(DataFailure::OpenFolder(raw));
+            for ui in UiLanguage::ALL
+                .into_iter()
+                .filter(|ui| *ui != UiLanguage::System)
+            {
+                let summary = report.render(ui);
+                assert!(summary.chars().count() > 72);
+                let mut menu = vec![
+                    SubMenu {
+                        label: "Data management".into(),
+                        submenu: vec![
+                            StandardItem {
+                                label: String::new(),
+                                enabled: false,
+                                ..Default::default()
+                            }
+                            .into(),
+                            report_details_item(
+                                "View last data operation",
+                                data_details_snapshot(Some(&report)),
+                                |events: &mut Vec<PanelUserEvent>, event| events.push(event),
+                            ),
+                        ],
+                        ..Default::default()
+                    }
+                    .into(),
+                ];
+                localize_menu_with_data_report(&mut menu, ui, &summary);
+                let MenuItem::SubMenu(data) = &menu[0] else {
+                    panic!("data menu")
+                };
+                let MenuItem::Standard(status) = &data.submenu[0] else {
+                    panic!("data status")
+                };
+                assert_eq!(status.label, menu_label(&summary));
+                assert!(status.label.ends_with('…'));
+                let MenuItem::Standard(details) = &data.submenu[1] else {
+                    panic!("data details")
+                };
+                let mut events = Vec::new();
+                (details.activate)(&mut events);
+                assert_eq!(
+                    events,
+                    [PanelUserEvent::ShowReportDetails(ReportSnapshot::Data(
+                        report.clone()
+                    ))]
+                );
+            }
+        }
+
+        #[test]
         fn preference_refresh_confirms_only_the_original_clear_and_preserves_other_errors() {
             use super::*;
             for terminal in [
@@ -1471,6 +1794,118 @@ mod platform {
                 feedback.label(Some(&native.preferences), UiLanguage::English),
                 "Candidate preferences: clearing…"
             );
+        }
+
+        #[test]
+        fn input_errors_use_diagnostic_boundaries_without_reinterpreting_external_labels() {
+            use super::*;
+            for ui in UiLanguage::ALL
+                .into_iter()
+                .filter(|ui| *ui != UiLanguage::System)
+            {
+                for raw in [
+                    "无法读取 IBus 状态，请重试",
+                    "Cannot read IBus status; retry",
+                    "Font: Settings",
+                    "Settings",
+                    "raw_日_ß:{}\nFont: custom settings",
+                ] {
+                    for which in 0..3 {
+                        let mut state = InputMethodMenuState::default();
+                        match which {
+                            0 => state.operation_error = Some(raw.into()),
+                            1 => state.status_error = Some(raw.into()),
+                            _ => state.native_error = Some(raw.into()),
+                        }
+                        let label = state.menu_description(ui);
+                        let expected = ui
+                            .tr("Input method error: {}")
+                            .replace("{}", &ui.diagnostic(raw));
+                        assert_eq!(ui.message(&label), expected);
+                        assert_eq!(state.description(), raw, "stored diagnosis stays unchanged");
+                        let mut menu: Vec<MenuItem<()>> = vec![
+                            StandardItem {
+                                label,
+                                enabled: false,
+                                ..Default::default()
+                            }
+                            .into(),
+                        ];
+                        localize_menu(&mut menu, ui);
+                        let MenuItem::Standard(item) = &menu[0] else {
+                            panic!("error row")
+                        };
+                        assert_eq!(item.label, menu_label(&expected));
+                    }
+                }
+            }
+        }
+
+        #[test]
+        fn typed_data_reports_are_localized_once_without_changing_nested_parameters() {
+            use super::*;
+            use crate::tray_data::DataFailure;
+            for raw in [
+                "Font: custom settings",
+                "Settings",
+                "Could not open data folder: Font: Settings",
+                "raw_日_ß:{}\nFont: custom settings",
+            ] {
+                let report = DataReport::Failed(DataFailure::OpenFolder(raw.into()));
+                let before = report.clone();
+                for ui in UiLanguage::ALL
+                    .into_iter()
+                    .filter(|ui| *ui != UiLanguage::System)
+                {
+                    let label = report.render(ui);
+                    let mut menu: Vec<MenuItem<()>> = vec![
+                        StandardItem {
+                            label: "Settings".into(),
+                            ..Default::default()
+                        }
+                        .into(),
+                        SubMenu {
+                            label: "Data management".into(),
+                            submenu: vec![
+                                StandardItem {
+                                    label: String::new(),
+                                    enabled: false,
+                                    ..Default::default()
+                                }
+                                .into(),
+                                StandardItem {
+                                    label: "Back up settings now".into(),
+                                    ..Default::default()
+                                }
+                                .into(),
+                            ],
+                            ..Default::default()
+                        }
+                        .into(),
+                    ];
+                    localize_menu_with_data_report(&mut menu, ui, &label);
+                    let MenuItem::Standard(settings) = &menu[0] else {
+                        panic!("settings")
+                    };
+                    assert_eq!(settings.label, menu_label(ui.tr("Settings")));
+                    let MenuItem::SubMenu(data) = &menu[1] else {
+                        panic!("data menu")
+                    };
+                    assert_eq!(data.label, menu_label(ui.tr("Data management")));
+                    let MenuItem::Standard(summary) = &data.submenu[0] else {
+                        panic!("summary")
+                    };
+                    assert_eq!(summary.label, menu_label(&label));
+                    let MenuItem::Standard(backup) = &data.submenu[1] else {
+                        panic!("backup")
+                    };
+                    assert_eq!(backup.label, menu_label(ui.tr("Back up settings now")));
+                    assert_eq!(
+                        report, before,
+                        "rendering must not repeat or mutate the data operation"
+                    );
+                }
+            }
         }
 
         #[test]
@@ -1785,6 +2220,231 @@ mod platform {
             let label = menu_label(&"错".repeat(100));
             assert_eq!(label.chars().count(), 73);
             assert!(label.ends_with('…'));
+        }
+
+        #[test]
+        fn model_check_status_localizes_all_states_without_translating_metadata() {
+            use super::*;
+            let model = "Settings";
+            let endpoint = "http://x_y/Font";
+            for (installed, loaded, key) in [
+                (false, None, "Local model not found: {}"),
+                (false, Some(true), "Local model not found: {}"),
+                (true, None, "Local model available: {}"),
+                (true, Some(false), "Local model available: {}"),
+                (true, Some(true), "Model loaded: {}"),
+            ] {
+                let status = model_runtime::RuntimeStatus {
+                    endpoint: endpoint.into(),
+                    model: model.into(),
+                    installed,
+                    loaded,
+                    models: vec![],
+                };
+                let before = status.clone();
+                let raw = model_runtime_summary(&status);
+                let payload = if installed {
+                    format!("{model} · {endpoint}")
+                } else {
+                    model.into()
+                };
+                assert_eq!(raw, key.replace("{}", &payload));
+                for language in UiLanguage::ALL
+                    .into_iter()
+                    .filter(|language| *language != UiLanguage::System)
+                {
+                    assert_eq!(
+                        language.message(&raw),
+                        language.tr(key).replace("{}", &payload),
+                        "{language:?} {key}"
+                    );
+                    if language != UiLanguage::English {
+                        assert_ne!(language.tr(key), key, "missing translation: {key}");
+                    }
+                }
+                assert_eq!(status, before, "presentation must not change metadata");
+                assert_eq!(
+                    status.summary(),
+                    if !installed {
+                        format!("未找到本机模型：{model}")
+                    } else if loaded == Some(true) {
+                        format!("模型已加载：{model} · {endpoint}")
+                    } else {
+                        format!("本机模型可用：{model} · {endpoint}")
+                    },
+                    "CLI summary stays independent of the UI presentation"
+                );
+            }
+        }
+
+        #[test]
+        fn model_check_failures_are_typed_localizable_and_retain_http_status() {
+            use super::*;
+            for (error, key, payload) in [
+                (
+                    PredictionError::Cancelled,
+                    "Model check cancelled; local input remains available",
+                    "",
+                ),
+                (
+                    PredictionError::InvalidRequest,
+                    "Model check request invalid; check model settings",
+                    "",
+                ),
+                (
+                    PredictionError::UnsupportedProtocol,
+                    "Model protocol not supported; check model settings",
+                    "",
+                ),
+                (
+                    PredictionError::InvalidEndpoint,
+                    "Check the configured model and endpoint.",
+                    "",
+                ),
+                (
+                    PredictionError::Unavailable,
+                    "Local model or configured service unavailable. Check model settings.",
+                    "",
+                ),
+                (
+                    PredictionError::Timeout,
+                    "Model check timed out; try again",
+                    "",
+                ),
+                (
+                    PredictionError::HttpStatus(401),
+                    "Model authorization failed (HTTP {}); check configured credentials",
+                    "401",
+                ),
+                (
+                    PredictionError::HttpStatus(403),
+                    "Model authorization failed (HTTP {}); check configured credentials",
+                    "403",
+                ),
+                (
+                    PredictionError::HttpStatus(404),
+                    "Model or endpoint not found (HTTP {}); check model settings",
+                    "404",
+                ),
+                (
+                    PredictionError::HttpStatus(429),
+                    "Model service returned HTTP {}; check its status",
+                    "429",
+                ),
+                (
+                    PredictionError::HttpStatus(503),
+                    "Model service returned HTTP {}; check its status",
+                    "503",
+                ),
+                (
+                    PredictionError::InvalidResponse,
+                    "Invalid model service response; local input remains available",
+                    "",
+                ),
+                (
+                    PredictionError::ResponseTooLarge,
+                    "Model service response too large; check model settings",
+                    "",
+                ),
+                (
+                    PredictionError::NoCandidates,
+                    "Model returned no usable result; local input remains available",
+                    "",
+                ),
+                (
+                    PredictionError::NoLocalModel,
+                    "No local model found; start a local service or select a model",
+                    "",
+                ),
+                (
+                    PredictionError::CloudConsentRequired,
+                    "Cloud access is not authorized. No text was sent.",
+                    "",
+                ),
+                (
+                    PredictionError::MissingCredentials,
+                    "Model authorization failed. Check the configured credentials.",
+                    "",
+                ),
+            ] {
+                let before = error.clone();
+                let raw = model_check_error(&error);
+                assert_eq!(raw, key.replace("{}", payload));
+                for language in UiLanguage::ALL
+                    .into_iter()
+                    .filter(|language| *language != UiLanguage::System)
+                {
+                    assert_eq!(
+                        language.message(&raw),
+                        language.tr(key).replace("{}", payload),
+                        "{language:?} {error:?}"
+                    );
+                    if language != UiLanguage::English {
+                        assert_ne!(language.tr(key), key, "missing translation: {key}");
+                    }
+                }
+                assert_eq!(error, before);
+            }
+        }
+
+        #[test]
+        fn completed_model_check_redraws_in_new_language_and_bounds_metadata_once() {
+            use super::*;
+            let status = model_runtime::RuntimeStatus {
+                endpoint: "http://127.0.0.1:11434/api/chat".into(),
+                model: "Font: Settings_model_字体_".repeat(12),
+                installed: true,
+                loaded: Some(true),
+                models: vec![],
+            };
+            let raw = model_runtime_summary(&status);
+            let config = ModelProviderConfig::default();
+            let state = InputMethodMenuState {
+                model_status: Some((config.clone(), raw.clone())),
+                ..Default::default()
+            };
+            let (control_tx, control_rx) = mpsc::channel();
+            let mut tray = SystemTray {
+                control_tx,
+                worker: None,
+                theme: ThemePreset::Suzaku,
+                ui_language: UiLanguage::English,
+                has_icon: true,
+            };
+            for language in [
+                UiLanguage::Japanese,
+                UiLanguage::German,
+                UiLanguage::English,
+            ] {
+                tray.set_ui_language(language);
+                assert!(matches!(
+                    control_rx.try_recv(),
+                    Ok(TrayControl::SetUiLanguage(actual)) if actual == language
+                ));
+                assert!(control_rx.try_recv().is_err(), "no repeat model request");
+                let (stored_config, stored) = state.model_status.as_ref().unwrap();
+                assert_eq!(stored_config, &config);
+                assert_eq!(
+                    stored, &raw,
+                    "a language switch must not rewrite the report"
+                );
+                let payload = format!("{} · {}", status.model, status.endpoint);
+                let expected = menu_label(&language.tr("Model loaded: {}").replace("{}", &payload));
+                let mut menu: Vec<MenuItem<()>> = vec![
+                    StandardItem {
+                        label: stored.clone(),
+                        enabled: false,
+                        ..Default::default()
+                    }
+                    .into(),
+                ];
+                localize_menu(&mut menu, language);
+                let MenuItem::Standard(item) = &menu[0] else {
+                    panic!("model report retained")
+                };
+                assert_eq!(item.label, expected);
+                assert!(!item.enabled);
+            }
         }
 
         #[test]

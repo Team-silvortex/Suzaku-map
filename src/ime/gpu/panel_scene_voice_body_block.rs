@@ -1,5 +1,6 @@
 {
-                    let voice_scale = (drawer_rect[3] / (230.0 * responsive_scale)).clamp(0.76, 1.0);
+                    let header = super::theme_metrics::ToolHeaderLayout::new(chrome, panel_width, responsive_scale);
+                    let voice_scale = ((drawer_rect[3] - header.extra_height).max(0.0) / (230.0 * responsive_scale)).clamp(0.76, 1.0);
                     let voice_button_label_px = (helper_px * 0.84).max(1.85 * responsive_scale) * voice_scale;
                     let voice_content_x_pad = 8.6 * responsive_scale * voice_scale;
                     let voice_y = drawer_rect[1] + 10.5 * responsive_scale * voice_scale;
@@ -11,7 +12,7 @@
                     ];
                     let voice_content_x = voice_rect[0] + voice_content_x_pad;
                     let voice_header_y = voice_y + 8.0 * responsive_scale * voice_scale;
-                    let voice_transcript_y = voice_y + 28.0 * responsive_scale * voice_scale;
+                    let voice_transcript_y = voice_y + 28.0 * responsive_scale * voice_scale + header.extra_height;
                     let voice_transcript_bottom = (voice_rect[1] + voice_rect[3])
                         - (20.0 * responsive_scale * voice_scale);
                     let voice_transcript_room = voice_transcript_bottom - voice_transcript_y;
@@ -44,35 +45,15 @@
                         chrome.voice_transcript.clone()
                     };
                     let transcript = if chrome.voice_transcript.is_empty() { ui.message(&transcript).into_owned() } else { transcript };
-                    let status_text = voice_status_text(
-                        chrome.voice_state,
-                        chrome.voice_permission,
-                        !chrome.voice_transcript.is_empty(),
-                        &chrome.voice_backend_label,
-                    );
-                    let status_text = ui.message(&status_text).into_owned();
-                    let live_hint = if chrome.voice_state == VoiceCaptureState::Listening {
-                        if chrome.voice_transcript.is_empty() {
-                            "Listening now..."
-                        } else {
-                            "Heard just now"
-                        }
-                    } else if !chrome.voice_transcript.is_empty() {
-                        "Ready to insert"
-                    } else {
-                        ""
-                    };
-                    let live_hint_x = if live_hint.is_empty() {
-                        drawer_rect[0] + drawer_rect[2] - 120.0 * responsive_scale * voice_scale
-                    } else {
-                        drawer_rect[0] + drawer_rect[2] - 116.0 * responsive_scale * voice_scale
-                    };
-                    if !live_hint.is_empty() {
+                    let show_live_hint = chrome.voice_state == VoiceCaptureState::Listening
+                        || !chrome.voice_transcript.is_empty();
+                    let live_hint_x = voice_content_x + header.status_rect[0];
+                    if show_live_hint {
                         let hint_rect = [
                             live_hint_x,
-                            voice_y + 7.0 * responsive_scale * voice_scale,
-                            112.0 * responsive_scale * voice_scale,
-                            17.0 * responsive_scale * voice_scale,
+                            voice_header_y + header.status_rect[1],
+                            header.status_rect[2],
+                            header.status_rect[3],
                         ];
                         append_soft_card_quads(
                             &mut quads,
@@ -92,7 +73,7 @@
                             7.0 * responsive_scale * voice_scale,
                         );
                     }
-                    if chrome.voice_state == VoiceCaptureState::Listening {
+                    if chrome.voice_state == VoiceCaptureState::Listening && header.status_rect[1] == 0.0 {
                         let base_x =
                             drawer_rect[0] + drawer_rect[2] - 128.0 * responsive_scale * voice_scale;
                         let base_y = voice_y + 30.0 * responsive_scale * voice_scale;
@@ -115,17 +96,12 @@
                     let voice_layouts = vec![
                         TextBlock {
                             text: ui.tr("Voice input").to_string(),
-                            origin: [voice_content_x, voice_header_y],
-                            max_width: drawer_rect[2]
-                                - if live_hint.is_empty() {
-                                    26.0 * responsive_scale * voice_scale
-                                } else {
-                                    138.0 * responsive_scale * voice_scale
-                                },
-                            pixel_size: title_px * voice_scale,
-                            letter_spacing: ui_tracking * voice_scale,
-                            line_gap: base_line_gap * voice_scale,
-                            max_lines: 1,
+                            origin: [0.0; 2],
+                            max_width: header.title_rect[2],
+                            pixel_size: header.title_px,
+                            letter_spacing: header.title_tracking,
+                            line_gap: header.line_gap,
+                            max_lines: 4,
                             color: if chrome.voice_state == VoiceCaptureState::Listening {
                                 accent
                             } else if matches!(
@@ -139,22 +115,18 @@
                             align: TextAlign::Left,
                             role: TextRole::VoiceLabel,
                         }
-                        .layout(),
+                        .layout_in_rect([
+                            voice_content_x + header.title_rect[0], voice_header_y + header.title_rect[1],
+                            header.title_rect[2], header.title_rect[3],
+                        ], [0.0; 2]),
                         TextBlock {
-                            text: if live_hint.is_empty() {
-                                status_text
-                            } else {
-                                ui.tr(live_hint).to_string()
-                            },
-                            origin: [
-                                live_hint_x,
-                                voice_header_y + 1.0 * responsive_scale * voice_scale,
-                            ],
-                            max_width: 110.0 * responsive_scale * voice_scale,
-                            pixel_size: helper_px * voice_scale,
-                            letter_spacing: ui_tracking * voice_scale,
-                            line_gap: base_line_gap * voice_scale,
-                            max_lines: 1,
+                            text: header.status.clone(),
+                            origin: [0.0; 2],
+                            max_width: header.status_rect[2],
+                            pixel_size: header.status_px,
+                            letter_spacing: header.status_tracking,
+                            line_gap: header.line_gap,
+                            max_lines: 4,
                             color: if chrome.voice_state == VoiceCaptureState::Listening {
                                 voice_success_text
                             } else if matches!(
@@ -168,7 +140,10 @@
                             align: TextAlign::Center,
                             role: TextRole::VoiceLabel,
                         }
-                        .layout(),
+                        .layout_in_rect([
+                            live_hint_x, voice_header_y + header.status_rect[1],
+                            header.status_rect[2], header.status_rect[3],
+                        ], [0.0; 2]),
                         TextBlock {
                             text: transcript,
                             origin: [voice_content_x, voice_transcript_y],

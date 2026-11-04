@@ -34,11 +34,7 @@ impl WgpuCandidateRenderer {
         };
         let ui_tracking = tracking * 0.16 - 0.02 * ui_scale;
         let heading_tracking = tracking * 0.10 - 0.01 * ui_scale;
-        let label_px = match chrome.text_scale {
-            DisplayTextScale::Small => 2.2,
-            DisplayTextScale::Medium => 2.45,
-            DisplayTextScale::Large => 3.12,
-        } * ui_scale;
+        let label_px = chrome.text_scale.label_pixel_size() * ui_scale;
         let base_line_gap = if chrome.candidate_density == CandidateDensity::Compact {
             5.2 * ui_scale
         } else {

@@ -119,7 +119,7 @@ impl<B: InputMethodBackend> InputMethodController<B> {
             let previous = self
                 .last_non_suzaku
                 .clone()
-                .ok_or("无法确认可恢复的原输入法；请先从系统菜单切换其他输入法，再退出 Suzaku")?;
+                .ok_or("No previous input method is known; switch using the system input menu before quitting Suzaku")?;
             self.state.restore_engine = Some(previous);
             self.release()?;
         }
@@ -127,7 +127,7 @@ impl<B: InputMethodBackend> InputMethodController<B> {
             .state
             .current_engine
             .clone()
-            .ok_or("无法确认安全回退，已保留输入法服务")?;
+            .ok_or("Cannot confirm a safe fallback; the input service was kept running")?;
         // A stop can complete even if its acknowledgement or subsequent engine
         // restoration fails. Retain the observed fallback across Quit retries.
         self.shutdown_restore_engine = Some(previous);
@@ -165,7 +165,7 @@ impl<B: InputMethodBackend> InputMethodController<B> {
         // Retain restore_engine on every uncertain/failed switch, so release can retry.
         switched?;
         refreshed?;
-        Err("系统未完成输入法切换，请重试；原输入法已保留".into())
+        Err("Input method did not switch; retry (previous input method retained)".into())
     }
 }
 
@@ -177,7 +177,7 @@ fn validate_engine(engine: String) -> Result<String, String> {
         || engine.chars().any(char::is_whitespace)
         || engine.chars().any(char::is_control)
     {
-        Err("无法确认当前输入法，未改动系统输入设置".into())
+        Err("Cannot identify the current input method; system settings were not changed".into())
     } else {
         Ok(engine)
     }
@@ -223,19 +223,23 @@ fn run_ibus(args: &[&str]) -> Result<String, String> {
     command.arg("engine").args(args);
     let output = run_bounded(&mut command, COMMAND_TIMEOUT)?;
     if !output.status.success() {
-        return Err("IBus 操作失败，请确认桌面输入法服务正在运行".into());
+        return Err(
+            "IBus operation failed; check that the desktop input service is running".into(),
+        );
     }
     String::from_utf8(output.stdout)
         .map(|text| text.trim().to_string())
-        .map_err(|_| "IBus 返回了无法识别的输入法名称".into())
+        .map_err(|_| "IBus returned an invalid input method name".into())
 }
 
 fn run_bounded(command: &mut Command, timeout: Duration) -> Result<Output, String> {
     suzaku_map::platform::linux_command::run(command, timeout).map_err(|error| match error.kind() {
-        std::io::ErrorKind::TimedOut => "输入法切换超时，请重试；原输入法已保留".into(),
-        std::io::ErrorKind::NotFound => "无法启动 ibus 命令，请确认 IBus 已安装".into(),
-        std::io::ErrorKind::InvalidData => "IBus 返回数据过大，已停止请求".into(),
-        _ => "无法读取 IBus 状态，请重试".into(),
+        std::io::ErrorKind::TimedOut => {
+            "Input method switch timed out; retry (previous input method retained)".into()
+        }
+        std::io::ErrorKind::NotFound => "Cannot start ibus; check that IBus is installed".into(),
+        std::io::ErrorKind::InvalidData => "IBus response too large; request stopped".into(),
+        _ => "Cannot read IBus status; retry".into(),
     })
 }
 
@@ -385,7 +389,10 @@ mod tests {
             ..Default::default()
         });
         unknown.start().unwrap();
-        assert!(unknown.shutdown().unwrap_err().contains("系统菜单"));
+        assert_eq!(
+            unknown.shutdown().unwrap_err(),
+            "No previous input method is known; switch using the system input menu before quitting Suzaku"
+        );
         assert!(unknown.backend.managed);
         assert!(unknown.backend.switches.is_empty());
     }
@@ -510,7 +517,7 @@ mod tests {
 
     #[test]
     fn activation_restores_the_actual_previous_engine() {
-        for previous in ["rime", "mozc-jp", "xkb:us::eng"] {
+        for previous in ["rime", "mozc-jp", "xkb:us::eng", "engine_日_ß:{}"] {
             let mut control = InputMethodController::new(FakeBackend {
                 current: previous.into(),
                 ..Default::default()
@@ -583,7 +590,10 @@ mod tests {
                 current: current.into(),
                 ..Default::default()
             });
-            assert!(control.activate().is_err());
+            assert_eq!(
+                control.activate().unwrap_err(),
+                "Cannot identify the current input method; system settings were not changed"
+            );
             assert!(control.backend.switches.is_empty());
         }
     }
@@ -593,7 +603,7 @@ mod tests {
         let mut control = InputMethodController::new(FakeBackend::default());
         control.activate().unwrap();
         control.backend.switch_fails = true;
-        assert!(control.release().is_err());
+        assert_eq!(control.release().unwrap_err(), "switch failed");
         assert_eq!(control.state.restore_engine.as_deref(), Some("rime"));
         control.backend.switch_fails = false;
         control.release().unwrap();
@@ -605,7 +615,7 @@ mod tests {
         let mut control = InputMethodController::new(FakeBackend::default());
         control.activate().unwrap();
         control.backend.read_fails = true;
-        assert!(control.release().is_err());
+        assert_eq!(control.release().unwrap_err(), "read failed");
         assert_eq!(control.state.restore_engine.as_deref(), Some("rime"));
         assert_eq!(control.state.current_engine, None);
         assert_eq!(control.backend.switches, [SUZAKU_ENGINE]);
@@ -617,7 +627,10 @@ mod tests {
             ignore_switch: true,
             ..Default::default()
         });
-        assert!(control.activate().is_err());
+        assert_eq!(
+            control.activate().unwrap_err(),
+            "Input method did not switch; retry (previous input method retained)"
+        );
         assert!(!control.state.active());
         assert_eq!(control.state.restore_engine.as_deref(), Some("rime"));
     }
@@ -643,7 +656,10 @@ mod tests {
             Command::new("/bin/sh").args(["-c", "/bin/sleep 2 & printf rime; exit 0"]),
             Duration::from_millis(45),
         );
-        assert!(result.unwrap_err().contains("超时"));
+        assert_eq!(
+            result.unwrap_err(),
+            "Input method switch timed out; retry (previous input method retained)"
+        );
         assert!(started.elapsed() < Duration::from_millis(400));
     }
 
@@ -660,13 +676,13 @@ mod tests {
                 65536
             );
         }
-        assert!(
+        assert_eq!(
             run_bounded(
                 Command::new("/usr/bin/head").args(["-c", "131072", "/dev/zero"]),
                 COMMAND_TIMEOUT
             )
-            .unwrap_err()
-            .contains("过大")
+            .unwrap_err(),
+            "IBus response too large; request stopped"
         );
     }
 
@@ -674,7 +690,10 @@ mod tests {
     fn stalled_host_command_is_killed_and_reaped() {
         let start = Instant::now();
         let result = run_bounded(Command::new("sleep").arg("10"), Duration::from_millis(45));
-        assert!(result.unwrap_err().contains("超时"));
+        assert_eq!(
+            result.unwrap_err(),
+            "Input method switch timed out; retry (previous input method retained)"
+        );
         assert!(start.elapsed() < Duration::from_secs(2));
     }
 

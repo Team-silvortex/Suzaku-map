@@ -3,6 +3,193 @@ use super::{
     ThemePreset,
 };
 
+/// The same translated header measurement drives natural drawer height and rendering.
+/// Text stays at the chosen size; long labels move below the title instead of
+/// disappearing behind an English-sized status column.
+pub(super) struct ToolHeaderLayout {
+    pub title: String,
+    pub status: String,
+    pub title_rect: [f32; 4],
+    pub status_rect: [f32; 4],
+    pub title_px: f32,
+    pub status_px: f32,
+    pub title_tracking: f32,
+    pub status_tracking: f32,
+    pub line_gap: f32,
+    pub height: f32,
+    pub extra_height: f32,
+}
+
+impl ToolHeaderLayout {
+    pub(super) fn new(chrome: &PanelChromeState, panel_width: f32, scale: f32) -> Self {
+        use super::{InputMode, TextAlign, TextBlock, TextRole, TextSpacing, VoiceCaptureState};
+        let ui = chrome.ui_language;
+        let narrow = if panel_width < 680.0 {
+            0.9
+        } else if panel_width < 760.0 {
+            0.96
+        } else {
+            1.0
+        };
+        let label_px = chrome.text_scale.label_pixel_size() * scale * narrow;
+        let title_px = (label_px * 1.24_f32).max(2.35_f32 * scale);
+        let helper_px = (label_px * 1.02_f32).max(2.0_f32 * scale);
+        let tracking = match chrome.text_spacing {
+            TextSpacing::Tight => -0.41,
+            TextSpacing::Normal => -0.32,
+            TextSpacing::Relaxed => 0.08,
+        } * scale;
+        let heading_tracking = tracking * 0.10 - 0.01 * scale;
+        let ui_tracking = tracking * 0.16 - 0.02 * scale;
+        let drawer_width = panel_width - 12.0 * scale;
+        let docked = chrome.effective_panel_layout() == PanelLayoutMode::BottomDock;
+        let (
+            title,
+            status,
+            title_px,
+            status_px,
+            title_tracking,
+            status_tracking,
+            width,
+            legacy_height,
+            padding,
+        ) = match chrome.active_input_mode {
+            InputMode::VirtualKeyboard => {
+                let key_scale = if docked {
+                    1.0
+                } else {
+                    (145.0_f32 - 6.4) / 150.0
+                };
+                (
+                    ui.tr("Keyboard input").to_string(),
+                    ui.tr("Tap to type").to_string(),
+                    title_px * key_scale,
+                    helper_px * key_scale,
+                    heading_tracking * key_scale,
+                    ui_tracking * key_scale,
+                    drawer_width - 24.0 * scale * key_scale,
+                    27.0 * scale * key_scale,
+                    9.0 * scale * key_scale,
+                )
+            }
+            InputMode::Dictation => {
+                let voice_scale = 0.76;
+                let status = if chrome.voice_state == VoiceCaptureState::Listening {
+                    ui.tr(if chrome.voice_transcript.is_empty() {
+                        "Listening now..."
+                    } else {
+                        "Heard just now"
+                    })
+                    .to_string()
+                } else if !chrome.voice_transcript.is_empty() {
+                    ui.tr("Ready to insert").to_string()
+                } else {
+                    ui.message(&crate::platform::voice_host::voice_status_text(
+                        chrome.voice_state,
+                        chrome.voice_permission,
+                        false,
+                        &chrome.voice_backend_label,
+                    ))
+                    .into_owned()
+                };
+                (
+                    ui.tr("Voice input").to_string(),
+                    status,
+                    title_px * voice_scale,
+                    helper_px * voice_scale,
+                    ui_tracking * voice_scale,
+                    ui_tracking * voice_scale,
+                    drawer_width - 17.2 * scale * voice_scale,
+                    20.0 * scale * voice_scale,
+                    5.0 * scale * voice_scale,
+                )
+            }
+            InputMode::Handwriting => {
+                let handwriting_scale = (drawer_width / (640.0 * scale)).clamp(0.9, 1.1);
+                let title_px = (title_px * handwriting_scale).max(2.4 * scale);
+                let status_px = (helper_px * 0.9).max(2.2 * scale);
+                (
+                    ui.tr("Handwrite input").to_string(),
+                    ui.tr("Trace on canvas").to_string(),
+                    title_px,
+                    status_px,
+                    heading_tracking * handwriting_scale,
+                    ui_tracking * handwriting_scale,
+                    drawer_width - 16.0 * scale,
+                    title_px.max(status_px) * 7.0 + 4.0 * scale,
+                    4.0 * scale,
+                )
+            }
+            InputMode::Translation => unreachable!("translation has its own measured header"),
+        };
+        let width = width.max(1.0);
+        let line_gap = 3.0 * scale;
+        let measure = |text: &str, px, tracking, width| {
+            TextBlock {
+                text: text.into(),
+                origin: [0.0; 2],
+                max_width: width,
+                pixel_size: px,
+                letter_spacing: tracking,
+                line_gap,
+                max_lines: 4,
+                color: [1.0; 4],
+                align: TextAlign::Left,
+                role: TextRole::ToolButton,
+            }
+            .layout()
+        };
+        let title_width = super::measure_text_prefix_width(
+            &title,
+            title.chars().count(),
+            title_px,
+            title_tracking,
+        )
+        .ceil()
+            + 1.0;
+        let status_width = super::measure_text_prefix_width(
+            &status,
+            status.chars().count(),
+            status_px,
+            status_tracking,
+        )
+        .ceil()
+            + 1.0;
+        let gap = 10.0 * scale;
+        let (title_rect, status_rect, text_height) = if title_width + status_width + gap <= width {
+            let height = (title_px.max(status_px) * 7.0).ceil();
+            (
+                [0.0, 0.0, width - status_width - gap, height],
+                [width - status_width, 0.0, status_width, height],
+                height,
+            )
+        } else {
+            let title_height = measure(&title, title_px, title_tracking, width).bounds[3].ceil();
+            let status_height =
+                measure(&status, status_px, status_tracking, width).bounds[3].ceil();
+            (
+                [0.0, 0.0, width, title_height],
+                [0.0, title_height + line_gap, width, status_height],
+                title_height + line_gap + status_height,
+            )
+        };
+        let height = text_height + padding;
+        Self {
+            title,
+            status,
+            title_rect,
+            status_rect,
+            title_px,
+            status_px,
+            title_tracking,
+            status_tracking,
+            line_gap,
+            height,
+            extra_height: (height - legacy_height).max(0.0),
+        }
+    }
+}
+
 /// Theme swatches are authored in sRGB; wgpu's sRGB targets expect linear input.
 pub fn srgb_color(hex: u32) -> [f32; 4] {
     let linear = |byte: u32| {
@@ -351,10 +538,17 @@ impl PanelSceneMetrics {
             match chrome.active_input_mode {
                 crate::ime::gpu::InputMode::VirtualKeyboard => {
                     (if bottom_dock { 228.0 } else { 145.0 }) * responsive_scale
+                        + ToolHeaderLayout::new(chrome, panel_width, responsive_scale).extra_height
                 }
-                crate::ime::gpu::InputMode::Dictation => 170.0 * responsive_scale,
+                crate::ime::gpu::InputMode::Dictation => {
+                    170.0 * responsive_scale
+                        + ToolHeaderLayout::new(chrome, panel_width, responsive_scale).extra_height
+                }
                 // Real title/hint line heights plus a readable footer and drawing area.
-                crate::ime::gpu::InputMode::Handwriting => 220.0 * responsive_scale,
+                crate::ime::gpu::InputMode::Handwriting => {
+                    220.0 * responsive_scale
+                        + ToolHeaderLayout::new(chrome, panel_width, responsive_scale).extra_height
+                }
                 crate::ime::gpu::InputMode::Translation => {
                     super::translation_scene::preferred_translation_height(
                         panel_width - 12.0 * responsive_scale,

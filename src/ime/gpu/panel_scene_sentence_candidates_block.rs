@@ -196,9 +196,11 @@
     for (display_index, (source_index, label)) in visible_sentence_candidates.iter().enumerate() {
         let is_hero = !collapsed_daily_mode && hero_cards_enabled && display_index == 0;
         let literal_english = snapshot.active_language == "en" && label == &snapshot.seed_text;
-        let style_label = if literal_english { "Typed" } else {
+        let style_key = if literal_english { "Typed" } else {
             crate::panel_support::sentence_candidate_style_label(label, is_hero)
         };
+        // This describes the candidate; the candidate text itself is never localized.
+        let style_label = ui.tr(style_key);
         let (x, y, mut card_width, card_height) = if is_hero {
             (panel_x, sentence_y, panel_width, hero_card_height)
     } else if collapsed_daily_mode {
@@ -534,7 +536,15 @@
     });
     if is_hero {
         let available_badge_width = (visual_rect[2] - 6.0 * responsive_scale).max(0.0);
-        let badge_width = (66.0 * responsive_scale).min(available_badge_width);
+        let localized_badge_width = measure_text_prefix_width(
+            style_label,
+            style_label.chars().count(),
+            badge_meta_px,
+            ui_tracking * 0.7,
+        ).ceil() + 16.0 * responsive_scale;
+        let badge_width = localized_badge_width
+            .max(66.0 * responsive_scale)
+            .min(available_badge_width);
         let badge_layout = TextBlock {
             text: style_label.to_string(),
             origin: [

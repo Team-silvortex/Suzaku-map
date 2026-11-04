@@ -1,6 +1,8 @@
 //! Application chrome localization. Independent of IME and translation languages.
 use std::{borrow::Cow, collections::HashMap, sync::OnceLock};
 
+mod diagnostics;
+
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum UiLanguage {
     #[default]
@@ -114,6 +116,24 @@ impl UiLanguage {
             .unwrap_or(key)
     }
 
+    /// Only known application diagnostics are translated. Unknown errors and
+    /// external parameters are opaque, even when they look like chrome labels.
+    pub fn diagnostic(self, source: &str) -> Cow<'_, str> {
+        diagnostics::diagnostic(self, source)
+    }
+
+    /// Input-method failures are wrapped when the event is stored, not when the
+    /// language is chosen, so feedback can redraw without repeating an action.
+    pub fn feedback(self, source: &str) -> Cow<'_, str> {
+        if let Some(error) = source.strip_prefix("Input method error: ") {
+            return Cow::Owned(
+                self.tr("Input method error: {}")
+                    .replace("{}", &self.diagnostic(error)),
+            );
+        }
+        self.message(source)
+    }
+
     /// Only pass application-owned messages, never drafts, candidates or model output.
     /// A single `{}` slot retains its payload verbatim (paths, model IDs, errors, etc.).
     pub fn message<'a>(self, source: &'a str) -> Cow<'a, str> {
@@ -181,9 +201,14 @@ mod tests {
             .collect();
         assert_eq!(rows.len(), catalog().len(), "duplicate localization key");
         for (&key, values) in catalog() {
-            assert!(!key.is_empty());
+            assert!(!key.trim().is_empty());
+            assert_eq!(key, key.trim(), "surrounding key whitespace: {key:?}");
+            assert!(
+                key.matches("{}").count() <= 1,
+                "one-slot message API: {key}"
+            );
             for value in values {
-                assert!(!value.is_empty(), "missing {key}");
+                assert!(!value.trim().is_empty(), "missing {key}");
                 assert_eq!(
                     key.matches("{}").count(),
                     value.matches("{}").count(),
@@ -193,6 +218,66 @@ mod tests {
         }
         for language in UiLanguage::ALL {
             assert_eq!(UiLanguage::from_id(language.id()), Some(language));
+        }
+    }
+    #[test]
+    fn model_check_templates_preserve_nested_application_labels_and_raw_parameters() {
+        for language in UiLanguage::ALL
+            .into_iter()
+            .filter(|language| *language != UiLanguage::System)
+        {
+            for key in [
+                "Local model not found: {}",
+                "Model loaded: {}",
+                "Local model available: {}",
+                "Model authorization failed (HTTP {}); check configured credentials",
+                "Model or endpoint not found (HTTP {}); check model settings",
+                "Model service returned HTTP {}; check its status",
+            ] {
+                assert!(catalog().contains_key(key), "missing UI resource: {key}");
+                for payload in [
+                    "Settings",
+                    "Font: custom settings",
+                    "model_日_ß:{} · http://127.0.0.1:11434/v1",
+                    "401",
+                    "{}",
+                ] {
+                    let source = key.replace("{}", payload);
+                    assert_eq!(
+                        language.message(&source),
+                        language.tr(key).replace("{}", payload),
+                        "{language:?}/{key}/{payload}"
+                    );
+                }
+            }
+        }
+    }
+    #[test]
+    fn input_method_feedback_translates_only_the_explicit_diagnostic_boundary() {
+        for language in UiLanguage::ALL
+            .into_iter()
+            .filter(|language| *language != UiLanguage::System)
+        {
+            for raw in [
+                "Cannot read IBus status; retry",
+                "无法读取 IBus 状态，请重试",
+                "Font: Settings",
+                "Settings",
+                "目录/Font: custom settings_日_ß:{}\nhttp://127.0.0.1/Settings",
+            ] {
+                let stored = format!("Input method error: {raw}");
+                let expected = language
+                    .tr("Input method error: {}")
+                    .replace("{}", &language.diagnostic(raw));
+                assert_eq!(language.feedback(&stored), expected);
+                assert_eq!(stored, format!("Input method error: {raw}"));
+            }
+            let payload = "Input method error: Font: Settings";
+            assert_eq!(
+                language.feedback(&format!("Sent to active app: {payload}")),
+                language.tr("Sent to active app: {}").replace("{}", payload),
+                "a committed user value must not become a diagnostic"
+            );
         }
     }
     #[test]

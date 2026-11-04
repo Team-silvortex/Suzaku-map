@@ -380,7 +380,9 @@ impl PanelState {
                     .saturating_sub((36.0 * dpi).ceil() as u32),
             )
         });
-        content_fitted_size(width, dpi, max_height, &self.chrome)
+        suzaku_map::ime::gpu::with_font_metrics(self.font_atlas.layout_metrics.clone(), || {
+            content_fitted_size(width, dpi, max_height, &self.chrome)
+        })
     }
 
     pub(super) fn request_panel_size(&mut self, target: PhysicalSize<u32>) {

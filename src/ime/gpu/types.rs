@@ -113,6 +113,17 @@ pub enum DisplayTextScale {
     Large,
 }
 
+impl DisplayTextScale {
+    /// Shared label size before a window's responsive scale is applied.
+    pub fn label_pixel_size(self) -> f32 {
+        match self {
+            Self::Small => 2.2,
+            Self::Medium => 2.45,
+            Self::Large => 3.12,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CandidateDensity {
     Compact,

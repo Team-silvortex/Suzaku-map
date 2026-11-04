@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "date": "2026-10-28",
-    "head": "e3ce76e1620fd52ece28d2fe88dedd2bee0e1938",
+    "date": "2026-11-04",
+    "head": "9fcd2cd14837f04303d33e5e5ce789332d456bde",
     "dirty": true,
-    "source_sha256": "4c6799d9ca0c3057bd3446b9c50a50fef2af8567307aa835a44359e431bb23d5",
-    "note": "文档整理工作区快照，基于 e3ce76e1620fd52ece28d2fe88dedd2bee0e1938。仅导航、历史归档、打包文档工具与 CI 静态守卫调整；运行时、词库数据、模型协议、评分、关联和限制不变。source_sha256 覆盖实现与测试路径，包含本轮文档工具变更，不表示新的原生/UI/模型/安装验收或已发布包摘要。旧 snapshot 及全部历史证据原文保存在 docs/history/2026-10/pre-reorganization/functional-tensor.json，文档证据路径改指对应的完整历史归档，不从入口瘦身推导成熟度提升。"
+    "source_sha256": "76c6f8b42305e08cd33894ab71649556ad16434f0e43f260058df7a3b8287ac1",
+    "note": "0.10.1/build51 源码准备快照，基于 9fcd2cd 后的八语界面、诊断、提示与只读报告四轮改进；五权威文件八版本字段同步。输入算法、词库、模型/IPC协议、25包/SDK及成熟度评分保持。四轮局部证据仍保留其原版本和范围，不能冒充本版全仓验收。先前本版完整Rust在daily_household_english遇到Pending/Unavailable失败，单项复现通过不足以证明修复；原断言和两秒期限不变，完整新版、远端CI和安装包验收待完成。具体状态见E-release-0.10.1-preparation。source_sha256覆盖当前实现与测试，不代表已发布包；历史证据和已发布资产不改写。"
   },
   "architectures": [
     {
@@ -1123,10 +1123,16 @@
         "src/bin/panel/settings_keyboard.rs",
         "src/bin/panel/input.rs",
         "src/bin/panel/windowing.rs",
-        "src/bin/panel/app_state.rs"
+        "src/bin/panel/app_state.rs",
+        "src/bin/panel/report_view.rs",
+        "src/bin/panel/report_window.rs",
+        "src/bin/panel/keyboard.rs"
       ],
       "tests": [
         "src/bin/panel/settings_native_test.rs",
+        "src/bin/panel/report_native_test.rs",
+        "src/bin/panel/report_view.rs",
+        "src/bin/panel/report_window.rs",
         "src/bin/panel/native_action_audit_test.rs",
         "tests/ime_engine_ui_alignment.rs"
       ]
@@ -1138,10 +1144,41 @@
       "scope": "en/zh/ja/ko/es/fr/de/pt UI",
       "paths": [
         "src/ui.rs",
-        "src/ui/catalog.tsv"
+        "src/ui/catalog.tsv",
+        "src/ime/gpu/panel_scene.rs",
+        "src/ime/gpu/panel_scene_sentence_candidates_block.rs",
+        "src/ime/gpu/panel_scene_keyboard_body_block.rs",
+        "src/ime/gpu/panel_scene_voice_body_block.rs",
+        "src/ime/gpu/panel_scene_handwriting_body_block.rs",
+        "src/ime/gpu/theme_metrics.rs",
+        "src/bin/panel/windowing.rs",
+        "src/bin/panel/bottom_layout.rs",
+        "src/bin/panel/tray.rs",
+        "src/ui/diagnostics.rs",
+        "src/bin/panel.rs",
+        "src/bin/panel/controller_hints.rs",
+        "src/bin/panel/input_method.rs",
+        "src/bin/panel/input_method_service.rs",
+        "src/bin/panel/tray_data.rs",
+        "src/bin/panel/report_view.rs",
+        "src/ime/gpu/types.rs",
+        "src/ime/gpu/settings_scene.rs",
+        "src/bin/panel/controller.rs",
+        "scripts/test-linux-ci.sh"
       ],
       "tests": [
-        "tests/ui_localization.rs"
+        "tests/ui_localization.rs",
+        "tests/ui_candidate_metadata.rs",
+        "tests/ui_tool_header_localization.rs",
+        "src/bin/panel/tray.rs",
+        "src/bin/panel/font_atlas_visual_tests.rs",
+        "src/ui.rs",
+        "src/ui/diagnostics.rs",
+        "src/bin/panel/input_method.rs",
+        "src/bin/panel/input_method_service.rs",
+        "src/bin/panel/tray_data.rs",
+        "src/bin/panel/controller_hints.rs",
+        "src/bin/panel/settings_native_test.rs"
       ]
     },
     {
@@ -4103,6 +4140,56 @@
       ],
       "scope": "准确05ca679源码的0.10.0 Linux Alpha prerelease已发布；八门CI、accepted包及四资产实际重下载验证；不提升旧评分或扩展平台验收",
       "note": "0.10.0/build50，tag v0.10.0，准确源码05ca67930b2a6784860f98954248c2b6663d4617、epoch1793185398；https://github.com/chiharu-kiryu/Suzaku-map/actions/runs/40676977245 八必需job全部success，accepted artifact12813215443/suzaku-linux-X64-05ca67930b2a6784860f98954248c2b6663d4617经独立安全归档、内部checksum/tar-deb一致manifest、源码与25包/SDK字节核验。四个上传资产实际重新下载逐块字节、独立SHA256及size全等。Release426593249 https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.10.0 于2026-10-28T11:42:04Z发布，draft=false/prerelease=true，非latest stable；最终metadata准确绑定四asset id/size/digest。资产：suzaku-0.10.0-x86_64-unknown-linux-gnu.tar.gz，id684800964，15973755bytes，SHA2567ea4b052a9fe61a45341471914250359d839106c79cefdfe0552b3aa65d3e777；其.sha256，id684800965，112bytes，SHA256c3793f7a57b113a7c4833d64e79f01494291e091a228848ab73e5ee088fed069；suzaku_0.10.0_amd64.deb，id684800970，11621474bytes，SHA256e8f8fb70ebb8362fe5317954ca29d325272b806a6124f50539c4d35f5d78539b；其.sha256，id684800969，90bytes，SHA256cd6fe6e1e3a0a8a817f08db06de11fcee172f72983b9d233da8e2ada262740e7。源码准备evidence与pending/0.9.7记录保留为历史；上传receipt的publication_pending为草稿阶段，最终release-published.json证实已发布。完整回执与资产表在docs/releases/0.10.0.md，原始证据/tmp/suzaku-publish-0.10.0.pfgkks/。仅新增交付证据及F16-F19引用；评分、snapshot日期/head/sourcehash、旧证据、个人安装/输入法服务配置及取消的自动化保持；仍限Ubuntu24.04amd64/glibc2.39的LinuxAlpha，不新增实模/物理键盘/原生Wayland/性能验收。"
+    },
+    {
+      "id": "E-i18n-interface-2026-10-28",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-10/interface-localization.md",
+        "docs/interface-languages.md"
+      ],
+      "scope": "Linux 八语界面相关回归与私有 UI；非全仓、个人安装或其他平台验收。",
+      "note": "2026-10-28 基于 9fcd2cd 后的工作区，23 条新资源、动态候选标签、typed 模型检查状态、页头换行及受限视口裁剪。最终独立相关回归 959 通过/0 失败/24 原有显式忽略，15 组零筛除；另私有 UI 原 19 门通过，含扩展的八语真实字体场景；严格全 target/all feature Clippy 通过。首轮私有 socket 权限失败及分页矩形浮点漂移失败保留。不会把子轮、忽略或筛除项累加为通过，也不推导真实模型、个人桌面或跨平台成熟度。"
+    },
+    {
+      "id": "E-i18n-diagnostics-2026-10-28",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-10/interface-diagnostics.md",
+        "docs/interface-languages.md"
+      ],
+      "scope": "八语生命周期、设置/偏好与宿主模型诊断、类型化数据报告的本地相关回归；非全仓或个人安装验收。",
+      "note": "2026-10-28 接续界面完善，59 条新资源使总数达 408；71 个明确诊断键和类型化数据结果只翻译固定外层，原始参数不递归匹配，未知文本原样保留。输入法事件、托盘状态、偏好详情随界面语言重绘；不重复数据或服务操作，不改变恢复控制、CLI/IPC诊断、模型协议、词库、版本或旧评分。最终一次完整相关 Rust 975 通过/0 失败/24 原有显式忽略，15 组零筛除，含本轮新增16项；另原19门私有Xvfb/D-Bus/XDG UI独立通过，保留原90秒时限，不把筛除、早期974轮或旧959轮相加。严格全feature全target Clippy -Dwarnings实际通过36.10秒；格式、117项独立Python静态检查、文档导航/可逆归档及source digest通过，不加进Rust总数。首轮缺少模块path的真实编译失败保留；本地日志位于/tmp/suzaku-i18n-diagnostics.GFxtzw/。不声称全仓Rust、真实模型、其他平台、真人键盘、个人安装或远端CI验收，不修改已发布资产或恢复自动化。"
+    },
+    {
+      "id": "E-feedback-usability-2026-10-28",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-10/feedback-usability.md",
+        "docs/users/README.md"
+      ],
+      "scope": "错误窗口路由、悬浮球错误展开、可访问字号与真实字体下的提示完整性；私有 Linux UI，非个人安装或其他平台验收。",
+      "note": "2026-10-28 接续八语诊断工作区，聚焦设置窗错误在实际正文底部显示，否则展开主窗；只有明确错误绕过折叠防抖，普通成功不复制到设置窗或强制展开。三档标签基准共用，短tooltip三行与反馈六行分离，实际字体只排版一次再收紧背景/平移字形与clip，保持原字号，避免Large/1.55真实字体末词因二次换行丢失。最终独立相关Rust984通过/0失败/25显式忽略，15组零筛除；含9新纯测试，24旧ignore加1新opt-in入口不充通过。另完整20门私有Xvfb/D-Bus/XDG UI独立通过，19精确panel与1启动，每项原90秒；新门含24八语/三字号settings组合、固定宽字形递增、16主窗fallback、实际X11焦点与设置值/草稿保真、两帧和GPU渲染。严格全feature全target Clippy -Dwarnings通过36.25秒，格式/Shell语法/117独立Python静态检查/导航与可逆归档/source digest通过，不充Rust总数；本机无ShellCheck。旧route负对照None失败、首轮新fixture误当硬换行失败、真实UI Font:…失败均保留；中间983、定向19和单门通过不累加。本地日志/tmp/suzaku-feedback-ux.3UgYn1/。无全文详情/复制/点击关闭，仍用原帧计数；不声称零写盘探针、原生焦点发现、全仓Rust、实模/真人键盘/性能/个人安装/远端CI或跨平台验收。词库、模型/IPC协议、版本、旧证据/评分及已发布资产不变，不提交推送、安装或恢复自动化。"
+    },
+    {
+      "id": "E-report-details-2026-10-28",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-10/report-details.md",
+        "docs/users/README.md"
+      ],
+      "scope": "八语报告只读分页与私有 Linux 设置窗口状态保真；非全仓、真人键盘、个人安装或其他平台验收。",
+      "note": "2026-10-28 接续提示可用性，11条新资源使总数419；托盘类型化输入法错误/上次数据结果只读快照不重做操作、不写报告或剪贴板。显示缓存2MiB且超限明确警告，控制字符等可逆转义，每页至多2048字符；八语/三字号/六视口/双态288布局组合保留正文及完整警告，重分页按字节锚点定位，只有真实呈现后配对手势可操作。退出保留导航、采用最新配置不回写旧值；独立相关Rust1000通过/0失败/26显式忽略，15组零筛除，16新纯测试已包含。另最终完整私有Xvfb/D-Bus/XDG UI21/21（20 panel加1启动）各一次、原90秒时限；含有效滚动下一帧、配置字节保真及英法Large400×220真实字体警告。键盘身份直接进入生产handler，不冒称物理或X11键盘事件。首UI滚动137→0真实失败保留，拆分IME权限与布局测量后原断言保持；中间998、定向11及中间UI不与最终累加。严格all-feature/all-target Clippy-Dwarnings实际exit0/36.12秒，格式/Shell语法/117独立Python静态检查/导航及可逆归档/source digest通过；没有ShellCheck。本地日志/tmp/suzaku-report-details.pf8RY8/。不是全仓Rust/Doc-tests、实模、性能、个人安装、跨平台或远端CI验收；字形按格裁剪不保证任意超宽字体。旧171证据、全部评分/限制及已发布资产保持，不升版、提交推送、操作日常输入服务/配置或恢复自动化。"
+    },
+    {
+      "id": "E-release-0.10.1-preparation",
+      "kind": "source",
+      "paths": [
+        "docs/releases/0.10.1.md",
+        "docs/history/2026-11/release-0.10.1.md"
+      ],
+      "scope": "0.10.1/build51源码准备与未完成验收的边界，不是发布回执。",
+      "note": "2026-11-04恢复版本准备：五文件八字段0.10.1/51，UI源码对升版前冻结清单保持，25包/SDK及词库/模型/IPC核心不改。旧完整Rust进程实际exit101，daily_household_english状态Pending而非Unavailable；新精确单项一次通过5.00秒，仅作未稳定复现记录，不称已修复/完整通过。没有改该测试、断言、两秒期限或生产预测实现。新完整Rust、独立UI/Clippy和准确提交远端八门/accepted安装包验收尚待完成，不以旧1000/UI21或局部结果替代。此前172证据及所有评分/限制保留，不更换个人安装、不操作日常输入法、不恢复已取消自动化。"
     }
   ],
   "cells": [
@@ -5130,7 +5217,9 @@
       ],
       "evidence": [
         "E-pointer-preference",
-        "E-linux-delivery"
+        "E-linux-delivery",
+        "E-feedback-usability-2026-10-28",
+        "E-report-details-2026-10-28"
       ],
       "limit": "设置重排、搜索、滚动和标题栏开关；保留应用内关闭控件。独立窗口滚动覆盖零值/非有限输入及有限正反向事件，不代替完整视觉验收。"
     },
@@ -5145,7 +5234,11 @@
         2
       ],
       "evidence": [
-        "E-linux-delivery"
+        "E-linux-delivery",
+        "E-i18n-interface-2026-10-28",
+        "E-i18n-diagnostics-2026-10-28",
+        "E-feedback-usability-2026-10-28",
+        "E-report-details-2026-10-28"
       ],
       "limit": "静态资源独立于输入/翻译；外部诊断和路径可保留原文。"
     },

@@ -49,6 +49,13 @@ mod prediction_settings;
 #[path = "panel/render.rs"]
 mod render;
 #[cfg(all(test, target_os = "linux"))]
+#[path = "panel/report_native_test.rs"]
+mod report_native_test;
+#[path = "panel/report_view.rs"]
+mod report_view;
+#[path = "panel/report_window.rs"]
+mod report_window;
+#[cfg(all(test, target_os = "linux"))]
 #[path = "panel/settings_chain_audit_test.rs"]
 mod settings_chain_audit_test;
 #[path = "panel/settings_keyboard.rs"]
@@ -66,6 +73,9 @@ mod tests;
 mod translation;
 #[path = "panel/tray.rs"]
 mod tray;
+#[cfg(target_os = "linux")]
+#[path = "panel/tray_data.rs"]
+mod tray_data;
 #[path = "panel/voice.rs"]
 mod voice;
 #[path = "panel/windowing.rs"]
@@ -149,6 +159,7 @@ enum PanelUserEvent {
     ResetPanelPosition,
     InputMethodSettingsChanged(suzaku_map::ime::settings::ImeSettings),
     InputMethodError(String),
+    ShowReportDetails(report_view::ReportSnapshot),
     PanelImeSettingsApplied(Option<suzaku_map::ime::settings::ImeSettings>),
     NativeCompositionReady,
     NativeActionFinished {
@@ -356,6 +367,11 @@ impl PanelApp {
     }
 
     fn set_panel_visible(&mut self, visible: bool) {
+        if !visible {
+            // Explicit Hide closes auxiliary windows; native auto-hide below
+            // may hide candidates without interrupting a read-only report.
+            self.settings = None;
+        }
         // Only an explicit user hide suppresses future updates from this field.
         if !visible
             && let Some(panel) = self.panel.as_ref()
@@ -393,7 +409,13 @@ impl PanelApp {
         } else {
             panel.clear_pointer_hover();
             panel.chrome.settings_open = false;
-            self.settings = None;
+            if self
+                .settings
+                .as_ref()
+                .is_none_or(|state| state.report_view.is_none())
+            {
+                self.settings = None;
+            }
             self.next_frame_at = None;
         }
         if let Some(tray) = self.tray.as_ref() {
@@ -566,6 +588,7 @@ impl PanelApp {
         panel.window.request_redraw();
         let chrome = panel.chrome.clone();
         if let Some(settings) = self.settings.as_mut() {
+            settings.end_report_details();
             if mirror_settings_chrome(&mut settings.chrome, &chrome) {
                 settings.apply_window_decorations();
                 settings.window.request_redraw();
@@ -584,6 +607,74 @@ impl PanelApp {
         finish_settings_window_creation(&settings.window, &panel.window, event_loop);
         settings.window.request_redraw();
         self.settings = Some(settings);
+    }
+
+    fn show_report_details(
+        &mut self,
+        event_loop: &ActiveEventLoop,
+        snapshot: report_view::ReportSnapshot,
+    ) {
+        let Some(panel) = self.panel.as_ref() else {
+            return;
+        };
+        if let Some(settings) = self.settings.as_mut() {
+            let return_to_settings =
+                settings.report_view.is_none() || settings.report_return_to_settings;
+            settings.begin_report_details(snapshot, return_to_settings);
+            settings.window.set_visible(true);
+            return;
+        }
+        // A report is independent of input ownership: never unfold, show, focus,
+        // or suspend the main panel merely to read an operation's result.
+        let window = Arc::new(
+            event_loop
+                .create_window(settings_window_attributes(&panel.chrome))
+                .expect("create report window"),
+        );
+        let mut settings =
+            pollster::block_on(PanelState::new_settings(window, panel.chrome.clone()))
+                .expect("initialize report window");
+        settings.begin_report_details(snapshot, false);
+        finish_settings_window_creation(&settings.window, &panel.window, event_loop);
+        self.settings = Some(settings);
+    }
+
+    fn close_report_details(&mut self) {
+        let Some(settings) = self.settings.as_mut() else {
+            return;
+        };
+        if settings.report_return_to_settings {
+            if let Some(panel) = self.panel.as_ref() {
+                settings.refresh_settings_after_report(&panel.chrome);
+            }
+            settings.end_report_details();
+        } else {
+            self.settings = None;
+        }
+    }
+
+    fn show_input_method_error(&mut self, error: String) {
+        let feedback = format!("Input method error: {error}");
+        // Keep failures beside the controls the user is working with. Showing
+        // an unrelated main window can obscure the focused settings window.
+        if let Some(settings) = self.settings.as_mut().filter(|state| state.is_focused) {
+            settings.last_commit_feedback = Some(feedback);
+            settings.commit_feedback_ticks = 180;
+            settings.window.request_redraw();
+            return;
+        }
+        if let Some(panel) = self.panel.as_mut() {
+            panel.last_commit_feedback = Some(feedback);
+            panel.commit_feedback_ticks = 180;
+            // A compact bubble has no room for error text. This is an explicit
+            // error reveal, not a second tap; do not let the toggle debounce
+            // swallow an error immediately after the user folds the panel.
+            if panel.chrome.compact_mode {
+                panel.last_compact_toggle = None;
+                panel.apply_compact_mode(false);
+            }
+        }
+        self.set_panel_visible(true);
     }
 }
 
@@ -684,6 +775,16 @@ impl ApplicationHandler<PanelUserEvent> for PanelApp {
         if let Some(settings) = self.settings.as_mut()
             && settings.window.id() == window_id
         {
+            if settings.report_view.is_some() {
+                if matches!(event, WindowEvent::CloseRequested) {
+                    panel.chrome.settings_open = false;
+                    self.settings = None;
+                    panel.window.request_redraw();
+                } else if settings.handle_report_window_event(event_loop, event) {
+                    self.close_report_details();
+                }
+                return;
+            }
             self.native_auto_shown = false;
             match event {
                 WindowEvent::CloseRequested => {
@@ -759,7 +860,14 @@ impl ApplicationHandler<PanelUserEvent> for PanelApp {
             return;
         }
 
-        if panel.chrome.compact_mode {
+        let reading_report = self
+            .settings
+            .as_ref()
+            .is_some_and(|state| state.report_view.is_some());
+        if reading_report {
+            // Main-window redraws/native updates must not dismiss a report just
+            // because the independent input panel is hidden or compact.
+        } else if panel.chrome.compact_mode {
             panel.chrome.settings_open = false;
             self.settings = None;
         } else if panel.chrome.settings_open && self.settings.is_none() {
@@ -778,6 +886,7 @@ impl ApplicationHandler<PanelUserEvent> for PanelApp {
             self.settings = None;
         }
         if let Some(settings) = self.settings.as_mut()
+            && settings.report_view.is_none()
             && mirror_settings_chrome(&mut settings.chrome, &panel.chrome)
         {
             settings.apply_window_decorations();
@@ -796,12 +905,10 @@ impl ApplicationHandler<PanelUserEvent> for PanelApp {
                 self.apply_native_settings(ime_settings, false);
             }
             PanelUserEvent::InputMethodError(error) => {
-                if let Some(panel) = self.panel.as_mut() {
-                    panel.last_commit_feedback = Some(error);
-                    panel.commit_feedback_ticks = 180;
-                    panel.window.request_redraw();
-                }
-                self.set_panel_visible(true);
+                self.show_input_method_error(error);
+            }
+            PanelUserEvent::ShowReportDetails(snapshot) => {
+                self.show_report_details(event_loop, snapshot);
             }
             PanelUserEvent::PanelImeSettingsApplied(settings) => {
                 self.finish_panel_ime_settings(settings)
@@ -918,6 +1025,9 @@ impl ApplicationHandler<PanelUserEvent> for PanelApp {
             .filter(|_| self.panel_visible)
             .chain(self.settings.iter_mut())
         {
+            if state.report_view.is_some() {
+                continue;
+            }
             if state.poll_translation() {
                 state.window.request_redraw();
             }
@@ -1011,6 +1121,9 @@ struct PanelState {
     last_handwriting_summary: Option<String>,
     last_commit_feedback: Option<String>,
     settings_save_requested: bool,
+    report_view: Option<report_view::ReportView>,
+    report_return_to_settings: bool,
+    report_close_key: Option<winit::keyboard::PhysicalKey>,
     commit_feedback_ticks: u8,
     completion_history: suzaku_map::panel_support::CompletionHistory,
     next_token_completions: Vec<suzaku_map::panel_support::NextTokenCompletion>,
@@ -1445,6 +1558,9 @@ impl PanelState {
             last_handwriting_summary: None,
             last_commit_feedback: None,
             settings_save_requested: false,
+            report_view: None,
+            report_return_to_settings: false,
+            report_close_key: None,
             commit_feedback_ticks: 0,
             completion_history: Default::default(),
             next_token_completions: Vec::new(),

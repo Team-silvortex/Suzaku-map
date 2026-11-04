@@ -6,7 +6,7 @@ use winit::event::{ElementState, MouseButton, MouseScrollDelta, TouchPhase, Wind
 use winit::event_loop::ActiveEventLoop;
 use winit::keyboard::{KeyCode, PhysicalKey};
 
-fn wheel_vertical_delta(delta: MouseScrollDelta) -> f32 {
+pub(super) fn wheel_vertical_delta(delta: MouseScrollDelta) -> f32 {
     match delta {
         MouseScrollDelta::LineDelta(_, y) if y.is_finite() => y,
         MouseScrollDelta::LineDelta(..) => 0.0,

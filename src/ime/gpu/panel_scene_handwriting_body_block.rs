@@ -1,4 +1,5 @@
 {
+                    let header = super::theme_metrics::ToolHeaderLayout::new(chrome, panel_width, responsive_scale);
                     let scroll_text_for_candidate = |text: &str,
                                                     started_at: Instant,
                                                     pixel_size: f32,
@@ -53,7 +54,7 @@
                     // before assigning the remaining space to ink. Hint rows are fixed by
                     // width, so changing "Tracing..." does not move the canvas mid-stroke.
                     let hint_lines = if footer_width < 500.0 * responsive_scale { 2 } else { 1 };
-                    let header_h = handwriting_title_px.max(handwriting_hint_px) * 7.0 + 4.0 * responsive_scale;
+                    let header_h = (handwriting_title_px.max(handwriting_hint_px) * 7.0 + 4.0 * responsive_scale).max(header.height);
                     let hint_h = handwriting_hint_px * 7.0 * hint_lines as f32
                         + base_line_gap * handwriting_scale * (hint_lines - 1) as f32
                         + 4.0 * responsive_scale;
@@ -66,11 +67,10 @@
                     // During a pending native resize, fit text within the old short viewport.
                     let vertical_fit = (drawer_rect[3].max(0.0) / reserved_h).clamp(0.0, 1.0);
                     let header_y = drawer_rect[1] + top_padding * vertical_fit;
-                    let status_w = measure_text_prefix_width(ui.tr("Trace on canvas"), ui.tr("Trace on canvas").chars().count(), handwriting_hint_px, ui_tracking * handwriting_scale)
-                        .min(footer_width * 0.46);
-                    let title_rect = [footer_left, header_y,
-                        (footer_width - status_w - handwriting_footer_gap_x).max(0.0), header_h * vertical_fit];
-                    let status_rect = [footer_right - status_w, header_y, status_w, header_h * vertical_fit];
+                    let title_rect = [footer_left + header.title_rect[0], header_y + header.title_rect[1] * vertical_fit,
+                        header.title_rect[2], header.title_rect[3] * vertical_fit];
+                    let status_rect = [footer_left + header.status_rect[0], header_y + header.status_rect[1] * vertical_fit,
+                        header.status_rect[2], header.status_rect[3] * vertical_fit];
                     let hint_rect = [footer_left, header_y + (header_h + vertical_gap) * vertical_fit,
                         footer_width, hint_h * vertical_fit];
                     let handwriting_footer_row_h = footer_h * vertical_fit;
@@ -133,31 +133,31 @@
 
                     let handwriting_layouts = vec![
                         TextBlock {
-                            text: ui.tr("Handwrite input").to_string(),
+                            text: header.title.clone(),
                             origin: [title_rect[0], title_rect[1]],
                             max_width: title_rect[2],
-                            pixel_size: handwriting_title_px,
-                            letter_spacing: heading_tracking * handwriting_scale,
-                            line_gap: base_line_gap * handwriting_scale,
-                            max_lines: 1,
+                            pixel_size: header.title_px,
+                            letter_spacing: header.title_tracking,
+                            line_gap: header.line_gap,
+                            max_lines: 4,
                             color: text_secondary,
                             align: TextAlign::Left,
                             role: TextRole::HandwritingLabel,
                         }
-                        .layout_in_rect(title_rect, [0.0, 2.0 * responsive_scale * vertical_fit]),
+                        .layout_in_rect(title_rect, [0.0; 2]),
                         TextBlock {
-                            text: ui.tr("Trace on canvas").to_string(),
+                            text: header.status.clone(),
                             origin: [status_rect[0], status_rect[1]],
                             max_width: status_rect[2],
-                            pixel_size: handwriting_hint_px,
-                            letter_spacing: ui_tracking * handwriting_scale,
-                            line_gap: base_line_gap * handwriting_scale,
-                            max_lines: 1,
+                            pixel_size: header.status_px,
+                            letter_spacing: header.status_tracking,
+                            line_gap: header.line_gap,
+                            max_lines: 4,
                             color: text_primary,
                             align: TextAlign::Center,
                             role: TextRole::HandwritingLabel,
                         }
-                        .layout_in_rect(status_rect, [0.0, 2.0 * responsive_scale * vertical_fit]),
+                        .layout_in_rect(status_rect, [0.0; 2]),
                         TextBlock {
                             text: ui.message(&chrome.handwriting_hint).into_owned(),
                             origin: [hint_rect[0], hint_rect[1]],

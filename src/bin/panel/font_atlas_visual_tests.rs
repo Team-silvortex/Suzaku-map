@@ -403,6 +403,42 @@ fn multilingual_candidates_render_through_the_gpu_without_question_mark_fallback
                         PreviewKind::Panel,
                         InputMode::Translation,
                     ),
+                    (
+                        0.42,
+                        DisplayTextScale::Large,
+                        PreviewKind::Panel,
+                        InputMode::VirtualKeyboard,
+                    ),
+                    (
+                        0.96,
+                        DisplayTextScale::Medium,
+                        PreviewKind::Panel,
+                        InputMode::VirtualKeyboard,
+                    ),
+                    (
+                        0.42,
+                        DisplayTextScale::Large,
+                        PreviewKind::Panel,
+                        InputMode::Dictation,
+                    ),
+                    (
+                        0.96,
+                        DisplayTextScale::Medium,
+                        PreviewKind::Panel,
+                        InputMode::Dictation,
+                    ),
+                    (
+                        0.42,
+                        DisplayTextScale::Large,
+                        PreviewKind::Panel,
+                        InputMode::Handwriting,
+                    ),
+                    (
+                        0.96,
+                        DisplayTextScale::Medium,
+                        PreviewKind::Panel,
+                        InputMode::Handwriting,
+                    ),
                 ]
                 .into_iter()
                 .map(move |(scale, text_scale, kind, mode)| {
@@ -546,8 +582,15 @@ fn multilingual_candidates_render_through_the_gpu_without_question_mark_fallback
                 scene =
                     suzaku_map::ime::gpu::with_font_metrics(atlas.layout_metrics.clone(), || {
                         match preview_kind {
-                            PreviewKind::Panel => renderer
-                                .build_panel_scene(&snapshot, &chrome, None, None, None, None),
+                            PreviewKind::Panel => {
+                                // Measure and draw with the same font revision, just as
+                                // the panel's floating and docked window sizing does.
+                                height =
+                                    renderer.preferred_input_panel_height(&chrome).ceil() as u32;
+                                renderer = WgpuCandidateRenderer::new(width as f32, height as f32);
+                                renderer
+                                    .build_panel_scene(&snapshot, &chrome, None, None, None, None)
+                            }
                             PreviewKind::Orb => {
                                 renderer.build_compact_scene(&snapshot, &chrome, false, false)
                             }
@@ -580,6 +623,60 @@ fn multilingual_candidates_render_through_the_gpu_without_question_mark_fallback
                             .flat_map(|section| &section.layouts)
                             .any(|layout| layout.lines == [ui_language.tr(category.label())]
                                 && !layout.truncated)
+                    );
+                }
+            }
+            if preview_kind == PreviewKind::Panel && expanded {
+                use suzaku_map::ime::gpu::TextRole;
+                let headers = match mode {
+                    InputMode::VirtualKeyboard => {
+                        Some((TextRole::KeyboardKey, "Keyboard input", "Tap to type"))
+                    }
+                    InputMode::Dictation => {
+                        Some((TextRole::VoiceLabel, "Voice input", "Ready to insert"))
+                    }
+                    InputMode::Handwriting => Some((
+                        TextRole::HandwritingLabel,
+                        "Handwrite input",
+                        "Trace on canvas",
+                    )),
+                    InputMode::Translation => None,
+                };
+                if let Some((role, title, status)) = headers {
+                    let layouts: Vec<_> = scene
+                        .text_sections
+                        .iter()
+                        .flat_map(|section| &section.layouts)
+                        .filter(|layout| layout.role == role)
+                        .take(2)
+                        .collect();
+                    assert_eq!(layouts.len(), 2);
+                    for (layout, key) in layouts.iter().zip([title, status]) {
+                        let compact = |text: &str| {
+                            text.chars()
+                                .filter(|ch| !ch.is_whitespace())
+                                .collect::<String>()
+                        };
+                        assert!(
+                            !layout.truncated,
+                            "{ui_language:?}/{mode:?}/{width}/{text_scale:?}/{key}: {:?}",
+                            layout.lines
+                        );
+                        assert_eq!(
+                            compact(&layout.lines.concat()),
+                            compact(ui_language.tr(key))
+                        );
+                        assert!(layout.bounds[0] + layout.bounds[2] <= width as f32 + 0.01);
+                        assert!(layout.bounds[1] + layout.bounds[3] <= height as f32 + 0.01);
+                    }
+                    let a = layouts[0].bounds;
+                    let b = layouts[1].bounds;
+                    assert!(
+                        !(a[0] < b[0] + b[2] - 0.01
+                            && b[0] < a[0] + a[2] - 0.01
+                            && a[1] < b[1] + b[3] - 0.01
+                            && b[1] < a[1] + a[3] - 0.01),
+                        "localized headers overlap: {ui_language:?}/{mode:?}/{width}"
                     );
                 }
             }
