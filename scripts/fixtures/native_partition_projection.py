@@ -78,6 +78,12 @@ MODEL_DISPATCH_GUARD = '''    def test_core_session_dispatch_guard(self):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 '''
+UI_GATE_ANCHOR = "    settings_native_test::native_tone_controls_follow_acknowledgements_and_reload \\\n"
+UI_GATE_SUCCESSOR = "    functional_network_audit_test::audit_provider_change_must_forget_standalone_commit_context \\\n"
+ADDED_UI_GATES = (
+    "    settings_native_test::native_input_errors_are_visible_in_settings_and_compact_panel \\\n"
+    "    report_native_test::native_report_details_are_read_only_and_require_presented_gestures \\\n"
+)
 
 
 def replace_once(source, before, after):
@@ -96,6 +102,11 @@ def project_native(source):
 
 
 def project_runner(source):
+    # Reverse only the two exact additive UI entries, in their original order
+    # and between unchanged neighbours. Never erase a changed check or timeout.
+    if any(line.strip() in source for line in ADDED_UI_GATES.splitlines()):
+        source = replace_once(source, UI_GATE_ANCHOR + ADDED_UI_GATES + UI_GATE_SUCCESSOR,
+                              UI_GATE_ANCHOR + UI_GATE_SUCCESSOR)
     if "core-lifecycle" not in source:
         return source
     source = replace_once(source,

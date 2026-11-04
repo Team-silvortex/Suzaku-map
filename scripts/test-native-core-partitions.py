@@ -358,5 +358,44 @@ suzaku_ci_run_native_partitions
             project_guard(guard, "unrecognized-native-guard.py")
 
 
+class AddedUiGatePreservationTests(unittest.TestCase):
+    GATES = (
+        "settings_native_test::native_input_errors_are_visible_in_settings_and_compact_panel",
+        "report_native_test::native_report_details_are_read_only_and_require_presented_gestures",
+    )
+
+    def test_both_added_ui_gates_are_required_once_between_original_neighbours(self):
+        runner = (ROOT / "scripts/test-linux-ci.sh").read_text()
+        lines = runner.splitlines(keepends=True)
+        entries = [f"    {name} \\\n" for name in self.GATES]
+        self.assertTrue(all(lines.count(entry) == 1 for entry in entries))
+        before = "    settings_native_test::native_tone_controls_follow_acknowledgements_and_reload \\\n"
+        after = "    functional_network_audit_test::audit_provider_change_must_forget_standalone_commit_context \\\n"
+        self.assertEqual(runner.count(before + "".join(entries) + after), 1)
+        legacy = runner.replace("".join(entries), "", 1)
+        self.assertEqual(project_runner(runner), project_runner(legacy))
+        self.assertEqual(digest(project_runner(runner)), RUNNER_HASH)
+        self.assertTrue(all(name not in project_runner(runner) for name in self.GATES))
+
+    def test_changed_added_gates_and_old_deadlines_cannot_escape_the_original_fingerprint(self):
+        runner = (ROOT / "scripts/test-linux-ci.sh").read_text()
+        entries = [f"    {name} \\\n" for name in self.GATES]
+        mutations = [(entry, "") for entry in entries]
+        mutations += [(entry, entry + entry) for entry in entries]
+        mutations += [(entry, entry.replace("::native_", "::renamed_", 1)) for entry in entries]
+        mutations += [("".join(entries), "".join(reversed(entries))),
+                      ("--kill-after=3s 90s", "--kill-after=3s 91s"),
+                      ("-- --exact --ignored --nocapture --test-threads=1", "-- --ignored --nocapture --test-threads=1")]
+        for before, after in mutations:
+            with self.subTest(before=before, after=after):
+                self.assertIn(before, runner)
+                mutated = runner.replace(before, after, 1)
+                try:
+                    projected = project_runner(mutated)
+                except AssertionError:
+                    continue
+                self.assertNotEqual(digest(projected), RUNNER_HASH)
+
+
 if __name__ == "__main__":
     unittest.main()

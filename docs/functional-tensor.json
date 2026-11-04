@@ -2,10 +2,10 @@
   "schema_version": 1,
   "snapshot": {
     "date": "2026-11-04",
-    "head": "9fcd2cd14837f04303d33e5e5ce789332d456bde",
+    "head": "2330da6d1241c551ce79e2291d2a5edf416318b5",
     "dirty": true,
-    "source_sha256": "76c6f8b42305e08cd33894ab71649556ad16434f0e43f260058df7a3b8287ac1",
-    "note": "0.10.1/build51 源码准备快照，基于 9fcd2cd 后的八语界面、诊断、提示与只读报告四轮改进；五权威文件八版本字段同步。输入算法、词库、模型/IPC协议、25包/SDK及成熟度评分保持。四轮局部证据仍保留其原版本和范围，不能冒充本版全仓验收。先前本版完整Rust在daily_household_english遇到Pending/Unavailable失败，单项复现通过不足以证明修复；原断言和两秒期限不变，完整新版、远端CI和安装包验收待完成。具体状态见E-release-0.10.1-preparation。source_sha256覆盖当前实现与测试，不代表已发布包；历史证据和已发布资产不改写。"
+    "source_sha256": "5549a017598364f21a6be3b6d32c03f71cabf25024fc62d0effc9f891e0a9a2f",
+    "note": "0.10.1/build51 首候选2330da6之后的历史守卫兼容修正快照。只精确逆回两条新增UI门禁的源文本投影，并新增缺失/篡改拒绝测试；实际执行清单、旧hash、53组回退、断言和期限不变，Rust/词库/模型/IPC及25包/SDK也保持。首候选CI41789261683因旧runner指纹不符失败，不能发包；修正须用新准确提交的完整CI与accepted资产独立验收。早前Rust Pending失败另行保留，不用这次守卫修正充作其修复。具体范围见E-release-0.10.1-preparation与E-ci-ui-gates-0.10.1；旧证据和评分不改，source_sha256不代表已发布包。"
   },
   "architectures": [
     {
@@ -4190,6 +4190,17 @@
       ],
       "scope": "0.10.1/build51源码准备与未完成验收的边界，不是发布回执。",
       "note": "2026-11-04恢复版本准备：五文件八字段0.10.1/51，UI源码对升版前冻结清单保持，25包/SDK及词库/模型/IPC核心不改。旧完整Rust进程实际exit101，daily_household_english状态Pending而非Unavailable；新精确单项一次通过5.00秒，仅作未稳定复现记录，不称已修复/完整通过。没有改该测试、断言、两秒期限或生产预测实现。新完整Rust、独立UI/Clippy和准确提交远端八门/accepted安装包验收尚待完成，不以旧1000/UI21或局部结果替代。此前172证据及所有评分/限制保留，不更换个人安装、不操作日常输入法、不恢复已取消自动化。"
+    },
+    {
+      "id": "E-ci-ui-gates-0.10.1",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/release-0.10.1.md",
+        "scripts/fixtures/native_partition_projection.py",
+        "scripts/test-native-core-partitions.py"
+      ],
+      "scope": "两条新增UI门禁的精确历史兼容投影及拒绝篡改；不是修正提交CI或安装包验收。",
+      "note": "首候选2330da6在CI41789261683/Linux job126438563597受控模型守卫步骤真实失败，旧RUNNER_HASH521c5da0…与c90aa61e…不符；正式本地入口复现。只在原tone/functional两个邻居间逆回精确两UI行，旧九测试、hash、53fallbackpairs及所有实际断言/期限/执行门不改；新增两项验证两门唯一存在/有序并拒绝删除单门、重复、更名、换序、延长90秒或移除exact。核心十一项、正式模型二十项和其余四个正式AST入口分别通过，父子/重跑不累加。旧失败保存/tmp/suzaku-publish-0.10.1.MFreug/ci-linux-job.log，不重跑旧提交、不用旧artifact发包；新修正提交的八门CI/accepted包仍待验收。版本0.10.1/51、个人安装/服务、取消的自动化及此前173证据/评分不变。"
     }
   ],
   "cells": [
@@ -5436,6 +5447,7 @@
         "E-native-core-sessions",
         "E-ci-lanes",
         "E-python-ast-format",
+        "E-ci-ui-gates-0.10.1",
         "E-daemon-abort",
         "E-daemon-probe",
         "E-recovery-fixture",

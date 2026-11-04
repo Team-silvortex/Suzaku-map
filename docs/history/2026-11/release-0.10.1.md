@@ -24,4 +24,23 @@
 核对四资产校验和、安全归档、相同 manifest、准确源提交和时间、25 包／SDK字节及干净容器门禁。
 草稿上传后重新下载比较实际字节，才可发布为 Linux Alpha prerelease、非 latest stable。
 
-当前尚未创建版本标签或发布安装包，不操作个人安装、输入法服务或配置。
+## 首候选 CI 与守卫兼容修正
+
+首候选 `2330da6d1241c551ce79e2291d2a5edf416318b5` 已推送。
+[CI 41789261683](https://github.com/Team-silvortex/Suzaku-map/actions/runs/41789261683)
+的 Linux job `126438563597` 在 `Test controlled native model replies and unchanged timing guards` 失败：
+新增两个 UI 精确入口未被旧 `project_runner` 识别，历史摘要由预期 `521c5da0…` 变为 `c90aa61e…`。
+本地正式 AST 入口复现同一失败；这与前述 Rust `Pending` 是两个独立问题。
+
+修正只把两条精确追加的 UI 行在原相邻入口之间逆回；不改旧摘要、原九项核心守卫、
+原 53 组回退数据、物理断言、90 秒期限或测试执行清单。
+另增两项独立测试，强制新入口各存在一次并保持次序，拒绝单项删除、重复、更名、换序、
+延长期限和去掉 `--exact`。不把历史投影用于运行时执行。
+原核心分区守卫加新测试为十一项，通过；正式模型守卫二十项也通过，子进程结果不重复计数。
+语言、数字键、按住切换与词库分区的正式 AST 入口也分别通过。
+
+原失败日志、修正前后本地日志在 `/tmp/suzaku-publish-0.10.1.MFreug/`，
+包括 `ci-linux-job.log`、`model-guard-local.log`、`model-guard-fixed.log` 和 `ui-guard-core-fixed.log`。
+失败提交不重跑、不验包；修正提交必须独立通过新的完整 CI 后才可发包。
+仓库迁移至组织后，已核对相同 repository ID `1160702978` 与既有 0.10.0 Release ID `426593249`；
+未改 Git/SSH 配置。当前尚未创建版本标签或发布安装包，不操作个人安装、输入法服务或配置。
