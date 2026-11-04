@@ -6,12 +6,12 @@ Suzaku 的普通输入流程是“输入草稿 → 采用词句并继续修改 �
 
 ## 安装与升级
 
-从 [0.10.0 Linux Alpha](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.10.0)
+从 [0.10.1 Linux Alpha](https://github.com/Team-silvortex/Suzaku-map/releases/tag/v0.10.1)
 下载同一版本的 `.deb` 和 `.sha256` 文件，在下载目录执行：
 
 ```sh
-sha256sum -c suzaku_0.10.0_amd64.deb.sha256
-sudo apt install ./suzaku_0.10.0_amd64.deb
+sha256sum -c suzaku_0.10.1_amd64.deb.sha256
+sudo apt install ./suzaku_0.10.1_amd64.deb
 ```
 
 升级前完成或取消正在输入的草稿，并从托盘完全退出 Suzaku；更新后重新打开面板。

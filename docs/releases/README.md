@@ -2,13 +2,13 @@
 
 ## 当前下载
 
-[0.10.0 Linux Alpha 安装包](https://github.com/chiharu-kiryu/Suzaku-map/releases/tag/v0.10.0)
+[0.10.1 Linux Alpha 安装包](https://github.com/Team-silvortex/Suzaku-map/releases/tag/v0.10.1)
 包含 `.deb`、二进制 `.tar.gz` 及两份 SHA-256 文件。
 支持基线为 Ubuntu 24.04 amd64 / glibc 2.39 / IBus / X11 或 GNOME/XWayland。
 本版是 prerelease，非 latest stable。
 
-- [0.10.0 变化与发布回执](0.10.0.md)
-- [完整 GitHub Release 下载目录](https://github.com/chiharu-kiryu/Suzaku-map/releases)
+- [0.10.1 变化与发布回执](0.10.1.md)
+- [完整 GitHub Release 下载目录](https://github.com/Team-silvortex/Suzaku-map/releases)
 - [安装、升级和数据管理](../linux-packaging-data.md)
 
 ## 其他源码版本
@@ -16,7 +16,7 @@
 下面是版本记录，不是每个版本都有、或仍保留可下载的安装包。
 发行频率、完整四资产验收和历史保留规则见 [发布政策](../linux-packaging-data.md#从-080-开始的发布要求)。
 
-- 0.10：[0.10.1 源码准备](0.10.1.md)
+- 0.10：[0.10.0](0.10.0.md)
 - 0.9：[0.9.9](0.9.9.md) · [0.9.8](0.9.8.md) · [0.9.7](0.9.7.md) · [0.9.6](0.9.6.md) · [0.9.5](0.9.5.md) · [0.9.4](0.9.4.md) · [0.9.3](0.9.3.md) · [0.9.2](0.9.2.md) · [0.9.1](0.9.1.md) · [0.9.0](0.9.0.md)
 - 0.8：[0.8.9](0.8.9.md) · [0.8.8](0.8.8.md) · [0.8.7](0.8.7.md) · [0.8.6](0.8.6.md) · [0.8.5](0.8.5.md) · [0.8.4](0.8.4.md) · [0.8.3](0.8.3.md) · [0.8.2](0.8.2.md) · [0.8.1](0.8.1.md) · [0.8.0](0.8.0.md)
 - 0.7：[0.7.5](0.7.5.md) · [0.7.4](0.7.4.md) · [0.7.3](0.7.3.md) · [0.7.2](0.7.2.md) · [0.7.1](0.7.1.md) · [0.7.0](0.7.0.md)

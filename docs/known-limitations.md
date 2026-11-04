@@ -1,8 +1,8 @@
 # Alpha limitations and support
 
-The current representative release is **0.10.0 / build 50 Linux Alpha prerelease**, targeting
+The current representative release is **0.10.1 / build 51 Linux Alpha prerelease**, targeting
 Ubuntu 24.04 amd64, glibc 2.39, IBus and X11 / GNOME XWayland.
-Its [publication receipt](releases/0.10.0.md#publication-receipt-2026-10-28) records the exact
+Its [publication receipt](releases/0.10.1.md#publication-receipt-2026-11-04) records the exact
 accepted source, CI and packages; publication does not update a personal installation.
 Cross-platform architecture does not imply cross-platform stability. Keep another input method available.
 Version-specific preparation results below describe their historical snapshots, not pending
