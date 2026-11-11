@@ -46,3 +46,46 @@ checker 另计。文档导航、264 个包审计链接、源码摘要、格式�
 
 全过程不读取模型密钥、不发送新的真实模型请求、不替换个人安装、不操作个人输入法
 服务或配置，也不修改全局 Git/SSH 及其他仓库的授权。
+
+## 11 月 11 日完整本地回归
+
+提交并推送 `85723405a867bc3089e64042cc9703e841a0c1c1` 后，独立重新执行
+`cargo test --all-features --locked --offline -- --test-threads=1`，限制构建并行度为 2，
+不读取模型密钥、不执行收费 live 测试。实际进程退出 **0**：330 个唯一、零筛除结果组
+（包含 Doc-tests）共 **3156 通过、0 失败、38 项显式忽略**。付费测试保持忽略；独立 UI
+门禁和之前的局部结果不计入这套总数。
+
+日志 `rust-full-20261111.log` 的 SHA256 为
+`a6d2f4855dce4c9f41f739c4b3163681f16a3d4506994f89c1ade72c2a24732e`。
+634 个冻结源码、测试、脚本及元数据文件在完整运行后仍逐字节一致；完整结果另存
+`local-validation-20261111.json`。这次完整通过不确定、也不修订 11 月 4 日退出 143 的原因。
+
+## 11 月 11 日远端验收与发布
+
+准确提交的时间戳为 `1794380900`。
+[CI 42977367557](https://github.com/Team-silvortex/Suzaku-map/actions/runs/42977367557)
+在 `2026-11-11T07:45:07Z` 前完成全部八门：Linux lint/tests/native、应用与恢复、包与
+干净安装、完整历史 secret scan、Rust formatting、Windows/macOS compile 和最终
+Linux artifacts 聚合均为 success。本机缺少 ShellCheck 的限制没有用来跳过远端检查。
+验收保留原始 run/jobs 及 `ci-013-evaluation.json`、发布前新取的 `ci-014-evaluation.json`。
+
+仅下载该运行的 accepted artifact `13837343465`；没有使用同运行的 unaccepted staging。
+实际 ZIP 为 28154708 字节，SHA256 与 API digest 一致。流式安全清单、外部校验文件、
+tar 内部完整 SHA256SUMS、tar/deb 原始 manifest、四程序及共享资源比对通过。
+185 个来源资源绑定准确 Git 提交，包括 25 个 JSON 词库包、README、三个 SDK 文件和
+135 个来源文档；没有读取当前工作区代替固定来源。许可证目录及依赖清单验证内部校验和与
+tar/deb 配对，不声称独立重建依赖许可证来源。验包不安装或执行包内程序；远端包门禁另行
+通过干净容器安装、升级、卸载。
+
+注释标签 `v0.10.2` 的本地与远端对象一致，剥离后准确指向验收提交，没有移动旧标签。
+Release 草稿 `441377132` 从准确提交说明生成，链接固定到该提交。四资产分别单次上传，
+随后按准确资产 ID 重新下载，逐块字节、独立 SHA256 和大小均与验收文件相等。
+发布前再次检查 CI、标签、草稿说明和四资产。最终于 `2026-11-11T07:54:32Z` 公开为
+Linux Alpha prerelease、非 latest；独立回读确认正式版本 URL、`draft=false`、
+`prerelease=true`，latest stable 接口为 HTTP 404。
+
+唯一完整发布回执及四资产 ID/大小/摘要表见
+[0.10.2 发布说明](../../releases/0.10.2.md)。`release-published-readback.json`、
+`publication-readback-acceptance.json` 和 `latest-readback.http` 保存在同一任务日志目录。
+发布后的下载入口和回执以独立文档提交更新；不更改已验收源码、标签或包，也不替换个人
+安装、操作个人输入法服务/配置、读取模型密钥、发送新模型请求或恢复定时任务。

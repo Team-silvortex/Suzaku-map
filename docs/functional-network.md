@@ -4,7 +4,7 @@
 [functional-tensor.json](functional-tensor.json) 为准。模块依赖详见
 [架构手册](development/architecture.md)，运行验证见[测试手册](development/testing.md)。
 
-最新代表版本的交付记录见 [0.10.0 发布说明](releases/0.10.0.md)。
+最新代表版本的交付记录见 [0.10.2 发布说明](releases/0.10.2.md)。
 逐批词库扩充、旧测试结果和早期网络快照已归入
 [重整前完整记录](history/2026-10/pre-reorganization/functional-network.md)，不作为当前状态说明。
 文档整理前的快照及全部原始证据保存在[历史张量](history/2026-10/pre-reorganization/functional-tensor.json)。
@@ -330,4 +330,4 @@ python3 scripts/test-functional-tensor.py
 
 维护时保留已有 F 编号与历史失败记录；新能力优先复用现有编号，必要时在尾部追加。
 图只记录逻辑路由，运行历史进入[历史归档](history/2026-10/pre-reorganization/functional-network.md)，
-版本交付进入[发布说明](releases/0.10.0.md)，不再把逐批日志追加到本页。
+版本交付进入[发布说明](releases/0.10.2.md)，不再把逐批日志追加到本页。

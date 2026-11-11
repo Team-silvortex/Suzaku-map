@@ -4370,6 +4370,16 @@
       ],
       "scope": "0.10.2/build52源码准备、恢复后的独立本地检查；不是完整本地Rust通过、远端CI或安装包发布证明。",
       "note": "2026-11-11恢复：五权威文件八值同步，634源/测试/脚本/Cargo与Android文件哈希保持，清单SHA256=2e903f3e7c7565bd06cf118227d5edb1004d27d7f916945860e42f7d7d71a30d。新隔离UI24唯一单项exit0、strict all-target/all-feature Clippy -D warnings exit0/36.94s；28静态命令exit0、25 unittest组371通过/零skip，文档/包导航/版本/格式/diff通过。ShellCheck本机缺失，须远端执行。旧完整Rust退出143，只完成274组2746通过/33ignore，不能算full或拼接局部结果；终止来源未确定。准确提交的八门CI、accepted artifact四资产、源码与安全归档及上传复下载仍是发布前提。无新API/模型密钥读取、个人安装/服务/配置、词库/SDK、默认预算或成熟度变更，不恢复取消的自动化。"
+    },
+    {
+      "id": "E-release-0.10.2-published",
+      "kind": "historical_run",
+      "paths": [
+        "docs/releases/0.10.2.md",
+        "docs/history/2026-11/release-0.10.2.md"
+      ],
+      "scope": "准确0.10.2源码的八项远端门禁、accepted Linux包只读验收与四资产重下载后的实际发布；不增加成熟度或承诺其他平台、个人安装及真实模型质量。",
+      "note": "0.10.2/build52，source85723405a867bc3089e64042cc9703e841a0c1c1，epoch1794380900；CI42977367557八门全部success，accepted artifact13837343465实际ZIP摘要与API相符。四资产精确清单、安全归档/完整校验、原始tar-deb manifest及四程序/共享资源配对、25包与SDK及来源文档绑定均通过；不执行payload，远端另过干净容器安装/升级/卸载。v0.10.2注释tag对象2cd197436e9238fd2e7da20cf9ad2466b12664b3剥离为准确source。Release441377132于2026-11-11T07:54:32Z发布，draft=false/prerelease=true/非latest；四上传资产按准确ID重下载逐块字节及独立SHA256/size一致，最终metadata正式URL及digest读回一致，latest stable接口404。完整资产表与回执唯一正文为docs/releases/0.10.2.md；原始日志/tmp/suzaku-release-0.10.2.5jC9CV/。新完整本地Rust实际exit0，330唯一未筛除组3156过/0失败/38显式ignore，含Doc-tests；独立UI24与Clippy另计，不拼旧部分结果。旧exit143和prepared证据保持，不据后来通过推断终止原因；旧评分、snapshot源码摘要、词库/SDK、默认预算、个人安装/服务/配置及取消的自动化均保持。"
     }
   ],
   "cells": [
@@ -5585,7 +5595,8 @@
       ],
       "evidence": [
         "E-package",
-        "E-linux-delivery"
+        "E-linux-delivery",
+        "E-release-0.10.2-published"
       ],
       "limit": "Ubuntu24.04 amd64；附SDK/11可选包；不带个人配置/模型，不是静态万能包。"
     },
@@ -5601,7 +5612,8 @@
       ],
       "evidence": [
         "E-package",
-        "E-linux-delivery"
+        "E-linux-delivery",
+        "E-release-0.10.2-published"
       ],
       "limit": "成对产物/逐文件/依赖/文档检查；SHA256仅完整性，不是来源签名。"
     },
@@ -5619,7 +5631,8 @@
         "E-package",
         "E-install-old",
         "E-installed-input-tasks",
-        "E-linux-delivery"
+        "E-linux-delivery",
+        "E-release-0.10.2-published"
       ],
       "limit": "安装不自动注册激活；保留个人数据/自启偏好；干净0.8.6包已本机用户级重装，当前dirty测试补丁不是已发布交付。"
     },
@@ -5634,6 +5647,7 @@
         2
       ],
       "evidence": [
+        "E-release-0.10.2-published",
         "E-release-0.10.2-prepared",
         "E-candidate-keyboard-presentation",
         "E-pack-boundaries",
