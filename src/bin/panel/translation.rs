@@ -476,6 +476,11 @@ impl PanelState {
         self.start_translation_with(Arc::new(HttpModelProvider::new(config)));
     }
 
+    #[cfg(all(test, target_os = "linux"))]
+    pub(super) fn start_translation_fixture(&mut self, provider: Arc<dyn TranslationProvider>) {
+        self.start_translation_with(provider);
+    }
+
     fn start_translation_with(&mut self, provider: Arc<dyn TranslationProvider>) {
         let request = TranslationRequest {
             text: self.chrome.seed_text.clone(),

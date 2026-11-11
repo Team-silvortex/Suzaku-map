@@ -170,6 +170,93 @@ fn assert_read_only_inputs(app: &mut PanelApp, events: &ActiveEventLoop, before:
     assert!(!settings.text_input.composing());
 }
 
+fn assert_model_setup_entry(app: &mut PanelApp, events: &ActiveEventLoop) {
+    let main_before = app.panel.as_ref().unwrap().chrome.clone();
+    let settings_before = app.settings.as_ref().unwrap().chrome.clone();
+    let focused_before = app.settings.as_ref().unwrap().is_focused;
+    let panel = app.panel.as_mut().unwrap();
+    panel.activate_interaction(InteractionKind::OpenModelSetup, false);
+    assert!(panel.report_view.is_none(), "the guide belongs to settings");
+    assert_eq!(panel.chrome, main_before);
+    panel.chrome.compact_mode = false;
+    panel.chrome.settings_open = true;
+
+    let settings = app.settings.as_mut().unwrap();
+    settings.chrome.settings_open = true;
+    settings.chrome.settings_category = SettingsCategory::Model;
+    settings.chrome.settings_search_query = "Configuration path and guide".into();
+    settings.chrome.settings_search_focused = false;
+    settings.chrome.settings_keyboard_focus = Some(InteractionKind::OpenModelSetup);
+    settings.chrome.settings_scroll_offset = 0.0;
+    settings.is_focused = true;
+    settings.last_scene = None;
+    settings.render().unwrap();
+    let before_press = EditingState::from(&*settings);
+    let rect = settings
+        .last_scene
+        .as_ref()
+        .unwrap()
+        .interactive_targets
+        .iter()
+        .find(|target| target.kind == InteractionKind::OpenModelSetup)
+        .expect("the settings guide must expose a real presented target")
+        .rect;
+    mouse(app, events, point(rect), ElementState::Pressed);
+    assert_eq!(
+        EditingState::from(app.settings.as_ref().unwrap()),
+        before_press
+    );
+    // Pointer activation has always left keyboard navigation before dispatching
+    // the clicked action. Freeze every other field before the release opens it.
+    let mut before = EditingState::from(app.settings.as_ref().unwrap());
+    before.keyboard_focus = None;
+    mouse(app, events, point(rect), ElementState::Released);
+    let settings = app.settings.as_ref().unwrap();
+    assert!(settings.report_view.is_some());
+    assert!(settings.report_return_to_settings);
+    assert_eq!(EditingState::from(settings), before);
+    let window = settings.window.id();
+    assert!(!app.settings.as_mut().unwrap().sync_text_input_permission());
+    app.window_event(
+        events,
+        window,
+        WindowEvent::Ime(Ime::Commit("must not edit a model setting or draft".into())),
+    );
+    assert_eq!(EditingState::from(app.settings.as_ref().unwrap()), before);
+    app.close_report_details();
+    assert_eq!(EditingState::from(app.settings.as_ref().unwrap()), before);
+
+    // This follows the same key activation helper as the real settings event.
+    // Its post-activation focus reveal must leave the return navigation intact.
+    let settings = app.settings.as_mut().unwrap();
+    settings.chrome.settings_keyboard_focus = Some(InteractionKind::OpenModelSetup);
+    let keyboard_before = EditingState::from(&*settings);
+    settings.handle_settings_key(
+        &winit::keyboard::Key::Named(winit::keyboard::NamedKey::Enter),
+        None,
+        false,
+    );
+    assert!(settings.report_view.is_some());
+    assert_eq!(EditingState::from(&*settings), keyboard_before);
+    // PanelApp normally mirrors the finished keyboard event through this helper.
+    let chrome = settings.chrome.clone();
+    assert!(!app.panel.as_mut().unwrap().adopt_settings_from(&chrome));
+    app.close_report_details();
+    assert_eq!(
+        EditingState::from(app.settings.as_ref().unwrap()),
+        keyboard_before
+    );
+    assert!(!app.panel.as_ref().unwrap().chrome.llm_enabled);
+    assert!(!app.panel_visible);
+
+    app.panel.as_mut().unwrap().chrome = main_before;
+    let settings = app.settings.as_mut().unwrap();
+    settings.chrome = settings_before;
+    settings.is_focused = focused_before;
+    settings.invalidate_pointer_scene();
+    settings.sync_text_input_state();
+}
+
 impl ApplicationHandler<PanelUserEvent> for ReportProbe {
     fn resumed(&mut self, events: &ActiveEventLoop) {
         let window = Arc::new(events.create_window(panel_window_attributes()).unwrap());
@@ -210,6 +297,7 @@ impl ApplicationHandler<PanelUserEvent> for ReportProbe {
             let bytes = config_bytes(&path);
             (path, bytes)
         });
+        assert_model_setup_entry(&mut app, events);
 
         let raw = (0..160)
             .map(|line| format!("/private/Settings_日/{line:04}/{{}}\n"))

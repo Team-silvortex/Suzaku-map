@@ -405,6 +405,38 @@ impl PanelState {
         self.commit_sentence_candidate(index)
     }
 
+    pub(super) fn commit_keyboard_candidate(&mut self) {
+        if self.chrome.input_focused {
+            self.chrome.blur_input();
+            return;
+        }
+        if !self.native.showing {
+            if !self.keyboard_candidates_presented() {
+                self.window.request_redraw();
+                return;
+            }
+            // Navigation/absolute selection is an explicit user decision.
+            // Never replace it with the primary card, including on send failure.
+            if self.engine.selected_completion_text(true).is_some() {
+                let _ = self.commit_selected_candidate_to_host(CommitOptions { force: true });
+                return;
+            }
+        }
+        if !self.commit_primary_sentence_candidate() {
+            let _ = self.commit_selected_candidate_to_host(CommitOptions { force: true });
+        }
+    }
+
+    pub(super) fn keyboard_candidates_presented(&self) -> bool {
+        self.kind == PanelWindowKind::Main
+            && self.report_view.is_none()
+            && !self.chrome.settings_open
+            && !self.chrome.compact_mode
+            && !self.native.occluded
+            && self.last_scene.is_some()
+            && self.pointer_geometry_is_current()
+    }
+
     pub(super) fn commit_sentence_candidate(&mut self, index: usize) -> bool {
         if self.native_action(suzaku_map::ime::companion::NativeOperation::Commit(index)) {
             return true;
@@ -649,6 +681,20 @@ impl PanelState {
         let scene = match self.kind {
             PanelWindowKind::Main => {
                 let mut chrome = self.chrome.clone();
+                // Local render-only state: never mirror it into Settings or
+                // mistake the independent engine for the focused IBus host.
+                chrome.prediction_notice = super::prediction_feedback::notice(
+                    self.kind,
+                    self.native.showing
+                        || self
+                            .native
+                            .frame
+                            .as_ref()
+                            .is_some_and(|frame| frame.focused),
+                    false,
+                    chrome.compact_mode,
+                    &self.engine,
+                );
                 if self.native.showing {
                     chrome.input_focused = false;
                 }
@@ -862,10 +908,10 @@ impl PanelState {
         }
         let snapshot = self.view_snapshot();
         let (scene, overlays) = self.current_frame_with_snapshot(&snapshot);
-        let next_window_title = if self.report_view.is_some() {
+        let next_window_title = if let Some(report) = self.report_view.as_ref() {
             format!(
                 "Suzaku · {}",
-                self.chrome.ui_language.tr("Operation details")
+                self.chrome.ui_language.tr(report.title_key())
             )
         } else {
             match self.kind {
@@ -1811,6 +1857,16 @@ impl PanelState {
                 self.note_interaction_action(action);
                 self.chrome.voice_auto_insert = enabled;
                 self.persist_display_settings();
+            }
+            InteractionKind::OpenModelSetup => {
+                if self.kind == PanelWindowKind::Settings {
+                    self.begin_report_details(
+                        crate::report_view::ReportSnapshot::ModelSetup(
+                            suzaku_map::ui::model_setup::ModelSetupGuide::current(),
+                        ),
+                        true,
+                    );
+                }
             }
             InteractionKind::SetLlmModel(model) => {
                 let action = InteractionKind::SetLlmModel(model);

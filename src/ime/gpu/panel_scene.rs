@@ -583,15 +583,20 @@ impl WgpuCandidateRenderer {
         );
         let header_layouts = vec![
             TextBlock {
-                text: ui
-                    .tr(match chrome.theme_preset {
-                        ThemePreset::Suzaku => "Suzaku · Input",
-                        ThemePreset::Baihu => "Baihu · Input",
-                        ThemePreset::Qinglong => "Qinglong · Input",
-                        ThemePreset::Xuanwu => "Xuanwu · Input",
-                        _ => "Seed input",
-                    })
-                    .to_string(),
+                text: chrome
+                    .prediction_notice
+                    .as_ref()
+                    .map(|notice| notice.render(ui))
+                    .unwrap_or_else(|| {
+                        ui.tr(match chrome.theme_preset {
+                            ThemePreset::Suzaku => "Suzaku · Input",
+                            ThemePreset::Baihu => "Baihu · Input",
+                            ThemePreset::Qinglong => "Qinglong · Input",
+                            ThemePreset::Xuanwu => "Xuanwu · Input",
+                            _ => "Seed input",
+                        })
+                        .to_string()
+                    }),
                 origin: [
                     panel_x + 16.0 * responsive_scale,
                     input_box_y + 9.0 * responsive_scale,

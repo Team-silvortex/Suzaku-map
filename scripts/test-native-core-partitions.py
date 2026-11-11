@@ -397,5 +397,88 @@ class AddedUiGatePreservationTests(unittest.TestCase):
                 self.assertNotEqual(digest(projected), RUNNER_HASH)
 
 
+class PresentedCandidateUiGatePreservationTests(unittest.TestCase):
+    GATES = (
+        "candidate_keyboard_native_test::numbered_choices_wait_for_the_presented_candidate_identity",
+        "candidate_keyboard_native_test::keyboard_enter_honors_explicit_selection_and_acknowledgements",
+        "prediction_feedback_native_test::native_prediction_feedback_is_render_local_and_preserves_draft_and_delivery_feedback",
+    )
+    BEFORE = "    candidates_native_test::native_candidate_clicks_and_async_refresh_are_safe \\\n"
+    AFTER = "    settings_native_test::native_tone_controls_follow_acknowledgements_and_reload \\\n"
+    ENV_BEFORE = '    if [[ "$suzaku_ci_test" == candidates_native_test::* ]]; then\n'
+    ENV_AFTER = (
+        '    if [[ "$suzaku_ci_test" == candidates_native_test::* ||\n'
+        '          "$suzaku_ci_test" == candidate_keyboard_native_test::* ]]; then\n'
+    )
+
+    def test_three_required_gates_and_environment_extension_restore_exact_prior_runner(self):
+        runner = (ROOT / "scripts/test-linux-ci.sh").read_text()
+        entries = [f"    {name} \\\n" for name in self.GATES]
+        self.assertTrue(all(runner.splitlines(keepends=True).count(entry) == 1 for entry in entries))
+        self.assertEqual(runner.count(self.BEFORE + "".join(entries) + self.AFTER), 1)
+        self.assertEqual(runner.count(self.ENV_AFTER), 1)
+        self.assertNotIn(self.ENV_BEFORE, runner)
+        legacy = runner.replace("".join(entries), "", 1).replace(self.ENV_AFTER, self.ENV_BEFORE, 1)
+        self.assertEqual(project_runner(runner), project_runner(legacy))
+        self.assertEqual(digest(project_runner(runner)), RUNNER_HASH)
+        self.assertTrue(all(name not in project_runner(runner) for name in self.GATES))
+
+    def test_only_candidate_fixtures_receive_the_unchanged_synthetic_ready_environment(self):
+        runner = (ROOT / "scripts/test-linux-ci.sh").read_text()
+        self.assertEqual(runner.count(self.ENV_AFTER), 1)
+        start = runner.index(self.ENV_AFTER)
+        end = runner.index("\n    fi\n", start) + len("\n    fi\n")
+        branch = runner[start:end]
+        expected = [
+            "SUZAKU_LINUX_IME_FRAMEWORK=ibus", "SUZAKU_LINUX_IME_DAEMON_READY=1",
+            "SUZAKU_LINUX_IME_REGISTERED=1", "SUZAKU_LINUX_IME_RUNTIME_VISIBLE=1",
+            "SUZAKU_LINUX_IME_HOST_READY=1", "SUZAKU_LINUX_IME_ACTIVE=0",
+            "SUZAKU_LINUX_IME_MARKED_TEXT=1", "SUZAKU_LINUX_IME_COMMIT=1",
+        ]
+        candidate_cases = (
+            "candidates_native_test::native_candidate_clicks_and_async_refresh_are_safe",
+            *self.GATES[:2],
+        )
+        for name in (*candidate_cases, self.GATES[2], "keyboard_native_test::native_keyboard_editing_and_focus_return"):
+            with self.subTest(name=name):
+                script = ('set -euo pipefail\nsuzaku_ci_test=$SUZAKU_SYNTHETIC_CASE\n'
+                          'suzaku_ci_probe_env=()\n' + branch
+                          + 'for item in "${suzaku_ci_probe_env[@]}"; do printf "%s\\n" "$item"; done\n')
+                result = subprocess.run(
+                    ["/bin/bash", "-c", script],
+                    env={"PATH": os.defpath, "SUZAKU_SYNTHETIC_CASE": name},
+                    capture_output=True, text=True, timeout=5)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout.splitlines(), expected if name in candidate_cases else [])
+
+    def test_changed_gates_environment_deadlines_and_exact_selection_cannot_be_projected_away(self):
+        runner = (ROOT / "scripts/test-linux-ci.sh").read_text()
+        entries = [f"    {name} \\\n" for name in self.GATES]
+        block = "".join(entries)
+        mutations = [(entry, "") for entry in entries]
+        mutations += [(entry, entry + entry) for entry in entries]
+        mutations += [(entry, entry.replace("::", "::renamed_", 1)) for entry in entries]
+        mutations += [
+            (block, "".join(reversed(entries))),
+            (block, ""),
+            (self.BEFORE + block + self.AFTER, self.BEFORE + self.AFTER + block),
+            (self.ENV_AFTER, self.ENV_BEFORE),
+            (self.ENV_AFTER, self.ENV_AFTER + self.ENV_AFTER),
+            (self.ENV_AFTER, self.ENV_AFTER.replace("candidate_keyboard_native_test::*", "*_native_test::*")),
+            ("SUZAKU_LINUX_IME_COMMIT=1", "SUZAKU_LINUX_IME_COMMIT=0"),
+            ("--kill-after=3s 90s", "--kill-after=3s 91s"),
+            ("-- --exact --ignored --nocapture --test-threads=1", "-- --ignored --nocapture --test-threads=1"),
+        ]
+        for before, after in mutations:
+            with self.subTest(before=before, after=after):
+                self.assertIn(before, runner)
+                mutated = runner.replace(before, after, 1)
+                try:
+                    projected = project_runner(mutated)
+                except AssertionError:
+                    continue
+                self.assertNotEqual(digest(projected), RUNNER_HASH)
+
+
 if __name__ == "__main__":
     unittest.main()

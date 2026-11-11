@@ -38,6 +38,16 @@ impl HttpModelProvider {
                 "options":{"temperature":0.0,"num_predict":if short {512} else {4096},
                     "num_ctx":if short {2048} else {8192}},"keep_alive":"5m"})
             .to_string()
+        } else if self.config.protocol == super::ModelProtocol::ChatCompletions {
+            json!({"model":self.config.model,"messages":messages,"stream":false,
+                "temperature":0.0,"max_completion_tokens":if short {512} else {4096},
+                "reasoning_effort":"none"})
+            .to_string()
+        } else if self.config.protocol == super::ModelProtocol::ChatCompletionsReasoning {
+            json!({"model":self.config.model,"messages":messages,"stream":false,
+                "max_completion_tokens":if short {512} else {4096},
+                "reasoning_effort":"low"})
+            .to_string()
         } else {
             json!({"model":self.config.model,"messages":messages,"stream":false,
                 "temperature":0.0,"max_tokens":if short {512} else {4096}})
@@ -112,6 +122,88 @@ mod tests {
     use super::*;
     use crate::languages::llm::LlmProviderError;
     use crate::languages::translation::TranslationLanguage;
+
+    #[test]
+    fn low_reasoning_translation_keeps_short_and_long_budgets_without_sampling() {
+        for model in ["any-family", "namespace/custom-model", "local-model.gguf"] {
+            let config = ModelProviderConfig {
+                protocol: ModelProtocol::ChatCompletions,
+                model: model.into(),
+                temperature_tenths: 7,
+                ..Default::default()
+            };
+            let nonreasoning = HttpModelProvider::new(config.clone());
+            let low = HttpModelProvider::new(ModelProviderConfig {
+                protocol: ModelProtocol::ChatCompletionsReasoning,
+                ..config
+            });
+            for (text, budget) in [("Hello?".into(), 512), ("x".repeat(513), 4096)] {
+                let request = TranslationRequest {
+                    text,
+                    source: Some(TranslationLanguage::English),
+                    target: TranslationLanguage::ChineseSimplified,
+                };
+                let mut previous: Value =
+                    serde_json::from_str(&nonreasoning.translation_body(&request)).unwrap();
+                let mut body: Value =
+                    serde_json::from_str(&low.translation_body(&request)).unwrap();
+                assert_eq!(body["max_completion_tokens"], budget);
+                assert_eq!(body["reasoning_effort"], "low");
+                assert_eq!(body["stream"], false);
+                for absent in ["max_tokens", "temperature", "top_p", "top_k"] {
+                    assert!(body.get(absent).is_none(), "unexpected field: {absent}");
+                }
+                assert_eq!(previous["reasoning_effort"], "none");
+                assert_eq!(previous["temperature"], 0.0);
+                body.as_object_mut().unwrap().remove("reasoning_effort");
+                previous.as_object_mut().unwrap().remove("reasoning_effort");
+                previous.as_object_mut().unwrap().remove("temperature");
+                assert_eq!(
+                    body, previous,
+                    "translation prompts and budgets must stay identical"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn explicit_chat_completions_translation_keeps_prompts_and_separate_output_budgets() {
+        for model in ["any-family", "namespace/custom-model", "local-model.gguf"] {
+            let config = ModelProviderConfig {
+                protocol: ModelProtocol::OpenAiCompatible,
+                model: model.into(),
+                ..Default::default()
+            };
+            let compatible = HttpModelProvider::new(config.clone());
+            let profile = HttpModelProvider::new(ModelProviderConfig {
+                protocol: ModelProtocol::ChatCompletions,
+                ..config
+            });
+            for (text, budget) in [("Hello?".into(), 512), ("x".repeat(513), 4096)] {
+                let request = TranslationRequest {
+                    text,
+                    source: Some(TranslationLanguage::English),
+                    target: TranslationLanguage::ChineseSimplified,
+                };
+                let mut old: Value =
+                    serde_json::from_str(&compatible.translation_body(&request)).unwrap();
+                let mut new: Value =
+                    serde_json::from_str(&profile.translation_body(&request)).unwrap();
+                assert!(new.get("max_tokens").is_none());
+                assert_eq!(new["max_completion_tokens"], budget);
+                assert_eq!(new["reasoning_effort"], "none");
+                assert_eq!(new["temperature"], 0.0);
+                assert_eq!(new["stream"], false);
+                assert_eq!(
+                    new.as_object_mut().unwrap().remove("max_completion_tokens"),
+                    old.as_object_mut().unwrap().remove("max_tokens")
+                );
+                new.as_object_mut().unwrap().remove("reasoning_effort");
+                assert_eq!(new, old);
+            }
+        }
+    }
+
     #[test]
     fn short_translation_reuses_candidate_context_but_long_input_keeps_its_budget() {
         for ollama in [false, true] {

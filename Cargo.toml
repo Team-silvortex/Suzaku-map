@@ -1,6 +1,6 @@
 [package]
 name = "suzaku-map"
-version = "0.10.1"
+version = "0.10.2"
 edition = "2024"
 license = "MIT"
 description = "TDD-driven XR and tablet IME engine prototype in Rust"
@@ -29,6 +29,7 @@ serde_json = { version = "1.0.151", features = ["raw_value"] }
 serde = { version = "1.0.229", features = ["derive"] }
 reqwest = { version = "0.12.24", default-features = false, features = ["blocking", "rustls-tls"] }
 ring = "0.17.14"
+tokio = { version = "1.53.1", default-features = false, features = ["rt", "time", "net"] }
 unicode-width = "0.2.2"
 wgpu = { version = "27.0.1", optional = true, default-features = false, features = ["dx12", "gles", "vulkan", "wgsl", "metal"] }
 winit = { version = "0.30.12", optional = true, default-features = false, features = ["android-native-activity", "rwh_06", "x11", "wayland", "wayland-dlopen"] }

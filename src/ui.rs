@@ -2,6 +2,9 @@
 use std::{borrow::Cow, collections::HashMap, sync::OnceLock};
 
 mod diagnostics;
+pub mod model_setup;
+mod prediction;
+pub use prediction::PredictionNotice;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum UiLanguage {

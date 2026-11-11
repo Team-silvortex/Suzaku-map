@@ -335,13 +335,21 @@ impl XRTabletImeEngine {
     }
 
     pub fn update_signal(&mut self, signal: SignalState) -> Snapshot {
+        self.update_signal_if_changed(signal);
+        self.snapshot()
+    }
+
+    /// Apply signal calibration and return whether candidates were rebuilt.
+    /// Equal signals can still require initial calibration or a plugin refresh.
+    /// A false result preserves selections and in-flight derived work unchanged.
+    pub fn update_signal_if_changed(&mut self, signal: SignalState) -> bool {
         // The startup confidence is initialized on the first application;
         // later equal signals are not edits or a reason to retry prediction.
         if !self.active_plugin_dirty
             && self.state.signal == signal
             && self.state.confidence == self.compute_confidence()
         {
-            return self.snapshot();
+            return false;
         }
         self.state.signal = signal;
         self.state.confidence = self.compute_confidence();
@@ -361,7 +369,7 @@ impl XRTabletImeEngine {
         }
 
         self.rebuild();
-        self.snapshot()
+        true
     }
 
     pub fn seed(&mut self, input: impl AsRef<str>) -> Snapshot {

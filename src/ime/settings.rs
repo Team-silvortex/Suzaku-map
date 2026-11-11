@@ -175,6 +175,8 @@ impl ImeSettings {
                 Some("auto") => ModelProtocol::Auto,
                 Some("ollama") => ModelProtocol::Ollama,
                 Some("openai-compatible") => ModelProtocol::OpenAiCompatible,
+                Some("chat-completions") => ModelProtocol::ChatCompletions,
+                Some("chat-completions-low") => ModelProtocol::ChatCompletionsReasoning,
                 _ => return Err("不支持的模型接口协议".into()),
             };
         }
@@ -589,6 +591,37 @@ mod tests {
     }
 
     #[test]
+    fn explicit_chat_completions_profile_roundtrips_without_implicit_cloud_consent() {
+        let value = json!({
+            "llm_scope":"cloud", "llm_protocol":"chat-completions",
+            "llm_endpoint":"https://models.example/v1/chat/completions",
+            "llm_model":"arbitrary-family", "llm_api_key_env":"SUZAKU_MODEL_KEY"
+        });
+        let settings = ImeSettings::from_json(&value.to_string()).unwrap();
+        assert_eq!(settings.provider.protocol, ModelProtocol::ChatCompletions);
+        assert!(!settings.provider.cloud_consent);
+        assert!(!settings.llm_enabled);
+        let saved = settings.to_json();
+        assert_eq!(saved["llm_protocol"], "chat-completions");
+        assert_eq!(saved["llm_api_key_env"], "SUZAKU_MODEL_KEY");
+        assert!(saved.get("llm_api_key").is_none());
+        assert_eq!(
+            ImeSettings::from_json(&saved.to_string()).unwrap(),
+            settings
+        );
+        for protocol in [
+            "chat-completion",
+            "chat-completions-v2",
+            "responses",
+            "invented",
+        ] {
+            let mut invalid = value.clone();
+            invalid["llm_protocol"] = protocol.into();
+            assert!(ImeSettings::from_json(&invalid.to_string()).is_err());
+        }
+    }
+
+    #[test]
     fn cloud_needs_explicit_scope_and_model_and_persists_only_a_key_reference() {
         let settings = ImeSettings::from_json(r#"{"llm_scope":"cloud","llm_protocol":"openai-compatible","llm_endpoint":"https://models.example/v1/chat/completions","llm_model":"any-family","llm_api_key_env":"SUZAKU_MODEL_KEY","llm_enabled":true}"#).unwrap();
         assert!(!settings.provider.cloud_consent);
@@ -681,6 +714,30 @@ mod tests {
             assert!(!json.contains("context"));
         }
     }
+    #[test]
+    fn low_reasoning_profile_roundtrips_without_changing_input_preferences_or_authorizing() {
+        let raw = r#"{"language":"ja","llm_enabled":true,"shortcut_profile":"home-row","llm_scope":"cloud","llm_protocol":"chat-completions-low","llm_endpoint":"https://models.example/v1/chat/completions","llm_model":"arbitrary-family","llm_api_key_env":"SYNTHETIC_REFERENCE","llm_timeout_ms":1400,"llm_temperature_tenths":7}"#;
+        let settings = ImeSettings::from_json(raw).unwrap();
+        assert_eq!(
+            settings.provider.protocol,
+            ModelProtocol::ChatCompletionsReasoning
+        );
+        assert!(!settings.provider.cloud_consent);
+        assert_eq!(settings.language, BuiltinLanguage::Japanese);
+        assert!(settings.llm_enabled);
+        assert_eq!(settings.shortcut_profile, ShortcutProfile::HomeRow);
+        assert_eq!(settings.provider.timeout_ms, 1400);
+        assert_eq!(settings.provider.temperature_tenths, 7);
+        assert_eq!(
+            ImeSettings::from_json(&settings.to_json().to_string()).unwrap(),
+            settings
+        );
+        assert_eq!(
+            ImeSettings::default().provider.protocol,
+            ModelProtocol::Auto
+        );
+    }
+
     #[test]
     fn bad_language_remote_endpoint_and_invalid_types_are_rejected() {
         for value in [

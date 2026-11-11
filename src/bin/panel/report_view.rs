@@ -4,7 +4,7 @@ use suzaku_map::{
         CandidateQuad, PanelChromeState, RenderScene, TextAlign, TextBlock, TextLayout, TextRole,
         TextSection,
     },
-    ui::UiLanguage,
+    ui::{UiLanguage, model_setup::ModelSetupGuide},
 };
 use unicode_width::UnicodeWidthChar;
 
@@ -18,6 +18,7 @@ const LIMIT_NOTICE: &str =
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(super) enum ReportSnapshot {
     InputMethodError(String),
+    ModelSetup(ModelSetupGuide),
     #[cfg(target_os = "linux")]
     Data(crate::tray_data::DataReport),
 }
@@ -28,6 +29,7 @@ impl ReportSnapshot {
             Self::InputMethodError(error) => ui
                 .tr("Input method error: {}")
                 .replace("{}", &ui.diagnostic(error)),
+            Self::ModelSetup(guide) => guide.render(ui),
             #[cfg(target_os = "linux")]
             Self::Data(report) => report.render(ui),
         }
@@ -37,6 +39,7 @@ impl ReportSnapshot {
     // snapshot even when its raw parameter exceeds the display budget.
     fn bounded(&self) -> (Self, bool) {
         let mut limited = false;
+        let mut guide_limited = false;
         let mut copy = |raw: &str| {
             let mut end = raw.len().min(DISPLAY_LIMIT);
             while !raw.is_char_boundary(end) {
@@ -47,6 +50,11 @@ impl ReportSnapshot {
         };
         let bounded = match self {
             Self::InputMethodError(error) => Self::InputMethodError(copy(error)),
+            Self::ModelSetup(guide) => {
+                let (guide, truncated) = guide.bounded(DISPLAY_LIMIT);
+                guide_limited = truncated;
+                Self::ModelSetup(guide)
+            }
             #[cfg(target_os = "linux")]
             Self::Data(report) => {
                 use crate::tray_data::{DataFailure, DataReport};
@@ -71,7 +79,7 @@ impl ReportSnapshot {
                 })
             }
         };
-        (bounded, limited)
+        (bounded, limited || guide_limited)
     }
 }
 
@@ -196,6 +204,12 @@ impl ReportView {
 
     pub(super) fn page_index(&self) -> usize {
         self.page
+    }
+    pub(super) fn title_key(&self) -> &'static str {
+        match &self.snapshot {
+            ReportSnapshot::ModelSetup(_) => "Configuration path and guide",
+            _ => "Operation details",
+        }
     }
     pub(super) fn page_count(&self) -> usize {
         self.starts.len()
@@ -434,7 +448,7 @@ impl ReportView {
         let viewport = [0.0, 0.0, width, height];
         label(
             &mut scene,
-            ui.tr("Operation details"),
+            ui.tr(self.title_key()),
             [margin, margin, usable_width, line * title_lines],
             px,
             line_gap,
@@ -846,6 +860,77 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn model_setup_snapshot_localizes_and_exposes_only_read_only_report_controls() {
+        let guide = ModelSetupGuide {
+            settings_path: Some(std::path::PathBuf::from(
+                "/SYNTHETIC/Font: Settings_日_ß:{}/settings.json",
+            )),
+        };
+        for ui_language in languages() {
+            let snapshot = ReportSnapshot::ModelSetup(guide.clone());
+            assert_eq!(snapshot.render(ui_language), guide.render(ui_language));
+            assert!(
+                snapshot
+                    .render(ui_language)
+                    .contains("/SYNTHETIC/Font: Settings_日_ß:{}/settings.json")
+            );
+            let chrome = PanelChromeState {
+                ui_language,
+                settings_search_query: "retained search".into(),
+                seed_text: "retained draft".into(),
+                settings_keyboard_focus: Some(
+                    suzaku_map::ime::gpu::InteractionKind::OpenModelSetup,
+                ),
+                ..Default::default()
+            };
+            let before = chrome.clone();
+            let mut report = ReportView::new(snapshot.clone());
+            assert_eq!(report.title_key(), "Configuration path and guide");
+            let scene = report.scene(&chrome, 420.0, 380.0);
+            assert!(scene.interactive_targets.is_empty());
+            assert!(scene.hit_targets.is_empty());
+            assert!(scene.settings_focus_targets.is_empty());
+            assert!(scene.draft_text.is_empty());
+            assert_eq!(chrome, before);
+            assert_eq!(report.snapshot, snapshot);
+            assert!(report.test_button_rect(None).is_none());
+            report.presented();
+            assert!(report.test_button_rect(None).is_some());
+        }
+    }
+
+    #[test]
+    fn model_setup_paths_are_bounded_without_replacing_the_original_snapshot() {
+        let snapshot = ReportSnapshot::ModelSetup(ModelSetupGuide {
+            settings_path: Some(std::path::PathBuf::from(format!(
+                "/SYNTHETIC/{}",
+                "日".repeat(DISPLAY_LIMIT / 3 + 9)
+            ))),
+        });
+        let (bounded, limited) = snapshot.bounded();
+        assert!(limited);
+        let ReportSnapshot::ModelSetup(guide) = bounded else {
+            panic!("the bounded snapshot must remain a model guide")
+        };
+        assert!(
+            guide
+                .settings_path
+                .as_ref()
+                .unwrap()
+                .as_os_str()
+                .as_encoded_bytes()
+                .len()
+                <= DISPLAY_LIMIT
+        );
+        let mut report = ReportView::new(snapshot.clone());
+        report.scene(&PanelChromeState::default(), 420.0, 380.0);
+        let cache = report.cache.as_ref().unwrap();
+        assert!(cache.limited);
+        assert!(cache.escaped.len() <= DISPLAY_LIMIT);
+        assert_eq!(report.snapshot, snapshot);
     }
 
     #[test]

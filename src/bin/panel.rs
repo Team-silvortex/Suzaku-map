@@ -9,6 +9,9 @@ mod app_state;
 #[path = "panel/bottom_layout.rs"]
 mod bottom_layout;
 #[cfg(all(test, target_os = "linux"))]
+#[path = "panel/candidate_keyboard_native_test.rs"]
+mod candidate_keyboard_native_test;
+#[cfg(all(test, target_os = "linux"))]
 #[path = "panel/candidates_native_test.rs"]
 mod candidates_native_test;
 #[path = "panel/composition.rs"]
@@ -44,6 +47,11 @@ mod native_position;
 mod native_presentation;
 #[path = "panel/native_sync.rs"]
 mod native_sync;
+#[path = "panel/prediction_feedback.rs"]
+mod prediction_feedback;
+#[cfg(all(test, target_os = "linux"))]
+#[path = "panel/prediction_feedback_native_test.rs"]
+mod prediction_feedback_native_test;
 #[path = "panel/prediction_settings.rs"]
 mod prediction_settings;
 #[path = "panel/render.rs"]
@@ -1034,9 +1042,14 @@ impl ApplicationHandler<PanelUserEvent> for PanelApp {
             if state.chrome.translation.phase == suzaku_map::ime::gpu::TranslationPhase::Pending {
                 tooltip_deadline = Some(now + Duration::from_millis(40));
             }
-            if !state.native.showing && state.engine.poll_prediction() {
-                state.refresh_composition_candidates();
-                state.window.request_redraw();
+            if !state.native.showing {
+                let update = prediction_feedback::poll(&mut state.engine);
+                if update.candidates_changed {
+                    state.refresh_composition_candidates();
+                }
+                if update.changed() {
+                    state.window.request_redraw();
+                }
             }
             if !state.native.showing && state.engine.prediction_pending() {
                 tooltip_deadline = Some(now + Duration::from_millis(30));
@@ -1385,6 +1398,7 @@ impl PanelState {
             llm_enabled: false,
             llm_model: LlmModelPreset::Configured,
             llm_temperature: LlmTemperaturePreset::Balanced,
+            prediction_notice: None,
             prediction_edit_generation: [0; 2],
             shortcut_profile: Default::default(),
             shortcut_bindings: Default::default(),
@@ -1413,6 +1427,7 @@ impl PanelState {
         if let Some(saved) = persisted_settings.as_ref() {
             apply_display_settings(&mut chrome, saved);
         }
+        chrome.prediction_notice = None;
         if kind == PanelWindowKind::Main {
             // Probe once during startup, never from rendering or input events.
             // A settings window inherits this cached result from its main panel.

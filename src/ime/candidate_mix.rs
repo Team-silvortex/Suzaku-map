@@ -329,6 +329,50 @@ pub fn merge_model(
     )
 }
 
+/// A narrow fallback for untyped Japanese model compounds, not a POS analyzer.
+/// Require one nominal suffix or a known input-domain head after an entire
+/// known Word stem; arbitrary short Han strings, phrases and recursively
+/// invented stems do not provide enough evidence. Keep this out of offline
+/// classification: it is not general-purpose Japanese word segmentation.
+fn japanese_model_nominal_extension(text: &str) -> bool {
+    if !(2..=8).contains(&text.chars().count())
+        || !text.chars().all(|ch| {
+            matches!(ch,
+                '\u{3400}'..='\u{4dbf}' | '\u{4e00}'..='\u{9fff}' |
+                '\u{f900}'..='\u{faff}' | '\u{20000}'..='\u{323af}'
+            )
+        })
+    {
+        return false;
+    }
+    if text
+        .char_indices()
+        .next_back()
+        .is_some_and(|(suffix_at, suffix)| {
+            matches!(
+                suffix,
+                '力' | '訳' | '版' | '性' | '率' | '量' | '費' | '料' | '誌' | '集'
+            ) && japanese::is_dictionary_word(&text[..suffix_at])
+        })
+    {
+        return true;
+    }
+    // A technical head alone cannot distinguish a noun from a terse clause
+    // such as a time expression followed by an action. Require a language,
+    // writing-system or voice object, not any pair of dictionary words.
+    ["入力", "出力", "表記", "変換"].into_iter().any(|head| {
+        let Some(stem) = text.strip_suffix(head) else {
+            return false;
+        };
+        let input_object = (stem.chars().count() >= 2 && stem.ends_with('語'))
+            || matches!(
+                stem,
+                "文字" | "漢字" | "仮名" | "平仮名" | "片仮名" | "数字" | "音声"
+            );
+        input_object && japanese::is_dictionary_word(head) && japanese::is_dictionary_word(stem)
+    })
+}
+
 /// Mix provider-neutral replacements without exposing backend or UI metadata to providers.
 pub fn merge_predictions(
     language: &str,
@@ -359,6 +403,14 @@ pub fn merge_predictions(
             // A provider's type hint cannot turn an English sentence into a word.
             Some(CandidateKind::Word) if language == "en" => classify(language, seed, &text),
             Some(CandidateKind::Word | CandidateKind::Sentence) => hint.unwrap(),
+            None if BuiltinLanguage::resolve(language) == Some(BuiltinLanguage::Japanese)
+                && !local.iter().any(|candidate| {
+                    candidate.text == text && candidate.source == CandidateSource::Local
+                })
+                && japanese_model_nominal_extension(&text) =>
+            {
+                CandidateKind::Word
+            }
             _ => classify(language, seed, &text),
         };
         let weight = (if kind == CandidateKind::Word {

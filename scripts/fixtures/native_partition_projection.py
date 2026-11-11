@@ -84,6 +84,18 @@ ADDED_UI_GATES = (
     "    settings_native_test::native_input_errors_are_visible_in_settings_and_compact_panel \\\n"
     "    report_native_test::native_report_details_are_read_only_and_require_presented_gestures \\\n"
 )
+PRESENTED_UI_GATE_ANCHOR = "    candidates_native_test::native_candidate_clicks_and_async_refresh_are_safe \\\n"
+PRESENTED_UI_GATE_SUCCESSOR = "    settings_native_test::native_tone_controls_follow_acknowledgements_and_reload \\\n"
+PRESENTED_UI_GATES = (
+    "    candidate_keyboard_native_test::numbered_choices_wait_for_the_presented_candidate_identity \\\n"
+    "    candidate_keyboard_native_test::keyboard_enter_honors_explicit_selection_and_acknowledgements \\\n"
+    "    prediction_feedback_native_test::native_prediction_feedback_is_render_local_and_preserves_draft_and_delivery_feedback \\\n"
+)
+CANDIDATE_ENV_BEFORE = '    if [[ "$suzaku_ci_test" == candidates_native_test::* ]]; then\n'
+CANDIDATE_ENV_AFTER = (
+    '    if [[ "$suzaku_ci_test" == candidates_native_test::* ||\n'
+    '          "$suzaku_ci_test" == candidate_keyboard_native_test::* ]]; then\n'
+)
 
 
 def replace_once(source, before, after):
@@ -102,6 +114,15 @@ def project_native(source):
 
 
 def project_runner(source):
+    # The three presented-candidate/feedback gates and their one environment
+    # extension are one exact additive change. No arbitrary name filtering or
+    # environment/body changes can disappear into the historical fingerprint.
+    if (any(line.strip() in source for line in PRESENTED_UI_GATES.splitlines())
+            or CANDIDATE_ENV_AFTER in source):
+        source = replace_once(
+            source, PRESENTED_UI_GATE_ANCHOR + PRESENTED_UI_GATES + PRESENTED_UI_GATE_SUCCESSOR,
+            PRESENTED_UI_GATE_ANCHOR + PRESENTED_UI_GATE_SUCCESSOR)
+        source = replace_once(source, CANDIDATE_ENV_AFTER, CANDIDATE_ENV_BEFORE)
     # Reverse only the two exact additive UI entries, in their original order
     # and between unchanged neighbours. Never erase a changed check or timeout.
     if any(line.strip() in source for line in ADDED_UI_GATES.splitlines()):

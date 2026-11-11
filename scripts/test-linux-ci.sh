@@ -164,6 +164,9 @@ else
     keyboard_native_test::native_keyboard_editing_and_focus_return \
     keyboard_native_test::native_custom_shortcut_recording_owns_window_events \
     candidates_native_test::native_candidate_clicks_and_async_refresh_are_safe \
+    candidate_keyboard_native_test::numbered_choices_wait_for_the_presented_candidate_identity \
+    candidate_keyboard_native_test::keyboard_enter_honors_explicit_selection_and_acknowledgements \
+    prediction_feedback_native_test::native_prediction_feedback_is_render_local_and_preserves_draft_and_delivery_feedback \
     settings_native_test::native_tone_controls_follow_acknowledgements_and_reload \
     settings_native_test::native_input_errors_are_visible_in_settings_and_compact_panel \
     report_native_test::native_report_details_are_read_only_and_require_presented_gestures \
@@ -186,7 +189,8 @@ else
       exit 1
     fi
     suzaku_ci_probe_env=()
-    if [[ "$suzaku_ci_test" == candidates_native_test::* ]]; then
+    if [[ "$suzaku_ci_test" == candidates_native_test::* ||
+          "$suzaku_ci_test" == candidate_keyboard_native_test::* ]]; then
       # Exercise the independent panel even when the in-process bridge reports
       # ready. Its synthetic Unix socket, not the desktop IBus, acknowledges sends.
       suzaku_ci_probe_env=(

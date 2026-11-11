@@ -87,7 +87,7 @@ fn print_help() {
         "  suzaku_tool data [status|backup [FILE]|validate FILE|restore FILE [--apply]|open [ime|panel|backups]]"
     );
     println!(
-        "  suzaku_tool model [status|discover|warmup|probe [all|en|zh-Hans|ja]|configure [--scope local|cloud] [--protocol auto|ollama|openai-compatible] [--model auto|NAME] [--endpoint URL] [--timeout-ms N] [--api-key-env NAME|none] [--cloud-consent true|false]] (alias: llama)"
+        "  suzaku_tool model [help|paths|guide|setup|status|check [--credentials]|discover|warmup|probe [LANGUAGE] [--once]|configure [--dry-run]] (Linux .deb: suzaku-tool; alias: llama; model help lists configuration options)"
     );
     println!("  suzaku_tool linux-register [install|status|verify|uninstall|diag]");
     println!("  suzaku_tool linux-register-ime [install|status|verify|uninstall|diag]");

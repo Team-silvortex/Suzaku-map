@@ -440,9 +440,9 @@ impl WgpuCandidateRenderer {
                 SettingsCategory::Model,
                 "Provider",
                 vec![(
-                    InteractionKind::SetLlmModel(LlmModelPreset::Configured),
-                    "Configured service",
-                    chrome.llm_model == LlmModelPreset::Configured,
+                    InteractionKind::OpenModelSetup,
+                    "Configuration path and guide",
+                    false,
                 )],
             ),
             (
@@ -634,7 +634,10 @@ impl WgpuCandidateRenderer {
                 // A recording prompt may be wider than a narrow localized value
                 // column. Grow only these new controls instead of shrinking text
                 // or relying on a hidden scrolling/ellipsis state.
-                let chip_h = if matches!(kind, InteractionKind::RecordShortcut(_)) {
+                let chip_h = if matches!(
+                    kind,
+                    InteractionKind::RecordShortcut(_) | InteractionKind::OpenModelSetup
+                ) {
                     (TextBlock {
                         text: (*chip_label).to_string(),
                         origin: [0.0, 0.0],
@@ -1619,7 +1622,10 @@ impl WgpuCandidateRenderer {
                     }
                     let rect_visible = visible_in_settings(rect[1], rect[3]);
                     let visual_rect = animated_rect(rect, hovered, pressed);
-                    let multiline_control = matches!(kind, InteractionKind::RecordShortcut(_));
+                    let multiline_control = matches!(
+                        kind,
+                        InteractionKind::RecordShortcut(_) | InteractionKind::OpenModelSetup
+                    );
 
                     let mut option_text = (*chip_label).to_string();
                     if rect_visible {

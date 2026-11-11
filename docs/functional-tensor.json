@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "date": "2026-11-04",
-    "head": "2330da6d1241c551ce79e2291d2a5edf416318b5",
+    "date": "2026-11-11",
+    "head": "a7f849d4fa5ab0eb759b8c5488b5149b66cdfc41",
     "dirty": true,
-    "source_sha256": "5549a017598364f21a6be3b6d32c03f71cabf25024fc62d0effc9f891e0a9a2f",
-    "note": "0.10.1/build51 首候选2330da6之后的历史守卫兼容修正快照。只精确逆回两条新增UI门禁的源文本投影，并新增缺失/篡改拒绝测试；实际执行清单、旧hash、53组回退、断言和期限不变，Rust/词库/模型/IPC及25包/SDK也保持。首候选CI41789261683因旧runner指纹不符失败，不能发包；修正须用新准确提交的完整CI与accepted资产独立验收。早前Rust Pending失败另行保留，不用这次守卫修正充作其修复。具体范围见E-release-0.10.1-preparation与E-ci-ui-gates-0.10.1；旧证据和评分不改，source_sha256不代表已发布包。"
+    "source_sha256": "896066dfb6036d9c680358ad7ed5f10805bf718aaa130e6c0b6231f31e7669fd",
+    "note": "0.10.1发布后未提交的云端配置增强继续保留。本轮修在途云请求取消与无类型JA模型名词分类：同worker异步HTTPS复用Client/Runtime，25ms协作检查与原绝对期限；仅已知Word词干的有界后缀/输入领域组合，不改offline分类或显式hint/本地同文。第一窄修上Sol/Astra各一次JA真实调用均Ready/保稿、零重试，Sol日本語訳为Word；Astra日本語入力仍Sentence的新缺口另冻结红测再修，最终用其原回执重放，不追改原paid观察。最终独立15组822过/0失败/4显式ignore/零筛除，两次API另计，旧22组855与旧六次实测不加总。3270/4711ms仍超过默认1200ms，取消不代表服务器计算/计费或DNS停止；usage不可用不声称实耗。新证据E-cloud-cancellation-ja-classification，旧协议v1、授权/凭据优先级、安全策略、所有旧评分/限制与证据、默认模型/期限/预算、词库/版本和取消的自动化保持；不更换个人安装或配置。source_sha256不代表发布包。后续本轮新增E-prediction-status-feedback：独立面板失败重绘和render-local单行提示，托盘明确host snapshot且不承诺AI新行，八语原始诊断载荷不再二次误译；中英日旧错误/伪造response_id隔离。独立最终16组1077通过/0失败/29显式忽略，另私有GPU1项实际通过，严格Clippy exit0/37.11s。首次五项红测、原始诊断误译及两次新GPU夹具失败均保留；不与上一轮822或真实模型调用加总。本轮不读密钥/不发新API请求/不改变个人安装和默认预算，原评分不动。后续候选键盘批E-candidate-keyboard-presentation修独立面板模型回包未呈现时数字误采用及Enter忽略明确选择，原native规则不变。两冻结真红后修，final独立UI24全过、相关16组1077过/0失败/31显式ignore/零筛除；strict Clippy exit0/4.59s，首轮collapsible_match拒绝及旧阶段回归不合并。KeyD同步、无调用者append空白及稳定按住取消仍列未修；无新API/安装或评分变更。后续信号批E-signal-candidate-sync现修KeyD与R重复播种：仅真实重建同步独立候选/作废旧呈现，不重播草稿/取消翻译；equal guard保选择及在途工作，首次校准/active plugin dirty照旧。真变化仍解锁选择且事件可重绘，非零frame承诺。两扩展冻结GPU入口真红后原样green，完整隔离UI24实际全过；final独立20组1160通过/0失败/31显式ignore/零筛除，strict Clippy exit0/43.33s；633文件前后哈希一致，详见同批历史记录。旧阶段记录不重写/不合并计数，append空白及稳定按住取消仍未修；无新API/安装/默认预算或评分变化。随后2026-11-11准备0.10.2/build52，新增E-release-0.10.2-prepared。旧完整Rust exit143未完成，不记full；fresh UI24、Clippy exit0/36.94s与371静态通过，634源文件哈希保持。准确提交远端八门及accepted包验收待完成，旧下载仍0.10.1；不将源码准备称为发布，所有评分保持。"
   },
   "architectures": [
     {
@@ -227,6 +227,7 @@
         "tests/ime_prediction.rs",
         "tests/commit_history.rs",
         "tests/ime_noop_controls.rs",
+        "tests/ime_signal_updates.rs",
         "tests/prediction_edit_conflicts.rs",
         "tests/long_draft_budget.rs"
       ]
@@ -242,6 +243,7 @@
       ],
       "tests": [
         "tests/japanese_spare_parent_words.rs",
+        "tests/model_japanese_classification.rs",
         "tests/japanese_nasal_stem_boundaries.rs",
         "tests/japanese_nasal_completion_slots.rs",
         "tests/japanese_vowel_completion_slots.rs",
@@ -889,16 +891,20 @@
       "title": "协议/授权/结果校验",
       "scope": "本地Ollama + 显式授权compatible HTTPS",
       "paths": [
+        "Cargo.toml",
+        "Cargo.lock",
         "src/lib.rs",
         "src/languages/model.rs",
         "src/languages/llama.rs",
         "src/model.rs",
+        "src/model/configuration.rs",
         "src/model/legacy.rs",
         "src/prediction/mod.rs",
         "src/prediction/prompt.rs",
         "src/prediction/policy.rs",
         "src/model/transport.rs",
-        "src/bin/suzaku_tool/model.rs"
+        "src/bin/suzaku_tool/model.rs",
+        "src/bin/suzaku_tool/model/setup.rs"
       ],
       "tests": [
         "tests/model_module_compat.rs",
@@ -906,6 +912,9 @@
         "src/model/live.rs",
         "src/model/legacy_tests.rs",
         "tests/model_provider_cli.rs",
+        "tests/model_setup_cli.rs",
+        "tests/model_cloud_quality_live.rs",
+        "tests/model_japanese_classification.rs",
         "tests/prediction_protocol.rs",
         "tests/prediction_preservation.rs",
         "tests/ime_prediction.rs",
@@ -930,7 +939,7 @@
       "id": "prediction",
       "a": "A04",
       "title": "统一预测协议/防抖工作线程/取消",
-      "scope": "共享引擎；本地连接后可取消",
+      "scope": "共享引擎；本地连接后及云端在途等待可协作取消",
       "paths": [
         "src/ime/prediction.rs",
         "src/prediction/mod.rs",
@@ -943,6 +952,8 @@
         "tests/prediction_protocol.rs",
         "tests/prediction_preservation.rs",
         "tests/prediction_edit_conflicts.rs",
+        "tests/ime_signal_updates.rs",
+        "tests/prediction_language_boundaries.rs",
         "src/model/cancellation_tests.rs",
         "tests/fallback_vocabulary.rs"
       ]
@@ -1004,14 +1015,21 @@
       "paths": [
         "src/bin/panel.rs",
         "src/bin/panel/keyboard.rs",
+        "src/bin/panel/input.rs",
         "src/bin/panel/composition.rs",
         "src/bin/panel/controller.rs",
+        "src/bin/panel/translation.rs",
+        "src/bin/panel/prediction_feedback.rs",
         "src/platform/text_output_host.rs"
       ],
       "tests": [
         "src/bin/panel/keyboard_native_test.rs",
         "src/bin/panel/candidates_native_test.rs",
-        "src/bin/panel/functional_network_audit_test.rs"
+        "src/bin/panel/candidate_keyboard_native_test.rs",
+        "src/bin/panel/functional_network_audit_test.rs",
+        "src/bin/panel/prediction_feedback.rs",
+        "src/bin/panel/prediction_feedback_native_test.rs",
+        "tests/prediction_feedback_ui.rs"
       ]
     },
     {
@@ -1119,6 +1137,7 @@
       "title": "设置布局/标题栏",
       "scope": "桌面GPU设置窗口",
       "paths": [
+        "src/ui/model_setup.rs",
         "src/ime/gpu/settings_scene.rs",
         "src/bin/panel/settings_keyboard.rs",
         "src/bin/panel/input.rs",
@@ -1129,6 +1148,7 @@
         "src/bin/panel/keyboard.rs"
       ],
       "tests": [
+        "tests/model_setup_ui.rs",
         "src/bin/panel/settings_native_test.rs",
         "src/bin/panel/report_native_test.rs",
         "src/bin/panel/report_view.rs",
@@ -1144,6 +1164,8 @@
       "scope": "en/zh/ja/ko/es/fr/de/pt UI",
       "paths": [
         "src/ui.rs",
+        "src/ui/model_setup.rs",
+        "src/ui/prediction.rs",
         "src/ui/catalog.tsv",
         "src/ime/gpu/panel_scene.rs",
         "src/ime/gpu/panel_scene_sentence_candidates_block.rs",
@@ -1170,6 +1192,8 @@
         "tests/ui_localization.rs",
         "tests/ui_candidate_metadata.rs",
         "tests/ui_tool_header_localization.rs",
+        "tests/prediction_feedback_ui.rs",
+        "src/bin/panel/prediction_feedback_native_test.rs",
         "src/bin/panel/tray.rs",
         "src/bin/panel/font_atlas_visual_tests.rs",
         "src/ui.rs",
@@ -4211,6 +4235,141 @@
       ],
       "scope": "0.10.1 Linux Alpha 已发布；准确提交八门、accepted 包与四资产重下载字节验收，不提升成熟度或扩展平台范围。",
       "note": "准确源码282e3cd5f272e71ab2624f89d801544479c53659，版本/build0.10.1/51，epoch1793776334，注释tag v0.10.1/object ccc932c73ba964ae84a4ab79a51d05d42be0748c；CI41790632168八门全success，accepted artifact13304544012与源码绑定且未过期。独立只读验包、安全归档/788内部校验、相同tar-deb manifest、四程序/共享资源、25包与SDK原始字节验收通过；远端干净容器安装/升级/卸载门禁通过。Release433687763于2026-11-04T08:42:02Z发布为draft=false/prerelease=true、非latest，https://github.com/Team-silvortex/Suzaku-map/releases/tag/v0.10.1；两安装包和两校验文件已全部重新下载逐块字节、size和SHA256比较，与最终asset id/digest匹配。完整四资产表集中在版本回执，原始记录/tmp/suzaku-accept-0.10.1.wrftDo/。本地完整Rust3037过/0失败/34显式忽略、323唯一零筛除组，独立UI21/21及严格Clippy实际exit0；不累加旧局部结果，不把后来通过当原Pending偶发失败根因已明。保留旧Rust、首候选CI守卫失败及旧CLI403；用户明确指定已有钥匙串条目后仅向发布子进程注入凭据，既有登录/SSH/App授权不变。此前174证据、源码快照、所有评分/限制与已发布旧资产不改，未动个人安装/输入法服务配置或恢复自动化；仍限Ubuntu24.04amd64/glibc2.39 LinuxAlpha。"
+    },
+    {
+      "id": "E-model-api-configuration",
+      "kind": "historical_run",
+      "paths": [
+        "docs/model-providers.md",
+        "docs/history/2026-11/model-api-configuration.md",
+        "src/model/configuration.rs",
+        "src/bin/suzaku_tool/model.rs",
+        "tests/model_provider_cli.rs",
+        "tests/model_translation_live.rs"
+      ],
+      "scope": "CLI配置/临时合成测试与一次官方英文云端请求；不是图形配置表单、综合质量或日常IME宿主验收。",
+      "note": "显式compatible base-url保留API前缀后追加/chat/completions，不猜/v1，与完整endpoint互斥并拒绝危险/歧义路径；旧完整地址/配置格式保留。check及configure --dry-run无网络/密钥值读取/配置写入，probe临时覆盖不保存，--once单语言首样例跳预热且通过统一预测v1；显式compatible模型不发现，Ollama仍检查清单。新chat-completions仅显式选择，max_completion_tokens与reasoning_effort:none保原温度/候选16..512及翻译512/4096预算，不按模型名/域名切换，旧三协议报文保持。目标变化撤销旧cloud consent，错误不回显未知内联参数；外部错误不显示响应体。私有进程夹具覆盖恰一POST、无授权/缺凭据零连接、未保存覆盖及坏参数；翻译live加载显式临时目录内普通配置，对同一文件句柄限读65536字节，防原链接换向/文件增长，原Local-only和ignore保留。用户确认官方平台并授权一次可能计费请求后，从精确指定Login条目仅向独立XDG子进程注入密钥，未落盘或打印；一次性claim先于读取凭据，未自动重试。真实https://api.openai.com/v1/chat/completions/gpt-6.1-terra/en/hello在显式5000ms期限内3423ms返回hello there及hello, how are you?两条v1合格候选，probe1/失败0/子进程exit0；不是离线回退通过。不外推默认1200ms实时体验、综合中英日质量、翻译/GUI/宿主、实际费用或吞吐。预检不证明凭据/供应商/宿主环境可用，单次实际通过也不保证持续可用；未读取真实输入或个人配置，不改生产期限/预测v1/词库/版本、个人安装/服务或取消的自动化。"
+    },
+    {
+      "id": "E-cloud-setup-guidance",
+      "kind": "historical_run",
+      "paths": [
+        "docs/model-providers.md",
+        "docs/history/2026-11/model-api-configuration.md",
+        "src/ui/model_setup.rs",
+        "tests/model_setup_ui.rs",
+        "tests/model_provider_cli.rs",
+        "src/model/transport.rs",
+        "src/model/configuration.rs",
+        "src/bin/panel/report_native_test.rs"
+      ],
+      "scope": "八语只读配置入口、当前进程路径/凭据预检与云端发送前预算；不等于图形编辑表单、钥匙串绑定或真实API性能验收。",
+      "note": "设置Provider原位置换为真实指南动作，沿用有界报告分页/返回/IME隔离，不改变旧section/collapse身份或保存/启用/目标重载逻辑。与CLI model guide共享只读八语正文，仅解析当前进程配置路径；model paths/guide在load之前，坏文件也可查且不创建目录，路径控制字符转义。普通check仍不读key，仅显式--credentials读取配置引用的当前进程环境，复用transport原ASCII/8192限制，仅报告NotRequired/Present/Missing/Invalid，不鉴权/联网/读Seahorse/查看宿主/写配置或授同意；文档区分terminal、panel、systemd和IBus直接启动。cloud入口同一起点绝对deadline包括冷Client与请求构建，发送前再检查cancel和剩余预算，仍单worker客户端池、逐请求新建敏感Authorization，无代理/重定向/重试且128KiB和默认期限保持。确定性门控覆盖准备后取消/过期零sender与有效仅剩预算一次send，单TLS连接三POST验证认证A→B→None无残留；不据此声称新的云端时延收益。首轮新私有窗口测试误访问private字段导致编译失败，已用现有输入权限接口修正，旧断言/期限不放宽。个人配置/安装/服务与取消的自动化不动，未增真实模型请求；旧176证据及成熟度不变。"
+    },
+    {
+      "id": "E-terminal-model-setup",
+      "kind": "historical_run",
+      "paths": [
+        "docs/model-providers.md",
+        "docs/history/2026-11/model-api-configuration.md",
+        "src/bin/suzaku_tool/model/setup.rs",
+        "tests/model_setup_cli.rs",
+        "src/ui/model_setup.rs"
+      ],
+      "scope": "离线终端配置向导与保存前确认；不是图形字段编辑器、凭据注入或真实云端调用验收。",
+      "note": "model setup要求stdin/stdout均为终端，先于读取设置检查；逐项显式选择部署/协议/地址类型/模型/凭据变量名/期限，仅配置凭据引用，不索取密钥值或猜测模型能力。预览后只有完整确认save才经原save_if_unchanged发布，取消/EOF/校验失败不写，并发有效修改不覆盖。始终撤销云端授权，输入语言/联想开关/温度/快捷键保留；不自动探针、读取keyring或key值、重载宿主、安装或修改个人配置。八语原生只读指南仅增加向导入口。最终独立指定范围1011通过/0失败/27原有显式忽略，七组零筛除；含新7unit及真实私有PTY10，2秒期限与64KiB上限保持，passive loopback验证零连接。独立UI21全过，严格all-feature/all-target Clippy实际exit0/17.61秒，格式/张量/文档/打包链接通过。首轮模块路径解析失败及Clippy新EOF索引循环告警保留，修复不削弱断言或加lint豁免；跨平台fixture路径写法改正不等于跨平台运行验收。不与旧运行/预检加总，不代表全仓集成/Doc-tests/日常宿主/实模验收；原协议v1、请求报文/默认预算、所有旧评分/限制与证据不变。"
+    },
+    {
+      "id": "E-cloud-quality-sol-astra",
+      "kind": "historical_run",
+      "paths": [
+        "docs/model-providers.md",
+        "docs/history/2026-11/model-api-configuration.md",
+        "src/model.rs",
+        "src/model/translation.rs",
+        "src/ime/settings.rs",
+        "src/bin/suzaku_tool/model/setup.rs",
+        "tests/model_cloud_quality_live.rs",
+        "tests/model_provider_cli.rs",
+        "tests/model_setup_cli.rs"
+      ],
+      "scope": "Sol6.1/Astra6各三语单样例，经真实候选worker与混排；不是默认1200ms体验、通用质量或GUI验收。",
+      "note": "新增显式chat-completions-low/low推理不发送采样参数，旧四协议/默认/候选16..512与翻译512/4096预算保留，按identity撤旧consent不按模型名分支。新live默认ignore，三重开关+固定两模型三语言+官方endpoint，纯内存配置且无个人设置/偏好/包加载，Once在delegate前claim且错误不重试。2026-11-04授权批次六生成/零重试，六独立进程确1passed/exit0且batch exit0，12适配器候选、每例至少1新Model来源Word/Sentence、Ready/未提交原稿/一次calls都核实。adapter ms按Sol EN/ZH/JA=3292/4153/2742，Astra=3317/3676/3322；含worker观测=3451/4289/2870及3476/3813/3450。六例超过默认1200ms，显式5000ms通过不外推默认实时；JA日本語力/日本語訳仍被标句，问题未修。usage未暴露故不报告真实tokens/账单，上限512不是实耗。指定Login条目仅供临时child环境，claim先于key读取/发送，rawbody/推理/key不入日志。回执/tmp/suzaku-cloud-qa.qzb93P，binarySHA256=28d20e0befe70f2bf08a75349875d764d67666183e67a18f47dbdc6dec7d4bca。独立本地782通过/0失败/3显式ignore（库原2+新live1）、10零筛除组，真实六例另计；严格all-feature/all-target Clippy exit0/43.01s。未重跑全仓/Doc-tests/UI，不改所有旧分数/限制/证据、个人安装/配置、默认模型/期限/预算、预测v1/版本或恢复自动化。"
+    },
+    {
+      "id": "E-cloud-cancellation-ja-classification",
+      "kind": "historical_run",
+      "paths": [
+        "docs/model-providers.md",
+        "docs/history/2026-11/model-api-configuration.md",
+        "Cargo.toml",
+        "Cargo.lock",
+        "src/model/transport.rs",
+        "src/ime/candidate_mix.rs",
+        "tests/model_japanese_classification.rs",
+        "tests/model_cloud_quality_live.rs"
+      ],
+      "scope": "云端在途协作取消与有界无类型日语模型名词分类；真实调用两例另计，非默认实时体验、完整形态分析或日常安装验收。",
+      "note": "冻结上轮真实日本語力/日本語訳回执，首红7项4失败；只新None JA模型行按2..8纯Han+既有Word词干/单后缀推断，保留public offline classify、typed hints、Local同文kind/source/旧权重及其他语言。云端改worker-local async Client/current-thread Runtime，单pinned send/body future，25ms tick只查取消不重发；pre/post poll复核cancel与原绝对deadline，过去timer显式wake，128KiB扩容前检查。四新传输项覆盖Ready/Pending越界、取消优先及真实engine同worker slow-header/body取消后latest2s内Ready，provider原5s不改、仅两请求/旧Cancelled/新Model/原稿未提交；body hook仅cfg(test)空通知。旧TLS认证A→B→None同连接、证书/redirect/size/total-body期限均走新生产路径。直接引用锁中既有Tokio1.53.1，未升级依赖。第一窄修上新授权2次JA/无重试，Sol3270ms/观测3399ms返回日本語訳Word+句，Astra4711/4839返回日本語入力Sentence+句；两进程实际各1passed/exit0、Ready/保稿/一次adapter均核实，结构过不冒充分类过。新Astra缺口另3冻结项，第二红10项2失败；只known input-domain head与限定语言/文字/数字/音声Word对象一次组合，拒绝时间/未知/递归等，不加词库或整词特判。最终该原回执worker重放修好，不新增paid请求或追改旧回执；两次真API另计，usage仍null。最终独立15零筛除组822过0失败4显式ignore（库原2+两live各1），不加旧22组855或旧模型实测。最终源码哈希与日志/tmp/suzaku-cloud-fix.T5AE9A/，真实回执/tmp/suzaku-cloud-fix-live.DJ65XR/，其binarySHA256=c8269f72dc2a3dc1d958792c68efd53c4114555bff5164eea2ba61f9ebd4e0a6。默认1200ms/上限5000ms/翻译30s、预测v1/提示/生产预算、个人安装配置/版本和所有旧评分证据不改；25ms不是端到端SLA、不能撤回数据/保证远端计费或底层DNS停止。未重跑全仓Doc-tests/原生UI/个人安装/CI，不恢复自动化。"
+    },
+    {
+      "id": "E-prediction-status-feedback",
+      "kind": "historical_run",
+      "paths": [
+        "docs/model-providers.md",
+        "docs/history/2026-11/model-api-configuration.md",
+        "src/ui/prediction.rs",
+        "src/bin/panel/prediction_feedback.rs",
+        "src/bin/panel/prediction_feedback_native_test.rs",
+        "src/bin/panel/tray.rs",
+        "tests/prediction_feedback_ui.rs",
+        "tests/prediction_language_boundaries.rs"
+      ],
+      "scope": "独立面板预测反馈、八语宿主快照措辞与中英日旧错误隔离；非真实模型质量、冷启动性能或个人桌面验收。",
+      "note": "失败status/error变化与候选变化分离，终态仅一次重绘；标题复用原单行，render-local chrome不持久化/镜像，不遮提交反馈。native showing或focused frame含私密空帧、Settings/report/orb抑制独立引擎notice。tray只表host snapshot，off/Disabled/consent优先，Pending不假称已发送，Ready不假称新AI行，Idle/unknown保守。冻结五项tray红测5失败；首较大回归292panel过/1失败揭露raw诊断末尾settings被通用模板再译，canonical outer保留至最终localize，原断言不改。语言新2测试含6方向×3旧错误=18内部场景及伪造response_id负例，同worker最新成功/保稿/零提交/有界候选；不把内部case加总为Rust测试数。隔离Xvfb/D-Bus/XDG新GPU项先后暴露夹具冷GPU耗尽2s及Settings搜索共用InputLabel误判；请求前无provider预热和完整scene负对照修正，原2s不改且Main正向文字断言保留。最终独立GPU确1passed/exit0，日志/tmp/suzaku-prediction-feedback.LEYKGX保留全部失败。无真实API调用/读key/自动重试或个人服务配置改动；默认模型/期限/预算、协议v1、词库/版本、所有旧评分与限制和已取消自动化不变。窄标题仍可截断，不声称真实桌面事件调度、托盘总线端到端或全仓验收。最终固定源码独立16唯一组1077过/0失败/29显式ignore/零筛除，库667+panel293与14集成组，不拼接首次失败或focused重试；29忽略=库2+panel25+两个live入口，新增GPU项独立实际1passed/exit0另计。严格all-target/all-feature Clippy(-D warnings)实际exit0/37.11s。全src/tests/Cargo清单前后逐文件SHA相同，清单SHA256=755d8db6c188d4dd91a5fa3a53c4231579cdc5a25f9917de871fb66fda3135e8。不是全仓集成/Doc-tests或个人安装验收。"
+    },
+    {
+      "id": "E-candidate-keyboard-presentation",
+      "kind": "historical_run",
+      "paths": [
+        "docs/shortcuts.md",
+        "docs/history/2026-11/model-api-configuration.md",
+        "src/bin/panel/input.rs",
+        "src/bin/panel/composition.rs",
+        "src/bin/panel/controller.rs",
+        "src/bin/panel/candidate_keyboard_native_test.rs",
+        "scripts/test-linux-ci.sh",
+        "scripts/fixtures/native_partition_projection.py",
+        "scripts/test-native-core-partitions.py"
+      ],
+      "scope": "独立面板模型候选刷新间隙的数字采用、Enter显式选择和私有ACK保稿；非个人桌面或真实模型质量验收。",
+      "note": "真实Digits/Enter路由先等价提helper，两冻结GPU项分别红exit101：Digit3旧屏help却adopt未显示helipad，Enter明确hello却wire发hel。local数字和Enter要求Main/无report/settings/orb/occlusion、last_scene成功呈现及当前geometry；dirty合法槽consume true只request_redraw，不开工具/排队重放。Enter先selected_completion_text(true)，失败不fallback primary；无显式选择仍原primary，编辑/防自提交和native分支不改。冻结SHA aefff6136c68a28e418f9005f820aee1c1b1c7f41415438d92d9a191ab16673c不变；两项单独green真实各1passed/exit0，私有Xvfb/D-Bus/XDG/实际GPU和Unix合成ACK检确切text/默认/拒绝保稿/无自动重试/stale Enter。未模拟实体键盘，helper结果不冒充真实桌面；provider在GPU预热后开始，2s限不改。新2项及旧prediction_feedback绘制1项接入CI，精确test存在/90s/--exact保留；只新增完整有序锚定block+精确fixture env逆投影，历史hash/旧断言不改，mutation防缺失/重复/改名/乱序/移动/环境泛化降级/期限和exact删除。8组120 Python守卫过；完整Linux UI gate实际exit0/24单项全过，不加两单独重跑，日志/tmp/suzaku-keyboard-choice.sEWuTb。原成熟度/默认模型预算/个人安装配置/词库/版本/取消的自动化不变，本轮不读key或发API请求。未修KeyD信号直改后镜像未刷新、无当前调用者append_seed空白重建，以及其他行变化导致稳定按住手势取消，不能说所有候选变更路径已闭环。首轮Clippy三处collapsible_match失败保留，按等价guard整理且冻结测试不改；终版重新独立完整UI24过，相关16唯一组1077过/0失败/31显式ignore/零筛除（库2+panel27+live2忽略），不拼首轮/专项重跑；strict all-target/all-feature -D warnings exit0/4.59s。632项src/tests/scripts/Cargo最终前后SHA逐文件相同，清单SHA256=299c1ca1da97fe43114b24d6332acecc0815e170417f09dd7c5abbeeac99267f；source digest不是发布包或全仓/Doc-tests/远端CI证明。"
+    },
+    {
+      "id": "E-signal-candidate-sync",
+      "kind": "historical_run",
+      "paths": [
+        "docs/shortcuts.md",
+        "docs/history/2026-11/model-api-configuration.md",
+        "src/ime/core_engine.rs",
+        "src/bin/panel/composition.rs",
+        "src/bin/panel/input.rs",
+        "src/bin/panel/translation.rs",
+        "src/bin/panel/candidate_keyboard_native_test.rs",
+        "tests/ime_signal_updates.rs"
+      ],
+      "scope": "独立面板D/R信号更新、候选镜像及相邻任务保留，共享引擎同signal语义；非真实模型、翻译质量、个人桌面或设备验收。",
+      "note": "冻结扩展原两个GPU入口后真红exit101：D后mirror hel而engine hel [stable]，重复R清Ready翻译为Idle。旧numbers/enter函数字节与旧断言、2s/90s/exact/CI投影保持，新增冻结用例修后各1passed。共享bool API复用原精确guard/body，首次confidence校准及active_plugin_dirty仍true，不按Snapshot相同猜noop。Panel仅本地Main且true时refresh候选/标签并作废旧scene；候选变化时撤销旧候选press，不reseeding或取消translation/undo/caret；false保选择/预测token/translation，不增calls。真实signal变化仍原core rebuild/解锁选择，事件外层仍request_redraw，不能承诺跨变化保持所选项或零frame。native showing和非local focused含隐私空帧禁更改，实际local focus可覆盖残留frame，不发Replace。新4 core tests覆盖EN/ZH/JA×mixed、首次校准/active或inactive插件dirty、Pending/Ready/Unavailable/noop及ABA弱化恢复同worker coalescing/旧reply隔离/零提交。GPU实际呈现与合成provider/translation worker/Unix ACK验证候选identity、待呈现零发送、在途及Ready翻译保留；helper/matrix不另计test。无实模/读key/个人安装配置、模型预算/协议/词库/版本/成熟度或自动化变化。上批KeyD未修记录是当时事实，本批才修；append_seed空白及稳定按住取消仍未修。最终固定源码独立UI24唯一单项全通过/exit0；相关20唯一组1160通过/0失败/31显式ignore/零筛除/exit0，含库667+panel293及18指定集成，不拼专项或旧阶段。strict all-target/all-feature Clippy -D warnings exit0/43.33s，29张量+25文档及8组120 Python守卫、导航/264包审计链接/格式/diff通过。633源/测试/脚本/Cargo前后逐文件SHA一致，清单SHA256=3f1c6025d6473a7c115487c0f9627647d92d06b131b98341020be1fa32b15cdd；日志/tmp/suzaku-signal-sync.ar4lN9。不是全仓集成/Doc-tests/远端CI或个人安装验收。"
+    },
+    {
+      "id": "E-release-0.10.2-prepared",
+      "kind": "historical_run",
+      "paths": [
+        "docs/releases/0.10.2.md",
+        "docs/history/2026-11/release-0.10.2.md"
+      ],
+      "scope": "0.10.2/build52源码准备、恢复后的独立本地检查；不是完整本地Rust通过、远端CI或安装包发布证明。",
+      "note": "2026-11-11恢复：五权威文件八值同步，634源/测试/脚本/Cargo与Android文件哈希保持，清单SHA256=2e903f3e7c7565bd06cf118227d5edb1004d27d7f916945860e42f7d7d71a30d。新隔离UI24唯一单项exit0、strict all-target/all-feature Clippy -D warnings exit0/36.94s；28静态命令exit0、25 unittest组371通过/零skip，文档/包导航/版本/格式/diff通过。ShellCheck本机缺失，须远端执行。旧完整Rust退出143，只完成274组2746通过/33ignore，不能算full或拼接局部结果；终止来源未确定。准确提交的八门CI、accepted artifact四资产、源码与安全归档及上传复下载仍是发布前提。无新API/模型密钥读取、个人安装/服务/配置、词库/SDK、默认预算或成熟度变更，不恢复取消的自动化。"
     }
   ],
   "cells": [
@@ -4883,6 +5042,7 @@
         2
       ],
       "evidence": [
+        "E-cloud-cancellation-ja-classification",
         "E-daily-plants",
         "E-daily-room-comfort",
         "E-daily-hygiene",
@@ -4908,6 +5068,7 @@
         2
       ],
       "evidence": [
+        "E-signal-candidate-sync",
         "E-shared-noop-controls",
         "E-linux-delivery"
       ],
@@ -4924,6 +5085,11 @@
         2
       ],
       "evidence": [
+        "E-cloud-cancellation-ja-classification",
+        "E-cloud-quality-sol-astra",
+        "E-terminal-model-setup",
+        "E-cloud-setup-guidance",
+        "E-model-api-configuration",
         "E-model-legacy",
         "E-model-boundaries",
         "E-prediction-protocol",
@@ -4960,6 +5126,9 @@
         2
       ],
       "evidence": [
+        "E-cloud-quality-sol-astra",
+        "E-cloud-setup-guidance",
+        "E-model-api-configuration",
         "E-model",
         "E-linux-delivery"
       ],
@@ -4991,6 +5160,9 @@
         2
       ],
       "evidence": [
+        "E-signal-candidate-sync",
+        "E-prediction-status-feedback",
+        "E-cloud-cancellation-ja-classification",
         "E-model-legacy",
         "E-model-boundaries",
         "E-shared-noop-controls",
@@ -5034,6 +5206,7 @@
         2
       ],
       "evidence": [
+        "E-cloud-setup-guidance",
         "E-shared-noop-controls",
         "E-prediction-error-boundaries",
         "E-prediction-preservation",
@@ -5088,6 +5261,9 @@
         2
       ],
       "evidence": [
+        "E-signal-candidate-sync",
+        "E-candidate-keyboard-presentation",
+        "E-prediction-status-feedback",
         "E-panel-held-rewind",
         "E-panel-suspended-adoption-history",
         "E-panel-number-adoption-history",
@@ -5139,6 +5315,7 @@
         2
       ],
       "evidence": [
+        "E-model-api-configuration",
         "E-model-legacy",
         "E-model-boundaries",
         "E-model",
@@ -5237,6 +5414,7 @@
         2
       ],
       "evidence": [
+        "E-cloud-setup-guidance",
         "E-pointer-preference",
         "E-linux-delivery",
         "E-feedback-usability-2026-10-28",
@@ -5256,6 +5434,8 @@
         2
       ],
       "evidence": [
+        "E-prediction-status-feedback",
+        "E-cloud-setup-guidance",
         "E-linux-delivery",
         "E-i18n-interface-2026-10-28",
         "E-i18n-diagnostics-2026-10-28",
@@ -5454,6 +5634,8 @@
         2
       ],
       "evidence": [
+        "E-release-0.10.2-prepared",
+        "E-candidate-keyboard-presentation",
         "E-pack-boundaries",
         "E-ci-vocabulary-sessions",
         "E-native-core-sessions",
@@ -5864,6 +6046,7 @@
         2
       ],
       "evidence": [
+        "E-cloud-cancellation-ja-classification",
         "E-current",
         "E-preference",
         "E-linux-delivery"

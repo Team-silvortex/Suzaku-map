@@ -87,6 +87,9 @@ impl PanelState {
     }
 
     pub(super) fn reveal_settings_focus(&mut self) {
+        if self.report_view.is_some() {
+            return;
+        }
         let Some(kind) = self.chrome.settings_keyboard_focus else {
             return;
         };

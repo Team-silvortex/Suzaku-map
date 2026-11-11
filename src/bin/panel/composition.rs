@@ -1,4 +1,4 @@
-use super::{CommitAttempt, PanelState};
+use super::{CommitAttempt, PanelState, PanelWindowKind};
 use crate::render::create_font_atlas;
 use std::time::{Duration, Instant};
 use suzaku_map::ime::InputSource;
@@ -44,14 +44,43 @@ impl PanelState {
         self.last_interaction_action = Some((action, Instant::now()));
     }
 
+    pub(super) fn degrade_signal(&mut self) {
+        self.update_composition_signal(SignalState {
+            pointer_precision: 0.2,
+            gaze_stability: 0.2,
+            host_intent_weight: 0.4,
+            source_confidence: 0.4,
+        });
+    }
+
     pub(super) fn reset_signal(&mut self) {
-        self.engine.update_signal(SignalState {
+        self.update_composition_signal(SignalState {
             pointer_precision: 0.42,
             gaze_stability: 0.50,
             host_intent_weight: 0.80,
             source_confidence: 0.70,
         });
-        self.refresh_seed();
+    }
+
+    fn update_composition_signal(&mut self, signal: SignalState) {
+        // These controls calibrate the independent engine, never the external
+        // IBus draft. A retained frame cannot take ownership from a local editor.
+        if self.kind != PanelWindowKind::Main
+            || self.native.showing
+            || (!self.has_local_panel_interaction()
+                && self
+                    .native
+                    .frame
+                    .as_ref()
+                    .is_some_and(|frame| frame.focused))
+        {
+            return;
+        }
+        if self.engine.update_signal_if_changed(signal) {
+            // Signal changes are not text edits: keep the caret, adoption undo
+            // and translation request, but retire the previous candidate scene.
+            self.refresh_composition_candidates();
+        }
     }
 
     fn current_model_config(&self) -> Result<ModelProviderConfig, LlmProviderError> {
@@ -258,6 +287,29 @@ impl PanelState {
     }
 
     /// Number-key choices are editable replacements; only an explicit send commits.
+    pub(super) fn try_numbered_candidate(&mut self, slot: usize) -> bool {
+        if self.chrome.input_modes_expanded {
+            return false;
+        }
+        let Some(index) = self
+            .chrome
+            .sentence_candidate_source_indices
+            .get(slot)
+            .copied()
+        else {
+            return false;
+        };
+        if !self.native.showing && !self.keyboard_candidates_presented() {
+            // Consume this choice, not the Digit1..3 tool-switch fallback.
+            // A redraw is not permission to replay it against a different word.
+            self.window.request_redraw();
+            return true;
+        }
+        self.continue_sentence_candidate(index);
+        true
+    }
+
+    /// Adopt a full candidate while keeping it editable.
     pub(super) fn continue_sentence_candidate(&mut self, index: usize) {
         if self.native.showing {
             self.native_action(suzaku_map::ime::companion::NativeOperation::Adopt(index));

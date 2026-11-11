@@ -541,6 +541,7 @@ impl PanelState {
             InteractionKind::SetLlmModel(model) => {
                 Some(format!("LLM model: {}", ui.tr(llm_model_label(model))))
             }
+            InteractionKind::OpenModelSetup => Some("Configuration path and guide".into()),
             InteractionKind::SetLlmTemperature(temp) => Some(format!(
                 "LLM creativity: {}",
                 ui.tr(llm_temperature_label(temp))

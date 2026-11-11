@@ -1,6 +1,5 @@
 use super::{PanelState, PanelWindowKind};
 use suzaku_map::ime::gpu::{InputMode, VoiceCaptureState};
-use suzaku_map::ime::{CommitOptions, SignalState};
 use wgpu::SurfaceError;
 use winit::event::{ElementState, MouseButton, MouseScrollDelta, TouchPhase, WindowEvent};
 use winit::event_loop::ActiveEventLoop;
@@ -314,58 +313,28 @@ pub(super) fn handle_panel_window_event(
                         PhysicalKey::Code(KeyCode::ArrowUp) => {
                             state.move_candidate_selection(-1);
                         }
-                        PhysicalKey::Code(KeyCode::Digit1) => {
-                            if !state.chrome.input_modes_expanded
-                                && !state.chrome.sentence_candidate_source_indices.is_empty()
-                            {
-                                let index = state.chrome.sentence_candidate_source_indices[0];
-                                state.continue_sentence_candidate(index);
-                            } else {
-                                state.chrome.active_input_mode = InputMode::VirtualKeyboard;
-                                state.chrome.input_modes_expanded = true;
-                                state.chrome.focus_input();
-                            }
+                        PhysicalKey::Code(KeyCode::Digit1) if !state.try_numbered_candidate(0) => {
+                            state.chrome.active_input_mode = InputMode::VirtualKeyboard;
+                            state.chrome.input_modes_expanded = true;
+                            state.chrome.focus_input();
                         }
-                        PhysicalKey::Code(KeyCode::Digit2) => {
-                            if !state.chrome.input_modes_expanded
-                                && state.chrome.sentence_candidate_source_indices.len() > 1
-                            {
-                                let index = state.chrome.sentence_candidate_source_indices[1];
-                                state.continue_sentence_candidate(index);
-                            } else {
-                                state.chrome.input_modes_expanded = true;
-                                state.enter_voice_mode();
-                            }
+                        PhysicalKey::Code(KeyCode::Digit2) if !state.try_numbered_candidate(1) => {
+                            state.chrome.input_modes_expanded = true;
+                            state.enter_voice_mode();
                         }
-                        PhysicalKey::Code(KeyCode::Digit3) => {
-                            if !state.chrome.input_modes_expanded
-                                && state.chrome.sentence_candidate_source_indices.len() > 2
-                            {
-                                let index = state.chrome.sentence_candidate_source_indices[2];
-                                state.continue_sentence_candidate(index);
-                            } else {
-                                state.chrome.active_input_mode = InputMode::Handwriting;
-                                state.chrome.input_modes_expanded = true;
-                                state.chrome.blur_input();
-                            }
+                        PhysicalKey::Code(KeyCode::Digit3) if !state.try_numbered_candidate(2) => {
+                            state.chrome.active_input_mode = InputMode::Handwriting;
+                            state.chrome.input_modes_expanded = true;
+                            state.chrome.blur_input();
                         }
-                        PhysicalKey::Code(KeyCode::Digit4)
-                            if !state.chrome.input_modes_expanded
-                                && state.chrome.sentence_candidate_source_indices.len() > 3 =>
-                        {
-                            let index = state.chrome.sentence_candidate_source_indices[3];
-                            state.continue_sentence_candidate(index);
+                        PhysicalKey::Code(KeyCode::Digit4) => {
+                            state.try_numbered_candidate(3);
                         }
                         PhysicalKey::Code(KeyCode::Tab) => {
                             state.chrome.input_modes_expanded = !state.chrome.input_modes_expanded;
                         }
                         PhysicalKey::Code(KeyCode::KeyD) if !state.chrome.input_focused => {
-                            state.engine.update_signal(SignalState {
-                                pointer_precision: 0.2,
-                                gaze_stability: 0.2,
-                                host_intent_weight: 0.4,
-                                source_confidence: 0.4,
-                            });
+                            state.degrade_signal();
                         }
                         PhysicalKey::Code(KeyCode::KeyV)
                             if state.chrome.active_input_mode == InputMode::Dictation =>
@@ -403,15 +372,7 @@ pub(super) fn handle_panel_window_event(
                         }
                         PhysicalKey::Code(KeyCode::Enter)
                         | PhysicalKey::Code(KeyCode::NumpadEnter) => {
-                            if state.chrome.input_focused {
-                                state.chrome.blur_input();
-                            } else if state.commit_primary_sentence_candidate() {
-                                // The main sentence action should feel like a direct submit.
-                            } else {
-                                let _ = state.commit_selected_candidate_to_host(CommitOptions {
-                                    force: true,
-                                });
-                            }
+                            state.commit_keyboard_candidate();
                         }
                         _ => {}
                     }

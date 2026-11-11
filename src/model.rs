@@ -19,6 +19,7 @@ use crate::prediction::{
 
 #[cfg(test)]
 mod cancellation_tests;
+mod configuration;
 mod legacy;
 #[cfg(test)]
 mod legacy_tests;
@@ -30,6 +31,10 @@ mod test_server;
 mod translation;
 mod transport;
 
+pub use configuration::{
+    ModelCredentialStatus, model_credential_status, model_credential_status_with,
+    openai_compatible_endpoint_from_base_url,
+};
 pub use legacy::{default_llama_english_plugin, llama_english_plugin_with_config};
 
 pub const DEFAULT_MODEL: &str = "auto";
@@ -61,6 +66,8 @@ pub enum ModelProtocol {
     Auto,
     Ollama,
     OpenAiCompatible,
+    ChatCompletions,
+    ChatCompletionsReasoning,
 }
 
 impl ModelProtocol {
@@ -69,6 +76,8 @@ impl ModelProtocol {
             Self::Auto => "auto",
             Self::Ollama => "ollama",
             Self::OpenAiCompatible => "openai-compatible",
+            Self::ChatCompletions => "chat-completions",
+            Self::ChatCompletionsReasoning => "chat-completions-low",
         }
     }
 }
@@ -122,6 +131,8 @@ impl ModelProviderConfig {
         match self.protocol {
             ModelProtocol::Ollama => true,
             ModelProtocol::OpenAiCompatible => false,
+            ModelProtocol::ChatCompletions => false,
+            ModelProtocol::ChatCompletionsReasoning => false,
             ModelProtocol::Auto => self.endpoint.ends_with("/api/chat"),
         }
     }
@@ -201,6 +212,29 @@ impl HttpModelProvider {
                 "options": {"temperature":self.config.temperature_tenths.min(10) as f32 / 10.0,
                     "num_predict":self.config.max_tokens.clamp(16,512), "num_ctx":2048},
                 "keep_alive": "5m"
+            })
+            .to_string();
+        }
+        // An explicit wire profile, never inferred from a model or service name.
+        // No reasoning allocation competes with latency-sensitive candidate text.
+        if self.config.protocol == ModelProtocol::ChatCompletions {
+            return json!({
+                "model": self.config.model,
+                "messages": messages,
+                "temperature": self.config.temperature_tenths.min(10) as f32 / 10.0,
+                "max_completion_tokens": self.config.max_tokens.clamp(16, 512),
+                "reasoning_effort": "none", "stream": false
+            })
+            .to_string();
+        }
+        // Low reasoning is a separate explicit profile. It shares the existing
+        // total completion budget and never sends incompatible sampling knobs.
+        if self.config.protocol == ModelProtocol::ChatCompletionsReasoning {
+            return json!({
+                "model": self.config.model,
+                "messages": messages,
+                "max_completion_tokens": self.config.max_tokens.clamp(16, 512),
+                "reasoning_effort": "low", "stream": false
             })
             .to_string();
         }
@@ -631,6 +665,160 @@ mod tests {
     use crate::prediction::{PROTOCOL_VERSION, PredictionLimits};
     use std::net::TcpListener;
     use std::thread;
+
+    #[test]
+    fn low_reasoning_chat_is_an_explicit_distinct_identity_not_a_model_name_rule() {
+        assert_eq!(ModelProtocol::default(), ModelProtocol::Auto);
+        assert_eq!(
+            ModelProtocol::ChatCompletionsReasoning.id(),
+            "chat-completions-low"
+        );
+        for protocol in [
+            ModelProtocol::Auto,
+            ModelProtocol::Ollama,
+            ModelProtocol::OpenAiCompatible,
+            ModelProtocol::ChatCompletions,
+        ] {
+            let previous = ModelProviderConfig {
+                protocol,
+                endpoint: "http://127.0.0.1:8080/v1/chat/completions".into(),
+                model: "arbitrary-family".into(),
+                ..Default::default()
+            };
+            let low = ModelProviderConfig {
+                protocol: ModelProtocol::ChatCompletionsReasoning,
+                ..previous.clone()
+            };
+            assert!(!low.uses_ollama_api());
+            assert!(!low.same_identity(&previous));
+            assert!(!previous.same_identity(&low));
+            assert!(!low.cloud_consent);
+            assert_eq!(low.validate(), Ok(()));
+        }
+    }
+
+    #[test]
+    fn low_reasoning_candidates_keep_the_total_budget_and_omit_all_sampling_fields() {
+        for model in ["any-family", "namespace/custom-model", "local-model.gguf"] {
+            for max_tokens in [0, 16, 256, 512, 4096] {
+                for temperature_tenths in [0, 4, 10] {
+                    let config = ModelProviderConfig {
+                        protocol: ModelProtocol::ChatCompletions,
+                        endpoint: "http://127.0.0.1:8080/v1/chat/completions".into(),
+                        model: model.into(),
+                        max_tokens,
+                        temperature_tenths,
+                        ..Default::default()
+                    };
+                    let nonreasoning = HttpModelProvider::new(config.clone());
+                    let low = HttpModelProvider::new(ModelProviderConfig {
+                        protocol: ModelProtocol::ChatCompletionsReasoning,
+                        ..config
+                    });
+                    let mut previous: Value =
+                        serde_json::from_str(&nonreasoning.request_body(&request("en"))).unwrap();
+                    let mut body: Value =
+                        serde_json::from_str(&low.request_body(&request("en"))).unwrap();
+                    assert_eq!(body["reasoning_effort"], "low");
+                    assert_eq!(body["max_completion_tokens"], max_tokens.clamp(16, 512));
+                    assert_eq!(body["stream"], false);
+                    for absent in ["max_tokens", "temperature", "top_p", "top_k"] {
+                        assert!(body.get(absent).is_none(), "unexpected field: {absent}");
+                    }
+                    assert_eq!(previous["reasoning_effort"], "none");
+                    assert!(previous.get("temperature").is_some());
+                    body.as_object_mut().unwrap().remove("reasoning_effort");
+                    previous.as_object_mut().unwrap().remove("reasoning_effort");
+                    previous.as_object_mut().unwrap().remove("temperature");
+                    assert_eq!(
+                        body, previous,
+                        "prompts and total budgets must stay identical"
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn chat_completions_is_an_explicit_identity_without_model_name_dispatch() {
+        assert_eq!(ModelProtocol::default(), ModelProtocol::Auto);
+        assert_eq!(ModelProtocol::ChatCompletions.id(), "chat-completions");
+        for model in ["any-family", "namespace/custom-model", "local-model.gguf"] {
+            let compatible = ModelProviderConfig {
+                protocol: ModelProtocol::OpenAiCompatible,
+                endpoint: "http://127.0.0.1:8080/v1/chat/completions".into(),
+                model: model.into(),
+                ..Default::default()
+            };
+            let profile = ModelProviderConfig {
+                protocol: ModelProtocol::ChatCompletions,
+                ..compatible.clone()
+            };
+            assert!(!compatible.same_identity(&profile));
+            assert!(!profile.same_identity(&compatible));
+            assert!(!profile.uses_ollama_api());
+            assert!(!profile.cloud_consent);
+            assert_eq!(profile.validate(), Ok(()));
+        }
+    }
+
+    #[test]
+    fn chat_completions_candidate_body_changes_only_explicit_budget_and_reasoning_fields() {
+        for model in ["any-family", "namespace/custom-model", "local-model.gguf"] {
+            for max_tokens in [0, 256, 4096] {
+                let config = ModelProviderConfig {
+                    protocol: ModelProtocol::OpenAiCompatible,
+                    endpoint: "http://127.0.0.1:8080/v1/chat/completions".into(),
+                    model: model.into(),
+                    max_tokens,
+                    temperature_tenths: 7,
+                    ..Default::default()
+                };
+                let compatible = HttpModelProvider::new(config.clone());
+                let profile = HttpModelProvider::new(ModelProviderConfig {
+                    protocol: ModelProtocol::ChatCompletions,
+                    ..config
+                });
+                let mut old: Value =
+                    serde_json::from_str(&compatible.request_body(&request("en"))).unwrap();
+                let mut new: Value =
+                    serde_json::from_str(&profile.request_body(&request("en"))).unwrap();
+                assert!(new.get("max_tokens").is_none());
+                assert_eq!(new["max_completion_tokens"], max_tokens.clamp(16, 512));
+                assert_eq!(new["reasoning_effort"], "none");
+                assert_eq!(new["temperature"], old["temperature"]);
+                assert_eq!(new["stream"], false);
+                assert_eq!(
+                    new.as_object_mut().unwrap().remove("max_completion_tokens"),
+                    old.as_object_mut().unwrap().remove("max_tokens")
+                );
+                new.as_object_mut().unwrap().remove("reasoning_effort");
+                assert_eq!(new, old, "the rest of the chat envelope must be unchanged");
+            }
+        }
+    }
+
+    #[test]
+    fn older_chat_profiles_do_not_implicitly_adopt_new_request_fields() {
+        for protocol in [ModelProtocol::Auto, ModelProtocol::OpenAiCompatible] {
+            let provider = HttpModelProvider::new(ModelProviderConfig {
+                protocol,
+                endpoint: "http://127.0.0.1:8080/v1/chat/completions".into(),
+                ..Default::default()
+            });
+            let body: Value = serde_json::from_str(&provider.request_body(&request("en"))).unwrap();
+            assert_eq!(body["max_tokens"], 256);
+            assert!(body.get("max_completion_tokens").is_none());
+            assert!(body.get("reasoning_effort").is_none());
+        }
+        let provider = HttpModelProvider::new(ModelProviderConfig::default());
+        let body: Value = serde_json::from_str(&provider.request_body(&request("en"))).unwrap();
+        assert_eq!(body["options"]["num_predict"], 256);
+        assert!(body.get("max_tokens").is_none());
+        assert!(body.get("max_completion_tokens").is_none());
+        assert!(body.get("reasoning_effort").is_none());
+    }
+
     fn request(language: &str) -> LlmCompletionRequest {
         LlmCompletionRequest {
             language_id: language.into(),

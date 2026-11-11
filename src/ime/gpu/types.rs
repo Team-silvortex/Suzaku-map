@@ -406,6 +406,8 @@ pub struct PanelChromeState {
     pub llm_enabled: bool,
     pub llm_model: LlmModelPreset,
     pub llm_temperature: LlmTemperaturePreset,
+    /// Render-local notice only; never persisted or mirrored as a model setting.
+    pub prediction_notice: Option<crate::ui::PredictionNotice>,
     /// Runtime-only explicit control edits; loading/mirroring preferences is not an edit.
     pub prediction_edit_generation: [u64; 2],
     /// Canonical persistence lives in ImeSettings, not the panel appearance file.
@@ -473,6 +475,7 @@ impl Default for PanelChromeState {
             llm_enabled: false,
             llm_model: LlmModelPreset::Configured,
             llm_temperature: LlmTemperaturePreset::Balanced,
+            prediction_notice: None,
             prediction_edit_generation: [0; 2],
             shortcut_profile: Default::default(),
             shortcut_bindings: Default::default(),
@@ -747,6 +750,7 @@ pub enum InteractionKind {
     SetPointerTargetSlopTenths(u16),
     SetVoiceAutoInsert(bool),
     SetLlmModel(LlmModelPreset),
+    OpenModelSetup,
     SetLlmTemperature(LlmTemperaturePreset),
     SettingsScrollTrack,
     SettingsScrollHandle,

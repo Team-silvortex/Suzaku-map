@@ -326,6 +326,52 @@ mod platform {
         })
     }
 
+    fn host_prediction_status(state: &NativeImeStatus, ui: UiLanguage) -> String {
+        // This is an on-demand host snapshot, not the standalone panel's
+        // current draft. Known gates take precedence over stale worker state.
+        let detail = if !state.settings.llm_enabled {
+            ui.tr("Model suggestions off; local input remains available")
+                .to_owned()
+        } else if state.prediction == "Disabled" {
+            ui.tr("Model prediction inactive; local input remains available")
+                .to_owned()
+        } else if state.settings.provider.scope == ModelScope::Cloud
+            && !state.settings.provider.cloud_consent
+        {
+            ui.tr("Cloud consent required; no input text is sent")
+                .to_owned()
+        } else {
+            match state.prediction.as_str() {
+                "Pending" => ui
+                    .tr("Waiting for model result; local input remains available")
+                    .to_owned(),
+                "Ready" => ui
+                    .tr("Model response received; local candidates may be unchanged")
+                    .to_owned(),
+                "Idle" => ui
+                    .tr("Model prediction idle; local input remains available")
+                    .to_owned(),
+                "Unavailable" => state.prediction_error.as_deref().map_or_else(
+                    || {
+                        ui.tr("Model unavailable; local candidates retained")
+                            .to_owned()
+                    },
+                    |error| {
+                        ui.tr("Model diagnostic: {}")
+                            .replace("{}", &ui.diagnostic(error))
+                    },
+                ),
+                _ => ui
+                    .tr("Model prediction state unknown; local input remains available")
+                    .to_owned(),
+            }
+        };
+        // Keep the outer shell canonical until the menu's final localization
+        // pass. Otherwise a translated prefix can leave an opaque diagnostic
+        // suffix looking like an unrelated chrome template (e.g. "{} settings").
+        format!("Input host snapshot: {detail}")
+    }
+
     // Keep metadata messages in their canonical form until the menu is drawn.
     // The CLI's RuntimeStatus::summary() remains independent of UI language, and
     // a completed check can be redrawn in a new language without another request.
@@ -708,29 +754,7 @@ mod platform {
                         .input_method
                         .native
                         .as_ref()
-                        .map(|state| match state.prediction.as_str() {
-                            "Pending" => "Generating; local candidates remain available".into(),
-                            "Ready" => "Model candidates ready (marked AI)".into(),
-                            "Unavailable" => state.prediction_error.as_deref().map_or_else(
-                                || "Model unavailable; local candidates retained".into(),
-                                |error| {
-                                    format!(
-                                        "Model diagnostic: {}",
-                                        self.ui_language.diagnostic(error)
-                                    )
-                                },
-                            ),
-                            _ if state.settings.llm_enabled => {
-                                if state.settings.provider.scope == ModelScope::Cloud
-                                    && !state.settings.provider.cloud_consent
-                                {
-                                    "Cloud consent required; no input text is sent".into()
-                                } else {
-                                    "LLM enabled; waiting for input".into()
-                                }
-                            }
-                            _ => "Using local candidates; no model request".into(),
-                        })
+                        .map(|state| host_prediction_status(state, self.ui_language))
                         .unwrap_or_else(|| {
                             self.input_method
                                 .menu_native_unavailable_hint(self.ui_language)
@@ -1430,6 +1454,221 @@ mod platform {
                         error: None,
                     }),
                 },
+            }
+        }
+
+        // Exercise the formatter called by the real menu and its final label
+        // localization/bounding pass. This is not a native tray UI fixture.
+        fn rendered_host_prediction_status(
+            state: &super::NativeImeStatus,
+            ui: super::UiLanguage,
+        ) -> String {
+            use super::*;
+            let mut menu: Vec<MenuItem<()>> = vec![
+                StandardItem {
+                    label: host_prediction_status(state, ui),
+                    enabled: false,
+                    ..Default::default()
+                }
+                .into(),
+            ];
+            localize_menu(&mut menu, ui);
+            let MenuItem::Standard(item) = &menu[0] else {
+                panic!("prediction status row")
+            };
+            item.label.clone()
+        }
+
+        fn expected_host_prediction_status(ui: super::UiLanguage, inner: &str) -> String {
+            menu_label(&ui.tr("Input host snapshot: {}").replace("{}", inner))
+        }
+
+        #[test]
+        fn host_prediction_snapshot_formatter_keeps_states_conservative_and_localized() {
+            use super::*;
+            for (prediction, key) in [
+                (
+                    "Ready",
+                    "Model response received; local candidates may be unchanged",
+                ),
+                (
+                    "Disabled",
+                    "Model prediction inactive; local input remains available",
+                ),
+                (
+                    "Idle",
+                    "Model prediction idle; local input remains available",
+                ),
+                (
+                    "Pending",
+                    "Waiting for model result; local input remains available",
+                ),
+                (
+                    "Unavailable",
+                    "Model unavailable; local candidates retained",
+                ),
+                (
+                    "future-state",
+                    "Model prediction state unknown; local input remains available",
+                ),
+            ] {
+                let mut state = preference_status();
+                state.settings.llm_enabled = true;
+                state.prediction = prediction.into();
+                let before = state.clone();
+                for ui in UiLanguage::ALL
+                    .into_iter()
+                    .filter(|ui| *ui != UiLanguage::System)
+                {
+                    if ui != UiLanguage::English {
+                        assert_ne!(ui.tr(key), key, "missing status translation: {key}");
+                        assert_ne!(ui.tr("Input host snapshot: {}"), "Input host snapshot: {}");
+                    }
+                    assert_eq!(
+                        rendered_host_prediction_status(&state, ui),
+                        expected_host_prediction_status(ui, ui.tr(key)),
+                        "{prediction}: {ui:?}"
+                    );
+                    assert_eq!(state, before, "formatting is read-only");
+                }
+            }
+        }
+
+        #[test]
+        fn host_prediction_snapshot_formatter_off_precedes_stale_status_and_error() {
+            use super::*;
+            for prediction in [
+                "Pending",
+                "Ready",
+                "Unavailable",
+                "Disabled",
+                "future-state",
+            ] {
+                let mut state = preference_status();
+                state.settings.llm_enabled = false;
+                state.settings.provider.scope = ModelScope::Cloud;
+                state.settings.provider.cloud_consent = false;
+                state.settings.provider.endpoint =
+                    "https://models.example/v1/chat/completions".into();
+                state.settings.provider.model = "synthetic-host-model".into();
+                state.prediction = prediction.into();
+                state.prediction_error = Some("Font: Settings".into());
+                let before = state.clone();
+                for ui in UiLanguage::ALL
+                    .into_iter()
+                    .filter(|ui| *ui != UiLanguage::System)
+                {
+                    if ui != UiLanguage::English {
+                        assert_ne!(
+                            ui.tr("Model suggestions off; local input remains available"),
+                            "Model suggestions off; local input remains available",
+                        );
+                    }
+                    assert_eq!(
+                        rendered_host_prediction_status(&state, ui),
+                        expected_host_prediction_status(
+                            ui,
+                            ui.tr("Model suggestions off; local input remains available"),
+                        ),
+                        "{prediction}: {ui:?}"
+                    );
+                    assert_eq!(state, before);
+                }
+            }
+        }
+
+        #[test]
+        fn host_prediction_snapshot_formatter_inactive_context_precedes_cloud_consent() {
+            use super::*;
+            let mut state = preference_status();
+            state.settings.llm_enabled = true;
+            state.settings.provider.scope = ModelScope::Cloud;
+            state.settings.provider.cloud_consent = false;
+            state.settings.provider.endpoint = "https://models.example/v1/chat/completions".into();
+            state.settings.provider.model = "synthetic-host-model".into();
+            state.prediction = "Disabled".into();
+            let before = state.clone();
+            for ui in UiLanguage::ALL
+                .into_iter()
+                .filter(|ui| *ui != UiLanguage::System)
+            {
+                assert_eq!(
+                    rendered_host_prediction_status(&state, ui),
+                    expected_host_prediction_status(
+                        ui,
+                        ui.tr("Model prediction inactive; local input remains available"),
+                    ),
+                    "{ui:?}"
+                );
+                assert_eq!(state, before);
+            }
+        }
+
+        #[test]
+        fn host_prediction_snapshot_formatter_unconsented_cloud_precedes_pending() {
+            use super::*;
+            for prediction in ["Pending", "Ready", "Idle", "Unavailable", "future-state"] {
+                let mut state = preference_status();
+                state.settings.llm_enabled = true;
+                state.settings.provider.scope = ModelScope::Cloud;
+                state.settings.provider.cloud_consent = false;
+                state.settings.provider.endpoint =
+                    "https://models.example/v1/chat/completions".into();
+                state.settings.provider.model = "synthetic-host-model".into();
+                state.prediction = prediction.into();
+                state.prediction_error = Some("Font: Settings".into());
+                let before = state.clone();
+                for ui in UiLanguage::ALL
+                    .into_iter()
+                    .filter(|ui| *ui != UiLanguage::System)
+                {
+                    assert_eq!(
+                        rendered_host_prediction_status(&state, ui),
+                        expected_host_prediction_status(
+                            ui,
+                            ui.tr("Cloud consent required; no input text is sent"),
+                        ),
+                        "{prediction}: {ui:?}"
+                    );
+                    assert_eq!(state, before);
+                }
+            }
+        }
+
+        #[test]
+        fn host_prediction_snapshot_formatter_preserves_diagnostics_and_opaque_payloads() {
+            use super::*;
+            let diagnostics = [
+                PredictionError::Timeout.to_string(),
+                PredictionError::Unavailable.to_string(),
+                PredictionError::CloudConsentRequired.to_string(),
+                PredictionError::MissingCredentials.to_string(),
+                "Font: Settings".into(),
+                "Settings".into(),
+                "Model diagnostic: Settings".into(),
+                "raw_日_ß:{}\nFont: custom settings".into(),
+                "external_error_日_".repeat(30),
+            ];
+            for error in diagnostics {
+                let mut state = preference_status();
+                state.settings.llm_enabled = true;
+                state.prediction = "Unavailable".into();
+                state.prediction_error = Some(error.clone());
+                let before = state.clone();
+                for ui in UiLanguage::ALL
+                    .into_iter()
+                    .filter(|ui| *ui != UiLanguage::System)
+                {
+                    let diagnostic = ui
+                        .tr("Model diagnostic: {}")
+                        .replace("{}", &ui.diagnostic(&error));
+                    assert_eq!(
+                        rendered_host_prediction_status(&state, ui),
+                        expected_host_prediction_status(ui, &diagnostic),
+                        "{ui:?}: {error:?}"
+                    );
+                    assert_eq!(state, before, "redrawing must not rewrite the error");
+                }
             }
         }
 
