@@ -1,5 +1,6 @@
 //! Text-field input is separate from panel commands and input-mode tabs.
 use super::{PanelState, PanelWindowKind};
+use std::collections::BTreeSet;
 use suzaku_map::ime::gpu::{InteractionKind, PanelChromeState};
 use winit::{
     dpi::{PhysicalPosition, PhysicalSize},
@@ -13,9 +14,10 @@ pub(super) struct TextInputState {
     preedit: String,
     cursor: usize,
     cursor_area: Option<[f32; 4]>,
-    /// Consume a recorded physical key until its real release, even after saving,
-    /// cancelling or releasing its modifier. Ordinary IME cleanup must not clear it.
-    recording_hold: Option<PhysicalKey>,
+    /// Consume every recorded known key until its own real release, even after
+    /// saving, cancelling or releasing modifiers. KeyCode is a finite set; native
+    /// unidentified codes are never retained. IME cleanup must not clear holds.
+    recording_holds: BTreeSet<KeyCode>,
 }
 
 impl TextInputState {
@@ -29,7 +31,7 @@ impl TextInputState {
     }
 
     pub(super) fn clear_shortcut_hold(&mut self) {
-        self.recording_hold = None;
+        self.recording_holds.clear();
     }
 
     pub(super) fn hold_recorded_key(&mut self, key: PhysicalKey) {
@@ -46,18 +48,19 @@ impl TextInputState {
                     | KeyCode::SuperRight
             )
         {
-            self.recording_hold = Some(key);
+            self.recording_holds.insert(code);
         }
     }
 
     pub(super) fn consume_recorded_hold(&mut self, key: PhysicalKey, pressed: bool) -> bool {
-        if self.recording_hold != Some(key) {
+        let PhysicalKey::Code(code) = key else {
             return false;
+        };
+        if pressed {
+            self.recording_holds.contains(&code)
+        } else {
+            self.recording_holds.remove(&code)
         }
-        if !pressed {
-            self.clear_shortcut_hold();
-        }
-        true
     }
 
     fn set_preedit(&mut self, text: String, cursor: Option<(usize, usize)>) {
@@ -219,29 +222,35 @@ fn edit_action<'a>(
 }
 
 impl PanelState {
+    // Restore only after leaving the native view. Both an explicit click and a
+    // preceding Focused event use this handoff, without another focus request.
+    pub(super) fn restore_local_recovery(&mut self, recovery: Option<String>) {
+        if let Some(text) = recovery {
+            self.chrome.set_seed_text(text);
+            self.sync_manual_seed_base();
+            self.refresh_seed();
+        }
+    }
+
     pub(super) fn begin_text_editing(&mut self) {
         let recovery = self.take_native_typing_draft();
         self.leave_native_view();
+        // Window focus alone must not revive a retired field's text. Consume
+        // the saved copy only here, after restoring/checking the local base;
+        // a newer active draft wins and also retires the older cached copy.
+        let recovery = recovery.or(self.take_saved_native_typing_draft());
         match self
             .text_focus
             .request(&self.window, self.runs_without_window_focus)
         {
             Ok(()) => {
-                if let Some(text) = recovery {
-                    self.chrome.set_seed_text(text);
-                    self.sync_manual_seed_base();
-                    self.refresh_seed();
-                }
+                self.restore_local_recovery(recovery);
                 self.chrome.focus_input();
                 self.chrome.move_caret_to_end();
             }
             Err(_) => {
                 // Focus failure must not erase a draft recovered from native typing.
-                if let Some(text) = recovery {
-                    self.chrome.set_seed_text(text);
-                    self.sync_manual_seed_base();
-                    self.refresh_seed();
-                }
+                self.restore_local_recovery(recovery);
                 self.chrome.blur_input();
                 self.last_commit_feedback =
                     Some("Could not focus the input field. Click it to retry.".into());
@@ -393,6 +402,134 @@ mod tests {
         input.hold_recorded_key(PhysicalKey::Code(KeyCode::KeyF));
         input.clear_shortcut_hold();
         assert!(!input.consume_recorded_hold(PhysicalKey::Code(KeyCode::KeyF), true));
+    }
+
+    #[test]
+    fn overlapping_recorded_keys_remain_consumed_after_escape_cancels_recording() {
+        let mut chrome = PanelChromeState {
+            seed_text: "draft café 😀".into(),
+            settings_search_query: "untouched".into(),
+            ..Default::default()
+        };
+        let mut input = TextInputState::default();
+        let first = PhysicalKey::Code(KeyCode::KeyA);
+        let escape = PhysicalKey::Code(KeyCode::Escape);
+        chrome.toggle_shortcut_recording(ShortcutAction::Previous);
+        assert!(capture_shortcut_recording(
+            &mut chrome,
+            &Key::Character("a".into()),
+            ModifiersState::empty(),
+            false,
+            true,
+            false,
+        ));
+        input.hold_recorded_key(first);
+        assert_eq!(chrome.shortcut_recording, Some(ShortcutAction::Previous));
+        assert!(!chrome.shortcut_recording_error.is_empty());
+        assert!(capture_shortcut_recording(
+            &mut chrome,
+            &Key::Named(NamedKey::Escape),
+            ModifiersState::empty(),
+            false,
+            true,
+            false,
+        ));
+        input.hold_recorded_key(escape);
+        assert!(chrome.shortcut_recording.is_none());
+        assert!(input.consume_recorded_hold(escape, false));
+        let cancelled = chrome.clone();
+        assert!(
+            input.consume_recorded_hold(first, true),
+            "held A repeat must not reach settings search after Escape"
+        );
+        assert!(input.consume_recorded_hold(first, false));
+        assert!(!input.consume_recorded_hold(first, true));
+        assert_eq!(chrome, cancelled);
+        assert_eq!(chrome.shortcut_bindings, ShortcutBindings::default());
+        assert_eq!(chrome.shortcut_edit_generation, 0);
+        assert_eq!(chrome.settings_search_query, "untouched");
+        assert_eq!(chrome.seed_text, "draft café 😀");
+    }
+
+    #[test]
+    fn overlapping_recorded_keys_remain_consumed_after_a_valid_binding_is_saved() {
+        let mut chrome = PanelChromeState {
+            seed_text: "draft café 😀".into(),
+            settings_search_query: "untouched".into(),
+            ..Default::default()
+        };
+        let mut input = TextInputState::default();
+        let rejected = PhysicalKey::Code(KeyCode::KeyA);
+        let accepted = PhysicalKey::Code(KeyCode::KeyK);
+        chrome.toggle_shortcut_recording(ShortcutAction::Previous);
+        assert!(capture_shortcut_recording(
+            &mut chrome,
+            &Key::Character("a".into()),
+            ModifiersState::empty(),
+            false,
+            true,
+            false,
+        ));
+        input.hold_recorded_key(rejected);
+        assert!(capture_shortcut_recording(
+            &mut chrome,
+            &Key::Character("k".into()),
+            ModifiersState::CONTROL,
+            false,
+            true,
+            false,
+        ));
+        input.hold_recorded_key(accepted);
+        assert!(chrome.shortcut_recording.is_none());
+        assert_eq!(
+            chrome.shortcut_binding_label(ShortcutAction::Previous),
+            "Ctrl+K"
+        );
+        assert_eq!(chrome.shortcut_edit_generation, 1);
+        let saved = chrome.clone();
+        // Release the valid key and its modifier before A starts repeating.
+        assert!(input.consume_recorded_hold(accepted, false));
+        assert!(!input.consume_recorded_hold(PhysicalKey::Code(KeyCode::ControlLeft), false));
+        assert!(
+            input.consume_recorded_hold(rejected, true),
+            "saving another key must not release an earlier consumed key"
+        );
+        assert!(input.consume_recorded_hold(rejected, false));
+        assert!(!input.consume_recorded_hold(rejected, true));
+        assert_eq!(chrome, saved);
+        assert_eq!(chrome.settings_search_query, "untouched");
+        assert_eq!(chrome.seed_text, "draft café 😀");
+    }
+
+    #[test]
+    fn recording_holds_deduplicate_known_keys_and_ignore_unknown_or_modifier_keys() {
+        let mut input = TextInputState::default();
+        let first = PhysicalKey::Code(KeyCode::KeyA);
+        let second = PhysicalKey::Code(KeyCode::KeyK);
+        let unknown = PhysicalKey::Unidentified(winit::keyboard::NativeKeyCode::Unidentified);
+        let modifier = PhysicalKey::Code(KeyCode::ControlLeft);
+        for key in [first, first, unknown, modifier, second, second] {
+            input.hold_recorded_key(key);
+        }
+        input.clear(); // IME cleanup must not release recording-owned keys.
+        assert!(!input.consume_recorded_hold(unknown, true));
+        assert!(!input.consume_recorded_hold(unknown, false));
+        assert!(!input.consume_recorded_hold(modifier, true));
+        assert!(!input.consume_recorded_hold(modifier, false));
+        assert!(input.consume_recorded_hold(first, true));
+        assert!(input.consume_recorded_hold(first, false));
+        assert!(
+            !input.consume_recorded_hold(first, false),
+            "duplicate presses must not need duplicate releases"
+        );
+        assert!(input.consume_recorded_hold(second, true));
+        assert!(input.consume_recorded_hold(second, false));
+        assert!(!input.consume_recorded_hold(second, true));
+        input.hold_recorded_key(first);
+        input.hold_recorded_key(second);
+        input.clear_shortcut_hold(); // Focus/close boundaries still release all holds.
+        assert!(!input.consume_recorded_hold(first, true));
+        assert!(!input.consume_recorded_hold(second, true));
     }
 
     #[test]

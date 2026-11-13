@@ -315,7 +315,9 @@ impl PanelState {
         }
         self.is_focused = focused;
         if focused {
+            let recovery = self.take_native_typing_draft();
             self.leave_native_view();
+            self.restore_local_recovery(recovery);
         }
         if !focused {
             self.chrome.cancel_shortcut_recording();
@@ -402,7 +404,6 @@ impl PanelState {
             .sentence_candidate_source_indices
             .first()
             .copied()
-            .or_else(|| (!self.chrome.sentence_candidates.is_empty()).then_some(0))
         else {
             return false;
         };
@@ -426,7 +427,10 @@ impl PanelState {
                 return;
             }
         }
-        if !self.commit_primary_sentence_candidate() {
+        // A local card rejected for a missing/stale identity is not permission
+        // to send a different default choice. Native hosts retain their own
+        // selected-candidate fallback and revision-bound action validation.
+        if !self.commit_primary_sentence_candidate() && self.native.showing {
             let _ = self.commit_selected_candidate_to_host(CommitOptions { force: true });
         }
     }
@@ -509,86 +513,22 @@ impl PanelState {
     }
 
     fn resolve_sentence_candidate_index(&self, index: usize) -> Option<usize> {
-        let candidates = self.engine.candidates();
-        if candidates.is_empty() {
-            return None;
-        }
-
-        if let Some(maybe_match) =
-            self.resolve_candidate_index_by_displayed_label(index, candidates, |display_index| {
-                self.chrome
-                    .sentence_candidates
-                    .get(display_index)
-                    .map(String::as_str)
-            })
-        {
-            return Some(maybe_match);
-        }
-
-        if index < candidates.len() {
-            return Some(index);
-        }
-
-        if let Some(label) = self.chrome.sentence_candidates.get(index)
-            && let Some(fallback) = self.candidate_index_matching_sentence_label(label, candidates)
-        {
-            return Some(fallback);
-        }
-
-        let selected_index = self.engine.snapshot().selected_index;
-        if selected_index < candidates.len() {
-            Some(selected_index)
-        } else {
-            Some(candidates.len() - 1)
-        }
-    }
-
-    fn resolve_candidate_index_by_displayed_label<'a, F>(
-        &self,
-        index: usize,
-        candidates: &[suzaku_map::ime::Candidate],
-        label_for_display: F,
-    ) -> Option<usize>
-    where
-        F: Fn(usize) -> Option<&'a str>,
-    {
+        // Cards carry engine source indices, not normalized captions or display
+        // slots. Different payloads may deliberately share a caption, case or
+        // punctuation. Never redirect a click to the first similar candidate.
         let display_index = self
             .chrome
             .sentence_candidate_source_indices
             .iter()
-            .position(|candidate_index| *candidate_index == index)
-            .or_else(|| {
-                self.chrome
-                    .sentence_candidate_source_indices
-                    .get(index)
-                    .copied()
-            })?;
-
-        let label = label_for_display(display_index)?;
-        self.candidate_index_matching_sentence_label(label, candidates)
+            .position(|candidate_index| *candidate_index == index)?;
+        let label = self.chrome.sentence_candidates.get(display_index)?;
+        let candidate = self.engine.candidates().get(index)?;
+        (label == &candidate.label).then_some(index)
     }
 
-    fn candidate_index_matching_sentence_label(
-        &self,
-        label: &str,
-        candidates: &[suzaku_map::ime::Candidate],
-    ) -> Option<usize> {
-        let normalized_label = Self::normalize_candidate_text(label);
-        candidates
-            .iter()
-            .enumerate()
-            .find_map(|(index, candidate)| {
-                let normalized_text = Self::normalize_candidate_text(&candidate.text);
-                let normalized_label_text = Self::normalize_candidate_text(&candidate.label);
-                if normalized_text == normalized_label || normalized_label_text == normalized_label
-                {
-                    Some(index)
-                } else {
-                    None
-                }
-            })
-    }
-
+    // Retain the historical formatting regression, but never use this lossy
+    // normalization as a candidate identity or a send-target fallback.
+    #[cfg(test)]
     pub(super) fn normalize_candidate_text(text: &str) -> String {
         text.to_lowercase()
             .trim()
@@ -1329,6 +1269,7 @@ impl PanelState {
                 }
             }
             InteractionKind::InputModeButton(mode) => {
+                self.stop_voice_capture_if_leaving(mode);
                 if mode != InputMode::Translation {
                     self.cancel_translation();
                 }

@@ -215,8 +215,14 @@ impl PanelState {
     }
 
     pub(super) fn stop_voice_capture(&mut self) {
+        let was_listening = self.chrome.voice_state == VoiceCaptureState::Listening;
         if let Some(bridge) = self.voice.bridge.as_ref() {
             bridge.stop();
+            // Observe only an already-arrived partial after stopping. Do not wait
+            // for a future final result or revive a transcript while already idle.
+            if was_listening && let Some(transcript) = bridge.poll_transcript() {
+                self.chrome.voice_transcript = Self::normalize_voice_transcript(&transcript);
+            }
             self.chrome.voice_permission = bridge.permission_state();
         } else {
             self.chrome.voice_permission = VoicePermissionState::Unavailable;
@@ -225,21 +231,28 @@ impl PanelState {
         self.voice_progress.reset();
     }
 
+    pub(super) fn stop_voice_capture_if_leaving(&mut self, next_mode: InputMode) {
+        if next_mode != InputMode::Dictation
+            && self.chrome.voice_state == VoiceCaptureState::Listening
+        {
+            self.stop_voice_capture();
+        }
+    }
+
     pub(super) fn clear_voice_transcript(&mut self) {
         self.chrome.voice_transcript.clear();
         self.voice_progress.reset();
     }
 
     pub(super) fn insert_voice_transcript(&mut self) {
-        let transcript = Self::normalize_voice_transcript(&self.chrome.voice_transcript);
-        if transcript.is_empty() {
-            return;
-        }
-
         // Stop on the first attempt, including rejection: retain the source but
         // never auto-replay it into a different native context on the next poll.
         if self.chrome.voice_state == VoiceCaptureState::Listening {
             self.stop_voice_capture();
+        }
+        let transcript = Self::normalize_voice_transcript(&self.chrome.voice_transcript);
+        if transcript.is_empty() {
+            return;
         }
         if self.native.showing {
             self.native_insert_text(

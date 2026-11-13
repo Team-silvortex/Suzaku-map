@@ -114,6 +114,7 @@ fn tool_adoption_gestures_must_not_cross_native_targets() {
     use suzaku_map::ime::gpu::InteractionKind;
     run_probe(|state| {
         let mut findings = Vec::new();
+        assert_handwriting_undo_retires_old_gestures(state);
         for mode in [InputMode::Dictation, InputMode::Handwriting] {
             for touch in [false, true] {
                 for case in [
@@ -313,6 +314,310 @@ fn point_tool(state: &mut PanelState, kind: suzaku_map::ime::gpu::InteractionKin
     state.cursor_position = Some(point);
 }
 
+fn assert_handwriting_undo_retires_old_gestures(state: &mut PanelState) {
+    use suzaku_map::ime::gpu::InteractionKind;
+    let vertical = vec![[100.0, 100.0], [100.0, 200.0]];
+    let horizontal = vec![[75.0, 150.0], [125.0, 150.0]];
+    let kind = InteractionKind::UseHandwritingCandidate(0);
+    for native in [false, true] {
+        for touch in [false, true] {
+            for boundary in ["unchanged", "new candidate", "same label new strokes"] {
+                reset(state);
+                state.cancel_primary_interaction();
+                state.last_interaction_action = None;
+                state.chrome.set_seed_text("draft".into());
+                state.chrome.move_caret_to_end();
+                state.refresh_seed();
+                if native {
+                    state.receive_native_frame(Some(frame("draft", 1, 10)));
+                    assert!(state.native.showing);
+                } else {
+                    state.is_focused = true;
+                }
+                state.chrome.active_input_mode = InputMode::Handwriting;
+                state.chrome.input_modes_expanded = true;
+                state.chrome.blur_input();
+                state.chrome.handwriting_strokes =
+                    vec![vertical.clone(), horizontal.clone(), horizontal.clone()];
+                if boundary == "same label new strokes" {
+                    state.chrome.handwriting_strokes.push(horizontal.clone());
+                }
+                // Use the recognizer through the production undo entry point.
+                state.undo_handwriting_stroke();
+                assert_eq!(state.chrome.handwriting_candidates[0], "t");
+                let (sender, receiver) = mpsc::sync_channel(2);
+                state.native.sender = Some(sender);
+                point_tool(state, kind);
+                let original_rect = state.interaction_rect(kind).unwrap();
+                state.interaction.last_input_was_touch = touch;
+                state.begin_primary_press(touch);
+                assert_eq!(state.interaction.pressed_interaction, Some(kind));
+                if boundary != "unchanged" {
+                    // This is the production KeyZ callee, not a physical key event.
+                    state.undo_handwriting_stroke();
+                }
+                let expected_candidate = if boundary == "new candidate" {
+                    "T_T"
+                } else {
+                    "t"
+                };
+                assert_eq!(state.chrome.handwriting_candidates[0], expected_candidate);
+                super::tests::present_test_frame(state);
+                assert_eq!(state.interaction_rect(kind), Some(original_rect));
+                let strokes = state.chrome.handwriting_strokes.clone();
+                let candidates = state.chrome.handwriting_candidates.clone();
+                state.complete_primary_release(touch);
+                if boundary != "unchanged" {
+                    assert!(
+                        receiver.try_recv().is_err(),
+                        "old handwriting release sent: {boundary}, native={native}, touch={touch}"
+                    );
+                    assert_eq!(
+                        state.chrome.seed_text, "draft",
+                        "old handwriting release adopted a new source: {boundary}, native={native}, touch={touch}"
+                    );
+                    assert_eq!(state.chrome.handwriting_strokes, strokes);
+                    assert_eq!(state.chrome.handwriting_candidates, candidates);
+                    point_tool(state, kind);
+                    state.begin_primary_press(touch);
+                    state.complete_primary_release(touch);
+                }
+                if native {
+                    let request = receiver.try_recv().expect("fresh handwriting gesture");
+                    assert!(
+                        request
+                            .command
+                            .ends_with(&format!("Tdraft {expected_candidate}"))
+                    );
+                } else {
+                    assert_eq!(
+                        state.chrome.seed_text,
+                        format!("draft {expected_candidate}")
+                    );
+                }
+                state.complete_primary_release(touch);
+                assert!(receiver.try_recv().is_err(), "no duplicate insertion");
+                assert!(state.engine.snapshot().committed_text.is_empty());
+            }
+        }
+    }
+}
+
+fn queue_voice_partial(text: &std::ffi::CStr) {
+    unsafe extern "C" {
+        fn suzaku_linux_speech_debug_seed_transcript(text: *const std::ffi::c_char);
+    }
+    unsafe { suzaku_linux_speech_debug_seed_transcript(text.as_ptr()) };
+}
+
+fn start_voice_with_queued_latest(state: &mut PanelState, initial_poll: bool) -> Instant {
+    queue_voice_partial(c"");
+    state.chrome.active_input_mode = InputMode::Dictation;
+    state.chrome.input_modes_expanded = true;
+    state.start_voice_capture();
+    assert_eq!(state.chrome.voice_state, VoiceCaptureState::Listening);
+    let now = Instant::now();
+    if initial_poll {
+        state.poll_voice_bridge_at(now);
+        assert_eq!(state.chrome.voice_transcript, "hello world");
+    } else {
+        assert!(state.chrome.voice_transcript.is_empty());
+    }
+    queue_voice_partial(c"hello world again");
+    now
+}
+
+fn check_voice_boundary(findings: &mut Vec<String>, condition: bool, description: String) {
+    if !condition {
+        findings.push(description);
+    }
+}
+
+fn assert_voice_stop_and_mode_boundaries(state: &mut PanelState, findings: &mut Vec<String>) {
+    use suzaku_map::ime::gpu::InteractionKind;
+
+    for case in [
+        "stop button",
+        "focus loss",
+        "KeyI callee",
+        "KeyI empty visible callee",
+        "clear",
+    ] {
+        reset(state);
+        state.is_focused = true;
+        state.chrome.set_seed_text("draft".into());
+        state.chrome.move_caret_to_end();
+        state.refresh_seed();
+        let now = start_voice_with_queued_latest(state, case != "KeyI empty visible callee");
+        match case {
+            "stop button" => state.activate_interaction(InteractionKind::ToggleVoiceCapture, false),
+            "focus loss" => state.set_window_focus(false),
+            // This is the production KeyI callee, not a synthetic winit/X11 key event.
+            "KeyI callee" | "KeyI empty visible callee" => state.insert_voice_transcript(),
+            "clear" => state.activate_interaction(InteractionKind::ClearVoiceTranscript, false),
+            _ => unreachable!(),
+        }
+        check_voice_boundary(
+            findings,
+            state.chrome.voice_state == VoiceCaptureState::Idle,
+            format!("voice {case}: stopping must leave capture idle"),
+        );
+        let expected_source = if case.starts_with("KeyI") || case == "clear" {
+            ""
+        } else {
+            "hello world again"
+        };
+        check_voice_boundary(
+            findings,
+            state.chrome.voice_transcript == expected_source,
+            format!(
+                "voice {case}: expected retained source={expected_source:?}, got {:?}",
+                state.chrome.voice_transcript
+            ),
+        );
+        let expected_draft = if case.starts_with("KeyI") {
+            "draft hello world again"
+        } else {
+            "draft"
+        };
+        check_voice_boundary(
+            findings,
+            state.chrome.seed_text == expected_draft,
+            format!(
+                "voice {case}: expected draft={expected_draft:?}, got {:?}",
+                state.chrome.seed_text
+            ),
+        );
+        state.poll_voice_bridge_at(now + Duration::from_secs(3));
+        check_voice_boundary(
+            findings,
+            state.chrome.voice_transcript == expected_source,
+            format!("voice {case}: an idle poll must not revive a stopped or cleared source"),
+        );
+        check_voice_boundary(
+            findings,
+            state
+                .voice
+                .bridge
+                .as_ref()
+                .unwrap()
+                .poll_transcript()
+                .is_none(),
+            format!("voice {case}: the last queued partial must not leak into a later capture"),
+        );
+        assert!(
+            state.engine.snapshot().committed_text.is_empty(),
+            "draft only: {case}"
+        );
+    }
+
+    for mode in [
+        InputMode::Translation,
+        InputMode::Handwriting,
+        InputMode::VirtualKeyboard,
+    ] {
+        reset(state);
+        state.chrome.set_seed_text("draft".into());
+        state.refresh_seed();
+        let now = start_voice_with_queued_latest(state, true);
+        state.activate_interaction(InteractionKind::InputModeButton(mode), false);
+        assert_eq!(state.chrome.active_input_mode, mode);
+        check_voice_boundary(
+            findings,
+            state.chrome.voice_state == VoiceCaptureState::Idle,
+            format!("voice mode {mode:?}: leaving dictation must stop capture"),
+        );
+        check_voice_boundary(
+            findings,
+            state.chrome.voice_transcript == "hello world again",
+            format!("voice mode {mode:?}: leaving must preserve the unpolled latest partial"),
+        );
+        state.activate_interaction(
+            InteractionKind::InputModeButton(InputMode::Dictation),
+            false,
+        );
+        state.poll_voice_bridge_at(now + Duration::from_secs(3));
+        state.poll_voice_bridge_at(now + Duration::from_secs(4));
+        check_voice_boundary(
+            findings,
+            state.chrome.voice_state == VoiceCaptureState::Idle
+                && state.chrome.voice_transcript == "hello world again"
+                && state.chrome.seed_text == "draft",
+            format!(
+                "voice mode {mode:?}: returning must not revive capture or auto-insert an old source"
+            ),
+        );
+        assert!(state.engine.snapshot().committed_text.is_empty());
+    }
+
+    // Structural wiring evidence only: these are not keyboard-event acceptance.
+    let input = include_str!("input.rs");
+    for (key, mode) in [("Digit1", "VirtualKeyboard"), ("Digit3", "Handwriting")] {
+        let anchor = format!("PhysicalKey::Code(KeyCode::{key}) if !state.try_numbered_candidate(");
+        let branch = input
+            .split_once(anchor.as_str())
+            .expect("existing physical-key fallback")
+            .1
+            .split("PhysicalKey::Code(")
+            .next()
+            .unwrap();
+        let guard = format!("state.stop_voice_capture_if_leaving(InputMode::{mode});");
+        let assignment = format!("state.chrome.active_input_mode = InputMode::{mode};");
+        check_voice_boundary(
+            findings,
+            branch
+                .find(guard.as_str())
+                .zip(branch.find(assignment.as_str()))
+                .is_some_and(|(stop, change)| stop < change),
+            format!(
+                "voice {key}: the actual fallback branch must stop capture before changing mode"
+            ),
+        );
+    }
+
+    reset(state);
+    state.receive_native_frame(Some(frame("alpha draft", 1, 10)));
+    let (sender, receiver) = mpsc::sync_channel(1);
+    state.native.sender = Some(sender);
+    start_voice_with_queued_latest(state, true);
+    state.activate_interaction(InteractionKind::ToggleVoiceCapture, false);
+    state.insert_voice_transcript();
+    let request = receiver
+        .try_recv()
+        .expect("explicit native voice insertion");
+    let expected = suzaku_map::platform::linux_ime_sync::action_command(
+        state.native.frame.as_ref().unwrap(),
+        &NativeOperation::Replace("alpha draft hello world again".into()),
+    )
+    .unwrap();
+    check_voice_boundary(
+        findings,
+        request.command == expected,
+        "voice native insertion must send the retained latest partial, not the prior UI poll"
+            .into(),
+    );
+    assert_eq!(
+        state.chrome.seed_text, "alpha draft",
+        "no optimistic native edit"
+    );
+    state.clear_voice_transcript();
+    state.chrome.voice_transcript = "new source after the old insertion".into();
+    let generation = state.voice_progress.generation();
+    state.native_action_finished(request.host, request.revision, Ok(true));
+    assert_eq!(
+        state.chrome.voice_transcript,
+        "new source after the old insertion"
+    );
+    assert_eq!(state.voice_progress.generation(), generation);
+    assert_eq!(state.chrome.active_input_mode, InputMode::Dictation);
+    assert!(
+        receiver.try_recv().is_err(),
+        "an old ACK must not retry or adopt a newer source"
+    );
+    assert!(state.engine.snapshot().committed_text.is_empty());
+    queue_voice_partial(c"");
+}
+
 #[test]
 #[ignore = "requires private Xvfb and SUZAKU_PANEL_NATIVE_QA=1; run by test-linux-ci.sh ui"]
 fn audit_voice_auto_insert_must_not_follow_an_unrelated_native_context() {
@@ -478,6 +783,7 @@ fn audit_voice_auto_insert_must_not_follow_an_unrelated_native_context() {
                 );
             }
         }
+        assert_voice_stop_and_mode_boundaries(state, &mut findings);
         findings
     });
 }

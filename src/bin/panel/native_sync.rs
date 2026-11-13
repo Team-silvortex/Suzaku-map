@@ -56,10 +56,20 @@ pub(super) struct NativeView {
     // as the next keyboard edit's base until an authoritative frame arrives.
     confirmed_action: Option<NativeTyping>,
     keyboard: Option<NativeKeyboardQueue>,
+    // One most-recent retired public draft, detached from every send/ACK path.
+    // Only an explicit input-field gesture may consume this in-memory copy.
+    recovery: Option<NativeRecovery>,
+}
+
+struct NativeRecovery {
+    text: String,
+    local_seed: String,
 }
 
 struct PendingAction {
     id: (String, u64),
+    context: u64,
+    language: String,
     insertion: Option<NativeInsertion>,
     replacement: Option<NativeTyping>,
 }
@@ -312,8 +322,14 @@ impl PanelState {
                 .take()
                 .unwrap_or_else(|| NativeTyping::new(frame));
             // A pending translation/commit is a different operation, not a keyboard edit.
-            typing.blocked |=
-                self.native.pending.is_some() || self.is_focused || self.chrome.settings_open;
+            // Only uncertainty in this field blocks its draft. A different
+            // field's action is still a send barrier, but not this edit's failure.
+            typing.blocked |= self.native.pending.as_ref().is_some_and(|pending| {
+                pending.id.0 == frame.host
+                    && pending.context == frame.context
+                    && pending.language == frame.language
+            }) || self.is_focused
+                || self.chrome.settings_open;
             self.native.typing = Some(typing);
         }
         if !self.native.typing.as_mut().unwrap().edit(text) {
@@ -343,10 +359,19 @@ impl PanelState {
             // an unconfirmed Adopt look settled and redirect Backspace to it.
             if self.native.typing.is_none() {
                 self.native.typing = self.native.confirmed_action.take().or_else(|| {
-                    self.native
-                        .pending
-                        .as_mut()
-                        .and_then(|pending| pending.replacement.take())
+                    self.native.pending.as_mut().and_then(|pending| {
+                        // An action awaiting ACK may belong to the previous
+                        // field. Its draft is never this keyboard queue's base.
+                        if pending
+                            .replacement
+                            .as_ref()
+                            .is_some_and(|replacement| replacement.matches(frame))
+                        {
+                            pending.replacement.take()
+                        } else {
+                            None
+                        }
+                    })
                 });
             }
         }
@@ -363,8 +388,11 @@ impl PanelState {
     }
 
     pub(super) fn suspend_native_keyboard(&mut self) {
-        if let Some(queue) = self.native.keyboard.as_mut() {
-            queue.blocked = true;
+        // Literal-only typing can retain unsent suffixes without a key queue.
+        if self.native.keyboard.is_some() || self.native.typing.is_some() {
+            if let Some(queue) = self.native.keyboard.as_mut() {
+                queue.blocked = true;
+            }
             if let Some(typing) = self.native.typing.as_mut() {
                 typing.blocked = true;
             }
@@ -518,6 +546,29 @@ impl PanelState {
         }
     }
 
+    pub(super) fn take_saved_native_typing_draft(&mut self) -> Option<String> {
+        self.native
+            .recovery
+            .take()
+            .filter(|recovery| recovery.local_seed == self.chrome.seed_text)
+            .map(|recovery| recovery.text)
+    }
+
+    pub(super) fn discard_saved_native_typing_draft(&mut self) {
+        self.native.recovery = None;
+    }
+
+    pub(super) fn retain_native_recovery_for_seed(&mut self, text: &str) {
+        if self
+            .native
+            .recovery
+            .as_ref()
+            .is_some_and(|recovery| recovery.local_seed != text)
+        {
+            self.discard_saved_native_typing_draft();
+        }
+    }
+
     fn flush_native_typing(&mut self) {
         if self
             .native
@@ -652,6 +703,36 @@ impl PanelState {
             })
         {
             self.native.retained_keyboard_context = None;
+        }
+        let retires_draft = frame.as_ref().is_some_and(|next| {
+            self.native
+                .typing
+                .as_ref()
+                .is_some_and(|typing| !typing.matches(next))
+                || self
+                    .native
+                    .keyboard
+                    .as_ref()
+                    .is_some_and(|queue| !queue.matches(next))
+        }) || self
+            .native
+            .confirmed_action
+            .as_ref()
+            .is_some_and(|typing| frame.as_ref().is_none_or(|next| !typing.matches(next)));
+        if retires_draft {
+            // Capture before replacing the last public frame with a redacted
+            // FocusOut/private frame or another field. Never copy its new data
+            // into the old draft, and never retain send-capable state here.
+            let local_seed = self
+                .native
+                .draft
+                .as_ref()
+                .map(|(seed, _, _)| seed.clone())
+                .unwrap_or_else(|| self.chrome.seed_text.clone());
+            if let Some(text) = self.take_native_typing_draft() {
+                self.native.recovery = Some(NativeRecovery { text, local_seed });
+                self.native_typing_feedback();
+            }
         }
         if let Some(queue) = self.native.keyboard.as_mut() {
             if frame.as_ref().is_some_and(|frame| !queue.matches(frame)) {
@@ -963,6 +1044,8 @@ impl PanelState {
                 });
                 self.native.pending = Some(PendingAction {
                     id,
+                    context: frame.context,
+                    language: frame.language.clone(),
                     insertion,
                     replacement,
                 });
@@ -1039,7 +1122,11 @@ impl PanelState {
                 self.native.confirmed_action = Some(replacement);
             }
         } else {
-            if let Some(queue) = self.native.keyboard.as_mut() {
+            if let Some(queue) = self.native.keyboard.as_mut()
+                && queue.targets(&pending.id.0, pending.context, &pending.language)
+            {
+                // A rejected action in the previous field must not poison a
+                // newly acquired queue; same-target failures still retain it.
                 queue.blocked = true;
             }
             self.last_commit_feedback = Some(if pending.insertion.is_some() {
@@ -1051,6 +1138,9 @@ impl PanelState {
             self.window.request_redraw();
         }
         if self.native.showing {
+            // An old field's ACK may have just retired the global send barrier
+            // for a literal draft explicitly queued in the current field.
+            self.flush_native_typing();
             self.flush_native_keyboard();
             self.refresh_native_view();
             self.window.request_redraw();

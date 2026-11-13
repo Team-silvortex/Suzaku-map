@@ -33,11 +33,14 @@ impl NativeKeyboardQueue {
     }
 
     pub fn matches(&self, frame: &NativeComposition) -> bool {
-        frame.focused
-            && !frame.private
-            && self.target.host == frame.host
-            && self.target.context == frame.context
-            && self.target.language == frame.language
+        frame.focused && !frame.private && self.targets(&frame.host, frame.context, &frame.language)
+    }
+
+    // Late ACKs still need a target identity after focus loss or disconnect.
+    pub fn targets(&self, host: &str, context: u64, language: &str) -> bool {
+        self.target.host == host
+            && self.target.context == context
+            && self.target.language == language
     }
 
     pub fn observe(&mut self, frame: &NativeComposition) {

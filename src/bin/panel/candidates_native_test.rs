@@ -80,6 +80,7 @@ impl ApplicationHandler for CandidateProbe {
             }
         }
         check_standalone_commit_delivery(&mut state);
+        check_next_token_preview_boundaries(&mut state);
         println!(
             "PASS: mouse/touch completion and rewind; asynchronous candidate replacement cancels stale presses"
         );
@@ -187,6 +188,155 @@ fn check_held_completion_boundaries(state: &mut PanelState) {
     reset_composition(state);
     println!(
         "PASS: held mouse/touch completions cannot authorize a new press or survive seed, language, edit or viewport changes"
+    );
+}
+
+struct PreviewWordPlugin {
+    language: &'static str,
+    word: String,
+}
+
+impl suzaku_map::ime::LanguagePlugin for PreviewWordPlugin {
+    fn id(&self) -> &str {
+        self.language
+    }
+
+    fn expand_token(&self, token: &str, _: bool) -> Vec<String> {
+        vec![token.into()]
+    }
+
+    fn direct_candidates(&self, _: &str, _: f32) -> Option<Vec<suzaku_map::ime::Candidate>> {
+        Some(vec![suzaku_map::ime::Candidate {
+            text: self.word.clone(),
+            label: self.word.clone(),
+            score: 100.0,
+            ..Default::default()
+        }])
+    }
+
+    fn build_candidates(
+        &self,
+        _: &[String],
+        _: &str,
+        confidence: f32,
+    ) -> Vec<suzaku_map::ime::Candidate> {
+        self.direct_candidates("", confidence).unwrap()
+    }
+}
+
+fn install_preview_word(state: &mut PanelState, language: &'static str, seed: &str, word: &str) {
+    state.engine.register_language_plugin(PreviewWordPlugin {
+        language,
+        word: word.into(),
+    });
+    state.engine.set_language(language);
+    state.chrome.set_seed_text(seed.into());
+    state.chrome.move_caret_to_end();
+    state.engine.seed(seed);
+    state.refresh_composition_candidates();
+    assert_eq!(state.next_token_completions.len(), 1);
+    let edit = &state.next_token_completions[0];
+    assert_eq!(edit.label, word);
+    assert_eq!(edit.seed_before, seed);
+    assert_eq!(edit.seed_after, word);
+}
+
+fn press_preview_word(state: &mut PanelState, touch: bool) {
+    press(state, InteractionKind::SelectNextToken(0), touch);
+    assert!(
+        state
+            .last_scene
+            .as_ref()
+            .unwrap()
+            .next_token_candidate_truncated
+            .contains(&0),
+        "the real presented word chip must require a scrolling preview",
+    );
+}
+
+fn check_next_token_preview_boundaries(state: &mut PanelState) {
+    assert!(!state.native.showing);
+    let original_chrome = state.chrome.clone();
+    let mut fixture = XRTabletImeEngine::new(EngineConfig::default());
+    fixture.set_preferences_enabled(false);
+    let original_engine = std::mem::replace(&mut state.engine, fixture);
+    let committed = state.engine.snapshot().committed_text;
+    // Both words and both source drafts use the ordinary English prefix/edit
+    // derivation. No UI-only completion injection or model request is needed.
+    let first = format!("hel{}", "abcdefghijklmnopqrstuvwxyz".repeat(6));
+    let second = format!("hel{}", "zyxwvutsrqponmlkjihgfedcba".repeat(6));
+    for touch in [false, true] {
+        for boundary in ["payload", "seed", "language", "unchanged"] {
+            reset_composition(state);
+            install_preview_word(state, "en", "hel", &first);
+            let initial = state.engine.snapshot();
+            press_preview_word(state, touch);
+            state.complete_primary_release(touch);
+            assert_eq!(state.engine.snapshot(), initial);
+            assert_eq!(state.chrome.seed_text, "hel");
+            assert!(state.completion_history.labels().is_empty());
+            assert_eq!(state.interaction.next_token_candidate_scroll_index, Some(0));
+            assert!(
+                state
+                    .interaction
+                    .next_token_candidate_scroll_started_at
+                    .is_some()
+            );
+
+            let word = if boundary == "payload" {
+                &second
+            } else {
+                &first
+            };
+            let seed = if boundary == "seed" { "he" } else { "hel" };
+            match boundary {
+                "payload" | "seed" => install_preview_word(state, "en", seed, word),
+                "language" => install_preview_word(state, "en-US", seed, word),
+                "unchanged" => state.refresh_composition_candidates(),
+                _ => unreachable!(),
+            }
+            press_preview_word(state, touch);
+            let before = state.engine.snapshot();
+            let chrome = state.chrome.clone();
+            let history = state.completion_history.labels();
+            let revision = state.completion_history.revision();
+            state.complete_primary_release(touch);
+            if boundary != "unchanged" {
+                assert_eq!(
+                    state.engine.snapshot(),
+                    before,
+                    "a replacement word inherited the previous preview: {boundary}, touch={touch}",
+                );
+                assert_eq!(state.chrome, chrome);
+                assert_eq!(state.completion_history.labels(), history);
+                assert_eq!(state.completion_history.revision(), revision);
+                assert_eq!(state.interaction.next_token_candidate_scroll_index, Some(0));
+                assert!(
+                    state
+                        .interaction
+                        .next_token_candidate_scroll_started_at
+                        .is_some()
+                );
+                press_preview_word(state, touch);
+                state.complete_primary_release(touch);
+            }
+            assert_number_choice_draft(state, word, &committed);
+            assert_eq!(state.completion_history.labels(), [word.as_str()]);
+            let completed = state.engine.snapshot();
+            let revision = state.completion_history.revision();
+            state.complete_primary_release(touch);
+            assert_eq!(state.engine.snapshot(), completed);
+            assert_eq!(state.completion_history.revision(), revision);
+            rewind_number_choice(state, touch, seed, &committed);
+            assert!(state.completion_history.labels().is_empty());
+            assert!(state.chrome.composed_tokens.is_empty());
+        }
+    }
+    state.engine = original_engine;
+    state.chrome = original_chrome;
+    reset_composition(state);
+    println!(
+        "PASS: mouse/touch word previews are bound to the full edit and language; unchanged refresh keeps confirmation and new adoptions undo exactly once"
     );
 }
 

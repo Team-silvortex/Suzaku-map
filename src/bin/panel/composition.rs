@@ -14,6 +14,17 @@ use suzaku_map::platform::ime_host_dispatch::current_ime_host_dispatch;
 const COMMIT_INPUT_REPEAT_WINDOW: Duration = Duration::from_millis(260);
 const ACTION_REPEAT_WINDOW: Duration = Duration::from_millis(260);
 
+/// Captions and slots are not candidate identities. Retain the local source
+/// draft and exact visible payloads across refreshes, without binding gestures
+/// to score-only updates or the native host's separate revision protocol.
+#[derive(PartialEq, Eq)]
+pub(super) struct LocalSentenceFrame {
+    display_seed: String,
+    source_seed: String,
+    language: String,
+    candidates: Vec<(usize, String, String)>,
+}
+
 fn is_action_repeat(
     target: InteractionKind,
     last: Option<(InteractionKind, Instant)>,
@@ -165,12 +176,14 @@ impl PanelState {
             self.refresh_native_view();
             return;
         }
+        self.retain_native_recovery_for_seed(text);
         self.engine.seed(text);
         self.refresh_composition_candidates();
         self.sync_marked_text_with_host(text);
     }
 
     pub(super) fn reset_after_commit(&mut self) {
+        self.discard_saved_native_typing_draft();
         self.completion_history.clear();
         self.next_token_completions.clear();
         self.chrome.composed_tokens.clear();
@@ -187,6 +200,7 @@ impl PanelState {
         if self.native.showing {
             return;
         }
+        self.discard_saved_native_typing_draft();
         self.completion_history.clear();
     }
 
@@ -204,10 +218,47 @@ impl PanelState {
             6,
             4,
         );
+        let sentence_frame = LocalSentenceFrame {
+            display_seed: self.chrome.seed_text.clone(),
+            source_seed: snapshot.seed_text,
+            language: snapshot.active_language,
+            candidates: previews
+                .sentences
+                .iter()
+                .map(|(index, label)| {
+                    (
+                        *index,
+                        label.clone(),
+                        self.engine.candidates()[*index].text.clone(),
+                    )
+                })
+                .collect(),
+        };
         let (source_indices, sentences): (Vec<_>, Vec<_>) = previews.sentences.into_iter().unzip();
-        let candidates_changed = self.next_token_completions != previews.next_tokens
+        let completion_context_changed = self.local_sentence_frame.as_ref().is_none_or(|old| {
+            old.display_seed != sentence_frame.display_seed
+                || old.source_seed != sentence_frame.source_seed
+                || old.language != sentence_frame.language
+        });
+        if self
+            .interaction
+            .next_token_candidate_scroll_index
+            .is_some_and(|index| {
+                completion_context_changed
+                    || self.next_token_completions.get(index).is_none()
+                    || self.next_token_completions.get(index) != previews.next_tokens.get(index)
+            })
+        {
+            // The first click reviewed this exact edit, not another word that
+            // later occupies its slot (or the same label in another draft).
+            self.interaction.next_token_candidate_scroll_index = None;
+            self.interaction.next_token_candidate_scroll_started_at = None;
+        }
+        let sentences_changed = self.local_sentence_frame.as_ref() != Some(&sentence_frame)
             || self.chrome.sentence_candidate_source_indices != source_indices
             || self.chrome.sentence_candidates != sentences;
+        let candidates_changed =
+            self.next_token_completions != previews.next_tokens || sentences_changed;
         if candidates_changed
             && matches!(
                 self.interaction.pressed_interaction,
@@ -219,6 +270,12 @@ impl PanelState {
             self.clear_pressed_interaction();
             self.interaction.touch_tap_pending = false;
         }
+        if sentences_changed {
+            // The first click only reviewed that exact candidate and draft.
+            // A new card in the same slot needs its own scrolling preview.
+            self.interaction.sentence_candidate_scroll_index = None;
+            self.interaction.sentence_candidate_scroll_started_at = None;
+        }
         self.chrome.next_token_candidates = previews
             .next_tokens
             .iter()
@@ -227,6 +284,7 @@ impl PanelState {
         self.next_token_completions = previews.next_tokens;
         self.chrome.sentence_candidate_source_indices = source_indices;
         self.chrome.sentence_candidates = sentences;
+        self.local_sentence_frame = Some(sentence_frame);
         self.last_scene = None;
 
         let scroll_index = self.interaction.sentence_candidate_scroll_index;

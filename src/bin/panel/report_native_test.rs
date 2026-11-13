@@ -275,6 +275,166 @@ fn assert_report_input_error(app: &mut PanelApp, events: &ActiveEventLoop, legac
     assert_main_untouched(app);
 }
 
+fn assert_small_report_input_error(
+    app: &mut PanelApp,
+    events: &ActiveEventLoop,
+    requested: PhysicalSize<u32>,
+    limited: bool,
+    match_report_font: bool,
+) {
+    app.show_report_details(
+        events,
+        ReportSnapshot::InputMethodError(if limited {
+            "日".repeat(700_000)
+        } else {
+            "short report".into()
+        }),
+    );
+    let settings = app.settings.as_mut().unwrap();
+    settings.chrome.ui_language = suzaku_map::ui::UiLanguage::English;
+    settings.chrome.text_scale = DisplayTextScale::Large;
+    let _ = settings.window.request_inner_size(requested);
+    assert_eq!(settings.window.inner_size(), requested);
+    settings.resize(requested.width, requested.height);
+    settings.render().unwrap();
+    let window = settings.window.id();
+    app.window_event(events, window, WindowEvent::Focused(true));
+    app.settings.as_mut().unwrap().render().unwrap();
+
+    let settings = app.settings.as_mut().unwrap();
+    let before = EditingState::from(&*settings);
+    let legacy = (
+        settings.last_commit_feedback.clone(),
+        settings.commit_feedback_ticks,
+    );
+    let view = settings.report_view.as_ref().unwrap();
+    let source = view.test_snapshot().clone();
+    let page = (view.page_index(), view.page_count());
+    let buttons = [Some(false), Some(true), None].map(|key| view.test_button_rect(key));
+    let close = buttons[2].expect("the small report must have a presented close button");
+    let warning = "Report exceeds the 2 MiB display limit; only a bounded preview is available.";
+    let scene = settings.last_scene.as_ref().unwrap();
+    assert_eq!(
+        scene
+            .text_sections
+            .iter()
+            .flat_map(|section| &section.layouts)
+            .any(|layout| { !layout.truncated && layout.lines.join(" ") == warning }),
+        limited,
+        "the actual small report must retain its complete mandatory warning",
+    );
+    assert!(settings.report_view.as_mut().unwrap().press(
+        [point(close).0, point(close).1],
+        report_view::PointerSource::Mouse,
+    ));
+
+    app.user_event(events, PanelUserEvent::InputMethodError("IO".into()));
+    let settings = app.settings.as_mut().unwrap();
+    let snapshot = settings.view_snapshot();
+    let (scene, overlays) = settings.current_frame_with_snapshot(&snapshot);
+    assert_eq!(
+        overlays.len(),
+        1,
+        "a new error must be visible at {requested:?}, warning={limited}",
+    );
+    let visible = overlays[0]
+        .atlas_glyphs
+        .iter()
+        .map(|glyph| glyph.ch)
+        .collect::<String>();
+    assert!(
+        visible.contains("IO"),
+        "the small-report error payload must have actual visible glyphs: {visible:?}",
+    );
+    let (_, body) = settings
+        .report_view
+        .as_ref()
+        .unwrap()
+        .input_method_error_feedback(settings.chrome.ui_language)
+        .unwrap();
+    assert!(!overlays[0].atlas_glyphs.is_empty());
+    for glyph in &overlays[0].atlas_glyphs {
+        assert!(glyph.rect[0] >= body[0] - 0.01);
+        assert!(glyph.rect[1] >= body[1] - 0.01);
+        assert!(glyph.rect[0] + glyph.rect[2] <= body[0] + body[2] + 0.01);
+        assert!(glyph.rect[1] + glyph.rect[3] <= body[1] + body[3] + 0.01);
+    }
+    if match_report_font {
+        let reference = scene
+            .atlas_glyphs
+            .iter()
+            .find(|glyph| {
+                glyph.ch == 'I'
+                    && glyph.rect[0] >= body[0] - 0.01
+                    && glyph.rect[1] >= body[1] - 0.01
+                    && glyph.rect[1] + glyph.rect[3] <= body[1] + body[3] + 0.01
+            })
+            .expect("the actual report body must expose its selected-size reference glyph");
+        let notice = overlays[0]
+            .atlas_glyphs
+            .iter()
+            .find(|glyph| glyph.ch == reference.ch)
+            .expect("the notice wrapper must have the same reference character");
+        assert!(settings.font_atlas.uses_runtime_font);
+        let reference_ink = settings.font_atlas.quad_for(reference).0;
+        let notice_ink = settings.font_atlas.quad_for(notice).0;
+        for dimension in [2, 3] {
+            assert!(reference.rect[dimension] > 0.0);
+            assert!(reference_ink[dimension] > 0.0);
+            assert!(
+                (notice.rect[dimension] - reference.rect[dimension]).abs() < 0.01,
+                "the notice must retain the actual report glyph size at {requested:?}: notice={notice:?}, reference={reference:?}",
+            );
+            assert!(
+                (notice_ink[dimension] - reference_ink[dimension]).abs() < 0.01,
+                "the notice must retain the actual rasterized report glyph size at {requested:?}: notice={notice_ink:?}, reference={reference_ink:?}",
+            );
+        }
+    }
+    settings
+        .render()
+        .expect("present the small report and visible error");
+    let view = settings.report_view.as_ref().unwrap();
+    assert_eq!(view.test_snapshot(), &source);
+    assert_eq!((view.page_index(), view.page_count()), page);
+    assert_eq!(
+        [Some(false), Some(true), None].map(|key| view.test_button_rect(key)),
+        buttons
+    );
+    assert_eq!(EditingState::from(&*settings), before);
+    assert_eq!(
+        (
+            settings.last_commit_feedback.clone(),
+            settings.commit_feedback_ticks
+        ),
+        legacy
+    );
+    for _ in 0..180 {
+        settings.advance_periodic_frame();
+    }
+    assert!(!settings.needs_periodic_frame());
+    let (_, overlays) = settings.current_frame_with_snapshot(&snapshot);
+    assert!(overlays.is_empty());
+    settings.render().unwrap();
+    assert!(
+        settings.report_view.as_mut().unwrap().release(
+            [point(close).0, point(close).1],
+            report_view::PointerSource::Mouse,
+        ),
+        "a small-report error must preserve the acquired close-button identity"
+    );
+    assert_eq!(EditingState::from(&*settings), before);
+    assert_eq!(
+        (
+            settings.last_commit_feedback.clone(),
+            settings.commit_feedback_ticks
+        ),
+        legacy
+    );
+    app.close_report_details();
+    assert_main_untouched(app);
+}
+
 fn assert_model_setup_entry(app: &mut PanelApp, events: &ActiveEventLoop) {
     let main_before = app.panel.as_ref().unwrap().chrome.clone();
     let settings_before = app.settings.as_ref().unwrap().chrome.clone();
@@ -642,6 +802,16 @@ impl ApplicationHandler<PanelUserEvent> for ReportProbe {
             app.close_report_details();
             assert_main_untouched(&app);
         }
+
+        assert_small_report_input_error(
+            &mut app,
+            events,
+            PhysicalSize::new(640, 310),
+            false,
+            false,
+        );
+        assert_small_report_input_error(&mut app, events, PhysicalSize::new(640, 320), false, true);
+        assert_small_report_input_error(&mut app, events, PhysicalSize::new(400, 220), true, false);
 
         // Without an existing settings window, closing details removes only its
         // temporary settings-kind surface, not the hidden/compact main panel.

@@ -306,6 +306,61 @@ fn region_feedback_overlay(
     Some(translate_feedback_overlay(local, region))
 }
 
+fn report_feedback_overlay(
+    text: String,
+    region: [f32; 4],
+    viewport: [f32; 2],
+    text_scale: DisplayTextScale,
+    theme: ThemePreset,
+) -> Option<PanelOverlay> {
+    let region = visible_feedback_region(region, viewport)?;
+    // A valid report can retain only one body row. Do not deduct another
+    // tooltip's outer margin and vertical padding from that already-inset row.
+    // Always match its selected font size: the generic settings feedback path
+    // can silently shrink text even when it returns a nonempty overlay.
+    let report_scale = (viewport[0] / 640.0).clamp(0.86, 1.08);
+    let pixel_size = text_scale.label_pixel_size() * report_scale;
+    let padding = [2.0 * report_scale, 0.0];
+    let line_height = pixel_size * 7.0;
+    if region[3] + 0.0001 < line_height || region[2] <= padding[0] * 2.0 + pixel_size * 4.65 {
+        return None;
+    }
+    let (surface, text_color, border) = tooltip_colors(theme);
+    let layout = TextBlock {
+        text,
+        origin: [padding[0], 0.0],
+        max_width: region[2] - padding[0] * 2.0,
+        pixel_size,
+        letter_spacing: -0.1 * report_scale,
+        line_gap: 0.0,
+        max_lines: ((region[3] / line_height + 0.0001).floor() as usize)
+            .min(MessageOverlayKind::Feedback.max_lines()),
+        color: text_color,
+        align: TextAlign::Left,
+        role: TextRole::HeaderStatus,
+    }
+    .layout();
+    if layout.atlas_glyphs.is_empty() {
+        return None;
+    }
+    // Measure once at the final width and font size. Keep the small card at
+    // the body's bottom without rewrapping or covering the report's controls.
+    let height = layout.bounds[3].min(region[3]);
+    let rect = [0.0, 0.0, region[2], height];
+    let notice_region = [region[0], region[1] + region[3] - height, region[2], height];
+    let stroke = report_scale.max(1.0).min(region[2] * 0.5).min(height * 0.5);
+    Some(translate_feedback_overlay(
+        PanelOverlay {
+            quads: vec![
+                CandidateQuad::rounded(rect, surface, 4.0 * report_scale),
+                CandidateQuad::outline(rect, border, 4.0 * report_scale, stroke),
+            ],
+            atlas_glyphs: layout.atlas_glyphs,
+        },
+        notice_region,
+    ))
+}
+
 fn settings_feedback_region(scene: &RenderScene, viewport: [f32; 2]) -> Option<[f32; 4]> {
     let metadata = scene.settings_scroll_metadata?;
     // The scrollbar track begins at settings_content_top, exactly like the
@@ -391,11 +446,10 @@ impl PanelState {
             .report_view
             .as_ref()?
             .input_method_error_feedback(self.chrome.ui_language)?;
-        region_feedback_overlay(
+        report_feedback_overlay(
             text,
             region,
             [self.renderer.scene_width, self.renderer.scene_height],
-            self.tooltip_scale(),
             self.chrome.text_scale,
             self.chrome.theme_preset,
         )

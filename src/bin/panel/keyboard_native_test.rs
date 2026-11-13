@@ -42,6 +42,8 @@ fn native_keyboard_editing_and_focus_return() {
         started: Instant::now(),
         key_events: 0,
         preedit_shortcut_events: None,
+        candidate_edit: None,
+        candidate_edit_completed: false,
     };
     event_loop.run_app(&mut probe).unwrap();
     assert_eq!(probe.step, 11);
@@ -60,6 +62,15 @@ struct KeyboardProbe {
     started: Instant,
     key_events: usize,
     preedit_shortcut_events: Option<usize>,
+    candidate_edit: Option<CandidateEditProbe>,
+    candidate_edit_completed: bool,
+}
+
+struct CandidateEditProbe {
+    chrome: PanelChromeState,
+    engine: XRTabletImeEngine,
+    history: suzaku_map::panel_support::CompletionHistory,
+    expected_events: usize,
 }
 
 fn click_input(state: &mut PanelState) {
@@ -606,6 +617,97 @@ impl ApplicationHandler for KeyboardProbe {
                 assert_eq!(state.chrome.seed_text, "v123 n i 日本語中文é");
                 self.send_keys(&[0xff1b]); // Esc closes the reference, not the draft.
                 self.step = 10;
+            }
+            10 if !self.state.as_ref().unwrap().chrome.settings_open
+                && !self.candidate_edit_completed =>
+            {
+                assert_eq!(self.focused(), panel);
+                let state = self.state.as_mut().unwrap();
+                assert!(state.is_focused);
+                assert!(!state.native.showing);
+                let mut fixture = XRTabletImeEngine::new(EngineConfig::default());
+                fixture.set_preferences_enabled(false);
+                self.candidate_edit = Some(CandidateEditProbe {
+                    chrome: state.chrome.clone(),
+                    engine: std::mem::replace(&mut state.engine, fixture),
+                    history: std::mem::take(&mut state.completion_history),
+                    expected_events: self.key_events + 1,
+                });
+                state.chrome.active_input_mode = InputMode::VirtualKeyboard;
+                state.chrome.input_modes_expanded = false;
+                state.chrome.set_seed_text("hel".into());
+                state.chrome.move_caret_to_end();
+                state.chrome.blur_input();
+                state.engine.seed("hel");
+                state.refresh_composition_candidates();
+                state.sync_text_input_state();
+                native_sync::present_test_frame(state);
+                assert!(!state.chrome.input_focused);
+                assert_eq!(state.engine.snapshot().seed_text, "hel");
+                self.send_keys(&[u32::from(' ')]);
+                self.step = 13;
+            }
+            13 if self.key_events == self.candidate_edit.as_ref().unwrap().expected_events => {
+                assert_eq!(self.focused(), panel);
+                let state = self.state.as_ref().unwrap();
+                assert!(state.is_focused);
+                assert!(!state.chrome.input_focused);
+                assert_eq!(state.chrome.seed_text, "hel ");
+                assert_eq!(state.engine.snapshot().seed_text, "hel ");
+                assert!(state.engine.snapshot().committed_text.is_empty());
+                self.candidate_edit.as_mut().unwrap().expected_events = self.key_events + 1;
+                self.send_keys(&[0xff08]); // Backspace must also reach candidate mode.
+                self.step = 14;
+            }
+            14 if self.key_events == self.candidate_edit.as_ref().unwrap().expected_events => {
+                assert_eq!(self.focused(), panel);
+                let state = self.state.as_ref().unwrap();
+                assert!(state.is_focused);
+                assert!(!state.chrome.input_focused);
+                assert_eq!(
+                    state.chrome.seed_text, "hel",
+                    "a real candidate-mode Backspace must remove the preceding Space",
+                );
+                assert_eq!(state.engine.snapshot().seed_text, "hel");
+                assert_eq!(state.chrome.caret_index, 3);
+                assert!(state.engine.snapshot().committed_text.is_empty());
+                self.candidate_edit.as_mut().unwrap().expected_events = self.key_events + 1;
+                self.send_keys(&[0xff08]);
+                self.step = 15;
+            }
+            15 if self.key_events == self.candidate_edit.as_ref().unwrap().expected_events => {
+                let state = self.state.as_ref().unwrap();
+                assert!(!state.chrome.input_focused);
+                assert_eq!(state.chrome.seed_text, "he");
+                assert_eq!(state.engine.snapshot().seed_text, "he");
+                assert_eq!(state.chrome.caret_index, 2);
+                self.candidate_edit.as_mut().unwrap().expected_events = self.key_events + 3;
+                // Two deletions and a separate no-op on the empty draft; these
+                // remain real winit events, not calls to the editing helper.
+                self.send_keys(&[0xff08, 0xff08, 0xff08]);
+                self.step = 16;
+            }
+            16 if self.key_events == self.candidate_edit.as_ref().unwrap().expected_events => {
+                assert_eq!(self.focused(), panel);
+                let state = self.state.as_mut().unwrap();
+                assert!(state.is_focused);
+                assert!(!state.chrome.input_focused);
+                assert!(state.chrome.seed_text.is_empty());
+                assert_eq!(state.engine.snapshot().seed_text, "");
+                assert!(state.engine.snapshot().committed_text.is_empty());
+                assert_eq!(state.chrome.caret_index, 0);
+                assert!(state.completion_history.labels().is_empty());
+                let original = self.candidate_edit.take().unwrap();
+                state.chrome = original.chrome;
+                state.engine = original.engine;
+                state.completion_history = original.history;
+                state.refresh_composition_candidates();
+                state.sync_text_input_state();
+                self.candidate_edit_completed = true;
+                self.step = 10;
+                println!(
+                    "PASS: real candidate-mode Space/Backspace preserve window focus, delete the explicit space and text, and leave an empty draft unchanged"
+                );
             }
             10 if !self.state.as_ref().unwrap().chrome.settings_open => {
                 assert_eq!(

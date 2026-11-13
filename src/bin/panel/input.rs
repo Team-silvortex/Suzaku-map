@@ -319,6 +319,7 @@ pub(super) fn handle_panel_window_event(
                             state.move_candidate_selection(-1);
                         }
                         PhysicalKey::Code(KeyCode::Digit1) if !state.try_numbered_candidate(0) => {
+                            state.stop_voice_capture_if_leaving(InputMode::VirtualKeyboard);
                             state.chrome.active_input_mode = InputMode::VirtualKeyboard;
                             state.chrome.input_modes_expanded = true;
                             state.chrome.focus_input();
@@ -328,6 +329,7 @@ pub(super) fn handle_panel_window_event(
                             state.enter_voice_mode();
                         }
                         PhysicalKey::Code(KeyCode::Digit3) if !state.try_numbered_candidate(2) => {
+                            state.stop_voice_capture_if_leaving(InputMode::Handwriting);
                             state.chrome.active_input_mode = InputMode::Handwriting;
                             state.chrome.input_modes_expanded = true;
                             state.chrome.blur_input();
@@ -369,7 +371,7 @@ pub(super) fn handle_panel_window_event(
                         {
                             state.undo_handwriting_stroke();
                         }
-                        PhysicalKey::Code(KeyCode::Backspace) if state.chrome.input_focused => {
+                        PhysicalKey::Code(KeyCode::Backspace) => {
                             state.backspace_seed();
                         }
                         PhysicalKey::Code(KeyCode::Space) => {

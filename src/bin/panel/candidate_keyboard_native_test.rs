@@ -161,7 +161,12 @@ impl ApplicationHandler for KeyboardProbe {
             }
             Case::Enter => {
                 enter(&mut state);
+                exact_candidate_identity(&mut state);
+                unresolved_enter_identity(&mut state);
+                held_sentence_identity_boundaries(&mut state);
+                sentence_preview_identity_boundaries(&mut state);
                 signal_noop_and_native_case(&mut state);
+                native_recovery_survives_focus_before_editing(&mut state);
             }
         }
         self.completed = true;
@@ -465,6 +470,789 @@ fn enter(state: &mut PanelState) {
     assert_eq!(server.requests()[count..], [primary]);
     assert!(state.chrome.seed_text.is_empty());
     assert!(state.engine.snapshot().seed_text.is_empty());
+}
+
+struct CaptionCandidates(Vec<Candidate>);
+
+impl suzaku_map::ime::LanguagePlugin for CaptionCandidates {
+    fn id(&self) -> &str {
+        "candidate-caption-qa"
+    }
+
+    fn expand_token(&self, token: &str, _: bool) -> Vec<String> {
+        vec![token.into()]
+    }
+
+    fn direct_candidates(&self, _: &str, _: f32) -> Option<Vec<Candidate>> {
+        Some(self.0.clone())
+    }
+
+    fn build_candidates(&self, _: &[String], _: &str, _: f32) -> Vec<Candidate> {
+        self.0.clone()
+    }
+}
+
+fn exact_candidate_identity(state: &mut PanelState) {
+    let server = AckServer::start();
+    for entries in [
+        [
+            ("Hello world.", "Hello world."),
+            ("hello world!", "hello world!"),
+        ],
+        [
+            ("first payload", "Same caption"),
+            ("second payload", "Same caption"),
+        ],
+    ] {
+        state.engine.register_language_plugin(CaptionCandidates(
+            entries
+                .into_iter()
+                .enumerate()
+                .map(|(index, (text, label))| Candidate {
+                    text: text.into(),
+                    label: label.into(),
+                    score: 100.0 - index as f32,
+                    kind: Default::default(),
+                    source: Default::default(),
+                })
+                .collect(),
+        ));
+        state.engine.set_language("candidate-caption-qa");
+        for (selected, entry) in entries.iter().enumerate() {
+            reset(state);
+            native_sync::present_test_frame(state);
+            assert_eq!(state.chrome.sentence_candidate_source_indices, [0, 1]);
+            let expected = entry.0;
+            let count = server.requests().len();
+            // Traverse the same presented press/release path as a sentence card.
+            let rect = state
+                .last_scene
+                .as_ref()
+                .unwrap()
+                .interactive_targets
+                .iter()
+                .find(|target| target.kind == InteractionKind::Candidate(selected))
+                .unwrap()
+                .rect;
+            state.cursor_position = Some((rect[0] + rect[2] / 2.0, rect[1] + rect[3] / 2.0));
+            state.begin_primary_press(false);
+            state.complete_primary_release(false);
+            assert_eq!(
+                server.requests()[count..],
+                [expected],
+                "the displayed source index must preserve the exact selected payload"
+            );
+            assert!(state.chrome.seed_text.is_empty());
+        }
+
+        for invalid in [0, 1, usize::MAX] {
+            reset(state);
+            state.chrome.sentence_candidates = vec!["obsolete caption".into()];
+            state.chrome.sentence_candidate_source_indices = vec![0];
+            let before = state.engine.snapshot();
+            let chrome = state.chrome.clone();
+            let count = server.requests().len();
+            assert!(!state.commit_sentence_candidate(invalid));
+            assert_eq!(
+                server.requests().len(),
+                count,
+                "unknown identities must not send"
+            );
+            assert_eq!(state.engine.snapshot(), before);
+            assert_eq!(state.chrome, chrome);
+        }
+
+        reset(state);
+        state.chrome.sentence_candidate_source_indices.clear();
+        let before = state.engine.snapshot();
+        let count = server.requests().len();
+        assert!(!state.commit_primary_sentence_candidate());
+        assert_eq!(
+            server.requests().len(),
+            count,
+            "a caption without an identity is not a send target"
+        );
+        assert_eq!(state.engine.snapshot(), before);
+    }
+    state.engine.set_language("en");
+    reset(state);
+}
+
+fn unresolved_enter_identity(state: &mut PanelState) {
+    let server = AckServer::start();
+    for missing_mapping in [false, true] {
+        reset(state);
+        if missing_mapping {
+            state.chrome.sentence_candidate_source_indices.clear();
+        } else {
+            state.chrome.sentence_candidates[0] = "obsolete caption".into();
+        }
+        native_sync::present_test_frame(state);
+        let before = state.engine.snapshot();
+        let chrome = state.chrome.clone();
+        assert!(state.engine.selected_completion_text(true).is_none());
+        state.commit_keyboard_candidate();
+        assert!(
+            server.requests().is_empty(),
+            "Enter must not replace an unresolved card with the default candidate"
+        );
+        assert_eq!(state.engine.snapshot(), before);
+        assert_eq!(state.chrome, chrome);
+    }
+}
+
+struct GestureSentenceCandidates {
+    language: &'static str,
+    candidate: Candidate,
+}
+
+impl suzaku_map::ime::LanguagePlugin for GestureSentenceCandidates {
+    fn id(&self) -> &str {
+        self.language
+    }
+
+    fn expand_token(&self, token: &str, _: bool) -> Vec<String> {
+        vec![token.into()]
+    }
+
+    fn direct_candidates(&self, _: &str, _: f32) -> Option<Vec<Candidate>> {
+        Some(vec![self.candidate.clone()])
+    }
+
+    fn build_candidates(&self, _: &[String], _: &str, _: f32) -> Vec<Candidate> {
+        vec![self.candidate.clone()]
+    }
+}
+
+fn install_gesture_sentence(
+    state: &mut PanelState,
+    language: &'static str,
+    seed: &str,
+    payload: &str,
+    caption: &str,
+) {
+    // Exercise the public plugin-reload path, not mutable engine internals or
+    // an HTTP provider that cannot independently choose its display caption.
+    state
+        .engine
+        .register_language_plugin(GestureSentenceCandidates {
+            language,
+            candidate: Candidate {
+                text: payload.into(),
+                label: caption.into(),
+                score: 100.0,
+                kind: suzaku_map::ime::candidate_mix::CandidateKind::Sentence,
+                source: Default::default(),
+            },
+        });
+    state.engine.set_language(language);
+    state.chrome.set_seed_text(seed.into());
+    state.chrome.move_caret_to_end();
+    state.engine.seed(seed);
+    state.refresh_composition_candidates();
+    assert!(state.next_token_completions.is_empty());
+    assert_eq!(state.chrome.sentence_candidate_source_indices, [0]);
+    assert_eq!(state.chrome.sentence_candidates, [caption]);
+    assert_eq!(state.engine.candidates()[0].text, payload);
+}
+
+fn press_gesture_sentence(state: &mut PanelState, touch: bool, truncated: bool) -> [f32; 4] {
+    native_sync::present_test_frame(state);
+    let scene = state.last_scene.as_ref().unwrap();
+    assert_eq!(scene.sentence_candidate_truncated.contains(&0), truncated);
+    let rect = scene
+        .interactive_targets
+        .iter()
+        .find(|target| target.kind == InteractionKind::Candidate(0))
+        .unwrap()
+        .rect;
+    let cursor = (rect[0] + rect[2] * 0.5, rect[1] + rect[3] * 0.5);
+    assert_eq!(
+        scene.hit_interaction(cursor.0, cursor.1),
+        Some(InteractionKind::Candidate(0))
+    );
+    state.cursor_position = Some(cursor);
+    state.interaction.last_input_was_touch = touch;
+    state.begin_primary_press(touch);
+    assert_eq!(
+        state.interaction.pressed_interaction,
+        Some(InteractionKind::Candidate(0))
+    );
+    rect
+}
+
+fn held_sentence_identity_boundaries(state: &mut PanelState) {
+    for touch in [false, true] {
+        for boundary in ["payload", "seed", "language", "unchanged"] {
+            reset(state);
+            install_gesture_sentence(
+                state,
+                "gesture-sentence-a",
+                "hel",
+                "first payload",
+                "Shared caption",
+            );
+            let server = AckServer::start();
+            let rect = press_gesture_sentence(state, touch, false);
+            let started = state.interaction.press_start_instant.unwrap();
+            let expected = if boundary == "payload" {
+                "second payload"
+            } else {
+                "first payload"
+            };
+            match boundary {
+                "payload" => install_gesture_sentence(
+                    state,
+                    "gesture-sentence-a",
+                    "hel",
+                    expected,
+                    "Shared caption",
+                ),
+                "seed" => install_gesture_sentence(
+                    state,
+                    "gesture-sentence-a",
+                    "new",
+                    expected,
+                    "Shared caption",
+                ),
+                "language" => install_gesture_sentence(
+                    state,
+                    "gesture-sentence-b",
+                    "hel",
+                    expected,
+                    "Shared caption",
+                ),
+                "unchanged" => state.refresh_composition_candidates(),
+                _ => unreachable!(),
+            }
+            // Repainting must not turn an old press into permission for the new
+            // payload or source draft, even when its caption/geometry agree.
+            native_sync::present_test_frame(state);
+            let scene = state.last_scene.as_ref().unwrap();
+            assert_eq!(
+                scene
+                    .interactive_targets
+                    .iter()
+                    .find(|target| target.kind == InteractionKind::Candidate(0))
+                    .unwrap()
+                    .rect,
+                rect,
+                "the identity regression must not pass by moving the target: {boundary}, touch={touch}",
+            );
+            assert!(
+                started.elapsed()
+                    <= Duration::from_millis(u64::from(state.chrome.pointer_tap_max_ms)),
+                "fixture exceeded the unchanged production tap deadline: {boundary}, touch={touch}",
+            );
+            let before = state.engine.snapshot();
+            let chrome = state.chrome.clone();
+            let history = state.completion_history.labels();
+            let revision = state.completion_history.revision();
+            state.complete_primary_release(touch);
+            if boundary == "unchanged" {
+                assert_eq!(
+                    server.requests(),
+                    [expected],
+                    "an identical refresh lost the acquired candidate: touch={touch}"
+                );
+                assert!(state.chrome.seed_text.is_empty());
+            } else {
+                assert!(
+                    server.requests().is_empty(),
+                    "an old press sent a replacement candidate: {boundary}, touch={touch}"
+                );
+                assert_eq!(state.engine.snapshot(), before, "{boundary}, touch={touch}");
+                assert_eq!(state.chrome, chrome, "{boundary}, touch={touch}");
+                assert_eq!(state.completion_history.labels(), history);
+                assert_eq!(state.completion_history.revision(), revision);
+                press_gesture_sentence(state, touch, false);
+                state.complete_primary_release(touch);
+                assert_eq!(
+                    server.requests(),
+                    [expected],
+                    "a fresh press must still send the current candidate: {boundary}, touch={touch}"
+                );
+                assert!(state.chrome.seed_text.is_empty());
+            }
+            let completed = state.engine.snapshot();
+            state.complete_primary_release(touch);
+            assert_eq!(
+                server.requests(),
+                [expected],
+                "one press must never send twice"
+            );
+            assert_eq!(state.engine.snapshot(), completed);
+        }
+    }
+    state.engine.set_language("en");
+    reset(state);
+}
+
+fn sentence_preview_identity_boundaries(state: &mut PanelState) {
+    let first =
+        "First complete candidate needs its own readable scrolling preview before sending. "
+            .repeat(12);
+    let second =
+        "Other complete candidate needs its own readable scrolling preview before sending. "
+            .repeat(12);
+    for touch in [false, true] {
+        for boundary in ["payload", "seed", "language", "unchanged"] {
+            reset(state);
+            install_gesture_sentence(state, "gesture-sentence-a", "hel", &first, &first);
+            let server = AckServer::start();
+            press_gesture_sentence(state, touch, true);
+            let initial = state.engine.snapshot();
+            state.complete_primary_release(touch);
+            assert!(server.requests().is_empty());
+            assert_eq!(state.engine.snapshot(), initial);
+            assert_eq!(state.interaction.sentence_candidate_scroll_index, Some(0));
+            assert!(
+                state
+                    .interaction
+                    .sentence_candidate_scroll_started_at
+                    .is_some()
+            );
+
+            let expected = if boundary == "payload" {
+                &second
+            } else {
+                &first
+            };
+            match boundary {
+                "payload" => {
+                    install_gesture_sentence(state, "gesture-sentence-a", "hel", expected, expected)
+                }
+                "seed" => {
+                    install_gesture_sentence(state, "gesture-sentence-a", "new", expected, expected)
+                }
+                "language" => {
+                    install_gesture_sentence(state, "gesture-sentence-b", "hel", expected, expected)
+                }
+                "unchanged" => state.refresh_composition_candidates(),
+                _ => unreachable!(),
+            }
+            press_gesture_sentence(state, touch, true);
+            let before = state.engine.snapshot();
+            let chrome = state.chrome.clone();
+            let history = state.completion_history.labels();
+            let revision = state.completion_history.revision();
+            state.complete_primary_release(touch);
+            if boundary != "unchanged" {
+                assert!(
+                    server.requests().is_empty(),
+                    "a new candidate inherited another preview's confirmation: {boundary}, touch={touch}"
+                );
+                assert_eq!(state.engine.snapshot(), before);
+                assert_eq!(state.chrome, chrome);
+                assert_eq!(state.completion_history.labels(), history);
+                assert_eq!(state.completion_history.revision(), revision);
+                assert_eq!(state.interaction.sentence_candidate_scroll_index, Some(0));
+                assert!(
+                    state
+                        .interaction
+                        .sentence_candidate_scroll_started_at
+                        .is_some()
+                );
+                press_gesture_sentence(state, touch, true);
+                state.complete_primary_release(touch);
+            }
+            assert_eq!(
+                server.requests(),
+                [expected.as_str()],
+                "the current candidate must send only after its own preview: {boundary}, touch={touch}"
+            );
+            assert!(state.chrome.seed_text.is_empty());
+            let completed = state.engine.snapshot();
+            state.complete_primary_release(touch);
+            assert_eq!(server.requests(), [expected.as_str()]);
+            assert_eq!(state.engine.snapshot(), completed);
+        }
+    }
+    state.engine.set_language("en");
+    reset(state);
+}
+
+fn native_recovery_survives_focus_before_editing(state: &mut PanelState) {
+    use suzaku_map::ime::companion::{NativeCandidate, NativeOperation};
+    use winit::raw_window_handle::{HasWindowHandle, RawWindowHandle};
+    use x11rb::protocol::xproto::{ConnectionExt, MapState};
+
+    // The non-focusing fixture deliberately starts hidden. A real focus lease
+    // needs a mapped window; do not confuse that setup failure with recovery.
+    let was_visible = state.window.is_visible();
+    state.window.set_visible(true);
+    let window_id = match state.window.window_handle().unwrap().as_raw() {
+        RawWindowHandle::Xlib(handle) => handle.window as u32,
+        _ => panic!("the private recovery fixture requires its own X11 window"),
+    };
+    let (connection, _) = x11rb::connect(None).unwrap();
+    let map_deadline = Instant::now() + Duration::from_secs(1);
+    loop {
+        let attributes = connection
+            .get_window_attributes(window_id)
+            .unwrap()
+            .reply()
+            .unwrap();
+        if attributes.map_state == MapState::VIEWABLE {
+            break;
+        }
+        assert!(
+            Instant::now() < map_deadline,
+            "the private recovery window must be viewable before requesting focus",
+        );
+        std::thread::sleep(Duration::from_millis(2));
+    }
+
+    let original_chrome = state.chrome.clone();
+    let original_native = std::mem::take(&mut state.native);
+    let mut fixture = XRTabletImeEngine::new(EngineConfig::default());
+    fixture.set_preferences_enabled(false);
+    let original_engine = std::mem::replace(&mut state.engine, fixture);
+    let saved = "saved local draft";
+    for source in [
+        "no queued draft",
+        "pending literal",
+        "semantic space",
+        "semantic backspace",
+        "confirmed action",
+    ] {
+        for focus_first in [false, true] {
+            state.finish_text_editing();
+            state.set_window_focus(false);
+            state.native = Default::default();
+            state.chrome.settings_open = false;
+            state.chrome.compact_mode = false;
+            state.chrome.llm_enabled = false;
+            state.chrome.input_modes_expanded = false;
+            state.chrome.set_seed_text(saved.into());
+            state.chrome.move_caret_to_end();
+            state.completion_history.clear();
+            state.engine.clear_session_context();
+            state.engine.seed(saved);
+            state.refresh_composition_candidates();
+            let frame = NativeComposition {
+                host: "00000000-0000-0000-0000-000000000023".into(),
+                context: 23,
+                revision: 10,
+                focused: true,
+                private: false,
+                cursor: None,
+                language: "en".into(),
+                seed: "hel".into(),
+                selected: 0,
+                candidates: vec![NativeCandidate {
+                    text: "hello".into(),
+                    label: "hello".into(),
+                    ..Default::default()
+                }],
+            };
+            let (sender, receiver) = mpsc::sync_channel(8);
+            state.native.sender = Some(sender);
+            state.receive_native_frame(Some(frame.clone()));
+            assert!(state.native.showing);
+            assert_eq!(state.chrome.seed_text, "hel");
+            let mut old_reply = None;
+            let expected = match source {
+                "no queued draft" => saved,
+                "pending literal" => {
+                    assert!(state.native_keyboard_edit(Some("l")));
+                    drop(receiver.try_recv().expect("the first native literal write"));
+                    assert!(state.native_keyboard_edit(Some("o")));
+                    assert_eq!(state.chrome.seed_text, "hello");
+                    old_reply = Some((frame.host.clone(), frame.revision, false));
+                    "hello"
+                }
+                "semantic space" | "semantic backspace" => {
+                    assert!(state.native_keyboard_edit(if source == "semantic space" {
+                        Some(" ")
+                    } else {
+                        None
+                    }));
+                    drop(receiver.try_recv().expect("the native semantic-key flight"));
+                    assert!(state.native_keyboard_edit(Some("x")));
+                    old_reply = Some((frame.host.clone(), frame.revision, true));
+                    // Unknown semantic results cannot be guessed locally. Only
+                    // the last public base and literal follow-up are recovered.
+                    "helx"
+                }
+                "confirmed action" => {
+                    assert!(state.native_action(NativeOperation::Adopt(0)));
+                    drop(receiver.try_recv().expect("native adoption request"));
+                    state.native_action_finished(frame.host.clone(), frame.revision, Ok(true));
+                    old_reply = Some((frame.host.clone(), frame.revision, false));
+                    "hello"
+                }
+                _ => unreachable!(),
+            };
+            assert!(
+                receiver.try_recv().is_err(),
+                "one native operation at a time"
+            );
+
+            // These are production callees in both possible event orders, not
+            // an assertion about the private X server or a real WM's ordering.
+            if focus_first {
+                state.set_window_focus(true);
+                state.begin_text_editing();
+            } else {
+                state.begin_text_editing();
+                state.set_window_focus(true);
+            }
+            assert!(!state.native.showing);
+            assert_eq!(
+                state.chrome.seed_text, expected,
+                "native recovery was lost: source={source}, focus_first={focus_first}",
+            );
+            assert_eq!(state.engine.snapshot().seed_text, expected);
+            assert_eq!(state.chrome.caret_index, expected.chars().count());
+            assert!(state.chrome.input_focused);
+            assert!(state.completion_history.labels().is_empty());
+            assert!(receiver.try_recv().is_err(), "recovery must remain local");
+
+            state.handle_text_input("!");
+            let edited = format!("{expected}!");
+            assert_eq!(state.chrome.seed_text, edited);
+            let before = state.engine.snapshot();
+            let chrome = state.chrome.clone();
+            if let Some((host, revision, semantic)) = old_reply {
+                if semantic {
+                    let mut reply = frame.clone();
+                    reply.revision += 1;
+                    reply.seed = "an old semantic reply".into();
+                    state.native_keyboard_finished(host, revision, Ok(reply));
+                } else {
+                    state.native_action_finished(host, revision, Ok(true));
+                }
+            }
+            let mut late_frame = frame;
+            late_frame.revision += 2;
+            late_frame.seed = "a later external frame".into();
+            state.receive_native_frame(Some(late_frame));
+            assert_eq!(state.engine.snapshot(), before);
+            assert_eq!(state.chrome, chrome);
+            assert!(state.engine.snapshot().committed_text.is_empty());
+            assert!(
+                receiver.try_recv().is_err(),
+                "late replies must not replay or replace the edited local recovery",
+            );
+        }
+    }
+    native_recovery_waits_for_explicit_editing_after_focus_out(state);
+    state.finish_text_editing();
+    state.set_window_focus(false);
+    state.native = original_native;
+    state.engine = original_engine;
+    state.chrome = original_chrome;
+    state.refresh_composition_candidates();
+    if was_visible == Some(false) {
+        state.window.set_visible(false);
+    }
+}
+
+fn native_recovery_waits_for_explicit_editing_after_focus_out(state: &mut PanelState) {
+    use suzaku_map::ime::companion::{NativeCandidate, NativeOperation};
+
+    let saved = "saved local draft";
+    for (source, followup) in [
+        ("no queued draft", "recover"),
+        ("pending literal", "recover"),
+        ("semantic space", "recover"),
+        ("semantic backspace", "recover"),
+        ("confirmed action", "recover"),
+        ("pending literal", "local edit"),
+        ("pending literal", "local clear"),
+        ("pending literal", "new B typing"),
+        ("confirmed action", "disconnect"),
+        ("pending empty", "recover"),
+    ] {
+        state.finish_text_editing();
+        state.set_window_focus(false);
+        state.native = Default::default();
+        state.chrome.settings_open = false;
+        state.chrome.compact_mode = false;
+        state.chrome.llm_enabled = false;
+        state.chrome.input_modes_expanded = false;
+        state.chrome.set_seed_text(saved.into());
+        state.chrome.move_caret_to_end();
+        state.completion_history.clear();
+        state.engine.clear_session_context();
+        state.engine.seed(saved);
+        state.refresh_composition_candidates();
+        let frame = NativeComposition {
+            host: "00000000-0000-0000-0000-000000000023".into(),
+            context: 23,
+            revision: 10,
+            focused: true,
+            private: false,
+            cursor: None,
+            language: "en".into(),
+            seed: "hel".into(),
+            selected: 0,
+            candidates: vec![NativeCandidate {
+                text: "hello".into(),
+                label: "hello".into(),
+                ..Default::default()
+            }],
+        };
+        let (sender, receiver) = mpsc::sync_channel(8);
+        state.native.sender = Some(sender);
+        state.receive_native_frame(Some(frame.clone()));
+        let expected = match source {
+            "no queued draft" => saved,
+            "pending literal" => {
+                assert!(state.native_keyboard_edit(Some("l")));
+                drop(receiver.try_recv().expect("A's initial literal write"));
+                assert!(state.native_keyboard_edit(Some("o")));
+                "hello"
+            }
+            "pending empty" => {
+                assert!(state.native_keyboard_edit(Some("l")));
+                drop(receiver.try_recv().expect("A's initial empty-draft flight"));
+                for _ in 0..4 {
+                    assert!(state.native_keyboard_edit(None));
+                }
+                assert!(state.chrome.seed_text.is_empty());
+                ""
+            }
+            "semantic space" | "semantic backspace" => {
+                assert!(state.native_keyboard_edit(if source == "semantic space" {
+                    Some(" ")
+                } else {
+                    None
+                }));
+                drop(receiver.try_recv().expect("A's semantic flight"));
+                assert!(state.native_keyboard_edit(Some("x")));
+                "helx"
+            }
+            "confirmed action" => {
+                assert!(state.native_action(NativeOperation::Adopt(0)));
+                drop(receiver.try_recv().expect("A's adoption request"));
+                state.native_action_finished(frame.host.clone(), frame.revision, Ok(true));
+                "hello"
+            }
+            _ => unreachable!(),
+        };
+        assert!(receiver.try_recv().is_err());
+        if followup == "disconnect" {
+            // A confirmed-action-only draft also needs a local copy when the
+            // reader disconnects before its authoritative replacement frame.
+            state.receive_native_frame(None);
+            assert!(receiver.try_recv().is_err());
+        }
+
+        // The real host increments context at FocusOut and redacts the entire
+        // inactive composition. This is not a fabricated same-context update.
+        let mut inactive = frame.clone();
+        inactive.context += 1;
+        inactive.revision += 1;
+        inactive.focused = false;
+        inactive.seed.clear();
+        inactive.candidates.clear();
+        inactive.selected = 0;
+        inactive.cursor = None;
+        assert_eq!(
+            NativeComposition::parse(&serde_json::to_vec(&inactive.to_json()).unwrap()).unwrap(),
+            inactive
+        );
+        state.receive_native_frame(Some(inactive.clone()));
+        inactive.revision += 1;
+        state.receive_native_frame(Some(inactive.clone()));
+        state.receive_native_frame(None);
+        inactive.revision += 1;
+        state.receive_native_frame(Some(inactive));
+
+        let mut next = frame.clone();
+        next.context += 2;
+        next.revision += 4;
+        next.seed = "new field B".into();
+        next.candidates.clear();
+        if source == "semantic space" {
+            next.host = "00000000-0000-0000-0000-000000000024".into();
+        } else if source == "semantic backspace" {
+            next.private = true;
+            next.seed.clear();
+        } else if source == "confirmed action" {
+            next.language = "ja".into();
+        }
+        assert_eq!(
+            NativeComposition::parse(&serde_json::to_vec(&next.to_json()).unwrap()).unwrap(),
+            next
+        );
+        state.receive_native_frame(Some(next.clone()));
+        assert!(receiver.try_recv().is_err(), "A must never replay into B");
+
+        if followup == "new B typing" {
+            state.native_action_finished(frame.host.clone(), frame.revision, Ok(false));
+            assert!(state.native_keyboard_edit(Some("z")));
+            drop(
+                receiver
+                    .try_recv()
+                    .expect("only B's explicit new literal may send"),
+            );
+        }
+        state.set_window_focus(true);
+        let before_click = if followup == "new B typing" {
+            "new field Bz"
+        } else {
+            saved
+        };
+        assert_eq!(
+            state.chrome.seed_text, before_click,
+            "ordinary focus consumed detached A: source={source}, followup={followup}"
+        );
+        assert!(receiver.try_recv().is_err());
+
+        if source == "semantic space" || source == "semantic backspace" {
+            let mut reply = frame.clone();
+            reply.revision += 1;
+            reply.seed = "old semantic reply".into();
+            state.native_keyboard_finished(frame.host.clone(), frame.revision, Ok(reply));
+        } else if source != "no queued draft" {
+            state.native_action_finished(frame.host.clone(), frame.revision, Ok(true));
+        }
+        assert_eq!(state.chrome.seed_text, before_click);
+        assert!(receiver.try_recv().is_err(), "late A reply must not send");
+
+        let expected = match followup {
+            "local edit" => {
+                // Mirror the input-focus flag set by the real Focused handler,
+                // without consuming the detached recovery through SeedInput.
+                state.chrome.focus_input();
+                state.chrome.move_caret_to_end();
+                state.handle_text_input("!");
+                "saved local draft!"
+            }
+            "local clear" => {
+                state.reset_after_commit();
+                ""
+            }
+            "new B typing" => "new field Bz",
+            _ => expected,
+        };
+        state.begin_text_editing();
+        assert_eq!(
+            state.chrome.seed_text, expected,
+            "explicit recovery lost or mixed a source: source={source}, followup={followup}"
+        );
+        assert_eq!(state.engine.snapshot().seed_text, expected);
+        assert!(!state.native.showing);
+        assert!(receiver.try_recv().is_err(), "recovery is local only");
+
+        // A fixture-only return to the original baseline must not resurrect a
+        // consumed cache. Do not call the production cache-clearing edit path.
+        state.chrome.set_seed_text(saved.into());
+        state.chrome.move_caret_to_end();
+        state.engine.seed(saved);
+        state.refresh_composition_candidates();
+        state.begin_text_editing();
+        assert_eq!(
+            state.chrome.seed_text, saved,
+            "recovery must be consumed once"
+        );
+        assert_eq!(state.engine.snapshot().seed_text, saved);
+        assert!(receiver.try_recv().is_err());
+        assert!(state.engine.snapshot().committed_text.is_empty());
+    }
 }
 
 #[derive(Debug, PartialEq)]

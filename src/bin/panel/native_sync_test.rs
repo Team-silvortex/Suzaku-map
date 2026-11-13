@@ -1026,6 +1026,8 @@ impl ApplicationHandler for SourceProbe {
             assert_eq!(state.engine.snapshot().seed_text, "hello world");
             assert_source_cleared(&state, source);
         }
+        assert_pending_translation_keyboard_target_boundaries(&mut state);
+        assert_settings_suspend_retains_native_literal_drafts(&mut state);
         state.voice.bridge = voice_bridge;
         assert_consume_once_voice(&mut state);
         println!(
@@ -1082,6 +1084,356 @@ fn prepare_keyboard(state: &mut PanelState) -> mpsc::Receiver<ActionRequest> {
     let (sender, receiver) = mpsc::sync_channel(8);
     state.native.sender = Some(sender);
     receiver
+}
+
+struct FixedHandoffTranslation;
+
+impl suzaku_map::languages::translation::TranslationProvider for FixedHandoffTranslation {
+    fn translate(
+        &self,
+        _: &suzaku_map::languages::translation::TranslationRequest,
+    ) -> Result<String, suzaku_map::languages::translation::TranslationError> {
+        Ok("translated A".into())
+    }
+}
+
+fn pending_translation_insertion(
+    state: &mut PanelState,
+) -> (
+    mpsc::Receiver<ActionRequest>,
+    ActionRequest,
+    NativeComposition,
+) {
+    use suzaku_map::ime::gpu::TranslationPhase;
+    state.cancel_translation();
+    let receiver = prepare_keyboard(state);
+    state.activate_interaction(
+        InteractionKind::InputModeButton(InputMode::Translation),
+        false,
+    );
+    let frame = state.native.frame.clone().unwrap();
+    state.start_translation_fixture(Arc::new(FixedHandoffTranslation));
+    let started = Instant::now();
+    while state.chrome.translation.phase == TranslationPhase::Pending {
+        state.poll_translation();
+        assert!(started.elapsed() < Duration::from_secs(3));
+        std::thread::yield_now();
+    }
+    assert_eq!(state.chrome.translation.phase, TranslationPhase::Ready);
+    assert_eq!(state.chrome.translation.text, "translated A");
+    state.apply_translation();
+    let request = receiver
+        .try_recv()
+        .expect("synthetic translation insertion");
+    assert!(request.command.ends_with(" Ttranslated A"));
+    assert_eq!(state.chrome.seed_text, frame.seed);
+    assert!(state.native.pending.is_some());
+    assert!(state.native.typing.is_none());
+    (receiver, request, frame)
+}
+
+fn changed_translation_keyboard_target(
+    frame: &NativeComposition,
+    boundary: &str,
+) -> NativeComposition {
+    let mut next = keyboard_frame("new field", frame.revision + 1);
+    match boundary {
+        "context" => next.context = frame.context + 1,
+        "host" => next.host = "22222222-2222-2222-2222-222222222222".into(),
+        "language" => next.language = "ja".into(),
+        _ => unreachable!(),
+    }
+    next
+}
+
+fn assert_pending_translation_keyboard_target_boundaries(state: &mut PanelState) {
+    // Keep the existing same-target ACK-before-frame behavior as a positive:
+    // the next edit must continue the confirmed translation, not the old seed.
+    for frame_first in [false, true] {
+        let (receiver, request, frame) = pending_translation_insertion(state);
+        assert_insertion_keyboard_followup(
+            state,
+            &receiver,
+            request,
+            frame,
+            "translated A",
+            frame_first,
+        );
+    }
+
+    for boundary in ["context", "host", "language"] {
+        for backspace in [false, true] {
+            for outcome in ["recover before ack", "accepted", "rejected", "disconnected"] {
+                let (receiver, request, frame) = pending_translation_insertion(state);
+                let mut next = changed_translation_keyboard_target(&frame, boundary);
+                state.receive_native_frame(Some(next.clone()));
+                assert_eq!(state.chrome.seed_text, "new field");
+                assert_eq!(
+                    state.chrome.translation.phase,
+                    suzaku_map::ime::gpu::TranslationPhase::Idle
+                );
+                assert!(state.native.pending.is_some());
+                assert!(state.native.typing.is_none());
+                state.activate_interaction(
+                    InteractionKind::InputModeButton(InputMode::VirtualKeyboard),
+                    false,
+                );
+                assert!(state.native_keyboard_edit(if backspace { None } else { Some(" ") }));
+                assert!(state.native_keyboard_edit(Some("x")));
+                assert!(
+                    receiver.try_recv().is_err(),
+                    "one native action at a time: {outcome}, backspace={backspace}"
+                );
+                assert_eq!(state.chrome.seed_text, "new field");
+
+                if matches!(outcome, "recover before ack" | "disconnected") {
+                    if outcome == "disconnected" {
+                        state.receive_native_frame(None);
+                        state.native_action_finished(
+                            request.host.clone(),
+                            request.revision,
+                            Err("synthetic disconnect".into()),
+                        );
+                    }
+                    state.begin_text_editing();
+                    // Unknown semantic keys are never guessed during recovery.
+                    // Only B's base and B's literal suffix may be restored locally.
+                    assert_eq!(
+                        state.chrome.seed_text, "new fieldx",
+                        "old translation replacement crossed targets: {outcome}, backspace={backspace}"
+                    );
+                    assert_eq!(state.engine.snapshot().seed_text, "new fieldx");
+                    assert!(!state.native.showing);
+                    state.native_action_finished(request.host, request.revision, Ok(true));
+                    assert_eq!(state.chrome.seed_text, "new fieldx");
+                    assert!(receiver.try_recv().is_err(), "local recovery never replays");
+                } else {
+                    state.native_action_finished(
+                        request.host,
+                        request.revision,
+                        Ok(outcome == "accepted"),
+                    );
+                    let semantic = receiver.try_recv().unwrap_or_else(|_| {
+                    panic!(
+                        "old translation blocked B's first key: {outcome}, backspace={backspace}"
+                    )
+                });
+                    let operation = if backspace {
+                        NativeOperation::Backspace
+                    } else {
+                        NativeOperation::Continue
+                    };
+                    assert_eq!(
+                        semantic.command,
+                        suzaku_map::platform::linux_ime_sync::action_command(&next, &operation)
+                            .unwrap()
+                    );
+                    assert_eq!(semantic.host, next.host);
+                    assert_eq!(semantic.revision, next.revision);
+                    // The semantic result comes from the synthetic B host reply,
+                    // not a panel-side prediction of Backspace or Space semantics.
+                    next.revision += 1;
+                    next.seed = "B host result".into();
+                    next.candidates.clear();
+                    next.selected = 0;
+                    state.native_keyboard_finished(
+                        semantic.host,
+                        semantic.revision,
+                        Ok(next.clone()),
+                    );
+                    let literal = receiver.try_recv().expect("B's literal follow-up resumes");
+                    assert_eq!(
+                        literal.command,
+                        suzaku_map::platform::linux_ime_sync::action_command(
+                            &next,
+                            &NativeOperation::Replace("B host resultx".into()),
+                        )
+                        .unwrap()
+                    );
+                    state.native_action_finished(literal.host, literal.revision, Ok(true));
+                    next.revision += 1;
+                    next.seed = "B host resultx".into();
+                    state.receive_native_frame(Some(next));
+                    assert_eq!(state.chrome.seed_text, "B host resultx");
+                    assert!(state.native.typing.is_none());
+                    assert!(state.native.keyboard.is_none());
+                    assert!(receiver.try_recv().is_err(), "no replay after B confirms");
+                }
+                assert!(state.engine.snapshot().committed_text.is_empty());
+            }
+        }
+    }
+    assert_pending_translation_literal_target_boundaries(state);
+}
+
+fn assert_pending_translation_literal_target_boundaries(state: &mut PanelState) {
+    for boundary in ["context", "host", "language"] {
+        for outcome in ["recover before ack", "accepted", "rejected", "disconnected"] {
+            let (receiver, request, frame) = pending_translation_insertion(state);
+            let mut next = changed_translation_keyboard_target(&frame, boundary);
+            state.receive_native_frame(Some(next.clone()));
+            assert_eq!(state.chrome.seed_text, "new field");
+            assert_eq!(
+                state.chrome.translation.phase,
+                suzaku_map::ime::gpu::TranslationPhase::Idle
+            );
+            assert!(state.native.pending.is_some());
+            assert!(state.native.typing.is_none());
+            state.activate_interaction(
+                InteractionKind::InputModeButton(InputMode::VirtualKeyboard),
+                false,
+            );
+            // This is the production literal-edit callee. It must queue B's
+            // source while A is pending, not treat A's uncertainty as B's own.
+            assert!(state.native_keyboard_edit(Some("x")));
+            assert_eq!(state.chrome.seed_text, "new fieldx");
+            assert!(state.native_keyboard_edit(Some("y")));
+            assert_eq!(state.chrome.seed_text, "new fieldxy");
+            assert!(
+                receiver.try_recv().is_err(),
+                "literal edits must wait for the old action barrier: {boundary}, {outcome}"
+            );
+
+            if matches!(outcome, "recover before ack" | "disconnected") {
+                if outcome == "disconnected" {
+                    state.receive_native_frame(None);
+                    state.native_action_finished(
+                        request.host.clone(),
+                        request.revision,
+                        Err("synthetic disconnect".into()),
+                    );
+                }
+                state.begin_text_editing();
+                assert_eq!(
+                    state.chrome.seed_text, "new fieldxy",
+                    "literal recovery borrowed another target: {boundary}, {outcome}"
+                );
+                assert_eq!(state.engine.snapshot().seed_text, "new fieldxy");
+                assert!(!state.native.showing);
+                state.native_action_finished(request.host, request.revision, Ok(true));
+                assert_eq!(state.chrome.seed_text, "new fieldxy");
+                assert!(receiver.try_recv().is_err(), "literal recovery stays local");
+            } else {
+                state.native_action_finished(
+                    request.host,
+                    request.revision,
+                    Ok(outcome == "accepted"),
+                );
+                let literal = receiver.try_recv().unwrap_or_else(|_| {
+                    panic!("old translation blocked B's literal draft: {boundary}, {outcome}")
+                });
+                assert_eq!(
+                    literal.command,
+                    suzaku_map::platform::linux_ime_sync::action_command(
+                        &next,
+                        &NativeOperation::Replace("new fieldxy".into()),
+                    )
+                    .unwrap()
+                );
+                assert_eq!(literal.host, next.host);
+                assert_eq!(literal.revision, next.revision);
+                state.native_action_finished(literal.host, literal.revision, Ok(true));
+                next.revision += 1;
+                next.seed = "new fieldxy".into();
+                next.candidates.clear();
+                next.selected = 0;
+                state.receive_native_frame(Some(next));
+                assert_eq!(state.chrome.seed_text, "new fieldxy");
+                assert!(state.native.typing.is_none());
+                assert!(state.native.keyboard.is_none());
+                assert!(receiver.try_recv().is_err(), "B's literal draft sends once");
+            }
+            assert!(state.engine.snapshot().committed_text.is_empty());
+        }
+    }
+}
+
+fn assert_settings_suspend_retains_native_literal_drafts(state: &mut PanelState) {
+    for semantic_queue in [false, true] {
+        for suspended in [true, false] {
+            for frame_first in [false, true] {
+                let receiver = prepare_keyboard(state);
+                assert!(state.native_keyboard_edit(Some("l")));
+                let first = receiver.try_recv().expect("initial literal write");
+                assert!(first.command.ends_with(" 10 Thell"));
+                assert!(state.native_keyboard_edit(Some("o")));
+                if semantic_queue {
+                    assert!(state.native_keyboard_edit(Some(" ")));
+                }
+                assert_eq!(state.chrome.seed_text, "hello");
+                assert_eq!(state.native.keyboard.is_some(), semantic_queue);
+                assert!(receiver.try_recv().is_err());
+
+                state.chrome.settings_open = true;
+                if suspended {
+                    // This is the callee used after successful auxiliary settings
+                    // creation. The control models rollback without suspension,
+                    // not a real window-manager or settings-constructor test.
+                    state.suspend_native_keyboard();
+                }
+                let applied = keyboard_frame("hell", 11);
+                if frame_first {
+                    state.receive_native_frame(Some(applied.clone()));
+                } else {
+                    state.native_action_finished(first.host.clone(), first.revision, Ok(true));
+                }
+                assert!(receiver.try_recv().is_err());
+                state.chrome.settings_open = false;
+                if frame_first {
+                    state.native_action_finished(first.host.clone(), first.revision, Ok(true));
+                } else {
+                    state.receive_native_frame(Some(applied.clone()));
+                }
+                assert_eq!(state.chrome.seed_text, "hello");
+
+                let followup = if suspended {
+                    assert!(
+                        receiver.try_recv().is_err(),
+                        "settings suspension resumed an unsent literal: semantic_queue={semantic_queue}, frame_first={frame_first}"
+                    );
+                    None
+                } else {
+                    let next = receiver.try_recv().unwrap_or_else(|_| {
+                        panic!(
+                            "normal unsuspended literal stopped: semantic_queue={semantic_queue}, frame_first={frame_first}"
+                        )
+                    });
+                    assert_eq!(
+                        next.command,
+                        suzaku_map::platform::linux_ime_sync::action_command(
+                            &applied,
+                            &NativeOperation::Replace("hello".into()),
+                        )
+                        .unwrap()
+                    );
+                    Some(next)
+                };
+                assert!(
+                    receiver.try_recv().is_err(),
+                    "at most one literal follow-up"
+                );
+                state.begin_text_editing();
+                assert_eq!(state.chrome.seed_text, "hello");
+                assert_eq!(state.engine.snapshot().seed_text, "hello");
+                assert!(!state.native.showing);
+                assert!(
+                    receiver.try_recv().is_err(),
+                    "explicit recovery stays local"
+                );
+                if let Some(next) = followup {
+                    state.native_action_finished(next.host, next.revision, Ok(true));
+                } else {
+                    state.native_action_finished(first.host, first.revision, Ok(true));
+                }
+                assert_eq!(state.chrome.seed_text, "hello");
+                assert!(
+                    receiver.try_recv().is_err(),
+                    "late ACK cannot replay recovery"
+                );
+                assert!(state.engine.snapshot().committed_text.is_empty());
+            }
+        }
+    }
 }
 
 fn point_key(state: &mut PanelState, ch: char) {

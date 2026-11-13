@@ -345,19 +345,13 @@ impl PanelState {
     }
 
     fn refresh_handwriting_candidates(&mut self) {
+        self.retire_handwriting_candidate_gestures();
         self.handwriting_generation = self.handwriting_generation.wrapping_add(1);
         self.last_handwriting_summary = Some(summarize_handwriting_strokes(
             &self.chrome.handwriting_strokes,
         ));
         self.chrome.handwriting_candidates =
             recognize_handwriting_candidates(&self.chrome.handwriting_strokes);
-        let handwriting_scroll_index = self.interaction.handwriting_candidate_scroll_index;
-        if handwriting_scroll_index
-            .is_some_and(|index| index >= self.chrome.handwriting_candidates.len())
-        {
-            self.interaction.handwriting_candidate_scroll_index = None;
-            self.interaction.handwriting_candidate_scroll_started_at = None;
-        }
         self.reconfigure_model_provider();
         self.chrome.handwriting_hint = if self.chrome.handwriting_strokes.is_empty() {
             "Draw a seed word with mouse or touch.".to_string()
@@ -435,16 +429,29 @@ impl PanelState {
     }
 
     pub(super) fn clear_handwriting(&mut self) {
+        self.retire_handwriting_candidate_gestures();
         self.handwriting_generation = self.handwriting_generation.wrapping_add(1);
         self.interaction.handwriting_dragging = false;
         self.reset_handwriting_sample_state();
         self.chrome.handwriting_strokes.clear();
         self.chrome.handwriting_candidates.clear();
-        self.interaction.handwriting_candidate_scroll_index = None;
-        self.interaction.handwriting_candidate_scroll_started_at = None;
         self.chrome.handwriting_hint = "Draw a seed word with mouse or touch.".to_string();
         self.last_handwriting_summary = None;
         self.reconfigure_model_provider();
+    }
+
+    fn retire_handwriting_candidate_gestures(&mut self) {
+        // Undo can change the source while a mouse/touch candidate press is
+        // still held. Even identical recognition belongs to the new strokes.
+        if matches!(
+            self.interaction.pressed_interaction,
+            Some(InteractionKind::UseHandwritingCandidate(_))
+        ) {
+            self.clear_pressed_interaction();
+            self.interaction.touch_tap_pending = false;
+        }
+        self.interaction.handwriting_candidate_scroll_index = None;
+        self.interaction.handwriting_candidate_scroll_started_at = None;
     }
 
     pub(super) fn insert_handwriting_candidate(&mut self, index: usize) {
