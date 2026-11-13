@@ -128,6 +128,10 @@ struct Fixture {
 }
 type Shared = Rc<RefCell<Fixture>>;
 type WindowId = usize;
+mod winit { pub mod event {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    pub enum ElementState { Pressed, Released }
+}}
 struct Window { id: WindowId, visible: Cell<bool>, focus_requests: Cell<usize>, fixture: Shared }
 impl Window {
     fn id(&self) -> WindowId { self.id }
@@ -185,13 +189,25 @@ struct Native {
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum PhysicalKey { F1, Comma }
-struct KeyEvent { physical_key: PhysicalKey }
+#[derive(Clone, Copy)]
+struct KeyEvent { physical_key: PhysicalKey, state: winit::event::ElementState }
 struct TextInput { allowed: bool, preedit: String, revocations: usize, command_holds: Vec<PhysicalKey> }
 impl TextInput {
     fn hold_panel_command_key(&mut self, key: PhysicalKey) {
         if !self.command_holds.contains(&key) { self.command_holds.push(key); }
     }
     fn clear_shortcut_hold(&mut self) { self.command_holds.clear(); }
+    fn inherit_owned_holds(&mut self, other: &Self) {
+        for &key in &other.command_holds { self.hold_panel_command_key(key); }
+    }
+    fn consume_recorded_hold(&mut self, key: PhysicalKey, pressed: bool) -> bool {
+        if pressed { return self.command_holds.contains(&key); }
+        if let Some(index) = self.command_holds.iter().position(|held| *held == key) {
+            self.command_holds.remove(index);
+            return true;
+        }
+        false
+    }
 }
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum PanelWindowKind { Main, Settings }
@@ -264,7 +280,7 @@ impl PanelState {
     }
     fn request_settings_by_shortcut(&mut self, show_reference: bool) {
         let state = self;
-        let event = KeyEvent { physical_key: if show_reference { PhysicalKey::F1 } else { PhysicalKey::Comma } };
+        let event = KeyEvent { physical_key: if show_reference { PhysicalKey::F1 } else { PhysicalKey::Comma }, state: winit::event::ElementState::Pressed };
         // PRODUCTION_SHORTCUT_REQUEST
     }
 }
@@ -283,7 +299,10 @@ impl SystemTray {
     fn set_panel_visible(&self, _: bool) {}
 }
 #[derive(Clone, Copy)]
-enum WindowEvent { CloseRequested, RedrawRequested, Gear, Shortcut, Preferences, Other }
+enum WindowEvent {
+    CloseRequested, RedrawRequested, Gear, Shortcut, Preferences, Other,
+    KeyboardInput { event: KeyEvent, is_synthetic: bool },
+}
 fn handle_panel_window_event(state: &mut PanelState, _: &ActiveEventLoop, event: WindowEvent, _: bool) -> bool {
     if state.input_dispatch_guard { return false; }
     state.settings_window_request = None;
@@ -291,6 +310,12 @@ fn handle_panel_window_event(state: &mut PanelState, _: &ActiveEventLoop, event:
         WindowEvent::Gear => state.request_settings_by_gear(),
         WindowEvent::Shortcut => state.request_settings_by_shortcut(true),
         WindowEvent::Preferences => state.request_settings_by_shortcut(false),
+        // Own-window release is an existing input-dispatch responsibility. The
+        // cross-window retirement under test stays in the extracted PanelApp.
+        WindowEvent::KeyboardInput { event, is_synthetic: false }
+            if event.state == winit::event::ElementState::Released => {
+                state.text_input.consume_recorded_hold(event.physical_key, false);
+            }
         _ => {}
     }
     state.sync_text_input_after_dispatch();
@@ -579,5 +604,101 @@ fn shortcut_request_context_records_keys_without_changing_preedit() {
     panel.request_settings_by_gear();
     assert!(panel.text_input.command_holds.is_empty(), "closing clears owned commands");
     assert_eq!(panel.text_input.preedit, "unfinished 日本");
+}
+
+#[test]
+fn successful_settings_creation_and_reuse_merge_existing_owned_commands() {
+    let (mut app, events) = fixture(Failure::None);
+    app.panel.as_mut().unwrap().text_input.hold_panel_command_key(PhysicalKey::Comma);
+    app.open_settings(&events);
+    assert_settings_success(&app, &events, 1);
+    assert_eq!(app.settings.as_ref().unwrap().text_input.command_holds, [PhysicalKey::Comma]);
+    assert_eq!(app.panel.as_ref().unwrap().text_input.command_holds, [PhysicalKey::Comma]);
+    let target = app.settings.as_mut().unwrap();
+    let id = target.window.id();
+    target.text_input.hold_panel_command_key(PhysicalKey::F1);
+    target.text_input.preedit = "retained target preedit".into();
+    app.open_settings(&events);
+    let target = app.settings.as_ref().unwrap();
+    assert_eq!(target.window.id(), id, "reuse must keep the same managed target");
+    assert_eq!(target.text_input.command_holds, [PhysicalKey::Comma, PhysicalKey::F1], "merge must retain target ownership without duplicating source ownership");
+    assert_eq!(target.text_input.preedit, "retained target preedit", "handoff must not copy or clear the target's unrelated text input");
+    assert_eq!(app.panel.as_ref().unwrap().text_input.command_holds, [PhysicalKey::Comma]);
+    assert_eq!(events.fixture.borrow().creates, 1);
+    assert_eq!(target.window.focus_requests.get(), 1);
+}
+
+#[test]
+fn failed_settings_creation_keeps_source_commands_until_explicit_retry() {
+    for failure in [Failure::Create, Failure::Initialize] {
+        let (mut app, events) = fixture(failure);
+        let source = app.panel.as_mut().unwrap();
+        source.text_input.hold_panel_command_key(PhysicalKey::Comma);
+        source.text_input.preedit = "retained failed request".into();
+        app.open_settings(&events);
+        assert_failure(&app, &events, failure, 1, false);
+        assert_eq!(app.panel.as_ref().unwrap().text_input.command_holds, [PhysicalKey::Comma]);
+        assert_eq!(app.panel.as_ref().unwrap().text_input.preedit, "retained failed request");
+        events.fixture.borrow_mut().failure = Failure::None;
+        app.open_settings(&events);
+        assert_settings_success(&app, &events, 2);
+        assert_eq!(app.settings.as_ref().unwrap().text_input.command_holds, [PhysicalKey::Comma]);
+        assert_eq!(app.panel.as_ref().unwrap().text_input.command_holds, [PhysicalKey::Comma]);
+    }
+}
+
+#[test]
+fn only_real_managed_window_releases_retire_the_other_windows_owned_command() {
+    use winit::event::ElementState;
+    for release_from_settings in [false, true] {
+        let (mut app, events) = fixture(Failure::None);
+        app.panel.as_mut().unwrap().text_input.hold_panel_command_key(PhysicalKey::Comma);
+        app.open_settings(&events);
+        let target = app.settings.as_ref().unwrap().window.id();
+        let sender = if release_from_settings { target } else { 0 };
+        let key_event = |state, is_synthetic| WindowEvent::KeyboardInput {
+            event: KeyEvent { physical_key: PhysicalKey::Comma, state }, is_synthetic,
+        };
+        let both_owned = |app: &PanelApp| {
+            assert_eq!(app.panel.as_ref().unwrap().text_input.command_holds, [PhysicalKey::Comma]);
+            assert_eq!(app.settings.as_ref().unwrap().text_input.command_holds, [PhysicalKey::Comma]);
+        };
+        both_owned(&app);
+        app.window_event(&events, sender, key_event(ElementState::Pressed, false));
+        both_owned(&app);
+        app.window_event(&events, sender, key_event(ElementState::Released, true));
+        both_owned(&app);
+        app.window_event(&events, usize::MAX, key_event(ElementState::Released, false));
+        both_owned(&app);
+        if release_from_settings {
+            app.settings.as_mut().unwrap().input_dispatch_guard = true;
+        } else {
+            app.panel.as_mut().unwrap().input_dispatch_guard = true;
+        }
+        app.window_event(&events, sender, key_event(ElementState::Released, false));
+        both_owned(&app);
+        if release_from_settings {
+            app.settings.as_mut().unwrap().input_dispatch_guard = false;
+        } else {
+            app.panel.as_mut().unwrap().input_dispatch_guard = false;
+        }
+        app.window_event(&events, sender, key_event(ElementState::Released, false));
+        assert!(app.panel.as_ref().unwrap().text_input.command_holds.is_empty());
+        assert!(app.settings.as_ref().unwrap().text_input.command_holds.is_empty());
+        assert!(app.panel.as_ref().unwrap().settings_window_request.is_none());
+        assert!(app.settings.as_ref().unwrap().settings_window_request.is_none());
+        assert_eq!(events.fixture.borrow().creates, 1);
+    }
+}
+
+#[test]
+fn a_new_read_only_report_does_not_inherit_main_owned_commands() {
+    let (mut app, events) = fixture(Failure::None);
+    app.panel.as_mut().unwrap().text_input.hold_panel_command_key(PhysicalKey::Comma);
+    app.show_report_details(&events, report_view::ReportSnapshot("read-only handoff boundary".into()));
+    assert!(app.settings.as_ref().unwrap().report_view.is_some());
+    assert!(app.settings.as_ref().unwrap().text_input.command_holds.is_empty());
+    assert_eq!(app.panel.as_ref().unwrap().text_input.command_holds, [PhysicalKey::Comma]);
+    assert_eq!(events.fixture.borrow().creates, 1);
 }
 "#;

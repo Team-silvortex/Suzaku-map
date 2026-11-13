@@ -25,6 +25,8 @@ mod font_atlas;
 #[cfg(all(test, target_os = "linux"))]
 #[path = "panel/functional_network_audit_test.rs"]
 mod functional_network_audit_test;
+#[path = "panel/gpu_init.rs"]
+mod gpu_init;
 #[path = "panel/handwriting.rs"]
 mod handwriting;
 #[path = "panel/helpers.rs"]
@@ -613,6 +615,7 @@ impl PanelApp {
         let chrome = panel.chrome.clone();
         if let Some(settings) = self.settings.as_mut() {
             settings.end_report_details();
+            settings.text_input.inherit_owned_holds(&panel.text_input);
             panel.suspend_native_keyboard();
             panel.sync_text_input_permission();
             if mirror_settings_chrome(&mut settings.chrome, &chrome) {
@@ -647,12 +650,14 @@ impl PanelApp {
         }
         if !panel.chrome.settings_open {
             self.settings = None;
+            panel.sync_text_input_permission();
             return;
         }
         if self.settings.is_none() {
             match create_auxiliary_window(event_loop, panel.chrome.clone()) {
-                Ok(settings) => {
+                Ok(mut settings) => {
                     // A failed auxiliary window must not block retained host edits.
+                    settings.text_input.inherit_owned_holds(&panel.text_input);
                     panel.suspend_native_keyboard();
                     panel.sync_text_input_permission();
                     finish_settings_window_creation(&settings.window, &panel.window, event_loop);
@@ -856,6 +861,31 @@ impl ApplicationHandler<PanelUserEvent> for PanelApp {
             return;
         };
 
+        // A release queued before the focus handoff can still reach the source
+        // window. Retire its inherited hold too, but never treat backend focus
+        // synthesis, stale window ids or rejected reentrant input as a release.
+        if let WindowEvent::KeyboardInput {
+            event,
+            is_synthetic: false,
+            ..
+        } = &event
+            && event.state == winit::event::ElementState::Released
+        {
+            if panel.window.id() == window_id && !panel.input_dispatch_guard {
+                if let Some(settings) = self.settings.as_mut() {
+                    settings
+                        .text_input
+                        .consume_recorded_hold(event.physical_key, false);
+                }
+            } else if self.settings.as_ref().is_some_and(|settings| {
+                settings.window.id() == window_id && !settings.input_dispatch_guard
+            }) {
+                panel
+                    .text_input
+                    .consume_recorded_hold(event.physical_key, false);
+            }
+        }
+
         if let Some(settings) = self.settings.as_mut()
             && settings.window.id() == window_id
         {
@@ -863,6 +893,7 @@ impl ApplicationHandler<PanelUserEvent> for PanelApp {
                 if matches!(event, WindowEvent::CloseRequested) {
                     panel.chrome.settings_open = false;
                     self.settings = None;
+                    panel.sync_text_input_permission();
                     panel.window.request_redraw();
                 } else if settings.handle_report_window_event(event_loop, event) {
                     self.close_report_details();
@@ -874,6 +905,7 @@ impl ApplicationHandler<PanelUserEvent> for PanelApp {
                 WindowEvent::CloseRequested => {
                     panel.chrome.settings_open = false;
                     self.settings = None;
+                    panel.sync_text_input_permission();
                     panel.window.request_redraw();
                 }
                 _ => {
@@ -893,6 +925,8 @@ impl ApplicationHandler<PanelUserEvent> for PanelApp {
                         }
                     } else {
                         self.settings = None;
+                        panel.sync_text_input_permission();
+                        panel.window.request_redraw();
                     }
                 }
             }
@@ -1273,15 +1307,21 @@ impl PanelState {
         let is_focused = window.has_focus();
         let runs_without_window_focus =
             kind == PanelWindowKind::Main && main_window_runs_without_focus();
+        let mut gpu_init = gpu_init::Initialization::new(kind);
         let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor::default());
-        let surface = instance.create_surface(window.clone())?;
-        let mut adapter = instance
-            .request_adapter(&wgpu::RequestAdapterOptions {
-                power_preference: wgpu::PowerPreference::HighPerformance,
-                compatible_surface: Some(&surface),
-                force_fallback_adapter: false,
-            })
-            .await?;
+        let surface = gpu_init
+            .stage("create-surface")
+            .finish(instance.create_surface(window.clone()))?;
+        let adapter_stage = gpu_init.stage("request-adapter");
+        let mut adapter = adapter_stage.finish(
+            instance
+                .request_adapter(&wgpu::RequestAdapterOptions {
+                    power_preference: wgpu::PowerPreference::HighPerformance,
+                    compatible_surface: Some(&surface),
+                    force_fallback_adapter: false,
+                })
+                .await,
+        )?;
 
         let device_descriptor = wgpu::DeviceDescriptor {
             label: Some("suzaku-panel-device"),
@@ -1313,7 +1353,10 @@ impl PanelState {
                 None
             };
         let transparent_device = if let Some(candidate) = transparent_adapter {
-            match candidate.request_device(&device_descriptor).await {
+            match gpu_init
+                .request_device(&candidate, &device_descriptor, "alpha-preference")
+                .await
+            {
                 Ok(device) => {
                     adapter = candidate;
                     Some(device)
@@ -1325,7 +1368,11 @@ impl PanelState {
         };
         let (device, queue) = match transparent_device {
             Some(device) => device,
-            None => adapter.request_device(&device_descriptor).await?,
+            None => {
+                gpu_init
+                    .request_device(&adapter, &device_descriptor, "selected-adapter")
+                    .await?
+            }
         };
 
         let caps = surface.get_capabilities(&adapter);

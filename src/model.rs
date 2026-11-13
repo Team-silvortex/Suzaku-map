@@ -7,21 +7,31 @@ use std::{
     net::TcpStream,
 };
 
+#[cfg(test)]
+use crate::prediction::PredictionKind;
 pub use crate::prediction::prompt::DEFAULT_IME_SYSTEM_PROMPT;
 #[cfg(test)]
-use crate::prediction::prompt::echoes_request_fields;
+use crate::prediction::prompt::{
+    echoes_request_fields, normalize_model_lines, structured_candidate_texts,
+};
 use crate::prediction::{
-    PredictionCancellation, PredictionCandidate, PredictionError, PredictionInput, PredictionKind,
+    PredictionCancellation, PredictionCandidate, PredictionError, PredictionInput,
     PredictionProvider, PredictionRequest, PredictionResponse,
     prompt::{
-        completion_prefix, completion_prompt, completion_schema, normalize_model_lines,
-        structured_candidate_kind, structured_candidate_texts, structured_content,
+        ParsedCandidate, completion_prefix, completion_prompt, completion_schema,
+        normalize_model_lines_with_filter, structured_candidates_with_filter, structured_content,
         useful_candidate,
     },
 };
 
 #[cfg(test)]
 mod cancellation_tests;
+#[cfg(test)]
+mod candidate_origin_tests;
+#[cfg(test)]
+mod chat_choice_policy_tests;
+#[cfg(test)]
+mod chat_choice_tests;
 mod configuration;
 mod legacy;
 #[cfg(test)]
@@ -287,24 +297,28 @@ impl HttpModelProvider {
         }
         let body = body?;
         let prefix = completion_prefix(request);
-        let mut candidates = if resolved.uses_ollama_api() {
-            parse_ollama_candidates(&body, prefix)?
+        // Apply the existing task policy before choosing a response branch or
+        // filling output slots. Rejected rows must not hide useful alternatives.
+        let accept = |text: &str| useful_candidate(text, request);
+        let candidates = if resolved.uses_ollama_api() {
+            parse_ollama_candidates_with_filter(&body, prefix, accept)?
         } else {
             serde_json::from_str::<Value>(&body).map_err(|_| PredictionError::InvalidResponse)?;
-            parse_chat_completion_candidates(&body, prefix)
+            parse_chat_completion_candidates_with_filter(&body, prefix, accept)
         };
-        candidates.retain(|text| useful_candidate(text, request));
         if candidates.is_empty() {
             return Err(PredictionError::NoCandidates);
         }
         Ok(candidates
             .into_iter()
             .enumerate()
-            .map(|(index, text)| PredictionCandidate {
-                kind: response_candidate_kind(&body, resolved.uses_ollama_api(), &text, prefix),
-                text,
-                score_bias: 0.55 - index as f32 * 0.05,
-            })
+            .map(
+                |(index, ParsedCandidate { text, kind })| PredictionCandidate {
+                    kind,
+                    text,
+                    score_bias: 0.55 - index as f32 * 0.05,
+                },
+            )
             .collect())
     }
 }
@@ -345,10 +359,24 @@ fn check_cancellation(
     cancellation.map_or(Ok(()), PredictionCancellation::check)
 }
 
+#[cfg(test)]
 fn parse_ollama_candidates(
     body: &str,
     prefix: Option<&str>,
 ) -> Result<Vec<String>, PredictionError> {
+    parse_ollama_candidates_with_filter(body, prefix, |_| true).map(|candidates| {
+        candidates
+            .into_iter()
+            .map(|candidate| candidate.text)
+            .collect()
+    })
+}
+
+fn parse_ollama_candidates_with_filter(
+    body: &str,
+    prefix: Option<&str>,
+    accept: impl Fn(&str) -> bool,
+) -> Result<Vec<ParsedCandidate>, PredictionError> {
     let response: Value =
         serde_json::from_str(body).map_err(|_| PredictionError::InvalidResponse)?;
     // Truncated generations and partial streaming frames are not safe replacements.
@@ -364,29 +392,25 @@ fn parse_ollama_candidates(
     let values = structured["candidates"]
         .as_array()
         .ok_or(PredictionError::InvalidResponse)?;
-    Ok(structured_candidate_texts(values, prefix))
+    Ok(structured_candidates_with_filter(values, prefix, accept))
 }
 
+#[cfg(test)]
 fn response_candidate_kind(
     body: &str,
     ollama: bool,
     text: &str,
     prefix: Option<&str>,
 ) -> Option<PredictionKind> {
-    let document: Value = serde_json::from_str(body).ok()?;
-    let containers: Vec<_> = if ollama {
-        vec![&document]
+    let candidates = if ollama {
+        parse_ollama_candidates_with_filter(body, prefix, |_| true).ok()?
     } else {
-        document["choices"]
-            .as_array()?
-            .iter()
-            .filter(|choice| complete_chat_choice(choice))
-            .collect()
+        parse_chat_completion_candidates_with_filter(body, prefix, |_| true)
     };
-    containers.into_iter().find_map(|container| {
-        let content = container.pointer("/message/content")?.as_str()?;
-        structured_candidate_kind(content, text, prefix)
-    })
+    candidates
+        .into_iter()
+        .find(|candidate| candidate.text == text)
+        .and_then(|candidate| candidate.kind)
 }
 // Compatible servers may omit the optional finish reason. If present, only a
 // normal completed answer is usable; tool handoffs/unknown states are not text results.
@@ -398,7 +422,19 @@ fn complete_chat_choice(choice: &Value) -> bool {
     }
 }
 
+#[cfg(test)]
 fn parse_chat_completion_candidates(body: &str, prefix: Option<&str>) -> Vec<String> {
+    parse_chat_completion_candidates_with_filter(body, prefix, |_| true)
+        .into_iter()
+        .map(|candidate| candidate.text)
+        .collect()
+}
+
+fn parse_chat_completion_candidates_with_filter(
+    body: &str,
+    prefix: Option<&str>,
+    accept: impl Fn(&str) -> bool,
+) -> Vec<ParsedCandidate> {
     let Ok(document) = serde_json::from_str::<Value>(body) else {
         return Vec::new();
     };
@@ -414,13 +450,24 @@ fn parse_chat_completion_candidates(body: &str, prefix: Option<&str>) -> Vec<Str
                     if let Ok(structured) = serde_json::from_str::<Value>(raw)
                         && let Some(values) = structured["candidates"].as_array()
                     {
-                        return structured_candidate_texts(values, prefix);
+                        let structured = structured_candidates_with_filter(values, prefix, &accept);
+                        // An unusable choice must not erase previous plain
+                        // alternatives or hide a later complete choice.
+                        if !structured.is_empty() {
+                            return structured;
+                        }
                     }
                     continue;
                 }
-                for line in normalize_model_lines(content, prefix) {
-                    if !candidates.contains(&line) {
-                        candidates.push(line);
+                for line in normalize_model_lines_with_filter(content, prefix, &accept) {
+                    if !candidates
+                        .iter()
+                        .any(|candidate: &ParsedCandidate| candidate.text == line)
+                    {
+                        candidates.push(ParsedCandidate {
+                            text: line,
+                            kind: None,
+                        });
                     }
                     if candidates.len() == 3 {
                         return candidates;

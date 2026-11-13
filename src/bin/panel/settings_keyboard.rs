@@ -9,6 +9,12 @@ pub(super) fn search_shortcut(key: &Key, modifiers: ModifiersState) -> bool {
             || (cfg!(target_os = "macos") && modifiers == ModifiersState::SUPER))
 }
 
+pub(super) fn activation_key(key: &Key, modifiers: ModifiersState, search_focused: bool) -> bool {
+    modifiers.is_empty()
+        && !search_focused
+        && matches!(key, Key::Named(NamedKey::Enter | NamedKey::Space))
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Navigation {
     Next,
@@ -190,7 +196,7 @@ impl PanelState {
                     return;
                 }
                 Key::Named(NamedKey::Enter | NamedKey::Space)
-                    if !self.chrome.settings_search_focused =>
+                    if activation_key(key, self.modifiers, self.chrome.settings_search_focused) =>
                 {
                     if !repeat && let Some(kind) = self.chrome.settings_keyboard_focus {
                         // Rebuild after filtering/resizing/collapsing; stale or read-only items
@@ -255,6 +261,31 @@ impl PanelState {
 mod tests {
     use super::*;
     use suzaku_map::ime::gpu::{DisplayTextScale, SettingsCategory};
+
+    #[test]
+    fn activation_key_ownership_excludes_search_text_and_modified_keys() {
+        for key in [Key::Named(NamedKey::Enter), Key::Named(NamedKey::Space)] {
+            assert!(activation_key(&key, ModifiersState::empty(), false));
+            assert!(!activation_key(&key, ModifiersState::empty(), true));
+            for modifiers in [
+                ModifiersState::SHIFT,
+                ModifiersState::CONTROL,
+                ModifiersState::ALT,
+                ModifiersState::SUPER,
+            ] {
+                assert!(!activation_key(&key, modifiers, false));
+                assert!(!activation_key(&key, modifiers, true));
+            }
+        }
+        for key in [
+            Key::Named(NamedKey::Tab),
+            Key::Named(NamedKey::Backspace),
+            Key::Character(" ".into()),
+            Key::Character("a".into()),
+        ] {
+            assert!(!activation_key(&key, ModifiersState::empty(), false));
+        }
+    }
 
     fn targets() -> Vec<InteractiveTarget> {
         vec![

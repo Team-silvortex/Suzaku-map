@@ -1310,6 +1310,9 @@ impl ShortcutRecordingProbe {
     }
 
     fn advance_settings_command_holds(&mut self) -> bool {
+        if self.settings_holds.as_ref().unwrap().case == 2 {
+            return self.advance_settings_activation_hold();
+        }
         use winit::{
             event::ElementState,
             keyboard::{KeyCode, ModifiersState, PhysicalKey},
@@ -1458,6 +1461,117 @@ impl ShortcutRecordingProbe {
                     );
                     return true;
                 }
+            }
+            _ => {}
+        }
+        false
+    }
+
+    fn begin_settings_activation_hold(&mut self) {
+        let phase = self.settings_holds.as_mut().unwrap();
+        assert!(
+            phase.completed,
+            "the original two command phases must finish"
+        );
+        assert_eq!(phase.case, 1);
+        phase.case = 2;
+        phase.stage = 0;
+        phase.events.clear();
+        phase.completed = false;
+    }
+
+    fn advance_settings_activation_hold(&mut self) -> bool {
+        use winit::{
+            event::ElementState,
+            keyboard::{KeyCode, ModifiersState, PhysicalKey},
+        };
+        let key = PhysicalKey::Code(KeyCode::Space);
+        let phase = self.settings_holds.as_ref().unwrap();
+        assert!(phase.events.len() <= 6);
+        match phase.stage {
+            0 => {
+                let state = self.state.as_mut().unwrap();
+                assert!(state.is_focused);
+                assert!(state.modifiers.is_empty());
+                assert!(!state.text_input.composing());
+                state.chrome.settings_search_query = "Text".into();
+                state.chrome.settings_search_focused = false;
+                state.chrome.settings_keyboard_focus = Some(InteractionKind::SettingsSearchClear);
+                state.chrome.settings_scroll_offset = 0.0;
+                state.sync_text_input_state();
+                native_sync::present_test_frame(state);
+                assert!(
+                    state
+                        .last_scene
+                        .as_ref()
+                        .unwrap()
+                        .settings_focus_targets
+                        .iter()
+                        .any(|target| target.kind == InteractionKind::SettingsSearchClear)
+                );
+                phase.assert_source(state, "Text");
+                self.send_transition(u32::from(' '), KeyButMask::default(), KEY_PRESS_EVENT);
+                self.settings_holds.as_mut().unwrap().stage = 1;
+            }
+            1 if phase.events.len() == 1 => {
+                phase.assert_key(
+                    0,
+                    key,
+                    ElementState::Pressed,
+                    false,
+                    Some(ModifiersState::empty()),
+                );
+                let state = self.state.as_ref().unwrap();
+                phase.assert_source(state, "");
+                assert!(state.chrome.settings_search_focused);
+                assert_eq!(
+                    state.chrome.settings_keyboard_focus,
+                    Some(InteractionKind::SettingsSearchInput)
+                );
+                self.send_transition(u32::from(' '), KeyButMask::default(), KEY_PRESS_EVENT);
+                self.settings_holds.as_mut().unwrap().stage = 2;
+            }
+            2 if phase.events.len() == 2 => {
+                phase.assert_key(
+                    1,
+                    key,
+                    ElementState::Pressed,
+                    true,
+                    Some(ModifiersState::empty()),
+                );
+                phase.assert_source(self.state.as_ref().unwrap(), "");
+                self.send_transition(u32::from(' '), KeyButMask::default(), KEY_RELEASE_EVENT);
+                self.settings_holds.as_mut().unwrap().stage = 3;
+            }
+            3 if phase.events.len() == 3 => {
+                phase.assert_key(
+                    2,
+                    key,
+                    ElementState::Released,
+                    false,
+                    Some(ModifiersState::empty()),
+                );
+                phase.assert_source(self.state.as_ref().unwrap(), "");
+                for transition in [KEY_PRESS_EVENT, KEY_PRESS_EVENT, KEY_RELEASE_EVENT] {
+                    self.send_transition(u32::from(' '), KeyButMask::default(), transition);
+                }
+                self.settings_holds.as_mut().unwrap().stage = 4;
+            }
+            4 if phase.events.len() == 6 => {
+                for (index, state, repeat) in [
+                    (3, ElementState::Pressed, false),
+                    (4, ElementState::Pressed, true),
+                    (5, ElementState::Released, false),
+                ] {
+                    phase.assert_key(index, key, state, repeat, Some(ModifiersState::empty()));
+                }
+                phase.assert_source(self.state.as_ref().unwrap(), "  ");
+                assert!(self.state.as_ref().unwrap().chrome.settings_search_focused);
+                self.settings_holds.as_mut().unwrap().completed = true;
+                println!(
+                    "PASS: real X11 Space activation clears the presented search control without leaking its held repeat into the newly focused editor; after release, fresh Space and repeat still type with draft/preferences/configuration unchanged"
+                );
+                return true;
             }
             _ => {}
         }
@@ -1624,7 +1738,11 @@ impl ApplicationHandler for ShortcutRecordingProbe {
         ));
         if self.settings_holds.is_some() {
             if self.advance_settings_command_holds() {
-                event_loop.exit();
+                if self.settings_holds.as_ref().unwrap().case == 1 {
+                    self.begin_settings_activation_hold();
+                } else {
+                    event_loop.exit();
+                }
             }
             return;
         }

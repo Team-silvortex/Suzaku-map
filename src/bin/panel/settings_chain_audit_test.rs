@@ -162,7 +162,9 @@ fn audit_first_status_must_preserve_a_startup_ui_edit() {
             );
         }
         check_settings_scroll_focus_boundaries(app, events);
+        check_settings_ime_preview_preserves_committed_scroll(app, events);
         check_settings_model_ownership(app, events);
+        check_settings_close_restores_current_ime_permission(app, events);
         findings
     });
 }
@@ -441,6 +443,178 @@ fn check_settings_scroll_focus_boundaries(app: &mut PanelApp, events: &ActiveEve
     );
 }
 
+fn check_settings_ime_preview_preserves_committed_scroll(
+    app: &mut PanelApp,
+    events: &ActiveEventLoop,
+) {
+    use crate::app_state::PersistedDisplaySettings;
+    use suzaku_map::ime::gpu::SettingsCategory;
+    use winit::{dpi::PhysicalSize, event::Ime};
+
+    const OFFSET: f32 = 137.0;
+    const NO_MATCH: &str = "__suzaku_ime_preview_no_matching_setting_731__";
+    let settings = app.settings.as_ref().unwrap();
+    let window = settings.window.id();
+    let original_size = settings.size;
+    let original_focus = settings.is_focused;
+    let original_cursor = settings.cursor_position;
+    let original_modifiers = settings.modifiers;
+    let original_settings = settings.chrome.clone();
+    let settings_engine = settings.engine.snapshot();
+    let panel = app.panel.as_ref().unwrap();
+    let original_panel = panel.chrome.clone();
+    let panel_engine = panel.engine.snapshot();
+    assert!(!settings.text_input.composing());
+    assert!(!settings.runs_without_window_focus);
+    assert!(settings.report_view.is_none());
+    assert!(!settings.chrome.llm_enabled && !panel.chrome.llm_enabled);
+    let saved_before = [
+        display_settings_path(),
+        PathBuf::from(std::env::var_os("SUZAKU_IME_CONFIG").unwrap()),
+    ]
+    .map(|path| {
+        let bytes = fs::read(&path).expect("existing private fixture configuration");
+        (path, bytes)
+    });
+
+    let settings = app.settings.as_mut().unwrap();
+    settings.chrome.settings_category = SettingsCategory::Appearance;
+    settings.chrome.settings_search_query.clear();
+    settings.chrome.settings_search_focused = true;
+    settings.chrome.settings_keyboard_focus = Some(InteractionKind::SettingsSearchInput);
+    settings.chrome.settings_collapsed_sections.fill(false);
+    let requested = PhysicalSize::new(400, 270);
+    let _ = settings.window.request_inner_size(requested);
+    let actual = settings.window.inner_size();
+    assert_eq!(
+        actual, requested,
+        "the preview fixture needs a real small viewport"
+    );
+    settings.resize(actual.width, actual.height);
+    app.window_event(events, window, WindowEvent::Focused(true));
+    let settings = app.settings.as_mut().unwrap();
+    assert!(settings.is_focused && settings.chrome.settings_search_focused);
+    settings
+        .render()
+        .expect("present unfiltered Settings content");
+    assert!(settings.interaction.settings_scroll_max_offset > OFFSET);
+    settings.set_settings_scroll_offset(OFFSET);
+    settings
+        .render()
+        .expect("present the retained scroll position");
+    assert_eq!(settings.chrome.settings_scroll_offset, OFFSET);
+    let retained_handle = settings
+        .last_scene
+        .as_ref()
+        .unwrap()
+        .settings_scroll_metadata
+        .unwrap()
+        .handle_rect;
+
+    // A passive composition preview may filter its rendered clone, but must
+    // not overwrite committed navigation merely because that clone is shorter.
+    // No wheel, pointer, navigation key or resize occurs during this interval.
+    app.window_event(
+        events,
+        window,
+        WindowEvent::Ime(Ime::Preedit(NO_MATCH.into(), None)),
+    );
+    for _ in 0..3 {
+        let settings = app.settings.as_mut().unwrap();
+        assert!(settings.text_input.composing());
+        settings.render().expect("present the filtered IME preview");
+        assert_eq!(
+            settings
+                .last_scene
+                .as_ref()
+                .unwrap()
+                .settings_scroll_metadata
+                .unwrap()
+                .max_scroll_offset,
+            0.0,
+            "the synthetic preedit must really produce a shorter rendered result"
+        );
+        assert!(settings.chrome.settings_search_query.is_empty());
+        assert_eq!(
+            settings.chrome.settings_scroll_offset, OFFSET,
+            "rendering an uncommitted IME search preview must not clamp the retained scroll position"
+        );
+        assert_eq!(settings.engine.snapshot(), settings_engine);
+        assert_eq!(app.panel.as_ref().unwrap().engine.snapshot(), panel_engine);
+    }
+    app.window_event(
+        events,
+        window,
+        WindowEvent::Ime(Ime::Preedit(String::new(), None)),
+    );
+    let settings = app.settings.as_mut().unwrap();
+    assert!(!settings.text_input.composing());
+    settings
+        .render()
+        .expect("present the cancelled preview's original results");
+    assert!(settings.chrome.settings_search_query.is_empty());
+    assert_eq!(settings.chrome.settings_scroll_offset, OFFSET);
+    let restored = settings
+        .last_scene
+        .as_ref()
+        .unwrap()
+        .settings_scroll_metadata
+        .unwrap();
+    assert!(restored.max_scroll_offset > OFFSET);
+    assert_eq!(restored.handle_rect, retained_handle);
+
+    // Committing the same query is not a preview: normal result-size clamping
+    // remains necessary and must still reset the now-invalid offset.
+    app.window_event(
+        events,
+        window,
+        WindowEvent::Ime(Ime::Commit(NO_MATCH.into())),
+    );
+    let settings = app.settings.as_mut().unwrap();
+    settings
+        .render()
+        .expect("present a committed zero-result query");
+    assert_eq!(settings.chrome.settings_search_query, NO_MATCH);
+    assert_eq!(settings.chrome.settings_scroll_offset, 0.0);
+    assert_eq!(settings.interaction.settings_scroll_max_offset, 0.0);
+    assert_eq!(settings.engine.snapshot(), settings_engine);
+    assert_eq!(app.panel.as_ref().unwrap().engine.snapshot(), panel_engine);
+    assert_eq!(
+        PersistedDisplaySettings::from(&settings.chrome),
+        PersistedDisplaySettings::from(&original_settings)
+    );
+
+    app.window_event(events, window, WindowEvent::Focused(original_focus));
+    let settings = app.settings.as_mut().unwrap();
+    let _ = settings.window.request_inner_size(original_size);
+    let actual = settings.window.inner_size();
+    assert_eq!(actual, original_size);
+    settings.resize(actual.width, actual.height);
+    settings.chrome = original_settings.clone();
+    settings.cursor_position = original_cursor;
+    settings.modifiers = original_modifiers;
+    settings.invalidate_pointer_scene();
+    settings.sync_text_input_permission();
+    app.panel.as_mut().unwrap().chrome = original_panel.clone();
+    assert_eq!(app.settings.as_ref().unwrap().chrome, original_settings);
+    assert_eq!(app.panel.as_ref().unwrap().chrome, original_panel);
+    assert_eq!(
+        app.settings.as_ref().unwrap().engine.snapshot(),
+        settings_engine
+    );
+    assert_eq!(app.panel.as_ref().unwrap().engine.snapshot(), panel_engine);
+    for (path, bytes) in saved_before {
+        assert_eq!(
+            fs::read(path).unwrap(),
+            bytes,
+            "IME preview checks must not persist settings"
+        );
+    }
+    println!(
+        "PASS: passive IME Settings search previews and cancellation retain committed query/scroll, rendered results restore their original scrollbar, committed zero-result searches still clamp, and source/preferences/private configuration stay unchanged"
+    );
+}
+
 fn check_settings_model_ownership(app: &mut PanelApp, events: &ActiveEventLoop) {
     use suzaku_map::ime::PredictionStatus;
 
@@ -577,6 +751,230 @@ fn check_settings_model_ownership(app: &mut PanelApp, events: &ActiveEventLoop) 
     assert_eq!(panel.engine.prediction_status(), PredictionStatus::Idle);
     println!(
         "PASS: settings model controls retain service errors and leave prediction ownership in Main; no model request"
+    );
+}
+
+fn check_settings_close_restores_current_ime_permission(
+    original: &mut PanelApp,
+    events: &ActiveEventLoop,
+) {
+    use crate::app_state::PersistedDisplaySettings;
+    use winit::{
+        event::Ime,
+        keyboard::{Key, NamedKey},
+    };
+
+    // The preceding model-ownership checks deliberately finish with different
+    // Main/Settings switches. Keep those states intact and use another private
+    // app, not a preference edit or a real model, for the close transition.
+    let original_main = original.panel.as_ref().unwrap();
+    let original_main_chrome = original_main.chrome.clone();
+    let original_main_engine = original_main.engine.snapshot();
+    let original_settings = original.settings.as_ref().unwrap();
+    let original_settings_chrome = original_settings.chrome.clone();
+    let original_settings_engine = original_settings.engine.snapshot();
+    let config_before = [
+        display_settings_path(),
+        PathBuf::from(std::env::var_os("SUZAKU_IME_CONFIG").unwrap()),
+    ]
+    .map(|path| {
+        let bytes = fs::read(&path).expect("existing private fixture configuration");
+        (path, bytes)
+    });
+    let window = Arc::new(events.create_window(panel_window_attributes()).unwrap());
+    let mut panel = pollster::block_on(PanelState::new(window)).unwrap();
+    panel.chrome.llm_enabled = false;
+    panel.engine.configure_prediction(None);
+    panel.voice.bridge = None;
+    let main = panel.window.id();
+    let mut fixture = PanelApp::new(original.event_proxy.clone(), None);
+    fixture.panel = Some(panel);
+    fixture.panel_visible = true;
+
+    for close in ["window", "escape", "button"] {
+        for eligibility in ["editor", "unfocused", "compact", "blurred"] {
+            eprintln!("SETTINGS CLOSE CASE BEGIN: {close}/{eligibility}");
+            assert!(fixture.settings.is_none());
+            let panel = fixture.panel.as_mut().unwrap();
+            panel.chrome.compact_mode = false;
+            panel.chrome.settings_open = false;
+            panel.chrome.set_seed_text("retained draft ".into());
+            panel.chrome.move_caret_to_end();
+            panel.chrome.focus_input();
+            panel.refresh_seed();
+            fixture.window_event(events, main, WindowEvent::Focused(true));
+            let panel = fixture.panel.as_mut().unwrap();
+            assert!(panel.is_focused && panel.chrome.input_focused);
+            panel.handle_ime_event(Ime::Preedit("permission probe".into(), None));
+            assert!(
+                panel.text_input.composing(),
+                "the starting editor must own an IME context"
+            );
+            panel.handle_ime_event(Ime::Preedit(String::new(), None));
+            assert!(!panel.text_input.composing());
+            let before = panel.engine.snapshot();
+            let preferences = PersistedDisplaySettings::from(&panel.chrome);
+            fixture.open_settings(events);
+            let settings = fixture.settings.as_ref().unwrap().window.id();
+            let panel = fixture.panel.as_mut().unwrap();
+            assert!(panel.chrome.settings_open);
+            panel.handle_ime_event(Ime::Preedit("must stay blocked".into(), None));
+            assert!(
+                !panel.text_input.composing(),
+                "opening settings must revoke editor permission"
+            );
+            match eligibility {
+                "unfocused" => fixture.window_event(events, main, WindowEvent::Focused(false)),
+                // These two predicate controls do not pretend to test folding
+                // geometry or request a new focus merely to close Settings.
+                "compact" => fixture.panel.as_mut().unwrap().chrome.compact_mode = true,
+                "blurred" => fixture.panel.as_mut().unwrap().chrome.blur_input(),
+                _ => {}
+            }
+            match close {
+                "window" => fixture.window_event(events, settings, WindowEvent::CloseRequested),
+                "escape" => {
+                    // Exercise the production Esc callee plus the ordinary app
+                    // adoption path; this is not physical keyboard acceptance.
+                    fixture.settings.as_mut().unwrap().handle_settings_key(
+                        &Key::Named(NamedKey::Escape),
+                        None,
+                        false,
+                    );
+                    fixture.window_event(events, settings, WindowEvent::RedrawRequested);
+                }
+                "button" => {
+                    let state = fixture.settings.as_mut().unwrap();
+                    crate::native_sync::present_test_frame(state);
+                    let scene = state.last_scene.as_ref().unwrap();
+                    let rect = scene
+                        .interactive_targets
+                        .iter()
+                        .find(|target| target.kind == InteractionKind::SettingsToggle)
+                        .expect("the private Settings close control is presented")
+                        .rect;
+                    let at = (rect[0] + rect[2] * 0.5, rect[1] + rect[3] * 0.5);
+                    assert_eq!(
+                        scene.hit_interaction(at.0, at.1),
+                        Some(InteractionKind::SettingsToggle)
+                    );
+                    state.cursor_position = Some(at);
+                    state.begin_primary_press(false);
+                    state.complete_primary_release(false);
+                    fixture.window_event(events, settings, WindowEvent::RedrawRequested);
+                }
+                _ => unreachable!(),
+            }
+            assert!(
+                fixture.settings.is_none(),
+                "Settings must really close: {close}"
+            );
+            let panel = fixture.panel.as_mut().unwrap();
+            assert!(!panel.chrome.settings_open);
+            assert_eq!(panel.engine.snapshot(), before);
+            assert_eq!(PersistedDisplaySettings::from(&panel.chrome), preferences);
+            if eligibility != "editor" {
+                // Probe the permission immediately, without a Main redraw or
+                // dispatch epilogue that could repair it before we inspect it.
+                panel.handle_ime_event(Ime::Preedit("must not enable".into(), None));
+                assert!(
+                    !panel.text_input.composing(),
+                    "closing Settings must not enable {eligibility}: {close}"
+                );
+            }
+            fixture.window_event(events, main, WindowEvent::Ime(Ime::Commit("é".into())));
+            let panel = fixture.panel.as_ref().unwrap();
+            assert_eq!(
+                panel.chrome.seed_text,
+                if eligibility == "editor" {
+                    "retained draft é"
+                } else {
+                    "retained draft "
+                },
+                "the first post-close IME commit must follow current editor ownership, without a prior focus/redraw repair: {close}/{eligibility}"
+            );
+            if eligibility == "editor" {
+                assert_eq!(panel.engine.snapshot().seed_text, "retained draft é");
+            } else {
+                assert_eq!(panel.engine.snapshot(), before);
+            }
+            assert_eq!(PersistedDisplaySettings::from(&panel.chrome), preferences);
+            eprintln!("SETTINGS CLOSE CASE PASS: {close}/{eligibility}");
+        }
+    }
+
+    // Closing Settings is not permission to replay suspended native typing.
+    // Keep a real in-memory action channel, with no socket or host process.
+    eprintln!("SETTINGS CLOSE CASE BEGIN: native-retained");
+    fixture.panel.as_mut().unwrap().chrome.compact_mode = false;
+    fixture.window_event(events, main, WindowEvent::Focused(false));
+    let frame = suzaku_map::ime::companion::NativeComposition {
+        host: "00000000-0000-0000-0000-000000000071".into(),
+        context: 71,
+        revision: 5,
+        focused: true,
+        private: false,
+        cursor: None,
+        language: "en".into(),
+        seed: "host base".into(),
+        selected: 0,
+        candidates: Vec::new(),
+    };
+    let (sender, receiver) = std::sync::mpsc::sync_channel(8);
+    let panel = fixture.panel.as_mut().unwrap();
+    panel.receive_native_frame(Some(frame.clone()));
+    assert!(panel.native.showing);
+    panel.native.sender = Some(sender);
+    assert!(panel.native_keyboard_edit(Some("x")));
+    let _sent = receiver
+        .try_recv()
+        .expect("the fixture owns the first native replacement");
+    assert!(panel.native_keyboard_edit(Some("y")));
+    assert!(receiver.try_recv().is_err());
+    fixture.open_settings(events);
+    let settings = fixture.settings.as_ref().unwrap().window.id();
+    fixture.window_event(events, settings, WindowEvent::CloseRequested);
+    let panel = fixture.panel.as_mut().unwrap();
+    panel.native_action_finished(frame.host.clone(), frame.revision, Ok(true));
+    let mut acknowledged = frame;
+    acknowledged.revision += 1;
+    acknowledged.seed.push('x');
+    panel.receive_native_frame(Some(acknowledged));
+    assert!(
+        receiver.try_recv().is_err(),
+        "Settings close must not unblock or replay suspended native text"
+    );
+    assert_eq!(
+        panel.take_native_typing_draft().as_deref(),
+        Some("host basexy")
+    );
+    eprintln!("SETTINGS CLOSE CASE PASS: native-retained");
+    drop(fixture);
+    assert_eq!(
+        original.panel.as_ref().unwrap().chrome,
+        original_main_chrome
+    );
+    assert_eq!(
+        original.panel.as_ref().unwrap().engine.snapshot(),
+        original_main_engine
+    );
+    assert_eq!(
+        original.settings.as_ref().unwrap().chrome,
+        original_settings_chrome
+    );
+    assert_eq!(
+        original.settings.as_ref().unwrap().engine.snapshot(),
+        original_settings_engine
+    );
+    for (path, bytes) in config_before {
+        assert_eq!(
+            fs::read(path).unwrap(),
+            bytes,
+            "close permission checks must not persist settings"
+        );
+    }
+    println!(
+        "PASS: controlled Settings close/Esc/button transitions restore only the current Main editor's first IME commit, keep other owners disabled and never replay suspended native text; original fixture and configuration stay unchanged"
     );
 }
 

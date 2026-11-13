@@ -140,7 +140,26 @@ pub(crate) fn useful_candidate(text: &str, request: &PredictionInput) -> bool {
     }
 }
 
+#[cfg(test)]
 pub(crate) fn structured_candidate_texts(values: &[Value], prefix: Option<&str>) -> Vec<String> {
+    structured_candidates_with_filter(values, prefix, |_| true)
+        .into_iter()
+        .map(|candidate| candidate.text)
+        .collect()
+}
+
+/// Text and optional type from one accepted row. Never enrich a selected row
+/// with metadata from a duplicate, unselected choice or unexamined array tail.
+pub(crate) struct ParsedCandidate {
+    pub text: String,
+    pub kind: Option<PredictionKind>,
+}
+
+pub(crate) fn structured_candidates_with_filter(
+    values: &[Value],
+    prefix: Option<&str>,
+    accept: impl Fn(&str) -> bool,
+) -> Vec<ParsedCandidate> {
     let mut candidates = Vec::new();
     let limit = if values.iter().any(Value::is_object) {
         6
@@ -148,7 +167,12 @@ pub(crate) fn structured_candidate_texts(values: &[Value], prefix: Option<&str>)
         3
     };
     for value in values.iter().take(12) {
-        if value.is_object() && !matches!(value["kind"].as_str(), Some("word" | "sentence")) {
+        let kind = match value.get("kind").and_then(Value::as_str) {
+            Some("word") => Some(PredictionKind::Word),
+            Some("sentence") => Some(PredictionKind::Sentence),
+            _ => None,
+        };
+        if value.is_object() && kind.is_none() {
             continue;
         }
         let Some(text) = value.as_str().or_else(|| value["text"].as_str()) else {
@@ -158,9 +182,15 @@ pub(crate) fn structured_candidate_texts(values: &[Value], prefix: Option<&str>)
         if !text.is_empty()
             && completion_fits_budget(text, prefix)
             && !text.chars().any(char::is_control)
-            && !candidates.iter().any(|value| value == text)
+            && accept(text)
+            && !candidates
+                .iter()
+                .any(|value: &ParsedCandidate| value.text == text)
         {
-            candidates.push(text.to_string());
+            candidates.push(ParsedCandidate {
+                text: text.to_string(),
+                kind,
+            });
             if candidates.len() == limit {
                 break;
             }
@@ -179,29 +209,16 @@ pub(crate) fn structured_content(content: &str) -> &str {
         .trim()
 }
 
-pub(crate) fn structured_candidate_kind(
-    content: &str,
-    text: &str,
-    prefix: Option<&str>,
-) -> Option<PredictionKind> {
-    let structured: Value = serde_json::from_str(structured_content(content)).ok()?;
-    structured["candidates"]
-        .as_array()?
-        .iter()
-        .find(|row| {
-            matches!(row["kind"].as_str(), Some("word" | "sentence"))
-                && row["text"]
-                    .as_str()
-                    .is_some_and(|value| normalize_completion_text(value, prefix) == text)
-        })
-        .and_then(|row| match row["kind"].as_str()? {
-            "word" => Some(PredictionKind::Word),
-            "sentence" => Some(PredictionKind::Sentence),
-            _ => None,
-        })
+#[cfg(test)]
+pub(crate) fn normalize_model_lines(content: &str, prefix: Option<&str>) -> Vec<String> {
+    normalize_model_lines_with_filter(content, prefix, |_| true)
 }
 
-pub(crate) fn normalize_model_lines(content: &str, prefix: Option<&str>) -> Vec<String> {
+pub(crate) fn normalize_model_lines_with_filter(
+    content: &str,
+    prefix: Option<&str>,
+    accept: impl Fn(&str) -> bool,
+) -> Vec<String> {
     content
         .lines()
         .filter_map(|line| {
@@ -241,6 +258,7 @@ pub(crate) fn normalize_model_lines(content: &str, prefix: Option<&str>) -> Vec<
                 && !line.chars().any(char::is_control))
             .then(|| line.to_string())
         })
+        .filter(|line| accept(line))
         .take(6)
         .collect()
 }

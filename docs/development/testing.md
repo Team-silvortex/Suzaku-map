@@ -75,6 +75,26 @@ LIBGL_ALWAYS_SOFTWARE=1 bash scripts/test-linux-ci.sh ui
 不要把桌面的 `DISPLAY`、`IBUS_ADDRESS`、个人配置或现用 host 目录传进这些测试。
 权限不足时保留诊断并解决测试环境，不改用个人会话绕过隔离。
 
+### 图形初始化失败的诊断
+
+沿用私有测试入口，单次启用详细图形日志：
+
+```sh
+SUZAKU_PANEL_SURFACE_DIAGNOSTICS=1 bash scripts/test-settings-chain-audit.sh
+```
+
+`Suzaku GPU init:` 后是单行 JSON，使用进程、初始化编号、步骤和设备尝试编号关联
+`start` 与 `success` / `failure`。表面创建、适配器选择和设备请求分别记录；设备请求
+开始前已包含适配器及后端。`alpha-preference` 是可选透明候选，失败仍按既有规则
+尝试 `selected-adapter`，不是新增的软件回退。默认仅输出失败摘要，详细名称与驱动信息
+需要上述开关；字段和错误来源链有界，不记录输入文本或模型配置。
+
+`Parent device is lost` 是图形库合并后的错误，不能单凭文案判断整卡失效。
+保留原进程退出码、完整日志和对应时间的内核记录；设备丢失后不要反复压力重跑。
+`LIBGL_ALWAYS_SOFTWARE=1` 不保证 Vulkan 使用软件驱动。需要软件对照时，先核实本机
+已安装的 Mesa Vulkan ICD / EGL vendor 文件，再只对该次命令指定它们，并用日志核对
+实际适配器。软件对照不替代硬件验收，也不应修改系统驱动选择或掩盖原硬件失败。
+
 ## 真实应用工作流
 
 以下脚本同样在独立显示与会话里创建自己的应用窗口：

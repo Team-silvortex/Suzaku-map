@@ -333,6 +333,10 @@ pub(super) fn handle_panel_window_event(
                     if super::settings_keyboard::search_shortcut(
                         &event.logical_key,
                         state.modifiers,
+                    ) || super::settings_keyboard::activation_key(
+                        &event.logical_key,
+                        state.modifiers,
+                        state.chrome.settings_search_focused,
                     ) {
                         state.text_input.hold_panel_command_key(event.physical_key);
                     }

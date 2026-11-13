@@ -2,10 +2,10 @@
   "schema_version": 1,
   "snapshot": {
     "date": "2026-11-13",
-    "head": "8cf5b4248f48f14e18a193af9f32d4fd9aebbb52",
+    "head": "b8f273574fdcf625fe03727109e623e7071b69a2",
     "dirty": true,
-    "source_sha256": "670662ab5132c60183de024a0a1ee95f50d0f29309d1f149a9c58c529da955ba",
-    "note": "0.10.5/build55提交前源码准备快照，基线8cf5b4248f48f14e18a193af9f32d4fd9aebbb52。汇总工具ACK反馈保真、命令持键、手写触点/采样边界、报告交互身份、本地选中候选投影与实际呈现Enter门禁、Settings provider归属/失焦滚动收尾和完全遮挡指针授权修正。206旧证据与79评分限制、逐轮真实失败保留；本版完整本地验收独立于此前局部结果，实际结果与边界见docs/history/2026-11/release-0.10.5.md。词库/25包/SDK/依赖/模型协议预算不变，不新增跨窗口持键转移，不称物理输入、真实WM、个人IBus、真模型、性能或跨平台运行验收。按源码更新提交推送，不创建tag/Release/安装包、不改个人安装服务配置、不恢复自动化；下载仍为已验收0.10.2。"
+    "source_sha256": "296188b79f3aecf0dec14b2bbe3d1ab4d54289c9cdbe80dab355b0751bf7e96c",
+    "note": "0.10.6/build56版本准备，基线b8f273574fdcf625fe03727109e623e7071b69a2。汇总设置持键交接/关闭IME权限/被动预览滚动、GPU有界初始化诊断、模型空choice/有用性过滤顺序与text-kind同源修正。独立限资源任务完整332组3193过/0失败/39旧ignore/零筛除、UI24和设置4实际全过，727来源前后不变；首轮143中断部分结果不拼接，发送方仍未知。214旧证据与79评分限制保持；准确新提交远端CI与accepted包仍待验收。用户选择全部验收后发布LinuxAlpha/prerelease非latest，当前尚未发布且下载仍0.10.2，不恢复定时任务。词库/25包/SDK/依赖/协议v1/模型预算不变，NVIDIA设备丢失未修复，软件结果不代替硬件/实模/个人IBus/实际WM/跨平台运行；不修改个人安装服务配置。详情见docs/history/2026-11/release-0.10.6.md。"
   },
   "architectures": [
     {
@@ -909,6 +909,9 @@
       ],
       "tests": [
         "tests/model_module_compat.rs",
+        "src/model/chat_choice_tests.rs",
+        "src/model/chat_choice_policy_tests.rs",
+        "src/model/candidate_origin_tests.rs",
         "src/model/test_server.rs",
         "src/model/live.rs",
         "src/model/legacy_tests.rs",
@@ -1142,6 +1145,7 @@
       "scope": "桌面GPU设置窗口",
       "paths": [
         "src/bin/panel.rs",
+        "src/bin/panel/gpu_init.rs",
         "src/ui/model_setup.rs",
         "src/ime/gpu/settings_scene.rs",
         "src/bin/panel/settings_keyboard.rs",
@@ -1156,6 +1160,7 @@
       "tests": [
         "tests/model_setup_ui.rs",
         "src/bin/panel/settings_native_test.rs",
+        "src/bin/panel/settings_handoff_native_test.rs",
         "src/bin/panel/settings_sync.rs",
         "src/bin/panel/report_native_test.rs",
         "src/bin/panel/report_view.rs",
@@ -4725,6 +4730,112 @@
       ],
       "scope": "2026-11-13版本0.10.5/build55完整本地源码与私有UI验收；源码提交推送，不是准确新提交远端CI/发行、个人桌面或真实模型验收。",
       "note": "基线8cf5b4248f48f14e18a193af9f32d4fd9aebbb52，按本轮请求准备源码提交推送，不tag/Release/安装包或恢复自动化，下载仍0.10.2。汇总旧成功ACK不误报新源、I/1与报告/同Settings命令键归属、compact保稿、手写device+id独占/失焦识别/采样clamp边界、报告触点身份、本地5/6候选可见投影与实际target Enter门禁、Main provider归属、Settings失焦滚动收尾及完全遮挡pointer授权。录制/preedit、真实release、普通repeat、键盘/IME原策略保留，不新增跨窗口持键转移，不称全隐藏输入禁用。逐批真RED/夹具失败及限制原样保存不相加。升版前1099tracked文件，仅5metadata8值精确逆投影变化；补文档后恰8旧文件变化，其余1091保持，原业务断言/期限保留且必要夹具/类型依赖同步。升版后同一冻结693source独立全量流水线原进程实际exit0：完整Cargo含Doc-tests目标332唯一组3175过/0失败/39原ignore/零筛除；另私有UI24唯一单项、settings4唯一单项全过，六phase/code均0。仅2手写+1pointer分类普通父测试新增，内部子进程/夹具/事件向量不另计。严格all-target/all-feature locked/offline Clippy -D warnings实际0/1m18s，格式过；最终静态文档与提交范围回执由本轮日志审计。manifest SHA256=c33515b3832dda133ee0107e9ec946656026011da3717a78c2ce3d2abfd824ae，source digest=670662ab5132c60183de024a0a1ee95f50d0f29309d1f149a9c58c529da955ba，日志/tmp/suzaku-release-0.10.5.YObtCE/，关键log hash见历史。保206旧证据与79评分限制；词库/25包/SDK/模型协议v1/预算/宿主/依赖无变化，无个人安装配置/真实物理输入/WM、实模、性能或跨平台运行承诺。"
+    },
+    {
+      "id": "E-settings-window-handoff",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel.rs",
+        "src/bin/panel/keyboard.rs",
+        "src/bin/panel/settings_native_test.rs",
+        "src/bin/panel/settings_handoff_native_test.rs",
+        "src/bin/panel/settings_chain_audit_test.rs",
+        "tests/panel_auxiliary_recovery.rs"
+      ],
+      "scope": "2026-11-13私有Xvfb中X11注入经实际winit/PanelApp的Main→Settings按键交接，以及独立GPU窗口中的受控关闭/IME权限链；非物理键盘、真实WM、Wayland或个人安装验收。",
+      "note": "Main命令Ctrl+,新建Settings后未释Comma先释Ctrl，实际RED101/9.12秒搜索Text→Text,。仅继承finite holds后，新建/复用均可挡尾键，但最终冻结e229ec55c57546c409c21e5c0d2f692c6f4686580e97805db1089cee7d142add中的预排Main真实release未退休目标归属，RED101/8.73秒，fresh/repeat仍Text而非Text,,；跨窗真实release镜像补齐后同冻结三组23转换GREEN0/12.53秒。两次先前向失焦Main注入release的夹具WindowId失败保留，不当产品失败或擅改vendor路由；最终在命令派发前预排源release并核实际Main WindowId。成功create/reuse才merge已消费有限集合，失败/报告通用构造不继承；合成release、Pressed、陌生id和来源重入拒绝不退休。新增真实TextInput纯内存merge/编辑上下文保真父测试1项；CPU旧11内层保留，新增4内层覆盖创建/复用/失败及release负例，不另计顶层测试。关闭权限helper纯追加221行，旧first-status测试保留，冻结e1d04b14fc9fcb89c88df7f72bfc71c07c23817cc6a45d218c8290e829ea04f1。旧window/editor首ImeCommit丢é，RED101/4.37秒；只同步当前Main IME权限后GREEN0/9.46秒，三关闭入口×四编辑资格及暂停native稿不自动重放均过，原两窗/完整engine/配置原字节保持。受控Esc调用和GPU按钮不是物理键接受验收。独立相关终局见历史；日志/tmp/suzaku-bugfix-settings-handoff.zFPOhN/。不放宽旧断言/期限/runner名单，不改词库/包/SDK/模型协议预算/宿主/依赖/版本，不操作个人安装服务配置，不提交推送或恢复自动化。"
+    },
+    {
+      "id": "E-settings-activation-hold",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel/input.rs",
+        "src/bin/panel/settings_keyboard.rs",
+        "src/bin/panel/keyboard_native_test.rs"
+      ],
+      "scope": "2026-11-13同一私有Settings窗口的X11注入按键，经实际winit/生产分派验证Space激活Clear后转焦搜索的持键链；非物理键盘、Enter实体事件或跨窗关闭验收。",
+      "note": "冻结mandatory录制exact8a6b8b64d6d5d59d6e194d26c82106573f955428ffa191a533eb9eb32a600daf，在旧录制6 pressed、Ctrl+,/CtrlF各8转换完成之后，追加6项Space转换，原20秒总期限、旧主体断言和runner清单不变。实际呈现Clear焦点由Space首按清空query并转SearchInput，未release repeat旧码写入普通空格，RED101/.90秒；同冻结完整GREEN0/1.21秒，未release repeat保持空串，真实release后fresh Space+repeat得到两个空格，草稿/翻译/完整Settings engine/偏好/快捷键代次/配置存在与原字节不变。分派在原recording/preedit门禁之后、设置处理之前登记实际physical key；共享activation_key只判无modifier且搜索未focus的Named Enter/Space，原控件分支复用等价predicate。新增1项纯内存父测试核Enter/Space、已focus搜索和修改键/非激活键排除；不扩称Enter真实事件验收，不全局禁止repeat。独立相关终局见历史，日志/tmp/suzaku-bugfix-settings-activation.QmSBcY/。保留上一轮未提交修正和208旧证据/79评分限制，不改词库/包/SDK/模型协议预算/宿主/依赖/版本，不提交推送、安装、个人服务配置或恢复自动化。"
+    },
+    {
+      "id": "E-settings-ime-preview-scroll",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel/controller.rs",
+        "src/bin/panel/settings_chain_audit_test.rs"
+      ],
+      "scope": "2026-11-13私有400×270 Settings实际渲染与PanelApp受控IME事件；软件图形独立终局，硬件设备丢失失败保留，非真实IME后台或组合期间主动滚动验收。",
+      "note": "原mandatory first-status中旧scroll之后/model之前纯追加helper和调用共173行，旧主体/相对顺序/断言/期限不变，冻结c558ee8376e007761436c87fbd6288c074f610164bedcfe90ef0c3cc845a33d8。正式空query的合法scroll137收到无匹配Preedit，preview max0把正式offset改0，硬件原码RED101/3.64秒。只在Settings composing时跳过被动frame对chrome offset的夹紧，真实preview交互metadata照常同步；三次实际预览期间正式位置保持，取消后原handle几何恢复，正式Commit同查询仍clamp0。硬件修后新helper PASS但exact后半旧关闭夹具创建GPU窗口Parent device is lost，整项101/6.92秒，内核保存对应测试进程Xid32；受限NV查询失败不据此推断全局驱动失效，独立只读查询实际0。仅临时runner隔离到已安装Mesa lavapipe/EGL、2线程，测试/断言/期限不变；同冻结软件原码RED101/3.30秒，修后完整GREEN0/4.76秒，不能替换硬件失败或称硬件验收通过。双引擎/偏好/配置原字节保持，最后恢复两窗chrome/视口/焦点/导航。独立软件相关终局见历史，日志/tmp/suzaku-bugfix-settings-preview.Y9Tygi/。未新增顶层Rust test，不累计前轮/定向结果，保209旧证据与79评分限制；Clear取消/迟到Commit会话边界另待测试，本轮不声称修复。词库/包/SDK/模型协议预算/宿主/依赖/版本不变，无提交推送、安装、个人服务配置、驱动修改或自动化变化。"
+    },
+    {
+      "id": "E-gpu-initialization-diagnostics",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "docs/development/testing.md",
+        "src/bin/panel.rs",
+        "src/bin/panel/gpu_init.rs",
+        "src/bin/panel/settings_chain_audit_test.rs"
+      ],
+      "scope": "2026-11-13设备初始化诊断接线与有界合成错误测试，私有软件Vulkan/EGL独立回归；未重新触发NVIDIA故障，不代表硬件修复或真实失败恢复验收。",
+      "note": "表面/适配器/设备请求各记录start及终态，进程/初始化/step/device_attempt定位；设备请求前标明alpha-preference或selected-adapter及实际adapter/backend/type，原候选枚举、参数、一次请求/原回退与typed结果不变。默认成功静默，失败展示当前受限Display/Debug/source，详细驱动仅显式诊断；512 Unicode字符/字段、8层source、转义控制字符，stderr写入失败忽略，不记录输入/模型配置/环境值。不能恢复wgpu已合并的底层码或越过原String边界保typed source。5合成父测试包含长Unicode、控制符、循环source及结果身份；原关闭矩阵仅4条BEGIN/PASS日志，其它旧主体/断言/期限保真。最终独立软件终局14组368通过/0失败/29旧忽略/零筛除，UI24+设置4单项全过，严格Clippy exit0/6.18秒；378条事件/189阶段闭环，63次实际CPU llvmpipe Vulkan请求无失败，13关闭case完成。另行已有纯内存错误身份exact在stderr=/dev/full时0，不加总。审计首轮只读解析因日志交错错数，修正为剥离可解析JSON后仍核5唯一测试及成功，不改产品断言。575目录来源冻结摘要47ebae59e45d7adedb45f512ed19645cf0035f51722d948544c0d55e0cd48f35；上一轮694广义来源692保留/2接线与测试日志变化，新增gpu_init模块。日志/tmp/suzaku-gpu-init-diagnostics.8Mz7Hm/；旧NVIDIA Xid32失败和210旧证据/79评分限制保留，不称资源泄漏、驱动或硬件根因已定，未重跑硬件压力、改驱动、安装、模型调用、提交推送或恢复自动化。"
+    },
+    {
+      "id": "E-compatible-empty-choice-siblings",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/model.rs",
+        "src/model/chat_choice_tests.rs"
+      ],
+      "scope": "2026-11-13 compatible响应解析的纯内存固定数据与有限本机HTTP fixture，中英日、新旧provider入口；非真实模型质量、云端调用或原生输入验收。",
+      "note": "原解析遇candidates数组即返回，即便空数组或按既有类型/长度/控制字符规则滤空，会丢掉先前或后续有效plain choice。同冻结纯解析exact原码RED101/0.00秒，[]不等于合法hello from a valid choice；生产只加非空结果门禁，空则沿旧continue，不改变非空structured优先、typed六行/kind、plain去重三行、完成状态或预算。3新测试冻结149a0b025e9273177594a2d8fde6866c7b93fcdc6adb1e123c6665a0d6bf3125，GREEN0/0.06秒；三语、前后顺序、fence、结构性坏行、优先/上限/类型/完成守卫，以及12次loopback的新旧接口真实HTTP接线均覆盖，无模型/凭据请求。夹具首轮漏trait导入编译失败单独保留，不作产品RED；旧源码及测试保持，完整普通Rust与静态守卫独立最终结果见历史，不能以定向结果替代。不改Ready允许本地同文确认语义，不扩称过滤后非空但语义不可用choices的全面聚合。源码摘要4f7ad38b2361ba3d8e2bd557548dc1ba5344107c64210a25ca44a28071df3fab，日志/tmp/suzaku-bugfix-choice-siblings.erRwRR/。211旧证据与79评分限制、GPU故障记录保留，不再硬件复测、不安装/改服务驱动配置、实模调用、提交推送或恢复自动化。"
+    },
+    {
+      "id": "E-http-candidate-policy-before-selection",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/model.rs",
+        "src/prediction/prompt.rs",
+        "src/model/chat_choice_policy_tests.rs"
+      ],
+      "scope": "2026-11-13模型HTTP候选筛选顺序的固定loopback回归，中英日、新旧provider入口及compatible/Ollama模拟响应；非真实模型、原生输入、硬件或性能验收。",
+      "note": "结构非空但按既有useful_candidate全无用的choice会先胜出，或无用行占满输出槽，再被后置retain全删为NoCandidates。将同一纯Fn策略传入格式正规化/候选提取，在原格式/字符/预算检查后、输出push/cap和choice胜出前应用；原始structured只扫前12，string3/typed6、plain3和normalizer6、首个有用structured优先及每调用窄预算政策不变，未扩大为多choice聚合。旧纯解析签名cfg(test)恒true转发，保原有fixture。最终冻结4测试3f1fe94777fb370760f3ba559d9477e795ebf8a527174dc610218f1c807d90fb：旧生产码实际RED101/0.08秒，3个NoCandidates失败及1控制通过；同fixture GREEN0/0.22秒，覆盖无用choice前后、被拒行不占槽、plain六条无用行后的有效结果、原take12/错误/优先/窄预算。首轮Ollama夹具漏GET /api/tags导致2项失败单独保留，补齐模拟清单后重冻并重新跑旧生产RED，未把夹具错误作产品证据。日志/tmp/suzaku-bugfix-choice-policy.5nLH8n/；独立相关回归与严格检查最终结果见历史。212旧证据及79评分/限制保留；kind跨choice回扫静态线索尚未实测，不包含本轮修复。未访问真实模型/凭据、重测NVIDIA、安装、改输入法服务配置、提交推送或恢复自动化。"
+    },
+    {
+      "id": "E-candidate-kind-origin",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/model.rs",
+        "src/prediction/prompt.rs",
+        "src/model/candidate_origin_tests.rs"
+      ],
+      "scope": "2026-11-13有限本机HTTP fixture，候选正文/词句类型来源一致性；覆盖三语、两协议和新旧provider入口，不是真实模型或原生UI验收。",
+      "note": "原生成先选文本，再对整个响应反查同文kind，可借到未采用choice或原始第13行的类型。固定fixture690d83116bf68a7c14e00bdad3c442025d8d51970208ee4588946a592aba446a在原生产码实际RED101/0.09秒：3失败/1控制通过，包含selected Word被越界Sentence覆盖、plain/string输出被后choice赋型；同数组先字符串后typed同文还显式确立正文/类型均由首个接受行拥有。修复让私有ParsedCandidate随接受行携text/kind，plain固定None，generator只补原评分，不再生产反查全body/全rows。旧纯文本测试接口map text，旧kind测试接口读取实际选择结果，未改旧断言。原take12、string3/typed6/plain3/normalizer6、useful、优先级、默认及动态预算、传输取消和错误分类不变。定向同冻结4项GREEN0/0.18秒；三语/双API、compatible/Ollama清单与响应、空格/去重/顺序/显式类型/分数均覆盖。独立扩大回归与严格检查最终结果见历史，不能用4项替代全套。日志/tmp/suzaku-bugfix-candidate-kind.RIeK3U/。213旧证据及79评分限制保留；不重测NVIDIA、访问实模或凭据、安装/改个人服务配置、提交推送或恢复自动化。"
+    },
+    {
+      "id": "E-source-0.10.6",
+      "kind": "historical_run",
+      "paths": [
+        "docs/releases/0.10.6.md",
+        "docs/history/2026-11/release-0.10.6.md",
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel.rs",
+        "src/bin/panel/gpu_init.rs",
+        "src/bin/panel/settings_handoff_native_test.rs",
+        "src/bin/panel/settings_chain_audit_test.rs",
+        "src/model.rs",
+        "src/model/chat_choice_tests.rs",
+        "src/model/chat_choice_policy_tests.rs",
+        "src/model/candidate_origin_tests.rs",
+        "src/prediction/prompt.rs"
+      ],
+      "scope": "2026-11-13版本0.10.6/build56独立完整本地源码和软件图形私有UI验收；不是准确推送提交远端CI/安装包或真实模型、个人桌面及硬件验收。",
+      "note": "基线b8f273574fdcf625fe03727109e623e7071b69a2，汇总设置跨窗持键/释放交接、关闭IME权限、激活尾键、被动组合预览滚动与有界GPU诊断；模型空choice、有用性过滤前移和正文/kind首个实际接受行同源，旧限额/协议/预算不变。首轮终端任务143退出，仅178组2123过/0失败/30ignore、缺完整phase与marker，不计最终结果；无OOM记录且信号发送者仍未知，不从15m13推断超时。新独立一次性用户任务同源同约束从头实际exit0：332唯一组3193过/0失败/39旧ignore/零筛除含Doc-tests，另UI24/设置4唯一单项全过。实际llvmpipe CPU Vulkan阶段日志另审计，软件通过不抹旧NVIDIA Xid32失败。727广义来源前后不变，清单cb96ade860740bacd6e98849476e69270c593e1a6fb338d0e9fc375cedd5c5ec；578目录来源摘要296188b79f3aecf0dec14b2bbe3d1ab4d54289c9cdbe80dab355b0751bf7e96c。五metadata八值精确逆投影，升版前1101tracked其余1096逐字保持；补张量/目录后8旧文件变化其余1093保持。静态预检28命令/374项，最终静态与精确28文件范围另核；日志/tmp/suzaku-release-0.10.6.3goQzh/。保214旧证据/79评分限制，不改词库/25包/SDK/依赖；用户授权CI与accepted包全验后LinuxAlpha prerelease非latest，当前尚未发布下载仍0.10.2，不恢复定时任务。Clear取消/迟到Commit与独立报告返回持键边界未解决，不扩称物理输入/WM/实模/性能/跨平台运行；不修改个人安装服务配置。"
     }
   ],
   "cells": [
@@ -5440,6 +5551,10 @@
         2
       ],
       "evidence": [
+        "E-source-0.10.6",
+        "E-candidate-kind-origin",
+        "E-http-candidate-policy-before-selection",
+        "E-compatible-empty-choice-siblings",
         "E-model-local-http-full",
         "E-model-local-http",
         "E-cloud-cancellation-ja-classification",
@@ -5625,6 +5740,7 @@
         2
       ],
       "evidence": [
+        "E-source-0.10.6",
         "E-source-0.10.5",
         "E-occluded-pointer-boundaries",
         "E-local-selection-visibility",
@@ -5798,6 +5914,11 @@
         2
       ],
       "evidence": [
+        "E-source-0.10.6",
+        "E-gpu-initialization-diagnostics",
+        "E-settings-ime-preview-scroll",
+        "E-settings-activation-hold",
+        "E-settings-window-handoff",
         "E-source-0.10.5",
         "E-settings-command-holds",
         "E-settings-scroll-focus",

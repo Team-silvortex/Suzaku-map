@@ -761,10 +761,14 @@ impl PanelState {
             settings_scroll_metadata.visible_height.max(0.0);
         self.interaction.settings_scroll_content_height =
             settings_scroll_metadata.content_height.max(0.0);
-        self.chrome.settings_scroll_offset = self
-            .chrome
-            .settings_scroll_offset
-            .clamp(0.0, self.interaction.settings_scroll_max_offset);
+        // A composition filters a render-only clone. Its shorter results must
+        // not overwrite the navigation retained for the committed query.
+        if self.kind != PanelWindowKind::Settings || !self.text_input.composing() {
+            self.chrome.settings_scroll_offset = self
+                .chrome
+                .settings_scroll_offset
+                .clamp(0.0, self.interaction.settings_scroll_max_offset);
+        }
     }
 
     pub(super) fn recover_surface(&mut self) {

@@ -878,3 +878,322 @@ Rust / UI / 设置日志 SHA256 分别为
 `ed8b7236f948e2afcdec5449af441b3c9f46b5d038936d1736c2c6eb41f95473`、
 `530b2f43a131bef98f9ae49ce51037637b8e6bc82f2e96b1333bdddfe91041eb`、
 `4cab35081d7ee15d0b3ea5c5e99ec86a60c2a75f7b268b348dfc133d0f574fc1`。
+
+## 继续抓虫：主窗与设置窗的按键、IME 交接
+
+基线为已提交的 `b8f273574fdcf625fe03727109e623e7071b69a2`，版本仍为
+0.10.5 / build 55。本轮扩展前一轮刻意未覆盖的 Main→Settings 持键转移，不改旧证据
+中同窗测试的范围。主窗按 Ctrl+, 新建设置窗，先松 Ctrl 而逗号尚未释放，目标搜索
+会从 Text 变成 Text,；私有 X11→winit→PanelApp 首轮实际 RED 101 / 9.12 秒。
+
+成功新建或复用设置窗时，合并主窗已消费且未释放的有限 physical KeyCode 集合；
+不复制编辑上下文，不替代目标已有持键，不在失败或通用报告构造中交接。主窗真实
+失焦仍清自身，目标窗继续拥有命令尾键直到真实释放。仅继承仍不够：若源窗释放在
+焦点转移前已排队，目标会留住已松开的逗号，后续 fresh/repeat 都不输入。
+最终冻结测试在此处实际 RED 101 / 8.73 秒，Text 未变成 Text,,。现在 PanelApp
+仅在当前受管来源窗、非合成 Released 且来源 dispatcher 未拒绝重入时，按精确物理键
+同步退休另一窗归属；Pressed、synthetic、陌生/过期窗口和来源重入不触发退休。
+这不是 App 级全局锁，也不改变普通重复输入或未知物理键不保留的规则。
+
+原 mandatory tone exact 的五个布局阶段、原逐阶段 5 秒期限和断言逐字保留，在其后
+追加独立三组共 5 秒限时的跨窗阶段；runner 清单及 90 秒外层期限不变。最终 helper
+SHA256 为 `e229ec55c57546c409c21e5c0d2f692c6f4686580e97805db1089cee7d142add`，
+覆盖新建、同窗复用和预排源窗释放，共 23 个真实非 synthetic 转换，核实际 WindowId、
+physical、命令修饰键及 fresh/repeat；完整 exact GREEN 0 / 12.53 秒。焦点迁移可能
+重置首个重复键的 backend repeat 位，故按实际物理归属验证，不猜测该位。测试在无 WM
+的 Xvfb 上用 X11 服务器提供真实焦点确认，不伪造 Focused 事件。两次较早夹具向失焦
+Main 注入释放，却被 vendor X11 归给 active Settings 的 WindowId 失败日志均保留，
+不当成产品失败，也不改 vendor 或放宽断言；最终在命令派发前预排源释放并确认实际
+Main WindowId 后再确认目标焦点。CPU 夹具的原 11 内层断言保留，新增 4 内层验证
+创建/复用 merge、失败保源、报告不继承及双向释放负例；不另计顶层 Rust 测试。
+另新增 1 项实际 TextInput 纯内存父测试，验证合并幂等、目标上下文与源归属保真。
+
+第二处是设置关闭后的即时 IME 许可：Main 仍是 focused editor、没有新的 Focus/Redraw
+先同步时，旧关闭分支留下 allowed=false，首条 Ime::Commit 被丢弃，事件收尾才恢复
+许可。受控 window/editor 的首个 é 实际 RED 101 / 4.37 秒。关闭和同步设置销毁路径
+现在立即调用既有权限判断，不抢焦点，不为未聚焦、收缩或未编辑状态启用 IME，也不
+解除 native blocked 或自动重放暂停稿。关闭 helper 纯追加于既有 first-status 两个
+helper 之后，旧主体保留，冻结 SHA256 为
+`e1d04b14fc9fcb89c88df7f72bfc71c07c23817cc6a45d218c8290e829ea04f1`。
+同冻结 exact GREEN 0 / 9.46 秒：三种关闭入口 × 四种编辑资格，关闭后不先派发主窗
+焦点/重绘来补救，直接核首个 Commit；GPU close target、生产 Esc callee/设置同步、
+内存 native 通道的暂停稿不重放，以及原两窗 chrome/完整引擎/私有配置字节均验证。
+这部分是受控状态与 callee 验收，不是物理 Esc 或真实 WM 关窗时序的复现。
+
+独立冻结终局流水线原进程实际 **exit 0**：完整 panel 与 13 个相关集成目标共
+**14 个唯一结果组，362 通过、0 失败、29 项原有显式忽略、零筛除**；另行私有 UI
+**24 个唯一单项**、设置链 **4 个唯一单项**全过。格式和严格 all-target/all-feature
+locked/offline Clippy `-D warnings` 通过（6.87 秒，增量检查，不是性能数据），六阶段
+及终局退出码全为 0。没有拼接初轮夹具失败、局部重试或前版的全仓回归数量，亦不称
+全仓 Rust/Doc-tests、准确新提交远端 CI 或跨平台运行验收。
+
+694 个源码/测试/脚本/Cargo/Android 文件前后冻结保持，清单 SHA256 为
+`af66daca7dbd76d144c3cade0e9bea38c9a12b5b6034b18af2f143ab9215b3cb`。
+Rust / UI / 设置日志 SHA256 分别为
+`92f8b4df603134521b74cf3353bb47025d3c23747726487642f60ef0ecb4e846`、
+`2e7cbaf5616cd4e33893e3c2a4c175d9e0876e0a85aa29284b31f7d0b5f52dec`、
+`3fa32c76b72b5919c208839f1a74b0a60081fd75086e9609a6e2e9d617a66ff6`。
+日志 `/tmp/suzaku-bugfix-settings-handoff.zFPOhN/`。保留 207 项旧证据与 79 项评分/
+限制，新增 1 项证据和新 helper 来源登记；词库/25 包/SDK/模型协议预算/宿主/依赖/
+版本不变。没有真实模型请求、个人桌面或物理设备验收，未提交推送、安装、操作个人
+服务/配置或恢复自动化。
+
+## 继续抓虫：设置按钮激活不能向搜索泄漏尾键
+
+保留上一轮未提交工作区，从其 694 文件冻结清单继续，只改变 input.rs、
+settings_keyboard.rs、keyboard_native_test.rs 三处，其余 691 项保持。
+Settings 中 query=Text、键盘焦点在实际呈现的 Clear，空格首按清空搜索并自动转焦
+SearchInput；旧分派未登记激活键归属，同一未释放空格的 repeat 随后把空串改成一个
+普通空格。新增阶段通过真实私有 X11→winit→生产分派复现，实际 RED 101 / 0.90 秒。
+
+共享 activation_key 判定仅接受无修饰键、搜索未聚焦的 Named Enter/Space；原控件
+分支复用等价判定，分派在 recording/preedit 门禁之后、控件动作之前登记实际物理键，
+由原真实 release 退休。搜索框已经聚焦时的普通空格不登记为按钮命令，也不全局禁用
+repeat。新增 1 项纯内存父测试覆盖 Enter/Space、已聚焦搜索、修饰键和非激活键排除；
+它不能替代实体 Enter 或跨窗口关闭验收。
+
+原 mandatory recording exact 的录制六 pressed、Ctrl+,/CtrlF 各八个转换和原 20 秒
+总期限保留，在两旧阶段完整通过之后追加六个 Space 转换；runner 清单不变。
+冻结 SHA256 `8a6b8b64d6d5d59d6e194d26c82106573f955428ffa191a533eb9eb32a600daf`，
+同冻结完整 GREEN 0 / 1.21 秒：首按确实激活 Clear、转焦搜索，未释放 repeat 不入文，
+真实 release 后 fresh Space 与普通 repeat 仍得到两个空格。草稿/翻译/完整 Settings
+引擎、偏好、快捷键代次、私有配置存在/缺失及原字节保持，旧测试正文可逆投影还原。
+
+同一冻结源码独立终局流水线原进程实际 **exit 0**：完整 panel 与 13 个相关集成目标
+**14 个唯一结果组，363 通过、0 失败、29 项原有显式忽略、零筛除**；另行私有 UI
+**24 个唯一单项**、设置链 **4 个唯一单项**全过。格式和严格 all-target/all-feature
+locked/offline Clippy `-D warnings` 通过（6.27 秒，增量检查，非性能数据）；六阶段和
+终局退出码全为 0。不拼接局部重试或前轮数量，不称全仓 Rust/Doc-tests 或远端 CI。
+694 文件前后冻结一致，清单 SHA256 为
+`c3cb3ab35ae0a0ef434232cee83564043722ef89bb68f2915fbe2060209c1bde`。
+Rust / UI / 设置日志 SHA256 分别为
+`8bbe354f8162ea30bd583b1eeeb62c6394f8a553446157ab4dad88d21b4e09de`、
+`cb1fa02b96fa3886889e46de9d926d31fe6ddbd0c60a9883a726659fd9542b33`、
+`1d1ab257bf5b777f80fbadde5c37726b00ba664d32729759eaadcaa65ae8d27f`。
+日志 `/tmp/suzaku-bugfix-settings-activation.QmSBcY/`。208 项旧证据和 79 项评分/限制
+保留。未改词库/包/SDK/模型协议预算/宿主/依赖/版本，未提交推送、安装或操作个人
+服务配置，不恢复自动化；本轮不是真实物理设备、WM、Wayland 或模型验收。
+
+独立报告销毁后若返回 Main 的持键交接另待实证；直接向未聚焦 Main 继承，还需处理
+松键发生在其他应用、目标随后才回焦的边界，本轮未实施，不能用同窗 Space 结果替代。
+
+## 继续抓虫：IME 搜索预览不覆盖正式滚动位置
+
+保留已有未提交修正，本轮只改 controller.rs 与 settings_chain_audit_test.rs。
+Settings 在 render-only chrome clone 上附加预编辑做筛选，却把预览结果的最大滚动
+范围用于夹紧真实 chrome offset。400×270 视口中，正式空查询的合法 offset=137，
+收到无匹配 Preedit 后，仅绘制就把正式位置改成 0，取消预编辑也无法还原。
+原 mandatory first-status 的旧 scroll helper 之后、model helper 之前纯追加调用与
+172 行 helper，旧主体、相对顺序、断言和期限保留；冻结 SHA256 为
+`c558ee8376e007761436c87fbd6288c074f610164bedcfe90ef0c3cc845a33d8`。
+原硬件路径实际 RED 101 / 3.64 秒，断言为 0 != 137。
+
+仅在 Settings 仍有非空预编辑时，跳过被动 frame 对正式 offset 的夹紧；预览仍照常
+绘制，并同步真实 track/max 等交互元数据。三次实际预览 render 后正式 query/offset
+保持，取消后原 scrollbar handle 几何恢复；同查询正式 Commit 后仍正常夹紧到 0。
+这不禁止用户主动 wheel/drag，也不承诺主动滚动后取消一定恢复原位置；组合结束后的
+真实视口范围变化仍按原规则处理。完整双引擎、偏好、私有配置原字节保持，末尾恢复
+两窗 chrome、尺寸、焦点、光标和修饰键。
+
+首次修后硬件运行中，新 helper 已 PASS，但 exact 后半旧关闭链夹具创建 GPU 窗口
+返回 `Parent device is lost`，整项实际 **101 / 6.92 秒**，不能记作通过。内核记录
+对应测试进程的 NVIDIA Xid 32，日志已保留；受限环境的 NV 查询失败不足以证明整卡
+不可用，独立只读查询实际 exit 0，显卡仍可查询。没有重启驱动、结束个人应用或修改
+系统。此硬件通道问题仍待单独调查，不因预览 helper 局部成功而忽略。
+
+另用已安装的 Mesa lavapipe/Vulkan 与 Mesa EGL 作独立软件验证，只在临时 runner
+设置 ICD/vendor 和两个工作线程，不改项目后端选择、断言或期限。同冻结原生产代码
+软件 RED 101 / 3.30 秒（仍 0 != 137）；恢复同一修正后完整 exact GREEN 0 / 4.76 秒。
+它不替代硬件失败，不是 NVIDIA、真实输入法后台或物理输入验收。
+
+同一冻结源码的软件图形终局流水线原进程实际 **exit 0**：完整 panel 与 13 个相关
+集成目标共 **14 个唯一结果组，363 通过、0 失败、29 项原有显式忽略、零筛除**；
+软件 UI **24 个唯一单项**、设置链 **4 个唯一单项**另行全过，font-atlas 记录明确为
+Vulkan CPU `llvmpipe`。格式与严格 all-target/all-feature locked/offline Clippy
+`-D warnings` 通过（5.89 秒，增量检查，非性能数据），六阶段及终局退出码全为 0。
+没有新增顶层 Rust test，也不拼接硬件局部成功、定向重试或前轮数量充作本轮终局。
+694 文件前后冻结保持，本轮 2 处变化、692 项保留，清单 SHA256 为
+`f3ba8308e672ddf787e40d479442795b9729dedd9ff54b98312e1320a6594f23`。
+Rust / 软件 UI / 设置日志 SHA256 分别为
+`191c6ee09914d154b40d9e489b35e82654331d575568747ad6e6bbf8adae8f86`、
+`683801ce0331de12ef556e19e590bf740132493e3c4444584708b6f96993ca9d`、
+`87aa42e302628078c06e91ae1b2bb83a1516f6db0871cf7da205a1c64cae939e`。
+日志 `/tmp/suzaku-bugfix-settings-preview.Y9Tygi/`；209 项旧证据与 79 项评分/限制
+保留。词库/包/SDK/模型协议预算/宿主/依赖/版本不变，未提交推送、安装、改个人服务
+配置或恢复自动化。Clear 的组合取消与迟到 Commit 会话边界另待测试，本轮未声称修复。
+
+## 设备初始化诊断：记录失败前的适配器与阶段
+
+沿上一轮 NVIDIA `Parent device is lost` 继续，只补可观测性，不宣称根因已修复。
+只读核对将错误定位在新 Settings 的最终 `request_device` 返回；后续测试对未创建的
+窗口取值才产生 panic。对应测试进程在 18:59:35 的两条同秒同通道 Xid 32 记录是同一
+次尝试，不算两次复现。该 scope 内存峰值 817.3 MiB，未见同时间窗口 OOM；GPU 及
+其上游 root port 的 AER 计数读取为零，显卡只读查询成功。当天 NVMe 的 AER 属于
+另一设备，不混作显卡证据。这些不足以排除显存、驱动或硬件问题。
+
+图形库把设备丢失、部分初始化失败及 Unexpected 合并为同一文案；缺少失败时已选
+后端与底层原始码，不能判断整卡失效或主窗设备提前销毁。静态未证实生命周期缺陷。
+旧关闭矩阵在单次回调中反复建立独立图形上下文，是后续隔离方向，不是泄漏结论。
+
+新增 `panel/gpu_init.rs`，每个初始化分配进程内编号，分别在表面创建、适配器选择及
+设备请求前记录阶段，完成后记录结果。设备尝试携带准确角色 `alpha-preference` /
+`selected-adapter`、后端、设备类型及数字标识；显式诊断模式才记录受限名称与驱动。
+默认成功静默，失败记录当前 Display/Debug 与可访问的 source 链；不能恢复图形库
+已经合并掉的原始驱动错误，也不改变既有辅助窗字符串错误边界。单字段最多 512 个
+Unicode 字符，来源链最多 8 层，截断有标记，JSON 转义控制字符。日志尽力写入，
+stderr 不可写不替换原错误；不记录输入、模型配置或环境值，不承诺全局日志配额。
+
+原请求参数、候选枚举、透明优先失败后的回退和次数不变，不增加重试、强制软件
+回退、设备共享、等待/销毁策略或依赖。关闭夹具仅追加四条 BEGIN/PASS 日志语句，
+旧主体、断言、顺序和期限字节保留；实际覆盖 12 个关闭/所有权矩阵及 1 个保稿控制。
+新增 5 项纯合成测试覆盖编号/角色、成功静默、错误返回身份和 source、Unicode 截断、
+控制字符及循环 source；不称真实 GPU 失败或透明候选回退已动态验收。
+
+最终代码使用上一轮相同的临时 Mesa Vulkan/EGL 软件隔离，原进程完整 exit 0：
+相关 Rust 14 个唯一结果组 **368 通过、0 失败、29 项原有显式忽略、零筛除**；另行
+软件 UI **24 个唯一单项**、设置链 **4 个唯一单项**全部通过。严格 all-target /
+all-feature locked/offline Clippy `-D warnings` exit 0（6.18 秒，非性能数据）。
+实际软件日志共 378 条初始化事件，189 个阶段开始/终态逐项配对，其中 63 次设备
+请求（UI 40、设置链 23）均为 Vulkan / llvmpipe CPU；没有用预设“16 次构造”代替
+实际请求计数。额外只运行已有纯内存错误身份单测，stderr 指向 `/dev/full` 时 exit 0，
+不重复累加进 368 项。审计最初因 stderr 与测试进度交错而错数；仅剥离可解析 JSON
+记录后仍要求原五个唯一测试名和成功状态，未改产品测试断言或结果。
+
+575 项功能目录来源在最终流水线前后冻结一致，源码摘要为
+`47ebae59e45d7adedb45f512ed19645cf0035f51722d948544c0d55e0cd48f35`。
+另对上一轮 694 项广义来源核对，692 项保留、2 项接线/测试日志变化，新增诊断模块。
+测试文件 SHA256 `0a6bc64aa9d84a898b43c971a551ea2e09d14ba8d1b0ff710338521fcdf34026`；
+Rust / UI / 设置日志 SHA256 分别为
+`a0f9e2d8b65261bbf52140b8f7ea03f960ea7d148202bcc95e36bf10bbbd16d7`、
+`4d922ec62b43e107092ae5d1001b551e79ce222bc5c8ae3d25e7195f755162f4`、
+`2767baab239ddda48f72cf9c0ea2871acd3b1df465bfdf312f5b2a9c40c7034f`。
+日志 `/tmp/suzaku-gpu-init-diagnostics.8Mz7Hm/`；首轮记录另保留在 `first-run/`，
+不拼接两次成绩。操作说明只维护在 [构建与测试](../../development/testing.md)。
+另行静态守卫原进程 exit 0：28 命令、25 个 unittest 组、374 项、零跳过；
+ShellCheck 未安装，未记作通过。文档链接、功能来源摘要及旧证据保真另行核实。
+保留前轮修正、210 项旧证据与 79 项评分/限制；未重跑 NVIDIA 压力、改驱动、安装、
+调用模型、提交推送或恢复自动化。本轮只验证诊断接线与软件链，硬件失败仍未关闭。
+
+## 继续测其他链：空结构化备选不吞掉同响应的有效候选
+
+按用户要求保留 NVIDIA 故障，不再复测该硬件链。设置搜索 Clear 的组合取消边界
+仍是未执行复现的静态线索，本轮不改变其清空或焦点规则，转查模型候选解析。
+compatible 响应中先有合法纯文本 choice、后有 `{"candidates":[]}`，原解析器遇到
+后者直接返回空数组，把已收集的有效补全一起丢掉；空数组放前面也会阻断后续 choice。
+同理适用于按既有类型、控制字符和长度规则过滤后为空的结构化数组。
+
+新增独立 `model/chat_choice_tests.rs` 三项测试，冻结 SHA256 为
+`149a0b025e9273177594a2d8fde6866c7b93fcdc6adb1e123c6665a0d6bf3125`。
+夹具首轮漏导入旧 provider trait，真实编译错误独立保存在 `fixture-compile-error.*`，
+补导入后才冻结测试，不把编译失败算产品 RED。原生产解析代码的同一纯内存 exact
+实际 **exit 101 / 0.00 秒**：有效 `hello from a valid choice` 后的空数组使结果为 `[]`。
+生产仅改成结构化结果非空才沿原规则返回，空则继续遍历；旧主体和既有测试不改。
+
+同冻结三项定向 GREEN **exit 0 / 0.06 秒**。纯解析覆盖中英日、两种顺序、fence、
+六类空/结构性坏数组；保留非空 structured 优先、typed 六行及 kind、plain 去重
+三行和未完成 choice 拒绝规则，不改为聚合所有有效 structured choices。有限本机
+HTTP fixture 另覆盖三语、两种顺序、新旧 provider 入口，共 12 次显式 loopback 请求，
+不发现/启动模型、不发送凭据，结果保持原文和 plain 的未指定 kind。
+
+严格 all-target/all-feature locked/offline Clippy `-D warnings` 原进程 exit 0，
+耗时 1 分 16 秒（不是性能测量）。完整普通 Rust 流水线使用私有配置、无桌面地址，
+真实模型和原生/UI opt-in 项仍按原规则忽略；其独立最终结果另列，不用定向通过替代。
+日志 `/tmp/suzaku-bugfix-choice-siblings.erRwRR/`。本轮不改 Ready 的既有“响应已收到，
+允许本地同文 corroboration”含义，不将缺少新 AI 行直接判为故障。图形、输入法服务、
+模型协议预算、依赖、词库/包/SDK和版本不变，未安装、调用真实模型、提交推送或恢复自动化。
+
+本轮独立最终普通 Rust 流水线原进程实际 **exit 0**，含 Doc-tests 的 **332 个唯一
+结果组、3185 通过、0 失败、39 项原有显式忽略、零筛除**；目标清单与上一版完整
+入口相同。三项新测试已包含其中，不再把定向 GREEN 的三项重复加总。没有运行
+私有 native/UI opt-in 脚本，更不把普通回归中的几何数据测试称为硬件渲染验收。
+576 项功能目录来源在流水线前后冻结一致，摘要
+`4f7ad38b2361ba3d8e2bd557548dc1ba5344107c64210a25ca44a28071df3fab`；
+前轮 575 项中 574 项原字节保留，仅 model.rs 的测试接线及非空门禁变化，新增独立
+测试模块。逆向移除这两处插入后，原 model.rs 全文和旧测试字节相同。
+定向 / 完整普通 Rust 日志 SHA256 分别为
+`34e47cd989d4ae24ba6133db553d7a66db624a2ea5d6c4835c2f27375326694f`、
+`4c2f2162cf6ddf353d9d7ca14c7e6016258f720d7e0fe0ef6af874da4e8499e5`。
+另行静态守卫原进程 exit 0：28 命令、25 个 unittest 组、374 项、零跳过；ShellCheck
+仍未安装，未记作通过。211 项旧证据及 79 项评分/限制保持，只追加本轮证据引用。
+本轮没有新远端 CI、实际模型质量、性能、个人输入法安装或跨平台运行验收。
+
+## 继续测候选链：无用行不提前占满候选名额
+
+上一轮只处理结构上为空的 choice；结构合法但只有原稿回显、前缀错误或字段回显时，
+解析器仍会先选中它，随后 `useful_candidate` 才将其全删成 `NoCandidates`，遮住同响应
+有效备选。单个数组或 plain 正文也可能先被无用行占满输出槽，后面的有效行不再可达。
+
+本轮将既有有用性策略作为纯 `Fn` 传入解析/正规化，在格式、字符和默认预算检查后、
+计入输出槽和决定 choice 优先级前执行。原始结构化扫描仍只看前 12 行；string 三条、
+typed 六条、plain 三条及 normalizer 六条输出上限保留，首个有用 structured 仍优先，
+不改成聚合全部有效 choices。每调用更窄预算仍在原位置处理，不改变 kind 检索、
+取消、传输、发现缓存、错误分类或旧协议。旧纯解析签名仅测试内恒 true 转发，旧测试
+主体不变；生产始终使用原有 `useful_candidate`，不是移除草稿保护。
+
+新增四项有限 loopback 测试。首轮模拟 Ollama 服务漏了原有 `GET /api/tags` 查询，
+两项夹具握手失败独立保存在 `fixture-handshake-error.*`，不算产品失败或最终成绩。
+补齐清单后冻结 SHA256 `3f1fe94777fb370760f3ba559d9477e795ebf8a527174dc610218f1c807d90fb`，
+重新恢复原生产逻辑运行同一四项：实际 **exit 101 / 0.08 秒**，三个候选丢失失败和一个
+边界控制通过。同冻结修复后 **exit 0 / 0.22 秒，4 通过**。覆盖中英日、两个 provider
+入口、无用 choice 前后位置、plain/typed 有效备选、string/typed 槽位、六条无用 plain
+后的有效行、原始 12 行扫描、全无用错误、结构化优先及动态窄预算。Ollama 仅模拟
+清单与响应，compatible 仅显式本机端点；不发送凭据、不调用或启动真实模型。
+
+日志 `/tmp/suzaku-bugfix-choice-policy.5nLH8n/`。独立扩大回归结果另列，不用四项
+定向通过代替。kind 从未采用 choice 借取的静态线索保留待下一轮复现，本轮不混改。
+继续搁置 NVIDIA 故障，不运行硬件/原生UI链；未更换安装、输入法服务/配置、词库、版本、
+依赖或驱动，未提交推送、发布或恢复自动化。
+
+独立扩大回归原进程实际 **exit 0**：完整库入口与十个模型/预测 integration 入口，
+**11 个唯一结果组、796 通过、0 失败、2 项原有显式忽略、零筛除**；四项新测试已
+包含，不与定向成绩重复加总。覆盖取消、语言切换迟到响应、编辑冲突、保全文本、
+协议/旧桥接、英文空白、日本语分类及配置/命令行；不是完整 332 目标重跑，也没有
+原生/UI opt-in 或真实模型验收。严格 all-target/all-feature locked/offline Clippy
+`-D warnings` 实际 exit 0，1 分 14 秒仅为检查耗时，不是性能改善证据。
+静态守卫独立实际 exit 0：28 命令、25 个 unittest 组、374 项、零跳过；ShellCheck
+仍未安装，未记作通过。577 项目录来源前后冻结，摘要
+`8fc1a9cd0ef820ab62e591b371c6e4edee54d07131a48f897a22008a3ffdc211`。
+前轮 576 项中 574 项原字节保留，只改模型解析和 prompt 过滤接线并新增独立测试；
+旧模型测试主体、既有有用性策略、212 项历史证据及 79 项评分/限制保持。
+定向 / 扩大回归日志 SHA256 分别为
+`74221573f03e66489a69e65936d62d1b277655166aa869d1cd7337f030b8b36c`、
+`576860ecc8ed4ad29bbe046d8a9d7c0dacdac0ffc614776ab13e425b3b240ffa`。
+
+## 继续测候选链：词句类型与实际接受行同源
+
+前轮保留的 kind 回扫线索已用真实生产入口复现：文本解析只看 structured 原始前
+12 行，首个有用 structured 胜出或 plain 满三条立即返回；生成器却对全部 completed
+choices 的全部行反查同文类型。前 choice 第 13 行 `hello/Sentence` 不参与正文选择，
+仍可覆盖后面实际选中的 `hello/Word`。未采用的后 choice 也会给已经胜出的 plain/
+string 结果加类型，影响下游按词/句分槽。不是 finish_reason 失守或模型语言质量问题。
+
+修复在实际接受行时绑定私有 `ParsedCandidate { text, kind }`，plain 固定未指定类型，
+generator 仅按原公式填写分数；不再从整个响应反查。去重以首个接受行为准，后续同文
+typed 行不再为早先字符串补类型——这是本轮明确的同源规则，不宣称此前已有独立文档
+规定字符串/typed 混合的类型合并语义。旧纯文本测试接口映射 text，旧 kind 测试接口
+读取同一实际解析结果，保留全部原断言。原始 12 行扫描、三/六条输出上限、正规化、
+useful 过滤、优先级、预算、取消、错误、缓存和传输不变，无公共接口或依赖变化。
+
+四项有限 loopback fixture 冻结 SHA256
+`690d83116bf68a7c14e00bdad3c442025d8d51970208ee4588946a592aba446a`。
+原生产码实际 **exit 101 / 0.09 秒：3 失败、1 正向控制通过**；同冻结修复后
+**exit 0 / 0.18 秒：4 通过**。覆盖扫描边界外的错误类型、未选 choice、重复行、
+三语、两协议、新旧 provider、缩进/尾空格、正文顺序及原排序分数。Ollama 只模拟
+原有清单查询与生成响应；无凭据、真实模型、输入法/桌面操作或硬件复测。
+
+日志 `/tmp/suzaku-bugfix-candidate-kind.RIeK3U/`；扩大回归最终结果另列，不用定向
+通过代替。继续保留 NVIDIA 故障与旧证据，不安装、更改个人配置或服务、升版、
+提交推送、发布或恢复自动化。
+
+本轮独立扩大回归原进程实际 **exit 0**：库与十个模型/预测 integration 入口，
+**11 个唯一结果组、800 通过、0 失败、2 项原有显式忽略、零筛除**；包含新增四项，
+不与定向重复加总，也不冒充完整 332 目标、原生/UI 或真实模型验收。严格 all-target/
+all-feature locked/offline Clippy `-D warnings` 实际 exit 0，1 分 14 秒不是性能测量。
+静态守卫另行原进程 exit 0：28 命令、25 个 unittest 组、374 项、零跳过；ShellCheck
+仍未安装，未记为通过。578 项目录来源在流水线前后冻结，摘要
+`cb15c20f89d5e254130f4792eb1c4bd3dcc58c758f2891db01457c0a2f3cab3f`。
+前轮 577 项中 575 项原字节保留，仅模型/prompt 同源接线变化，新增独立测试；
+旧模型测试主体、useful/normalizer 策略、213 项证据和 79 项评分/限制保持。
+定向 / 扩大回归日志 SHA256 分别为
+`b0f12858adeee6cf4316ad2967cbd21edbbf4bc0fde46c53dfb5279639cd92af`、
+`541c1a10a78b34af82c400be1b3305d94978d25e0744e2ea2a92b501354510ac`。

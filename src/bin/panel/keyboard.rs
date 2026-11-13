@@ -42,6 +42,10 @@ impl TextInputState {
         self.hold_owned_key(key);
     }
 
+    pub(super) fn inherit_owned_holds(&mut self, source: &Self) {
+        self.owned_key_holds.extend(&source.owned_key_holds);
+    }
+
     pub(super) fn hold_owned_key(&mut self, key: PhysicalKey) {
         if let PhysicalKey::Code(code) = key
             && !matches!(
@@ -399,6 +403,32 @@ impl PanelState {
 mod tests {
     use super::*;
     use suzaku_map::ime::shortcuts::{ShortcutAction, ShortcutBindings};
+
+    #[test]
+    fn inherited_command_holds_merge_without_copying_the_editor_context() {
+        let comma = PhysicalKey::Code(KeyCode::Comma);
+        let f = PhysicalKey::Code(KeyCode::KeyF);
+        let mut source = TextInputState::default();
+        source.hold_panel_command_key(comma);
+        source.set_preedit("source 日本".into(), None);
+        source.allowed = true;
+        let mut target = TextInputState::default();
+        target.hold_recorded_key(f);
+        target.set_preedit("target é".into(), Some((7, 7)));
+        target.inherit_owned_holds(&source);
+        target.inherit_owned_holds(&source);
+        assert_eq!(target.owned_key_holds.len(), 2);
+        assert_eq!(target.preedit, "target é");
+        assert_eq!(target.cursor, 7);
+        assert!(!target.allowed);
+        assert!(target.consume_owned_hold(f, true));
+        assert!(target.consume_owned_hold(comma, true));
+        assert!(target.consume_owned_hold(comma, false));
+        assert!(!target.consume_owned_hold(comma, true));
+        assert!(source.consume_owned_hold(comma, true));
+        assert_eq!(source.preedit, "source 日本");
+        assert!(source.allowed);
+    }
 
     #[test]
     fn recorded_physical_key_hold_survives_ime_cleanup_and_modifier_release() {

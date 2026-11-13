@@ -5,6 +5,10 @@ use suzaku_map::ime::settings::ImeSettings;
 use winit::dpi::PhysicalSize;
 use winit::platform::x11::EventLoopBuilderExtX11;
 
+#[path = "settings_handoff_native_test.rs"]
+mod handoff;
+use handoff::SettingsHandoffProbe;
+
 #[test]
 #[ignore = "requires isolated Xvfb and SUZAKU_PANEL_NATIVE_QA=1"]
 fn native_tone_controls_follow_acknowledgements_and_reload() {
@@ -22,6 +26,7 @@ fn native_tone_controls_follow_acknowledgements_and_reload() {
         layout_step: 0,
         layout_expected: None,
         layout_changed: Instant::now(),
+        handoff: None,
     };
     event_loop.run_app(&mut probe).unwrap();
     assert!(probe.completed);
@@ -34,6 +39,7 @@ struct SettingsProbe {
     layout_step: usize,
     layout_expected: Option<PhysicalSize<u32>>,
     layout_changed: Instant,
+    handoff: Option<SettingsHandoffProbe>,
 }
 
 fn assert_ui_language_preferences(app: &mut PanelApp, event_loop: &ActiveEventLoop) {
@@ -526,6 +532,9 @@ impl ApplicationHandler<PanelUserEvent> for SettingsProbe {
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
         if let Some(app) = self.app.as_mut() {
+            if let Some(handoff) = self.handoff.as_mut() {
+                handoff.observe(app, id, &event);
+            }
             app.window_event(event_loop, id, event);
         }
     }
@@ -535,6 +544,16 @@ impl ApplicationHandler<PanelUserEvent> for SettingsProbe {
         let Some(app) = self.app.as_mut() else {
             return;
         };
+        if let Some(handoff) = self.handoff.as_mut() {
+            if handoff.advance(app) {
+                self.completed = true;
+                event_loop.exit();
+            }
+            event_loop.set_control_flow(ControlFlow::WaitUntil(
+                Instant::now() + Duration::from_millis(15),
+            ));
+            return;
+        }
         let categories = [
             SettingsCategory::Appearance,
             SettingsCategory::Input,
@@ -543,11 +562,13 @@ impl ApplicationHandler<PanelUserEvent> for SettingsProbe {
             SettingsCategory::Appearance,
         ];
         if self.layout_step == categories.len() {
-            self.completed = true;
             println!(
                 "PASS: category clicks clear global search, synchronize both windows and resize native settings to content without oscillation"
             );
-            event_loop.exit();
+            self.handoff = Some(SettingsHandoffProbe::new(app, event_loop));
+            event_loop.set_control_flow(ControlFlow::WaitUntil(
+                Instant::now() + Duration::from_millis(15),
+            ));
             return;
         }
         if self.layout_expected.is_none() {
