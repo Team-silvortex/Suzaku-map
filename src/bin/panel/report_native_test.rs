@@ -170,6 +170,111 @@ fn assert_read_only_inputs(app: &mut PanelApp, events: &ActiveEventLoop, before:
     assert!(!settings.text_input.composing());
 }
 
+fn assert_report_input_error(app: &mut PanelApp, events: &ActiveEventLoop, legacy: &str) {
+    let window = app.settings.as_ref().unwrap().window.id();
+    app.window_event(events, window, WindowEvent::Focused(true));
+    let main_focused = app.panel.as_ref().unwrap().is_focused;
+    let native_auto_shown = app.native_auto_shown;
+    let settings = app.settings.as_mut().unwrap();
+    let previous_feedback = settings.last_commit_feedback.replace(legacy.into());
+    let previous_ticks = std::mem::replace(&mut settings.commit_feedback_ticks, 37);
+    let before = EditingState::from(&*settings);
+    present_report(settings);
+    let snapshot = settings.view_snapshot();
+    let (_, overlays) = settings.current_frame_with_snapshot(&snapshot);
+    assert!(
+        overlays.is_empty(),
+        "reports must not expose earlier settings feedback"
+    );
+    let view = settings.report_view.as_ref().unwrap();
+    let source = view.test_snapshot().clone();
+    let page = (view.page_index(), view.page_count());
+    let close = view.test_button_rect(None).unwrap();
+    let buttons = [Some(false), Some(true), None].map(|key| view.test_button_rect(key));
+    assert!(settings.report_view.as_mut().unwrap().press(
+        [point(close).0, point(close).1],
+        report_view::PointerSource::Mouse,
+    ));
+
+    let raw = "Font: Settings";
+    app.user_event(events, PanelUserEvent::InputMethodError(raw.into()));
+    let settings = app.settings.as_mut().unwrap();
+    let (_, overlays) = settings.current_frame_with_snapshot(&snapshot);
+    assert_eq!(
+        overlays.len(),
+        1,
+        "a focused report must visibly show a newly delivered input error"
+    );
+    let expected = settings
+        .chrome
+        .ui_language
+        .tr("Input method error: {}")
+        .replace("{}", raw);
+    assert_eq!(
+        overlays[0]
+            .atlas_glyphs
+            .iter()
+            .map(|glyph| glyph.ch)
+            .collect::<String>(),
+        expected
+            .chars()
+            .filter(|ch| !ch.is_whitespace())
+            .collect::<String>(),
+        "a report must localize the wrapper and preserve opaque error parameters",
+    );
+    let bounds = overlays[0].quads[0].rect;
+    assert!(
+        bounds[1] + bounds[3] <= close[1],
+        "error feedback must not cover report controls"
+    );
+    settings
+        .render()
+        .expect("present the report and its new error notice");
+    assert!(
+        settings.needs_periodic_frame(),
+        "the report error must have a bounded visible lifetime"
+    );
+    assert_eq!(settings.last_commit_feedback.as_deref(), Some(legacy));
+    assert_eq!(
+        settings.commit_feedback_ticks, 37,
+        "the report must not advance old settings feedback"
+    );
+    let view = settings.report_view.as_ref().unwrap();
+    assert_eq!(view.test_snapshot(), &source);
+    assert_eq!((view.page_index(), view.page_count()), page);
+    assert_eq!(
+        [Some(false), Some(true), None].map(|key| view.test_button_rect(key)),
+        buttons
+    );
+    for _ in 0..180 {
+        settings.advance_periodic_frame();
+    }
+    assert!(!settings.needs_periodic_frame());
+    let (_, overlays) = settings.current_frame_with_snapshot(&snapshot);
+    assert!(
+        overlays.is_empty(),
+        "an expired notice must neither remain nor reveal legacy feedback"
+    );
+    settings.render().unwrap();
+    assert!(
+        settings.report_view.as_mut().unwrap().release(
+            [point(close).0, point(close).1],
+            report_view::PointerSource::Mouse,
+        ),
+        "a report error must preserve the previously presented button identity"
+    );
+    assert_eq!(EditingState::from(&*settings), before);
+    assert!(settings.is_focused);
+    assert!(!settings.text_input.composing());
+    assert_eq!(settings.last_commit_feedback.as_deref(), Some(legacy));
+    assert_eq!(settings.commit_feedback_ticks, 37);
+    settings.last_commit_feedback = previous_feedback;
+    settings.commit_feedback_ticks = previous_ticks;
+    assert_eq!(app.panel.as_ref().unwrap().is_focused, main_focused);
+    assert_eq!(app.native_auto_shown, native_auto_shown);
+    assert_main_untouched(app);
+}
+
 fn assert_model_setup_entry(app: &mut PanelApp, events: &ActiveEventLoop) {
     let main_before = app.panel.as_ref().unwrap().chrome.clone();
     let settings_before = app.settings.as_ref().unwrap().chrome.clone();
@@ -317,6 +422,7 @@ impl ApplicationHandler<PanelUserEvent> for ReportProbe {
         );
         assert_eq!(EditingState::from(app.settings.as_ref().unwrap()), before);
         assert_read_only_inputs(&mut app, events, &before);
+        assert_report_input_error(&mut app, events, "Sent to active app: private earlier text");
 
         let settings = app.settings.as_mut().unwrap();
         present_report(settings);
@@ -552,6 +658,11 @@ impl ApplicationHandler<PanelUserEvent> for ReportProbe {
         let temporary_before = EditingState::from(&*settings);
         present_report(settings);
         assert_read_only_inputs(&mut app, events, &temporary_before);
+        assert_report_input_error(
+            &mut app,
+            events,
+            "Input method error: an older settings failure",
+        );
         present_report(app.settings.as_mut().unwrap());
         let close = point(
             app.settings

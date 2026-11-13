@@ -281,6 +281,16 @@ impl PanelState {
         }
     }
 
+    /// Keep the current IME context until the app commits or rolls back a
+    /// main-window settings request. Revoking permission here would erase a
+    /// live preedit before a failed auxiliary constructor can restore input.
+    pub(super) fn sync_text_input_after_dispatch(&mut self) {
+        if self.kind == PanelWindowKind::Main && self.settings_window_request.is_some() {
+            return;
+        }
+        self.sync_text_input_state();
+    }
+
     /// Permission changes must not measure a hidden/restored settings scene:
     /// measuring can clamp navigation before its ordinary frame is requested.
     pub(super) fn sync_text_input_permission(&mut self) -> bool {

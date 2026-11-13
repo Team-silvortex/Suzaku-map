@@ -1445,6 +1445,8 @@ fn assert_native_paging(state: &mut PanelState) {
         state.receive_native_frame(Some(frame.clone()));
         state.change_native_candidate_page(false);
         assert!(receiver.try_recv().is_err());
+        #[cfg(target_os = "linux")]
+        present_test_frame(state);
         let rect = state
             .interaction_rect(InteractionKind::Candidate(5))
             .unwrap();

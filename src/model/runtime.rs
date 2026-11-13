@@ -1,7 +1,8 @@
 //! Bounded metadata-only local discovery and explicit empty-request warmup.
 use super::{
     DEFAULT_LOCAL_ENDPOINT, DEFAULT_MODEL, LlamaProviderConfig, ModelProtocol, ModelProviderConfig,
-    ModelScope, check_cancellation, http_request, http_request_with_cancel, parse_http_endpoint,
+    ModelScope, check_cancellation,
+    local_http::{http_request, http_request_with_cancel, parse_http_endpoint},
 };
 use crate::prediction::{PredictionCancellation, PredictionError};
 use serde_json::{Value, json};

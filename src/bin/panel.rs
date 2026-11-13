@@ -71,6 +71,8 @@ mod settings_keyboard;
 #[cfg(all(test, target_os = "linux"))]
 #[path = "panel/settings_native_test.rs"]
 mod settings_native_test;
+#[path = "panel/settings_sync.rs"]
+mod settings_sync;
 #[cfg(all(test, target_os = "linux"))]
 #[path = "panel/status_native_test.rs"]
 mod status_native_test;
@@ -307,6 +309,19 @@ fn settings_window_attributes(chrome: &PanelChromeState) -> WindowAttributes {
         .with_visible(false)
         .with_resizable(true);
     decorate_settings_window_attributes(attrs)
+}
+
+fn create_auxiliary_window(
+    event_loop: &ActiveEventLoop,
+    chrome: PanelChromeState,
+) -> Result<PanelState, String> {
+    let window = Arc::new(
+        event_loop
+            .create_window(settings_window_attributes(&chrome))
+            .map_err(|error| format!("create auxiliary window: {error}"))?,
+    );
+    pollster::block_on(PanelState::new_settings(window, chrome))
+        .map_err(|error| format!("initialize auxiliary window: {error}"))
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -589,32 +604,85 @@ impl PanelApp {
         };
 
         if panel.chrome.compact_mode {
+            panel.last_compact_toggle = None;
             panel.apply_compact_mode(false);
         }
-        panel.suspend_native_keyboard();
         panel.chrome.settings_open = true;
         panel.window.request_redraw();
         let chrome = panel.chrome.clone();
         if let Some(settings) = self.settings.as_mut() {
             settings.end_report_details();
+            panel.suspend_native_keyboard();
+            panel.sync_text_input_permission();
             if mirror_settings_chrome(&mut settings.chrome, &chrome) {
                 settings.apply_window_decorations();
                 settings.window.request_redraw();
             }
             settings.window.set_visible(true);
+            settings.window.focus_window();
             return;
         }
 
-        let window = Arc::new(
-            event_loop
-                .create_window(settings_window_attributes(&chrome))
-                .expect("create settings window"),
-        );
-        let settings = pollster::block_on(PanelState::new_settings(window, chrome))
-            .expect("initialize settings window");
-        finish_settings_window_creation(&settings.window, &panel.window, event_loop);
-        settings.window.request_redraw();
-        self.settings = Some(settings);
+        self.sync_settings_window(event_loop);
+    }
+
+    fn sync_settings_window(&mut self, event_loop: &ActiveEventLoop) {
+        let Some(panel) = self.panel.as_mut() else {
+            return;
+        };
+        if self
+            .settings
+            .as_ref()
+            .is_some_and(|state| state.report_view.is_some())
+        {
+            // Reports remain independent of main-window visibility and layout.
+            return;
+        }
+        if panel.chrome.compact_mode {
+            panel.chrome.settings_open = false;
+            self.settings = None;
+            panel.sync_text_input_permission();
+            return;
+        }
+        if !panel.chrome.settings_open {
+            self.settings = None;
+            return;
+        }
+        if self.settings.is_none() {
+            match create_auxiliary_window(event_loop, panel.chrome.clone()) {
+                Ok(settings) => {
+                    // A failed auxiliary window must not block retained host edits.
+                    panel.suspend_native_keyboard();
+                    panel.sync_text_input_permission();
+                    finish_settings_window_creation(&settings.window, &panel.window, event_loop);
+                    settings.window.request_redraw();
+                    self.settings = Some(settings);
+                }
+                Err(error) => {
+                    // Clear the request so ordinary redraws cannot retry forever.
+                    panel.chrome.settings_open = false;
+                    panel.sync_text_input_permission();
+                    self.show_auxiliary_window_error("settings", error);
+                    return;
+                }
+            }
+        }
+        if let Some(settings) = self.settings.as_mut()
+            && mirror_settings_chrome(&mut settings.chrome, &panel.chrome)
+        {
+            settings.apply_window_decorations();
+            settings.window.request_redraw();
+        }
+    }
+
+    fn show_auxiliary_window_error(&mut self, context: &str, error: String) {
+        let feedback = format!("Input method error: Could not open {context}: {error}");
+        eprintln!("{feedback}");
+        if let Some(panel) = self.panel.as_mut() {
+            panel.last_commit_feedback = Some(feedback);
+            panel.commit_feedback_ticks = 180;
+            panel.window.request_redraw();
+        }
     }
 
     fn show_report_details(
@@ -634,14 +702,13 @@ impl PanelApp {
         }
         // A report is independent of input ownership: never unfold, show, focus,
         // or suspend the main panel merely to read an operation's result.
-        let window = Arc::new(
-            event_loop
-                .create_window(settings_window_attributes(&panel.chrome))
-                .expect("create report window"),
-        );
-        let mut settings =
-            pollster::block_on(PanelState::new_settings(window, panel.chrome.clone()))
-                .expect("initialize report window");
+        let mut settings = match create_auxiliary_window(event_loop, panel.chrome.clone()) {
+            Ok(settings) => settings,
+            Err(error) => {
+                self.show_auxiliary_window_error("report", error);
+                return;
+            }
+        };
         settings.begin_report_details(snapshot, false);
         finish_settings_window_creation(&settings.window, &panel.window, event_loop);
         self.settings = Some(settings);
@@ -662,15 +729,21 @@ impl PanelApp {
     }
 
     fn show_input_method_error(&mut self, error: String) {
-        let feedback = format!("Input method error: {error}");
         // Keep failures beside the controls the user is working with. Showing
         // an unrelated main window can obscure the focused settings window.
         if let Some(settings) = self.settings.as_mut().filter(|state| state.is_focused) {
-            settings.last_commit_feedback = Some(feedback);
-            settings.commit_feedback_ticks = 180;
+            if let Some(report) = settings.report_view.as_mut() {
+                // A report owns only newly delivered errors, never feedback
+                // retained from settings or a previous input delivery.
+                report.show_input_method_error(&error);
+            } else {
+                settings.last_commit_feedback = Some(format!("Input method error: {error}"));
+                settings.commit_feedback_ticks = 180;
+            }
             settings.window.request_redraw();
             return;
         }
+        let feedback = format!("Input method error: {error}");
         if let Some(panel) = self.panel.as_mut() {
             panel.last_commit_feedback = Some(feedback);
             panel.commit_feedback_ticks = 180;
@@ -827,7 +900,10 @@ impl ApplicationHandler<PanelUserEvent> for PanelApp {
             return;
         }
 
-        handle_panel_window_event(panel, event_loop, event, true);
+        if !handle_panel_window_event(panel, event_loop, event, true) {
+            return;
+        }
+        let settings_window_request = panel.settings_window_request.take();
         // Opening settings or taking over the seed is an explicit interaction,
         // not a transient candidate popup. Retain that ownership after editing
         // ends as well, until the user explicitly hides the panel again.
@@ -868,37 +944,16 @@ impl ApplicationHandler<PanelUserEvent> for PanelApp {
             return;
         }
 
-        let reading_report = self
-            .settings
-            .as_ref()
-            .is_some_and(|state| state.report_view.is_some());
-        if reading_report {
-            // Main-window redraws/native updates must not dismiss a report just
-            // because the independent input panel is hidden or compact.
-        } else if panel.chrome.compact_mode {
-            panel.chrome.settings_open = false;
-            self.settings = None;
-        } else if panel.chrome.settings_open && self.settings.is_none() {
-            let window = Arc::new(
-                event_loop
-                    .create_window(settings_window_attributes(&panel.chrome))
-                    .expect("create settings window"),
-            );
-            let settings =
-                pollster::block_on(PanelState::new_settings(window, panel.chrome.clone()))
-                    .expect("initialize settings window");
-            finish_settings_window_creation(&settings.window, &panel.window, event_loop);
-            settings.window.request_redraw();
-            self.settings = Some(settings);
-        } else if !panel.chrome.settings_open {
-            self.settings = None;
-        }
-        if let Some(settings) = self.settings.as_mut()
-            && settings.report_view.is_none()
-            && mirror_settings_chrome(&mut settings.chrome, &panel.chrome)
-        {
-            settings.apply_window_decorations();
-            settings.window.request_redraw();
+        match settings_window_request {
+            Some(true) => self.open_settings(event_loop),
+            Some(false) => {
+                self.settings = None;
+                if let Some(panel) = self.panel.as_mut() {
+                    panel.sync_text_input_permission();
+                    panel.window.request_redraw();
+                }
+            }
+            None => self.sync_settings_window(event_loop),
         }
     }
 
@@ -1134,6 +1189,8 @@ struct PanelState {
     last_handwriting_summary: Option<String>,
     last_commit_feedback: Option<String>,
     settings_save_requested: bool,
+    /// A main-window command, consumed after auxiliary creation succeeds or fails.
+    settings_window_request: Option<bool>,
     report_view: Option<report_view::ReportView>,
     report_return_to_settings: bool,
     report_close_key: Option<winit::keyboard::PhysicalKey>,
@@ -1186,7 +1243,12 @@ impl PanelState {
         initial_chrome: Option<PanelChromeState>,
     ) -> Result<Self, Box<dyn Error>> {
         let size = window.inner_size();
-        let persisted_settings = load_display_settings();
+        // Auxiliary windows inherit the live preview, including unsaved settings.
+        let persisted_settings = if kind == PanelWindowKind::Main {
+            load_display_settings()
+        } else {
+            None
+        };
         let initial_window_scale = if kind == PanelWindowKind::Main {
             persisted_settings
                 .as_ref()
@@ -1573,6 +1635,7 @@ impl PanelState {
             last_handwriting_summary: None,
             last_commit_feedback: None,
             settings_save_requested: false,
+            settings_window_request: None,
             report_view: None,
             report_return_to_settings: false,
             report_close_key: None,

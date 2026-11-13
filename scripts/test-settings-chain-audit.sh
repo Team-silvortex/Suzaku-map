@@ -11,7 +11,8 @@ suzaku_settings_audit_failed=0
 for suzaku_settings_audit_case in \
   settings_chain_audit_test::audit_first_status_must_preserve_a_startup_ui_edit \
   audit_native_patch_must_not_clobber_a_newer_saved_configuration \
-  settings_chain_audit_test::audit_display_save_failure_must_be_visible_or_rolled_back
+  settings_chain_audit_test::audit_display_save_failure_must_be_visible_or_rolled_back \
+  settings_chain_audit_test::audit_reopened_settings_must_preserve_the_unsaved_preview
 do
   if [[ "$suzaku_settings_audit_case" == settings_chain_audit_test::* ]]; then
     suzaku_settings_audit_target=(--bin panel)

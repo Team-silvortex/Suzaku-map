@@ -219,3 +219,36 @@ fn legacy_llm_protocol_aliases_preserve_identity_and_shared_cancellation() {
     assert!(cancellation.is_cancelled());
     assert_eq!(cancellation.check(), Err(PredictionError::Cancelled));
 }
+
+#[test]
+fn local_endpoint_checks_preserve_the_same_boundary_at_all_public_paths() {
+    let checks: [fn(&str) -> bool; 3] = [
+        model::is_local_llm_endpoint,
+        legacy_model::is_local_llm_endpoint,
+        llama::is_local_llm_endpoint,
+    ];
+    // Pure parsing only: no discovery, DNS, sockets, credentials or configuration.
+    for (endpoint, expected) in [
+        ("http://127.0.0.1:11434/api/chat", true),
+        ("http://LOCALHOST:8080/v1/chat/completions", true),
+        ("http://localhost", true),
+        ("http://127.2.3.4:8080/v1/chat/completions", true),
+        ("http://[::1]:8080/v1/chat/completions", true),
+        ("https://127.0.0.1/v1/chat/completions", false),
+        ("http://0.0.0.0:8080/v1/chat/completions", false),
+        ("http://example.invalid/v1/chat/completions", false),
+        ("http://127.0.0.1:0/v1/chat/completions", false),
+        ("http://user@127.0.0.1/v1/chat/completions", false),
+        ("http://127.0.0.1/v1/chat/completions?token=fixture", false),
+        ("http://127.0.0.1/v1/chat/completions#fixture", false),
+        (
+            "http://127.0.0.1/v1/chat/completions\r\nX-Fixture: 1",
+            false,
+        ),
+        ("http://[2001:db8::1]:8080/v1/chat/completions", false),
+    ] {
+        for check in checks {
+            assert_eq!(check(endpoint), expected, "{endpoint:?}");
+        }
+    }
+}

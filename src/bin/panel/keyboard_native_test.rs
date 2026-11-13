@@ -41,6 +41,7 @@ fn native_keyboard_editing_and_focus_return() {
         step: 0,
         started: Instant::now(),
         key_events: 0,
+        preedit_shortcut_events: None,
     };
     event_loop.run_app(&mut probe).unwrap();
     assert_eq!(probe.step, 11);
@@ -58,6 +59,7 @@ struct KeyboardProbe {
     step: usize,
     started: Instant,
     key_events: usize,
+    preedit_shortcut_events: Option<usize>,
 }
 
 fn click_input(state: &mut PanelState) {
@@ -74,6 +76,122 @@ fn click_input(state: &mut PanelState) {
         .rect;
     state.cursor_position = Some((rect[0] + 8.0, rect[1] + rect[3] / 2.0));
     state.select_at_cursor();
+}
+
+fn assert_settings_pointer_waits_for_preedit_decision(
+    state: &mut PanelState,
+    events: &ActiveEventLoop,
+) {
+    use winit::event::{DeviceId, ElementState, MouseButton};
+
+    let chrome = state.chrome.clone();
+    let focused = state.is_focused;
+    for constructor_succeeds in [false, true] {
+        state.chrome = chrome.clone();
+        state.chrome.compact_mode = false;
+        state.chrome.settings_open = false;
+        state.chrome.focus_input();
+        state.is_focused = true;
+        state.sync_text_input_state();
+        handle_panel_window_event(
+            state,
+            events,
+            WindowEvent::Ime(Ime::Preedit("unfinished 日本".into(), Some((11, 11)))),
+            false,
+        );
+        assert!(state.text_input.composing());
+        native_sync::present_test_frame(state);
+        let rect = state
+            .last_scene
+            .as_ref()
+            .unwrap()
+            .interactive_targets
+            .iter()
+            .find(|target| target.kind == InteractionKind::SettingsToggle)
+            .expect("the actual main frame must present its settings target")
+            .rect;
+        state.cursor_position = Some((rect[0] + rect[2] / 2.0, rect[1] + rect[3] / 2.0));
+        for transition in [ElementState::Pressed, ElementState::Released] {
+            assert!(handle_panel_window_event(
+                state,
+                events,
+                WindowEvent::MouseInput {
+                    device_id: DeviceId::dummy(),
+                    state: transition,
+                    button: MouseButton::Left,
+                },
+                false,
+            ));
+        }
+        assert_eq!(state.settings_window_request, Some(true));
+        assert!(
+            state.text_input.composing(),
+            "the real pointer dispatch must retain preedit until the constructor decision"
+        );
+        assert_eq!(state.chrome.seed_text, chrome.seed_text);
+
+        // Constructor failure/success is synthetic here. The CPU auxiliary
+        // regression separately executes the production PanelApp Err/Ok paths.
+        let result = if constructor_succeeds {
+            Ok(())
+        } else {
+            Err("synthetic auxiliary constructor failure")
+        };
+        assert_eq!(state.settings_window_request.take(), Some(true));
+        if result.is_err() {
+            state.chrome.settings_open = false;
+        }
+        assert_eq!(state.sync_text_input_permission(), !constructor_succeeds);
+        assert_eq!(
+            state.text_input.composing(),
+            !constructor_succeeds,
+            "failed settings must preserve preedit; only committed settings revoke it"
+        );
+    }
+
+    state.chrome.settings_open = false;
+    state.sync_text_input_state();
+    state.handle_ime_event(Ime::Preedit("outer 日本".into(), Some((5, 5))));
+    state.chrome.settings_open = true;
+    state.input_dispatch_guard = true;
+    assert!(!handle_panel_window_event(
+        state,
+        events,
+        WindowEvent::RedrawRequested,
+        false,
+    ));
+    assert!(
+        state.text_input.composing(),
+        "rejected reentrant dispatch must not synchronize an outer input context"
+    );
+    state.settings_window_request = Some(true);
+    assert!(!handle_panel_window_event(
+        state,
+        events,
+        WindowEvent::RedrawRequested,
+        false,
+    ));
+    assert_eq!(state.settings_window_request, Some(true));
+    state.input_dispatch_guard = false;
+    assert!(handle_panel_window_event(
+        state,
+        events,
+        WindowEvent::RedrawRequested,
+        false,
+    ));
+    assert!(state.settings_window_request.is_none());
+    assert!(
+        !state.text_input.composing(),
+        "a standalone PanelState must not defer permission across later ordinary events"
+    );
+
+    state.chrome = chrome;
+    state.is_focused = focused;
+    state.invalidate_pointer_scene();
+    state.sync_text_input_state();
+    println!(
+        "PASS: real presented settings pointer dispatch retains preedit until a synthetic constructor decision, and reentrant dispatch cannot clear or consume an outer request"
+    );
 }
 
 fn assert_local_backspace_boundary_preserves_work(state: &mut PanelState) {
@@ -208,6 +326,10 @@ impl KeyboardProbe {
     }
 
     fn send_keys(&self, keysyms: &[u32]) {
+        self.send_keys_with_modifiers(keysyms, KeyButMask::default());
+    }
+
+    fn send_keys_with_modifiers(&self, keysyms: &[u32], modifiers: KeyButMask) {
         let setup = self.connection.setup();
         let mapping = self
             .connection
@@ -240,7 +362,7 @@ impl KeyboardProbe {
                     root_y: 0,
                     event_x: 0,
                     event_y: 0,
-                    state: KeyButMask::default(),
+                    state: modifiers,
                     same_screen: true,
                 };
                 self.connection
@@ -281,6 +403,7 @@ impl ApplicationHandler for KeyboardProbe {
         state.runs_without_window_focus = true;
         state.chrome.llm_enabled = false;
         state.engine.configure_prediction(None);
+        assert_settings_pointer_waits_for_preedit_decision(&mut state, event_loop);
         assert_local_backspace_boundary_preserves_work(&mut state);
         self.state = Some(state);
         self.target = Some(target);
@@ -294,11 +417,22 @@ impl ApplicationHandler for KeyboardProbe {
         if window != state.window.id() {
             return;
         }
+        let composing_shortcut = state.text_input.composing()
+            && matches!(&event, WindowEvent::KeyboardInput { event, .. }
+                if event.state == winit::event::ElementState::Pressed
+                    && (event.logical_key == winit::keyboard::Key::Named(winit::keyboard::NamedKey::F1)
+                        || matches!(&event.logical_key, winit::keyboard::Key::Character(text) if text == ",")));
+        let before = composing_shortcut.then(|| state.chrome.clone());
         if matches!(&event, WindowEvent::KeyboardInput { event, .. } if event.state == winit::event::ElementState::Pressed)
         {
             self.key_events += 1;
         }
         handle_panel_window_event(state, event_loop, event, false);
+        if let Some(before) = before {
+            assert!(state.settings_window_request.is_none());
+            assert_eq!(state.chrome, before);
+            assert!(state.text_input.composing());
+        }
     }
 
     fn about_to_wait(&mut self, event_loop: &ActiveEventLoop) {
@@ -333,6 +467,30 @@ impl ApplicationHandler for KeyboardProbe {
                 assert_eq!(self.focused(), panel);
                 self.send_keys(&"v123 n i ".chars().map(u32::from).collect::<Vec<_>>());
                 self.step += 1;
+            }
+            2 if self.preedit_shortcut_events.is_none()
+                && self.state.as_ref().unwrap().chrome.seed_text == "v123 n i " =>
+            {
+                let state = self.state.as_mut().unwrap();
+                handle_panel_window_event(
+                    state,
+                    event_loop,
+                    WindowEvent::Ime(Ime::Preedit("日本".into(), Some((3, 3)))),
+                    false,
+                );
+                assert!(state.text_input.composing());
+                self.preedit_shortcut_events = Some(self.key_events + 2);
+                self.send_keys(&[0xffbe]);
+                self.send_keys_with_modifiers(&[u32::from(',')], KeyButMask::CONTROL);
+                self.step = 12;
+            }
+            12 if self.preedit_shortcut_events == Some(self.key_events) => {
+                let state = self.state.as_ref().unwrap();
+                assert!(state.text_input.composing());
+                assert!(!state.chrome.settings_open);
+                assert!(state.settings_window_request.is_none());
+                assert_eq!(state.chrome.seed_text, "v123 n i ");
+                self.step = 2;
             }
             2 | 4 | 6 if self.state.as_ref().unwrap().chrome.seed_text == "v123 n i " => {
                 let step = self.step;

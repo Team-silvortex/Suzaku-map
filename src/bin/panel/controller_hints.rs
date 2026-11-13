@@ -386,6 +386,21 @@ impl PanelState {
         )
     }
 
+    pub(super) fn build_report_input_method_error(&self) -> Option<PanelOverlay> {
+        let (text, region) = self
+            .report_view
+            .as_ref()?
+            .input_method_error_feedback(self.chrome.ui_language)?;
+        region_feedback_overlay(
+            text,
+            region,
+            [self.renderer.scene_width, self.renderer.scene_height],
+            self.tooltip_scale(),
+            self.chrome.text_scale,
+            self.chrome.theme_preset,
+        )
+    }
+
     pub(super) fn build_commit_feedback(&self, scene: &RenderScene) -> Option<PanelOverlay> {
         let text = self.last_commit_feedback.as_ref()?;
         if !feedback_is_visible(self.kind, self.chrome.compact_mode, text) {

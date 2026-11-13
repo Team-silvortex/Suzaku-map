@@ -280,3 +280,127 @@ fn audit_display_save_failure_must_be_visible_or_rolled_back() {
         findings
     });
 }
+
+#[test]
+#[ignore = "requires private Xvfb and non-root file permissions; run by test-settings-chain-audit.sh in Linux CI"]
+fn audit_reopened_settings_must_preserve_the_unsaved_preview() {
+    run_probe(|app, events| {
+        use crate::app_state::PersistedDisplaySettings;
+        use suzaku_map::ime::gpu::ThemePreset;
+
+        app.apply_native_settings(ImeSettings::default(), false);
+        let panel = app.panel.as_mut().unwrap();
+        panel.chrome.theme_preset = ThemePreset::Suzaku;
+        panel.persist_display_settings();
+        let path = display_settings_path();
+        let before = fs::read(&path).unwrap();
+        let parent = path.parent().unwrap().to_path_buf();
+        let restore = RestorePermissions {
+            permissions: fs::metadata(&parent).unwrap().permissions(),
+            path: parent.clone(),
+        };
+        fs::set_permissions(&parent, fs::Permissions::from_mode(0o500)).unwrap();
+        assert!(
+            app_state::save_display_settings(&PersistedDisplaySettings::from(&panel.chrome))
+                .is_err(),
+            "fixture must reject writes (do not run as root)"
+        );
+        click_setting(
+            app,
+            events,
+            InteractionKind::SetThemePreset(ThemePreset::Baihu),
+            ThemePreset::Baihu.label(),
+        );
+        let preview = PersistedDisplaySettings::from(&app.panel.as_ref().unwrap().chrome);
+        assert_eq!(preview.theme_preset, ThemePreset::Baihu);
+        assert!(!preview.llm_enabled);
+        assert_eq!(fs::read(&path).unwrap(), before);
+        assert!(app.panel.as_ref().unwrap().chrome.settings_save_failed);
+        assert!(app.settings.as_ref().unwrap().chrome.settings_save_failed);
+
+        let closed_id = app.settings.as_ref().unwrap().window.id();
+        app.window_event(events, closed_id, WindowEvent::CloseRequested);
+        assert!(app.settings.is_none());
+        app.open_settings(events);
+        let settings = app.settings.as_ref().unwrap();
+        let reopened = PersistedDisplaySettings::from(&settings.chrome);
+        let mut findings = Vec::new();
+        if reopened != preview {
+            findings.push(format!(
+                "reopened Settings replaced the unsaved preview: expected={preview:?}, actual={reopened:?}"
+            ));
+        }
+        assert!(settings.chrome.settings_save_failed);
+        let reopened_id = settings.window.id();
+        app.window_event(events, reopened_id, WindowEvent::RedrawRequested);
+        for (name, state) in [
+            ("panel", app.panel.as_ref().unwrap()),
+            ("settings", app.settings.as_ref().unwrap()),
+        ] {
+            let actual = PersistedDisplaySettings::from(&state.chrome);
+            if actual != preview {
+                findings.push(format!(
+                    "first Settings event changed {name}: expected={preview:?}, actual={actual:?}"
+                ));
+            }
+            assert!(state.chrome.settings_save_failed);
+            assert!(!state.chrome.llm_enabled);
+        }
+        assert_eq!(fs::read(&path).unwrap(), before);
+        let after_first_event = app.panel.as_ref().unwrap().chrome.theme_preset;
+        drop(restore);
+
+        // Only the explicit Retry may persist the retained preview after recovery.
+        click_setting(app, events, InteractionKind::RetrySaveSettings, "");
+        let saved = load_display_settings().unwrap();
+        if saved != preview {
+            findings.push(format!(
+                "Retry saved a stale configuration: expected={preview:?}, actual={saved:?}"
+            ));
+        }
+        assert!(!app.panel.as_ref().unwrap().chrome.settings_save_failed);
+        assert!(!app.settings.as_ref().unwrap().chrome.settings_save_failed);
+        assert!(app.panel.as_ref().unwrap().last_commit_feedback.is_none());
+        assert!(app.tray.is_none());
+        assert!(app.native_sync.is_none());
+        assert!(
+            app.ime_settings_sync
+                .next_patch(&app.panel.as_ref().unwrap().chrome)
+                .is_none(),
+            "an appearance-only edit must not enqueue a native settings write"
+        );
+        println!(
+            "reopened Settings evidence: disk_before=Suzaku, preview={:?}, immediately_reopened={:?}, after_first_event={:?}, retried_disk={:?}",
+            preview.theme_preset, reopened.theme_preset, after_first_event, saved.theme_preset
+        );
+        for reuse_window in [true, false] {
+            if !reuse_window {
+                let id = app.settings.as_ref().unwrap().window.id();
+                app.window_event(events, id, WindowEvent::CloseRequested);
+                assert!(app.settings.is_none());
+            }
+            let panel = app.panel.as_mut().unwrap();
+            panel.last_compact_toggle = None;
+            panel.apply_compact_mode(true);
+            assert!(panel.chrome.compact_mode);
+            // A deliberate OpenSettings request is not another bubble tap.
+            panel.last_compact_toggle = Some(Instant::now());
+            app.open_settings(events);
+            assert!(
+                !app.panel.as_ref().unwrap().chrome.compact_mode,
+                "explicit OpenSettings must bypass fold debounce (reuse={reuse_window})"
+            );
+            assert!(app.panel.as_ref().unwrap().chrome.settings_open);
+            let settings = app.settings.as_ref().unwrap();
+            assert!(settings.chrome.settings_open);
+            let id = settings.window.id();
+            app.window_event(events, id, WindowEvent::RedrawRequested);
+            assert!(app.settings.is_some());
+            assert_eq!(
+                app.panel.as_ref().unwrap().chrome.theme_preset,
+                ThemePreset::Baihu
+            );
+        }
+        findings
+    });
+}

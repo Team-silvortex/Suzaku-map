@@ -3,7 +3,7 @@ use std::{
     fs,
     path::PathBuf,
     process::Command,
-    sync::Arc,
+    sync::{Arc, Mutex},
     time::{Duration, Instant},
 };
 
@@ -309,7 +309,38 @@ fn commit(ime: &mut XRTabletImeEngine, expected: &str) {
     assert_eq!(result.text.as_deref(), Some(expected));
 }
 
-struct UnavailableProvider(LlmProviderError);
+#[derive(Clone, Debug, Default)]
+struct FailureObservation {
+    calls: usize,
+    returned_at: Option<Instant>,
+}
+
+fn returned_once_by(observation: &FailureObservation, deadline: Instant) -> bool {
+    observation.calls == 1 && observation.returned_at.is_some_and(|time| time <= deadline)
+}
+
+// Keep the original waiting budget and polling cadence. The last nonblocking
+// drain observes a result that can become ready during the final pause; it does
+// not establish when the worker published that result to its mailbox.
+fn wait_for_prediction_until<T>(
+    prediction: &mut T,
+    deadline: Instant,
+    pending: impl Fn(&T) -> bool,
+    mut poll: impl FnMut(&mut T),
+    mut now: impl FnMut() -> Instant,
+    mut pause: impl FnMut(Duration),
+) {
+    while pending(prediction) && now() < deadline {
+        poll(prediction);
+        pause(Duration::from_millis(2));
+    }
+    poll(prediction);
+}
+
+struct UnavailableProvider {
+    error: LlmProviderError,
+    observation: Arc<Mutex<FailureObservation>>,
+}
 impl LlmCompletionProvider for UnavailableProvider {
     fn provider_id(&self) -> &str {
         "pack-quality-synthetic-error"
@@ -321,7 +352,115 @@ impl LlmCompletionProvider for UnavailableProvider {
         &self,
         _: &LlmCompletionRequest,
     ) -> Result<Vec<LlmCompletion>, LlmProviderError> {
-        Err(self.0.clone())
+        let error = self.error.clone();
+        let mut observation = self.observation.lock().unwrap();
+        observation.calls += 1;
+        // This is a provider-return observation, not a mailbox-publication time.
+        observation.returned_at = Some(Instant::now());
+        Err(error)
+    }
+}
+
+#[cfg(test)]
+mod prediction_wait_tests {
+    use super::{FailureObservation, returned_once_by, wait_for_prediction_until};
+    use std::{
+        cell::Cell,
+        time::{Duration, Instant},
+    };
+
+    struct FakePrediction {
+        pending: bool,
+        polls: usize,
+        unavailable: bool,
+    }
+
+    fn at_deadline(complete: bool, late: bool) -> (FakePrediction, FailureObservation, Instant) {
+        let start = Instant::now();
+        let deadline = start + Duration::from_secs(2);
+        let clock = Cell::new(start);
+        let ready = Cell::new(false);
+        let pauses = Cell::new(0);
+        let mut observation = FailureObservation::default();
+        let mut prediction = FakePrediction {
+            pending: true,
+            polls: 0,
+            unavailable: false,
+        };
+        wait_for_prediction_until(
+            &mut prediction,
+            deadline,
+            |state| state.pending,
+            |state| {
+                state.polls += 1;
+                if ready.get() {
+                    state.pending = false;
+                    state.unavailable = true;
+                }
+            },
+            || clock.get(),
+            |duration| {
+                assert_eq!(duration, Duration::from_millis(2));
+                pauses.set(pauses.get() + 1);
+                assert_eq!(
+                    pauses.get(),
+                    1,
+                    "the helper must not wait again after the deadline"
+                );
+                // Model scheduler delay with a fake clock, without sleeping.
+                let return_time = deadline
+                    + if late {
+                        Duration::from_nanos(1)
+                    } else {
+                        Duration::ZERO
+                    };
+                clock.set(return_time);
+                if complete {
+                    observation.calls = 1;
+                    observation.returned_at = Some(return_time);
+                    ready.set(true);
+                }
+            },
+        );
+        assert_eq!(
+            clock.get(),
+            deadline
+                + if late {
+                    Duration::from_nanos(1)
+                } else {
+                    Duration::ZERO
+                }
+        );
+        assert_eq!(pauses.get(), 1);
+        (prediction, observation, deadline)
+    }
+
+    #[test]
+    fn final_pause_ready_result_is_drained_without_another_wait() {
+        let (prediction, observation, deadline) = at_deadline(true, false);
+        assert!(!prediction.pending);
+        assert!(prediction.unavailable);
+        assert_eq!(prediction.polls, 2);
+        assert!(returned_once_by(&observation, deadline));
+    }
+
+    #[test]
+    fn an_unready_provider_still_fails_the_completion_boundary() {
+        let (prediction, observation, deadline) = at_deadline(false, false);
+        assert!(prediction.pending);
+        assert!(!prediction.unavailable);
+        assert!(!returned_once_by(&observation, deadline));
+    }
+
+    #[test]
+    fn a_late_provider_return_is_rejected_even_if_the_final_drain_observes_it() {
+        let (prediction, observation, deadline) = at_deadline(true, true);
+        assert!(!prediction.pending);
+        assert!(prediction.unavailable);
+        assert_eq!(prediction.polls, 2);
+        assert_eq!(observation.calls, 1);
+        assert!(!returned_once_by(&observation, deadline));
+        assert!(!(prediction.unavailable && returned_once_by(&observation, deadline)));
     }
 }
 
@@ -1232,17 +1371,39 @@ fn recommended_collections_keep_word_sentence_and_fallback_workflows() {
             // Each group of eight covers one independently selectable theme.
             for &(seed, word, sentence) in cases.iter().step_by(8) {
                 let mut ime = engine(language);
-                ime.configure_prediction(Some(Arc::new(UnavailableProvider(error.clone()))));
+                let observation = Arc::new(Mutex::new(FailureObservation::default()));
+                ime.configure_prediction(Some(Arc::new(UnavailableProvider {
+                    error: error.clone(),
+                    observation: observation.clone(),
+                })));
                 ime.seed(seed);
                 check(&ime, seed, word, sentence);
                 let local = ime.candidates().to_vec();
-                let deadline = Instant::now() + Duration::from_secs(2);
-                while ime.prediction_pending() && Instant::now() < deadline {
-                    ime.poll_prediction();
-                    std::thread::sleep(Duration::from_millis(2));
-                }
-                assert_eq!(ime.prediction_status(), PredictionStatus::Unavailable);
-                assert_eq!(ime.prediction_error(), Some(&error));
+                let wait_started = Instant::now();
+                let deadline = wait_started + Duration::from_secs(2);
+                wait_for_prediction_until(
+                    &mut ime,
+                    deadline,
+                    XRTabletImeEngine::prediction_pending,
+                    |ime| {
+                        ime.poll_prediction();
+                    },
+                    Instant::now,
+                    std::thread::sleep,
+                );
+                let observation = observation.lock().unwrap().clone();
+                let diagnostic = format!(
+                    "language={language}, seed={seed:?}, expected={error:?}, elapsed={:?}, observation={observation:?}; provider return does not establish mailbox publication time",
+                    wait_started.elapsed(),
+                );
+                assert_eq!(observation.calls, 1, "{diagnostic}");
+                assert!(returned_once_by(&observation, deadline), "{diagnostic}");
+                assert_eq!(
+                    ime.prediction_status(),
+                    PredictionStatus::Unavailable,
+                    "{diagnostic}"
+                );
+                assert_eq!(ime.prediction_error(), Some(&error), "{diagnostic}");
                 assert_eq!(ime.candidates(), local);
                 commit(&mut ime, sentence);
             }

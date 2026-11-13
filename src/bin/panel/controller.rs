@@ -1,10 +1,7 @@
 use super::{
     PanelState, PanelWindowKind, advance_commit_feedback_state, next_vertex_buffer_capacity,
 };
-use crate::app_state::{
-    PersistedDisplaySettings, apply_display_settings, normalize_pointer_stability_settings,
-    save_display_settings,
-};
+use crate::app_state::normalize_pointer_stability_settings;
 use crate::helpers::point_in_rect;
 use crate::helpers::window_title;
 use crate::render::build_frame_vertices;
@@ -124,8 +121,8 @@ impl PanelState {
     }
 
     pub(super) fn needs_periodic_frame(&self) -> bool {
-        if self.report_view.is_some() {
-            return false;
+        if let Some(report) = self.report_view.as_ref() {
+            return report.has_input_method_error();
         }
         self.voice_frame_active()
             || self.bottom_render_needs_retry()
@@ -135,7 +132,8 @@ impl PanelState {
     }
 
     pub(super) fn advance_periodic_frame(&mut self) {
-        if self.report_view.is_some() {
+        if let Some(report) = self.report_view.as_mut() {
+            report.advance_input_method_error();
             return;
         }
         if self.voice_frame_active() {
@@ -236,14 +234,20 @@ impl PanelState {
     /// Do not turn scrolling over the seed, tools or surrounding desktop into
     /// candidate navigation. The union includes gaps between the actual cards.
     pub(super) fn scroll_native_candidates(&mut self, delta: f32) -> bool {
-        if !self.native.showing || !delta.is_finite() || delta == 0.0 {
+        if !self.native.showing
+            || !self.keyboard_candidates_presented()
+            || !delta.is_finite()
+            || delta == 0.0
+        {
             return false;
         }
         let Some((x, y)) = self.cursor_position else {
             return false;
         };
         let bounds = self
-            .current_scene()
+            .last_scene
+            .as_ref()
+            .unwrap()
             .interactive_targets
             .iter()
             .filter(|target| {
@@ -594,31 +598,6 @@ impl PanelState {
             .join(" ")
     }
 
-    pub(super) fn persist_display_settings(&mut self) {
-        if self.kind == PanelWindowKind::Settings {
-            return;
-        }
-        let mut settings = PersistedDisplaySettings::from(&self.chrome);
-        settings.window_scale = self.window_scale;
-        const MESSAGE: &str = "Settings not saved. Check folder permissions and retry in Settings.";
-        match save_display_settings(&settings) {
-            Ok(()) => {
-                self.chrome.settings_save_failed = false;
-                if self.last_commit_feedback.as_deref() == Some(MESSAGE) {
-                    self.last_commit_feedback = None;
-                    self.commit_feedback_ticks = 0;
-                }
-            }
-            Err(error) => {
-                eprintln!("Suzaku panel settings were not saved: {error}");
-                self.chrome.settings_save_failed = true;
-                self.last_commit_feedback = Some(MESSAGE.into());
-                self.commit_feedback_ticks = 180;
-            }
-        }
-        self.last_scene = None;
-    }
-
     pub(super) fn current_scene(&mut self) -> RenderScene {
         let snapshot = self.view_snapshot();
         self.current_scene_with_snapshot(&snapshot)
@@ -644,13 +623,15 @@ impl PanelState {
             let (scene, overlays): (_, Vec<crate::render::PanelOverlay>) =
                 with_font_metrics(self.font_atlas.layout_metrics.clone(), || {
                     let scene = self.build_scene_with_snapshot(snapshot);
-                    let overlays = if include_overlays && self.report_view.is_none() {
+                    let overlays = if !include_overlays {
+                        Vec::new()
+                    } else if self.report_view.is_some() {
+                        self.build_report_input_method_error().into_iter().collect()
+                    } else {
                         self.build_hover_tooltip(&scene)
                             .into_iter()
                             .chain(self.build_commit_feedback(&scene))
                             .collect()
-                    } else {
-                        Vec::new()
                     };
                     (scene, overlays)
                 });
@@ -809,46 +790,12 @@ impl PanelState {
             .clamp(0.0, self.interaction.settings_scroll_max_offset);
     }
 
-    pub(super) fn adopt_settings_from(
-        &mut self,
-        other: &suzaku_map::ime::gpu::PanelChromeState,
-    ) -> bool {
-        let current_settings = PersistedDisplaySettings::from(&self.chrome);
-        let incoming_settings = PersistedDisplaySettings::from(other);
-        let settings_changed = current_settings != incoming_settings;
-        let needs_font_rebuild = self.chrome.font_face != other.font_face
-            || self.chrome.text_smoothing != other.text_smoothing;
-        let needs_llm_reconfigure = self.chrome.llm_enabled != other.llm_enabled
-            || self.chrome.llm_model != other.llm_model
-            || self.chrome.llm_temperature != other.llm_temperature;
-        self.chrome.prediction_edit_generation = other.prediction_edit_generation;
-        let shortcuts_changed = self.chrome.shortcut_profile != other.shortcut_profile
-            || self.chrome.shortcut_bindings != other.shortcut_bindings;
-        self.chrome.shortcut_profile = other.shortcut_profile;
-        self.chrome.shortcut_bindings = other.shortcut_bindings;
-        self.chrome.shortcut_edit_generation = other.shortcut_edit_generation;
-
-        if settings_changed {
-            let previous_layout = self.chrome.effective_panel_layout();
-            apply_display_settings(&mut self.chrome, &incoming_settings);
-            self.apply_panel_layout_change(previous_layout);
-            self.apply_window_decorations();
-            self.persist_display_settings();
-        }
-        self.chrome.settings_search_query = other.settings_search_query.clone();
-        self.chrome.settings_category = other.settings_category;
-        self.chrome.settings_search_focused = other.settings_search_focused;
-        self.chrome.settings_keyboard_focus = other.settings_keyboard_focus;
-        self.chrome.settings_collapsed_sections = other.settings_collapsed_sections.clone();
-        self.chrome.settings_scroll_offset = other.settings_scroll_offset;
-
-        if settings_changed && needs_font_rebuild {
-            self.rebuild_font_atlas();
-        }
-        if settings_changed && self.kind == PanelWindowKind::Main && needs_llm_reconfigure {
-            self.reconfigure_model_provider();
-        }
-        settings_changed || shortcuts_changed
+    pub(super) fn recover_surface(&mut self) {
+        // Swapchain recovery is required even when the viewport size is unchanged.
+        self.native.presented = None;
+        self.invalidate_pointer_scene();
+        self.surface.configure(&self.device, &self.config);
+        self.window.request_redraw();
     }
 
     pub(super) fn resize(&mut self, width: u32, height: u32) {
@@ -1431,11 +1378,13 @@ impl PanelState {
             }
             InteractionKind::SettingsToggle => {
                 self.chrome.settings_open = !self.chrome.settings_open;
+                if self.kind == PanelWindowKind::Main {
+                    self.settings_window_request = Some(self.chrome.settings_open);
+                }
                 if !self.chrome.settings_open {
                     self.text_input.clear_shortcut_hold();
                 }
                 if self.chrome.settings_open {
-                    self.suspend_native_keyboard();
                     self.chrome.settings_scroll_offset = 0.0;
                 }
             }

@@ -2,7 +2,7 @@
 //! and separate consent; credentials, URLs and response bodies never enter errors.
 use super::{
     MAX_RESPONSE_BYTES, ModelProviderConfig, ModelScope, check_cancellation,
-    http_request_with_cancel,
+    local_http::http_request_with_cancel,
 };
 use crate::prediction::{PredictionCancellation, PredictionError};
 use reqwest::{

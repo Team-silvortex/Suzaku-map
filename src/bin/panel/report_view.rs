@@ -12,6 +12,7 @@ const DISPLAY_LIMIT: usize = 2 * 1024 * 1024;
 const MAX_COLUMNS: usize = 120;
 const MAX_ROWS: usize = 32;
 const MAX_PAGE_CHARS: usize = 2048;
+const INPUT_METHOD_ERROR_LIMIT: usize = 4096;
 const LIMIT_NOTICE: &str =
     "Report exceeds the 2 MiB display limit; only a bounded preview is available.";
 
@@ -84,18 +85,22 @@ impl ReportSnapshot {
 }
 
 fn visible_escape(source: &str) -> (String, bool) {
-    let mut escaped = String::with_capacity(source.len().min(DISPLAY_LIMIT));
+    visible_escape_bounded(source, DISPLAY_LIMIT)
+}
+
+fn visible_escape_bounded(source: &str, limit: usize) -> (String, bool) {
+    let mut escaped = String::with_capacity(source.len().min(limit));
     for ch in source.chars() {
         if UnicodeWidthChar::width(ch) == Some(0) {
             let token = format!("\\u{{{:x}}}", ch as u32);
-            if escaped.len() + token.len() > DISPLAY_LIMIT {
+            if escaped.len() + token.len() > limit {
                 return (escaped, true);
             }
             escaped.push_str(&token);
         } else {
             let token = ch.escape_debug();
             let bytes: usize = token.clone().map(char::len_utf8).sum();
-            if escaped.len() + bytes > DISPLAY_LIMIT {
+            if escaped.len() + bytes > limit {
                 return (escaped, true);
             }
             escaped.extend(token);
@@ -141,6 +146,7 @@ struct Target {
 struct Geometry {
     generation: u64,
     targets: Vec<Target>,
+    body: [f32; 4],
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -185,6 +191,8 @@ pub(super) struct ReportView {
     prepared: Option<Geometry>,
     presented: Option<Geometry>,
     press: Option<Press>,
+    input_method_error: Option<String>,
+    input_method_error_ticks: u8,
 }
 
 impl ReportView {
@@ -199,7 +207,56 @@ impl ReportView {
             prepared: None,
             presented: None,
             press: None,
+            input_method_error: None,
+            input_method_error_ticks: 0,
         }
+    }
+
+    pub(super) fn show_input_method_error(&mut self, error: &str) {
+        let truncated = error.len() > INPUT_METHOD_ERROR_LIMIT;
+        let mut end = error.len().min(if truncated {
+            INPUT_METHOD_ERROR_LIMIT - '…'.len_utf8()
+        } else {
+            INPUT_METHOD_ERROR_LIMIT
+        });
+        while !error.is_char_boundary(end) {
+            end -= 1;
+        }
+        let mut notice = error[..end].to_owned();
+        if truncated {
+            notice.push('…');
+        }
+        self.input_method_error = Some(notice);
+        self.input_method_error_ticks = 180;
+    }
+
+    pub(super) fn has_input_method_error(&self) -> bool {
+        self.input_method_error.is_some()
+    }
+
+    pub(super) fn advance_input_method_error(&mut self) {
+        let (ticks, clear) = super::advance_commit_feedback_state(self.input_method_error_ticks);
+        self.input_method_error_ticks = ticks;
+        if clear {
+            self.input_method_error = None;
+        }
+    }
+
+    pub(super) fn input_method_error_feedback(&self, ui: UiLanguage) -> Option<(String, [f32; 4])> {
+        let error = self.input_method_error.as_deref()?;
+        let body = self.prepared.as_ref()?.body;
+        if body.iter().any(|value| !value.is_finite()) || body[2] <= 0.0 || body[3] <= 0.0 {
+            return None;
+        }
+        let text = ui
+            .tr("Input method error: {}")
+            .replace("{}", &ui.diagnostic(error));
+        let (mut text, limited) =
+            visible_escape_bounded(&text, INPUT_METHOD_ERROR_LIMIT - '…'.len_utf8());
+        if limited {
+            text.push('…');
+        }
+        Some((text, body))
     }
 
     pub(super) fn page_index(&self) -> usize {
@@ -302,6 +359,11 @@ impl ReportView {
                 false
             }
         }
+    }
+
+    #[cfg(test)]
+    pub(super) fn test_snapshot(&self) -> &ReportSnapshot {
+        &self.snapshot
     }
 
     #[cfg(test)]
@@ -580,6 +642,7 @@ impl ReportView {
         self.prepared = Some(Geometry {
             generation: self.generation,
             targets,
+            body,
         });
         scene
     }
@@ -831,6 +894,113 @@ mod tests {
             });
         }
         decoded
+    }
+
+    #[test]
+    fn new_input_errors_are_bounded_at_unicode_boundaries_and_escape_display_controls() {
+        let chrome = PanelChromeState::default();
+        for raw in ["日".repeat(2048), "\u{202e}\0\n\t".repeat(2048)] {
+            let mut report = view();
+            report.show_input_method_error(&raw);
+            let stored = report.input_method_error.as_ref().unwrap();
+            assert!(stored.len() <= INPUT_METHOD_ERROR_LIMIT);
+            assert!(stored.ends_with('…'));
+            assert!(raw.starts_with(stored.strip_suffix('…').unwrap()));
+            report.scene(&chrome, 640.0, 500.0);
+            let (text, _) = report
+                .input_method_error_feedback(UiLanguage::English)
+                .unwrap();
+            assert!(text.len() <= INPUT_METHOD_ERROR_LIMIT);
+            assert!(!text.chars().any(char::is_control));
+            assert!(!text.contains('\u{202e}'));
+        }
+        for ui in languages() {
+            let mut report = view();
+            report.show_input_method_error("Font: Settings");
+            report.scene(&chrome, 640.0, 500.0);
+            assert_eq!(
+                report.input_method_error_feedback(ui).unwrap().0,
+                ui.tr("Input method error: {}")
+                    .replace("{}", "Font: Settings")
+            );
+        }
+    }
+
+    #[test]
+    fn input_error_lifetime_never_changes_report_layout_or_pressed_button_identity() {
+        let mut report = view();
+        let chrome = PanelChromeState::default();
+        report.scene(&chrome, 640.0, 500.0);
+        assert!(report.page(true));
+        let before = report.scene(&chrome, 640.0, 500.0);
+        report.presented();
+        let source = report.snapshot.clone();
+        let page = report.page_index();
+        let starts = report.starts.clone();
+        let generation = report.generation;
+        let close = center(report.test_button_rect(None).unwrap());
+        assert!(report.press(close, PointerSource::Mouse));
+        assert!(!report.has_input_method_error());
+        report.show_input_method_error("new report-only error");
+        assert_eq!(report.scene(&chrome, 640.0, 500.0), before);
+        report.presented();
+        let (_, body) = report
+            .input_method_error_feedback(UiLanguage::English)
+            .unwrap();
+        for target in &report.presented.as_ref().unwrap().targets {
+            assert!(body[1] + body[3] <= target.rect[1]);
+        }
+        for _ in 0..179 {
+            report.advance_input_method_error();
+        }
+        assert!(report.has_input_method_error());
+        report.advance_input_method_error();
+        assert!(!report.has_input_method_error());
+        assert!(
+            report
+                .input_method_error_feedback(UiLanguage::English)
+                .is_none()
+        );
+        report.advance_input_method_error();
+        assert_eq!(report.snapshot, source);
+        assert_eq!(report.page_index(), page);
+        assert_eq!(report.starts, starts);
+        assert_eq!(report.generation, generation);
+        assert!(report.release(close, PointerSource::Mouse));
+    }
+
+    #[test]
+    fn input_error_feedback_requires_a_current_nonempty_report_body() {
+        let mut report = view();
+        let chrome = PanelChromeState::default();
+        report.show_input_method_error("retained while the viewport is unavailable");
+        assert!(
+            report
+                .input_method_error_feedback(UiLanguage::English)
+                .is_none()
+        );
+        report.scene(&chrome, 640.0, 500.0);
+        report.presented();
+        assert!(
+            report
+                .input_method_error_feedback(UiLanguage::English)
+                .is_some()
+        );
+        for (width, height) in [(400.0, 1.0), (400.0, 0.0), (f32::NAN, 320.0)] {
+            report.scene(&chrome, width, height);
+            assert!(
+                report
+                    .input_method_error_feedback(UiLanguage::English)
+                    .is_none()
+            );
+            assert!(report.has_input_method_error());
+        }
+        report.scene(&chrome, 640.0, 500.0);
+        assert!(
+            report
+                .input_method_error_feedback(UiLanguage::English)
+                .is_some()
+        );
     }
 
     #[test]

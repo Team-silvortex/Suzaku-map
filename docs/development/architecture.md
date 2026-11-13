@@ -26,9 +26,11 @@ Suzaku 用共享 Rust 引擎处理可编辑草稿、语言转换和候选，再�
 | 数据契约 | [lexicon.rs](../../src/lexicon.rs)、[packs](../../src/lexicon/packs.rs) | 有序词句、格式校验、可选包与启动快照 |
 | 预测契约 | [prediction](../../src/prediction/mod.rs) | 版本、请求编号、任务输入输出、预算、取消和类型化错误 |
 | 模型适配 | [model.rs](../../src/model.rs)、[model/](../../src/model/) | 部署配置、发现、HTTP 协议和响应解析 |
+| 模型本地传输 | [local_http.rs](../../src/model/local_http.rs) | loopback URL 校验、单次 socket 请求及有界 HTTP 解码；不依赖模型名称、部署配置或云凭据 |
 | 宿主会话 | [ime_host.rs](../../src/ime_host.rs) | 共享引擎与平台事件的桥接、会话状态和 FFI 接口 |
 | Linux 原生宿主 | [linux_ibus_host.rs](../../src/platform/linux_ibus_host.rs)、[IBus C 桥](../../src/linux/ibus_engine_bridge.c) | IBus 生命周期、按键与应用上下文、原生提交 |
 | 面板 | [panel.rs](../../src/bin/panel.rs)、[panel/](../../src/bin/panel/) | GPU 绘制、窗口、设置、候选手势、屏幕键盘和工具交互 |
+| 面板设置同步 | [settings_sync.rs](../../src/bin/panel/settings_sync.rs)、[app_state.rs](../../src/bin/panel/app_state.rs) | 比较显示设置差异、应用和保存；不拥有宿主设置 ACK、输入会话或 GPU 呈现 |
 | 平台能力 | [platform](../../src/platform/mod.rs) | 适配器契约、运行时能力、窗口与输出桥 |
 | 偏好与持久化 | [preferences.rs](../../src/preferences.rs)、[worker](../../src/preferences/worker.rs) | 候选偏好、衰减、有界后台存储与清除 |
 | 数据管理 | [data](../../src/data.rs) | 受管路径、配置读写、备份恢复和并发租约 |
@@ -55,8 +57,14 @@ Suzaku 用共享 Rust 引擎处理可编辑草稿、语言转换和候选，再�
 并不绑定某个家族或版本。词库查询不发起模型请求。
 旧 `languages::model`、`languages::llama` 和旧联想接口是兼容入口，不是另一套服务。
 
+本地 HTTP 的唯一实现位于私有 `model::local_http`。`transport` 按显式部署配置选择本地或云端
+传输，`runtime` 负责有界发现并直接复用本地传输；二者不再从模型根模块导入 socket 实现。
+根模块保留配置和 provider 编排，并重导出原来的 `model::is_local_llm_endpoint` 公共入口。
+本地传输不读取凭据、不做 DNS 解析，也不承担发现、模型协议或候选排序策略。
+
 当前协议仍共享语言前缀与提示策略，并非完全没有语言依赖的独立 crate。
 显式翻译使用独立的 `TranslationProvider`，共享服务配置和传输，不复用候选任务。
+两种任务各自保留预算、取消与结果校验规则，不能因共用传输而合并成同一种请求策略。
 预算、配置和接入方法统一见 [模型服务](../model-providers.md)。
 
 ## Linux 宿主与面板
@@ -69,6 +77,12 @@ Suzaku 用共享 Rust 引擎处理可编辑草稿、语言转换和候选，再�
 连接宿主和面板。面板采用宿主快照；动作必须绑定当前目标和展示状态。
 独立面板的输出同样需要送达确认，失败或未知结果不能当作成功清空草稿。
 窗口定位、缩放、设置交互属于面板；不能通过扩大系统按键钩子来实现普通 UI 功能。
+
+面板的 `settings_sync` 在同一个 `PanelState` 上应用设置；私有差异计划只比较当前与传入值，
+不创建窗口、访问磁盘或调用模型。实际保存仍委托 `app_state` 的原有格式和原子写入，
+保留独立设置窗口不直接写盘、实时窗口缩放覆盖保存值以及保存失败反馈。
+`prediction_settings::PanelImeSettingsSync` 仍独立负责宿主已确认/在途状态，不能把显示设置
+复制、状态刷新或本地保存成功当作原生设置 ACK。
 
 平台抽象保留 macOS、Windows、Android 等适配入口，但当前发行与重点实测在 Linux。
 代码里的能力矩阵、接口存在或跨平台编译成功，都不是平台原生运行已经验收的证明。

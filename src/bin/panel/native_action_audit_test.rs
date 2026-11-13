@@ -899,12 +899,113 @@ fn prepare_paged_pointer(
     publish_wake_frames(app, events, [Some(frame)]);
     let state = app.panel.as_mut().unwrap();
     assert_eq!(state.chrome.native_candidate_page.unwrap().start, 6);
+    super::tests::present_test_frame(state);
+    assert!(state.keyboard_candidates_presented());
     let rect = state
         .interaction_rect(InteractionKind::Candidate(6))
         .unwrap();
     state.cursor_position = Some((rect[0] + rect[2] / 2.0, rect[1] + rect[3] / 2.0));
     assert!(!state.native_candidates_busy());
     receiver
+}
+
+fn check_native_wheel_requires_presented_frame(
+    app: &mut PanelApp,
+    events: &ActiveEventLoop,
+    failures: &mut Vec<String>,
+) {
+    use winit::{
+        dpi::{PhysicalPosition, PhysicalSize},
+        event::{DeviceId, MouseScrollDelta, TouchPhase},
+    };
+
+    for boundary in ["same context new page", "new context", "resized viewport"] {
+        for present in [false, true] {
+            let receiver = prepare_paged_pointer(app, events);
+            if boundary == "same context new page" {
+                let mut initial = app.panel.as_ref().unwrap().native.frame.clone().unwrap();
+                initial.revision += 1;
+                initial.selected = 0;
+                publish_wake_frames(app, events, [Some(initial)]);
+                super::tests::present_test_frame(app.panel.as_mut().unwrap());
+            }
+            let state = app.panel.as_mut().unwrap();
+            let displayed_index = state.native.frame.as_ref().unwrap().selected;
+            let rect = state
+                .interaction_rect(InteractionKind::Candidate(displayed_index))
+                .unwrap();
+            state.cursor_position = Some((rect[0] + rect[2] / 2.0, rect[1] + rect[3] / 2.0));
+
+            if boundary == "resized viewport" {
+                let before = state.window.inner_size();
+                let width = if before.width < 1100 {
+                    before.width + 32
+                } else {
+                    before.width - 32
+                };
+                let requested = PhysicalSize::new(width, before.height);
+                let _ = state.window.request_inner_size(requested);
+                let actual = state.window.inner_size();
+                assert_eq!(actual, requested, "private X11 viewport resize");
+                state.resize(actual.width, actual.height);
+            } else {
+                let mut next = state.native.frame.clone().unwrap();
+                next.revision += 1;
+                next.selected = 6;
+                if boundary == "new context" {
+                    next.context += 1;
+                }
+                publish_wake_frames(app, events, [Some(next)]);
+            }
+            let state = app.panel.as_mut().unwrap();
+            assert!(state.last_scene.is_none());
+            // Measuring the next page must not make its candidates interactive.
+            state.current_scene();
+            assert!(state.last_scene.is_none());
+            assert!(!state.keyboard_candidates_presented());
+            if present {
+                super::tests::present_test_frame(state);
+                assert!(state.keyboard_candidates_presented());
+                let (x, y) = state.cursor_position.unwrap();
+                assert_eq!(
+                    state.hit_interaction_at(x, y),
+                    Some(InteractionKind::Candidate(6))
+                );
+            }
+            let frame = state.native.frame.clone();
+            let page = state.chrome.native_candidate_page;
+            crate::input::handle_panel_window_event(
+                state,
+                events,
+                WindowEvent::MouseWheel {
+                    device_id: DeviceId::dummy(),
+                    delta: MouseScrollDelta::PixelDelta(PhysicalPosition::new(0.0, -1.0)),
+                    phase: TouchPhase::Moved,
+                },
+                false,
+            );
+            let request = receiver.try_recv().ok();
+            if present {
+                let request = request.expect("presented second page must allow the same wheel");
+                assert!(request.command.ends_with(" N12"), "{}", request.command);
+                assert!(state.native.pending.is_some());
+                assert!(state.chrome.native_candidate_page.unwrap().busy);
+            } else if request.is_some()
+                || state.native.pending.is_some()
+                || state.chrome.native_candidate_page != page
+            {
+                failures.push(format!(
+                    "wheel before presenting {boundary} changed the page or sent {:?}",
+                    request.map(|request| request.command)
+                ));
+            }
+            assert_eq!(state.native.frame, frame);
+            assert!(
+                receiver.try_recv().is_err(),
+                "one wheel must send at most once"
+            );
+        }
+    }
 }
 
 fn check_native_navigation_boundaries(app: &mut PanelApp, events: &ActiveEventLoop) {
@@ -1007,6 +1108,8 @@ fn check_native_pointer_delta_dispatch(
         event::{DeviceId, MouseScrollDelta, TouchPhase},
         keyboard::ModifiersState,
     };
+
+    check_native_wheel_requires_presented_frame(app, events, failures);
 
     // Drive the actual event dispatcher: a helper-only test would miss routing
     // through candidate paging, Ctrl-wheel zoom or the independent pinch arm.

@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "date": "2026-11-11",
-    "head": "a7f849d4fa5ab0eb759b8c5488b5149b66cdfc41",
+    "date": "2026-11-13",
+    "head": "f4e154ca176872c26dd68410d4833eb4256b1428",
     "dirty": true,
-    "source_sha256": "896066dfb6036d9c680358ad7ed5f10805bf718aaa130e6c0b6231f31e7669fd",
-    "note": "0.10.1发布后未提交的云端配置增强继续保留。本轮修在途云请求取消与无类型JA模型名词分类：同worker异步HTTPS复用Client/Runtime，25ms协作检查与原绝对期限；仅已知Word词干的有界后缀/输入领域组合，不改offline分类或显式hint/本地同文。第一窄修上Sol/Astra各一次JA真实调用均Ready/保稿、零重试，Sol日本語訳为Word；Astra日本語入力仍Sentence的新缺口另冻结红测再修，最终用其原回执重放，不追改原paid观察。最终独立15组822过/0失败/4显式ignore/零筛除，两次API另计，旧22组855与旧六次实测不加总。3270/4711ms仍超过默认1200ms，取消不代表服务器计算/计费或DNS停止；usage不可用不声称实耗。新证据E-cloud-cancellation-ja-classification，旧协议v1、授权/凭据优先级、安全策略、所有旧评分/限制与证据、默认模型/期限/预算、词库/版本和取消的自动化保持；不更换个人安装或配置。source_sha256不代表发布包。后续本轮新增E-prediction-status-feedback：独立面板失败重绘和render-local单行提示，托盘明确host snapshot且不承诺AI新行，八语原始诊断载荷不再二次误译；中英日旧错误/伪造response_id隔离。独立最终16组1077通过/0失败/29显式忽略，另私有GPU1项实际通过，严格Clippy exit0/37.11s。首次五项红测、原始诊断误译及两次新GPU夹具失败均保留；不与上一轮822或真实模型调用加总。本轮不读密钥/不发新API请求/不改变个人安装和默认预算，原评分不动。后续候选键盘批E-candidate-keyboard-presentation修独立面板模型回包未呈现时数字误采用及Enter忽略明确选择，原native规则不变。两冻结真红后修，final独立UI24全过、相关16组1077过/0失败/31显式ignore/零筛除；strict Clippy exit0/4.59s，首轮collapsible_match拒绝及旧阶段回归不合并。KeyD同步、无调用者append空白及稳定按住取消仍列未修；无新API/安装或评分变更。后续信号批E-signal-candidate-sync现修KeyD与R重复播种：仅真实重建同步独立候选/作废旧呈现，不重播草稿/取消翻译；equal guard保选择及在途工作，首次校准/active plugin dirty照旧。真变化仍解锁选择且事件可重绘，非零frame承诺。两扩展冻结GPU入口真红后原样green，完整隔离UI24实际全过；final独立20组1160通过/0失败/31显式ignore/零筛除，strict Clippy exit0/43.33s；633文件前后哈希一致，详见同批历史记录。旧阶段记录不重写/不合并计数，append空白及稳定按住取消仍未修；无新API/安装/默认预算或评分变化。随后2026-11-11准备0.10.2/build52，新增E-release-0.10.2-prepared。旧完整Rust exit143未完成，不记full；fresh UI24、Clippy exit0/36.94s与371静态通过，634源文件哈希保持。准确提交远端八门及accepted包验收待完成，旧下载仍0.10.1；不将源码准备称为发布，所有评分保持。"
+    "source_sha256": "22491aec79c0944836321c5389eb50cf58a0e7b4659d702559df20f6fa8b6820",
+    "note": "0.10.3/build53仅源码版本准备，基线f4e154ca176872c26dd68410d4833eb4256b1428，用户仅授权提交推送，不创建新tag/Release/安装包。私有local_http下沉本地传输，panel/settings_sync分离设置差异/应用/保存；表面恢复与重开设置见E-panel-recovery-live-settings，辅助窗口/报告错误隔离/明确OpenSettings防抖见E-panel-auxiliary-report-notices；候选滚轮呈现屏障、报告转设置和设置失败保preedit见E-panel-input-handoff。保留同一PanelState与宿主ACK，不代表DeviceLost或真实桌面焦点验收。E-model-local-http-full仅验证面板整理前源码，各独立范围见docs/history/2026-11/architecture-boundaries.md；本版本独立结果见docs/history/2026-11/release-0.10.3.md，不用旧结果替代。原预测v1、词库/25包/SDK、默认预算、旧evidence及成熟度不变，无性能/模型质量承诺。旧snapshot及note保留于基线提交与历史证据；下载仍为已发布0.10.2，不改个人安装/服务，不恢复自动化。"
   },
   "architectures": [
     {
@@ -898,6 +898,7 @@
         "src/languages/llama.rs",
         "src/model.rs",
         "src/model/configuration.rs",
+        "src/model/local_http.rs",
         "src/model/legacy.rs",
         "src/prediction/mod.rs",
         "src/prediction/prompt.rs",
@@ -927,7 +928,8 @@
       "title": "本机发现/探针/预热",
       "scope": "固定loopback端点；预热限Ollama",
       "paths": [
-        "src/model/runtime.rs"
+        "src/model/runtime.rs",
+        "src/model/local_http.rs"
       ],
       "tests": [
         "src/model/runtime.rs",
@@ -1097,6 +1099,8 @@
         "src/bin/panel/candidates_native_test.rs",
         "tests/ime_panel_content_fit.rs",
         "tests/ime_panel_drag_regions.rs",
+        "tests/panel_surface_recovery.rs",
+        "tests/panel_auxiliary_recovery.rs",
         "src/bin/panel/windowing_native_test.rs",
         "src/bin/panel/native_action_audit_test.rs"
       ]
@@ -1137,12 +1141,14 @@
       "title": "设置布局/标题栏",
       "scope": "桌面GPU设置窗口",
       "paths": [
+        "src/bin/panel.rs",
         "src/ui/model_setup.rs",
         "src/ime/gpu/settings_scene.rs",
         "src/bin/panel/settings_keyboard.rs",
         "src/bin/panel/input.rs",
         "src/bin/panel/windowing.rs",
         "src/bin/panel/app_state.rs",
+        "src/bin/panel/settings_sync.rs",
         "src/bin/panel/report_view.rs",
         "src/bin/panel/report_window.rs",
         "src/bin/panel/keyboard.rs"
@@ -1150,6 +1156,7 @@
       "tests": [
         "tests/model_setup_ui.rs",
         "src/bin/panel/settings_native_test.rs",
+        "src/bin/panel/settings_sync.rs",
         "src/bin/panel/report_native_test.rs",
         "src/bin/panel/report_view.rs",
         "src/bin/panel/report_window.rs",
@@ -1278,14 +1285,18 @@
       "title": "异步设置保存与确认",
       "scope": "Linux宿主/面板双配置",
       "paths": [
+        "src/bin/panel.rs",
         "src/ime/settings.rs",
         "src/ime_host/control.rs",
         "src/bin/panel/prediction_settings.rs",
-        "src/bin/panel/app_state.rs"
+        "src/bin/panel/app_state.rs",
+        "src/bin/panel/settings_sync.rs"
       ],
       "tests": [
         "tests/settings_chain_audit.rs",
-        "src/bin/panel/settings_chain_audit_test.rs"
+        "src/bin/panel/settings_chain_audit_test.rs",
+        "scripts/test-settings-chain-audit.sh",
+        "src/bin/panel/settings_sync.rs"
       ]
     },
     {
@@ -4380,6 +4391,111 @@
       ],
       "scope": "准确0.10.2源码的八项远端门禁、accepted Linux包只读验收与四资产重下载后的实际发布；不增加成熟度或承诺其他平台、个人安装及真实模型质量。",
       "note": "0.10.2/build52，source85723405a867bc3089e64042cc9703e841a0c1c1，epoch1794380900；CI42977367557八门全部success，accepted artifact13837343465实际ZIP摘要与API相符。四资产精确清单、安全归档/完整校验、原始tar-deb manifest及四程序/共享资源配对、25包与SDK及来源文档绑定均通过；不执行payload，远端另过干净容器安装/升级/卸载。v0.10.2注释tag对象2cd197436e9238fd2e7da20cf9ad2466b12664b3剥离为准确source。Release441377132于2026-11-11T07:54:32Z发布，draft=false/prerelease=true/非latest；四上传资产按准确ID重下载逐块字节及独立SHA256/size一致，最终metadata正式URL及digest读回一致，latest stable接口404。完整资产表与回执唯一正文为docs/releases/0.10.2.md；原始日志/tmp/suzaku-release-0.10.2.5jC9CV/。新完整本地Rust实际exit0，330唯一未筛除组3156过/0失败/38显式ignore，含Doc-tests；独立UI24与Clippy另计，不拼旧部分结果。旧exit143和prepared证据保持，不据后来通过推断终止原因；旧评分、snapshot源码摘要、词库/SDK、默认预算、个人安装/服务/配置及取消的自动化均保持。"
+    },
+    {
+      "id": "E-model-local-http",
+      "kind": "historical_run",
+      "paths": [
+        "docs/development/architecture.md",
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/model.rs",
+        "src/model/local_http.rs",
+        "src/model/runtime.rs",
+        "src/model/transport.rs",
+        "tests/model_module_compat.rs",
+        "scripts/test-functional-tensor.py"
+      ],
+      "scope": "2026-11-11私有本机HTTP职责下沉及原公开路径兼容；行为保持型架构整理，不是新性能、模型质量或发行验收。",
+      "note": "基线f4e154ca176872c26dd68410d4833eb4256b1428；local_http独占ParsedHttpEndpoint及八原HTTP/URL/解码函数，runtime/transport直接引用。八函数体、共享取消函数与旧测试正文逐字节保持，仅可见性/测试imports接线；is_local_llm_endpoint通过根pub use且三个旧公共路径不变，其他低层入口不公开。新增一个结构守卫先红后绿，精确区分test-only imports，原29守卫不改；新增一项三路径×14URL纯解析兼容测试。保留单一deadline/50ms轮询、128KiB响应和loopback无DNS/代理/重定向/凭据约束。完整Rust实际退出143，仅274组2746过/0失败/33显式ignore，不是full；独立受影响13组1108过/0失败/29显式ignore/零筛除且exit0，两轮结果不加总。格式阶段两次失败和预先发现的测试import遗漏保留见历史记录；不是新实模、个人桌面、安装、远端CI或发布验收。源码版本仍0.10.2/build52；词库/25包/SDK、预算、旧evidence与评分保持，不修改已有发行或恢复定时任务。"
+    },
+    {
+      "id": "E-model-local-http-full",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/model/local_http.rs",
+        "tests/model_module_compat.rs"
+      ],
+      "scope": "2026-11-11本地HTTP边界整理后的独立完整Rust回归；只验证后续面板设置拆分之前的冻结源码，不证明当前全仓或交付。",
+      "note": "原进程实际exit0；330唯一结果组3157通过/0失败/38原有显式ignore/零筛除，含Doc-tests。日志/tmp/suzaku-sigterm-investigation.Y6wVf0/rust-full-traced.log SHA256=87bfd1b80a4bdfb43e5481bdaf6c1d829e66d613e3746eaf9a183c91eb0402f1；634源码/测试/脚本/Cargo文件前后冻结检查通过。信号跟踪会改变时序，不用于性能承诺；旧143和部分结果原样保留，不拼接或据新通过反推旧终止原因。用户报告capacity报错，但日志未确证因果。不是面板后续改动、实模、个人安装、远端CI或发布验收；旧evidence与评分保持。"
+    },
+    {
+      "id": "E-panel-settings-sync",
+      "kind": "historical_run",
+      "paths": [
+        "docs/development/architecture.md",
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel.rs",
+        "src/bin/panel/controller.rs",
+        "src/bin/panel/settings_sync.rs",
+        "scripts/test-functional-tensor.py"
+      ],
+      "scope": "2026-11-11同一PanelState的私有设置差异/应用/保存边界，既有ACK/窗口scale/保存失败语义保持；仅受影响链与隔离UI，不是修改后全仓或交付。",
+      "note": "两原方法签名与pub(super)保持；persist方法逐字一致，adopt保留全部副作用次序，只把原四项差异计算下沉到私有SettingsUpdatePlan。新增4个纯内存测试覆盖18持久字段（Configured单值别名列不变）、2快捷键值字段与15瞬态字段；18字段完整解构要求未来显式补测。完整panel及8相关集成target原进程exit0：9组334通过/0失败/28既有ignore/零筛除。首轮私有UI实际exit101，9过后在设备创建阶段Device(Lost)，日志保留；相同配置的新一轮完整UI24唯一单项全过，随后settings-chain3唯一单项全过，命令exit0，不拼首轮部分结果。格式和strict Clippy -D warnings实际exit0，32结构/25文档/15包文档及导航检查通过；新guard34文本向量3接受31拒绝，原30断言保持，正则拼写失败与修正保留。635源码冻结清单SHA256=109563cf377376782e07d79e455f9e5f0078360ffca3dbd4bc0fe0775fc70330；各独立日志及摘要见历史正文和/tmp/suzaku-architecture-settings.y42Qj5/。不改宿主ABI、词库/包/SDK、格式/默认预算/版本、旧evidence或评分；无个人服务/配置、真实模型请求、远端CI或新发布验收。"
+    },
+    {
+      "id": "E-panel-recovery-live-settings",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel.rs",
+        "src/bin/panel/controller.rs",
+        "src/bin/panel/input.rs",
+        "tests/panel_surface_recovery.rs",
+        "src/bin/panel/settings_chain_audit_test.rs",
+        "scripts/test-settings-chain-audit.sh"
+      ],
+      "scope": "2026-11-11同尺寸Lost/Outdated表面恢复及重开设置保留未保存预览；有限CPU回归与私有Xvfb，不是DeviceLost、个人安装、全仓或交付验收。",
+      "note": "Lost/Outdated原调同尺寸resize被去重挡住；新增恢复入口清呈现、强制configure并redraw，普通resize及其它错误策略不变。Settings原先传入live chrome后仍被旧磁盘覆盖，首事件和Retry会倒灌；现仅Main启动读显示设置，辅助窗口继承实时值，不改native ACK/预算。新增CPU回归提取实际生产方法/分派，修前exit101内层2失败2通过，修后exit0内层4通过，假GPU/helper不等于实际故障注入。新增mandatory私有UI设置项：不可写保存失败后关闭/重开/首Redraw/恢复权限Retry，修前exit101三阶段旧Suzaku，修后exit0均Baihu，模型禁用/无native patch。整合独立原进程exit0：完整panel加10集成11组338过/0失败/29显式ignore/零筛除，另行完整UI24唯一单项与settings链4唯一单项全过；不加TDD或CPU内层计数。格式及strict Clippy -D warnings通过6.40秒。636文件冻结清单SHA256=5fc1e585f06b00f4b23853eb4c13621b8ca20a6e5a5d52f3698746e573e8fc41，较上一轮仅5预期旧文件及1新test变化；日志/tmp/suzaku-bugfix-recovery.jzKRVB/，原失败另存两专项目录见历史。原188 evidence、79评分/限制及词库/25包/SDK/版本不变，无新完整全仓、实模、个人服务、远端CI或发行验收；未提交推送或恢复自动化。"
+    },
+    {
+      "id": "E-panel-auxiliary-report-notices",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel.rs",
+        "src/bin/panel/controller.rs",
+        "src/bin/panel/controller_hints.rs",
+        "src/bin/panel/input.rs",
+        "src/bin/panel/report_view.rs",
+        "src/bin/panel/report_native_test.rs",
+        "src/bin/panel/settings_chain_audit_test.rs",
+        "tests/panel_auxiliary_recovery.rs"
+      ],
+      "scope": "2026-11-11辅助窗口返回错误不panic/不提前锁原生队列、focused report新错误只读可见和明确OpenSettings防抖；有限CPU与私有Xvfb，不是底层DeviceLost/全部输入无损或交付验收。",
+      "note": "三处辅助构造改共享Result入口，失败清request/恢复权限/保留反馈，普通redraw不重试，成功/复用才suspend；报告失败不强拉主窗。CPU提取实际入口/协调/gear/shortcut，假窗口和GPU/helper持续create/init错误，原7子项修前全失败exit101、修后全过exit0，Cargo仅计外层1；旧片段和前后日志在/tmp/suzaku-bugfix-auxiliary.msxQUy/。focused报告不再把错误写进永不显示的旧反馈，ReportView独立4096字节/转义输出预算和180帧，仅当前正文内绘制，不读写或递减legacy feedback，不改变snapshot/page/generation/已按按钮。原mandatory报告case保留旧断言，追加临时/返回设置两路径真实user_event与render，修前overlay0/1实际exit101，修后完整case和3pure均exit0，7项冻结见/tmp/suzaku-report-feedback.ZoJYJB/。整合新增私有设置刚折叠即复用/新建回归，修前settings链exit1在reuse=true失败；仅明确OpenSettings清180ms防抖，普通bubble策略不动。最终独立原进程exit0：完整panel+11集成12组342通过/0失败/29显式ignore/零筛除，另行完整UI24唯一单项和settings4唯一单项全过，不拼TDD/子项/旧轮。格式/strict Clippy -D warnings通过5.42秒，637文件冻结SHA256=1819f67578c59294deee6705426b3f7fcb70a4c747fc76f0dc80fb2121a1802b，较前轮7预期旧文件+1新test变化，其余模型/词库/包SDK等保持。189旧evidence/79评分限制不变，无新全仓/真实GPU故障/物理键盘/实模/个人安装/远端CI或发布验收。既有gear权限清理仍会结束本地未提交preedit，主窗初次GPU expect未覆盖；隐藏时报告构造错误只留main反馈与stderr，不承诺立即可见。未提交推送/升版/恢复自动化。"
+    },
+    {
+      "id": "E-panel-input-handoff",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel.rs",
+        "src/bin/panel/controller.rs",
+        "src/bin/panel/input.rs",
+        "src/bin/panel/keyboard.rs",
+        "src/bin/panel/keyboard_native_test.rs",
+        "src/bin/panel/native_action_audit_test.rs",
+        "src/bin/panel/native_sync.rs",
+        "tests/panel_auxiliary_recovery.rs"
+      ],
+      "scope": "2026-11-11候选滚轮只认已呈现身份/几何、主窗明确设置请求跨报告及失败构造保preedit；有限CPU与私有X11，不是实际WM焦点、GPU故障或交付验收。",
+      "note": "滚轮复用呈现门槛并只用last_scene，三种新revision/context/尺寸边界的修前完整exact实际exit101，均错误N12；保留旧断言/阶段/方向和呈现后正例，冻结日志/tmp/suzaku-candidate-wheel.emPq8E/。一次性settings请求区分Main的Gear/F1/Ctrl+,与普通重绘，明确操作能结束/关闭报告，复用仅请求系统focus；重入不消费外层请求或同步权限。设置请求后本地权限同步等到构造结果，失败保preedit，成功才结束；真实组字F1/Ctrl+,继续不触发设置。CPU生产入口/协调+假平台修前8过2失败exit101，修后10过exit0，保留原7项，Cargo只计外层；冻结前后源码/tmp/suzaku-settings-transition.YOoRhw/。原私有键盘项新增真实呈现MouseInput进生产handler（构造结果合成）及X11组合键负例，原20秒内限不变；独立exact实际exit0，首次工作目录启动错误另存未计测试。最终同一冻结源码原进程exit0：完整panel+11集成12唯一组342过/0失败/29显式ignore/零筛除，独立完整UI24唯一单项和settings4唯一单项均通过，不拼TDD或内层。格式/strict all-target/all-feature Clippy -D warnings通过5.39秒；637文件冻结SHA256=9b2c3d4c7ac64c35edff76d8bec3b2407b4970cf0f80eeda25483f98cdec61b0，较前轮仅8预期旧文件改变，无新增源码。日志/tmp/suzaku-bugfix-input-handoff.T7US1s/。190旧evidence与79评分/限制保持，模型/词库/包SDK/版本不变；不改个人安装/服务/配置，不恢复自动化，无新全仓/物理输入/实模/实际GPU/远端CI/发布验收。设置失败保留原显式显示主面板语义，不承诺完整visibility回滚；未提交推送。"
+    },
+    {
+      "id": "E-source-0.10.3",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/release-0.10.3.md",
+        "docs/releases/0.10.3.md",
+        "tests/offline_pack_quality.rs",
+        "tests/panel_auxiliary_recovery.rs",
+        "tests/panel_surface_recovery.rs",
+        "src/bin/panel/settings_sync.rs",
+        "src/model/local_http.rs"
+      ],
+      "scope": "2026-11-13版本0.10.3/build53受影响链本地源码验收；非全仓正常退出、远端CI、实模、个人输入法或发行验收。",
+      "note": "用户仅授权提交推送，下载仍指向0.10.2，不创建tag/Release/安装包或恢复自动化。首次完整进程exit101、离线包Pending失败保留且根因未证实；仅测试等待新增末尾不等待poll及合成provider临返回观测点，原2秒deadline/2ms、九cohort/四错误/全部旧断言与语料不变。确定性helper旧等价红exit101(1过2失败)、修后exit0(3过)和独立target4过另存，不混入最终总数；观测点不证明函数返回/worker发布严格在期限内。修后完整输出332唯一组3169过/39忽略/零筛除，但实际工具exit143、Cargo正常退出未确认，不接受为完整成功，不猜信号来源。后续同一冻结源码独立有界流水线实际exit0：完整lib/panel/tool加22明确target共25唯一组1161过/0失败/31既有ignore/零筛除，独立私有Xvfb/D-Bus/XDG UI24唯一单项和settings4唯一单项全过，各阶段真实exit0；格式和strict all-target/all-feature Clippy -D warnings通过0.45秒。693源码文件运行前后保真，冻结清单SHA256=3c5b3ab000ab45ee10b5dd1e78b22db6464abe18795926394b7d37b857ab7927；snapshot源码摘要22491aec79c0944836321c5389eb50cf58a0e7b4659d702559df20f6fa8b6820。日志/tmp/suzaku-release-0.10.3-recovery.wiELqk/及各日志hash见历史。191旧证据和79评分/限制保留，词库/25包/SDK/依赖版本与生产模型预算不变；不外推DeviceLost、真实WM焦点、性能/预测质量、物理输入或远端安装验收。"
     }
   ],
   "cells": [
@@ -5095,6 +5211,8 @@
         2
       ],
       "evidence": [
+        "E-model-local-http-full",
+        "E-model-local-http",
         "E-cloud-cancellation-ja-classification",
         "E-cloud-quality-sol-astra",
         "E-terminal-model-setup",
@@ -5119,6 +5237,8 @@
         2
       ],
       "evidence": [
+        "E-model-local-http-full",
+        "E-model-local-http",
         "E-model-legacy",
         "E-model-boundaries",
         "E-linux-delivery"
@@ -5271,6 +5391,8 @@
         2
       ],
       "evidence": [
+        "E-source-0.10.3",
+        "E-panel-input-handoff",
         "E-signal-candidate-sync",
         "E-candidate-keyboard-presentation",
         "E-prediction-status-feedback",
@@ -5361,6 +5483,9 @@
         2
       ],
       "evidence": [
+        "E-source-0.10.3",
+        "E-panel-auxiliary-report-notices",
+        "E-panel-recovery-live-settings",
         "E-x11-event-clicks",
         "E-pointer-preference",
         "E-linux-delivery"
@@ -5424,6 +5549,11 @@
         2
       ],
       "evidence": [
+        "E-source-0.10.3",
+        "E-panel-input-handoff",
+        "E-panel-auxiliary-report-notices",
+        "E-panel-recovery-live-settings",
+        "E-panel-settings-sync",
         "E-cloud-setup-guidance",
         "E-pointer-preference",
         "E-linux-delivery",
@@ -5466,6 +5596,8 @@
         2
       ],
       "evidence": [
+        "E-panel-recovery-live-settings",
+        "E-panel-settings-sync",
         "E-settings",
         "E-linux-delivery"
       ],
@@ -5498,6 +5630,7 @@
         2
       ],
       "evidence": [
+        "E-panel-settings-sync",
         "E-settings",
         "E-linux-delivery"
       ],
@@ -5781,6 +5914,8 @@
         2
       ],
       "evidence": [
+        "E-source-0.10.3",
+        "E-panel-input-handoff",
         "E-current",
         "E-native",
         "E-pointer-preference",

@@ -394,6 +394,168 @@ class RepositoryArchitectureTests(unittest.TestCase):
             self.assertEqual(bridge.count(f"pub fn {factory}("), 1)
             self.assertNotIn(f"pub fn {factory}(", facade)
 
+    def test_local_http_has_one_private_owner_below_the_model_facade(self):
+        marker = "#[cfg(test)]\nmod tests {"
+        facade = (self.root / "src/model.rs").read_text(encoding="utf-8").split(marker, 1)[0]
+        self.assertRegex(facade, r"(?m)^mod local_http;$")
+        self.assertNotRegex(facade, r"(?m)^pub(?:\([^)]*\))? mod local_http;$")
+        self.assertIn("pub use local_http::is_local_llm_endpoint;", facade)
+        self.assertNotRegex(facade, r"(?m)^pub use local_http::(?!is_local_llm_endpoint;$)")
+        for implementation in ("struct ParsedHttpEndpoint", "fn http_request(",
+                               "fn http_request_with_cancel(", "fn parse_http_endpoint(",
+                               "fn loopback_address(", "fn decode_http_response("):
+            self.assertNotIn(implementation, facade)
+        # The root's existing child test modules may inherit test-only imports.
+        # This explicit source guard is not a general Rust cfg/AST evaluator.
+        production_imports = re.sub(r"(?m)^#\[cfg\(test\)\]\nuse [^;]+;\n", "", facade)
+        self.assertNotIn("std::net::", production_imports)
+        self.assertNotIn("std::io::", production_imports)
+        local = (self.root / "src/model/local_http.rs").read_text(encoding="utf-8")
+        self.assertIn("TcpStream::connect_timeout", local)
+        self.assertIn("use crate::prediction::", local)
+        self.assertNotIn("crate::languages", local)
+        self.assertNotIn("reqwest", local)
+        self.assertNotIn("ModelProviderConfig", local)
+        for helper in ("http_request", "http_request_with_cancel", "parse_http_endpoint",
+                       "decode_http_response"):
+            self.assertIn(f"pub(super) fn {helper}(", local)
+        for path in ("src/model/runtime.rs", "src/model/transport.rs"):
+            with self.subTest(path=path):
+                production = (self.root / path).read_text(encoding="utf-8").split(marker, 1)[0]
+                self.assertIn("local_http::", production)
+
+    def test_panel_settings_sync_has_one_private_owner_and_snapshot_registration(self):
+        panel = (self.root / "src/bin/panel.rs").read_text(encoding="utf-8")
+        controller = (self.root / "src/bin/panel/controller.rs").read_text(encoding="utf-8")
+        path = "src/bin/panel/settings_sync.rs"
+        leaf = (self.root / path).read_text(encoding="utf-8")
+        declaration = '#[path = "panel/settings_sync.rs"]\nmod settings_sync;'
+        self.assertEqual(panel.count(declaration), 1)
+        self.assertNotRegex(panel, r"(?m)^pub(?:\([^)]*\))? (?:mod|use) "
+                                  r"(?:(?:crate|self)::)?settings_sync\b")
+        # This is an exact source-layout guard, not a Rust cfg/AST evaluator.
+        production = leaf.split("#[cfg(test)]\nmod tests {", 1)[0]
+        production = re.sub(r"(?m)^#\[cfg\(test\)\]\nuse [^;]+;\n", "", production)
+        for method in ("persist_display_settings", "adopt_settings_from"):
+            signature = f"pub(super) fn {method}("
+            self.assertEqual(production.count(signature), 1)
+            self.assertEqual(len(re.findall(rf"\bfn {method}\s*\(", production)), 1)
+            self.assertNotIn(f"fn {method}(", controller)
+            self.assertNotIn(f"fn {method}(", panel)
+        for dependency in ("PersistedDisplaySettings", "apply_display_settings", "save_display_settings"):
+            self.assertNotIn(dependency, controller)
+            self.assertIn(dependency, leaf)
+        self.assertIn("normalize_pointer_stability_settings", controller)
+        # Keep this a settings application boundary, not another input host or GPU owner.
+        self.assertNotRegex(production, r"(?m)^[ \t]*pub(?:\([^)]*\))? "
+                                        r"(?:struct|enum|mod|use|const|static|type|trait) ")
+        public_functions = re.findall(
+            r"(?m)^[ \t]*(pub(?:\([^)]*\))?) fn ([A-Za-z_][A-Za-z_0-9]*)\s*(?:<|\()", production)
+        self.assertEqual(sorted(public_functions), [
+            ("pub(super)", "adopt_settings_from"),
+            ("pub(super)", "persist_display_settings"),
+        ])
+        for unrelated in ("wgpu::", "ImeHostSessionBridge", "NativeOperation::", "CommitOptions"):
+            self.assertNotIn(unrelated, production)
+        state = (self.root / "src/bin/panel/app_state.rs").read_text(encoding="utf-8")
+        self.assertNotRegex(state, r"\bPanelState\b")
+        for identifier in ("settings-ui", "settings"):
+            implementation = next(row for row in self.data["implementations"]
+                                  if row["id"] == identifier)
+            with self.subTest(implementation=identifier):
+                self.assertIn(path, implementation["paths"])
+                self.assertIn(path, implementation["tests"])
+
+
+class PanelSettingsBoundaryFixtures(unittest.TestCase):
+    def test_panel_settings_boundary_text_fixtures(self):
+        """Probe the same exact-layout guard with temporary text, not compiled Rust."""
+        panel = "src/bin/panel.rs"
+        controller = "src/bin/panel/controller.rs"
+        leaf = "src/bin/panel/settings_sync.rs"
+        state = "src/bin/panel/app_state.rs"
+        declaration = '#[path = "panel/settings_sync.rs"]\nmod settings_sync;\n'
+        methods = ("persist_display_settings", "adopt_settings_from")
+        dependencies = ("PersistedDisplaySettings", "apply_display_settings", "save_display_settings")
+        unrelated = ("wgpu::Device", "ImeHostSessionBridge", "NativeOperation::Select", "CommitOptions")
+        files = {
+            panel: declaration,
+            controller: "use crate::app_state::normalize_pointer_stability_settings;\n",
+            leaf: "use crate::app_state::{" + ", ".join(dependencies) + "};\nimpl PanelState {\n"
+                  + "".join(f"    pub(super) fn {method}(&mut self) {{}}\n" for method in methods)
+                  + "}\n",
+            state: "struct PersistedDisplaySettings;\n",
+        }
+        data = {"implementations": [
+            {"id": identifier, "paths": [leaf], "tests": [leaf]}
+            for identifier in ("settings-ui", "settings")
+        ]}
+        with tempfile.TemporaryDirectory(prefix="suzaku-settings-boundary-") as temporary:
+            root = Path(temporary)
+
+            def check(contents, inventory=data):
+                for name, text in contents.items():
+                    target = root / name
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_text(text, encoding="utf-8")
+                # A separate TestCase propagates its assertions to assertRaises,
+                # including inventory checks inside the guard's own subTest.
+                probe = RepositoryArchitectureTests(
+                    "test_panel_settings_sync_has_one_private_owner_and_snapshot_registration")
+                probe.root, probe.data = root, inventory
+                probe.test_panel_settings_sync_has_one_private_owner_and_snapshot_registration()
+
+            for name, suffix in (
+                    ("private owner", ""),
+                    ("test-only imports", "".join(
+                        f"#[cfg(test)]\nuse fixture::{dependency};\n" for dependency in unrelated)),
+                    ("test-only module", "#[cfg(test)]\nmod tests {\n"
+                     + "\n".join(unrelated) + "\npub fn fixture() {}\n}\n")):
+                with self.subTest(accepted=name):
+                    positive = dict(files)
+                    positive[leaf] += suffix
+                    check(positive)
+
+            mutations = [
+                ("missing private module", panel, ""),
+                ("duplicate module", panel, declaration * 2),
+                ("public module", panel, declaration.replace("mod ", "pub mod ")),
+                ("crate-visible module", panel, declaration.replace("mod ", "pub(crate) mod ")),
+                ("public leaf type", leaf, files[leaf] + "pub struct Escaped;\n"),
+                ("public extra helper", leaf, files[leaf] + "pub fn escaped2<T>() {}\n"),
+                ("app-state reverse dependency", state, files[state] + "use super::PanelState;\n"),
+                ("pointer policy removed", controller, ""),
+            ]
+            for export in ("pub use settings_sync::*;", "pub(crate) use settings_sync::*;",
+                           "pub use crate::settings_sync::*;", "pub use self::settings_sync::*;"):
+                mutations.append((export, panel, declaration + export + "\n"))
+            for method in methods:
+                signature = f"pub(super) fn {method}("
+                mutations.extend((
+                    (f"duplicate {method}", leaf, files[leaf] + f"fn {method}() {{}}\n"),
+                    (f"public {method}", leaf, files[leaf].replace(signature, f"pub fn {method}(")),
+                    (f"controller owns {method}", controller,
+                     files[controller] + f"fn {method}() {{}}\n"),
+                    (f"panel owns {method}", panel, declaration + f"fn {method}() {{}}\n"),
+                ))
+            for dependency in dependencies:
+                mutations.append((f"controller retains {dependency}", controller,
+                                  files[controller] + f"use fixture::{dependency};\n"))
+            for dependency in unrelated:
+                mutations.append((f"production retains {dependency}", leaf,
+                                  files[leaf] + f"use fixture::{dependency};\n"))
+            for name, target, text in mutations:
+                with self.subTest(rejected=name), self.assertRaises(AssertionError):
+                    negative = dict(files)
+                    negative[target] = text
+                    check(negative)
+            for index, implementation in enumerate(data["implementations"]):
+                for key in ("paths", "tests"):
+                    with self.subTest(missing=(implementation["id"], key)), self.assertRaises(AssertionError):
+                        missing = copy.deepcopy(data)
+                        missing["implementations"][index][key] = []
+                        check(files, missing)
+
 
 if __name__ == "__main__":
     unittest.main()

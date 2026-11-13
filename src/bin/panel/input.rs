@@ -28,8 +28,11 @@ pub(super) fn handle_panel_window_event(
     event_loop: &ActiveEventLoop,
     event: WindowEvent,
     allow_exit: bool,
-) {
-    let _ = state.dispatch_input(|state| {
+) -> bool {
+    let dispatched = state.dispatch_input(|state| {
+        // A direct PanelState consumer may not have an app to handle the previous
+        // request. Only a new dispatch may discard it; reentrant calls may not.
+        state.settings_window_request = None;
         if !state.is_focused
             && !event_is_safe_while_unfocused(&event, state.runs_without_window_focus)
         {
@@ -193,8 +196,10 @@ pub(super) fn handle_panel_window_event(
                     state.modifiers,
                     event.repeat,
                 ) {
-                    state.suspend_native_keyboard();
                     state.chrome.settings_open = true;
+                    if state.kind == PanelWindowKind::Main {
+                        state.settings_window_request = Some(true);
+                    }
                     state.chrome.settings_keyboard_focus = None;
                     state.chrome.settings_search_focused = false;
                     if show_reference {
@@ -428,7 +433,7 @@ pub(super) fn handle_panel_window_event(
                 if let Err(err) = state.render() {
                     match err {
                         SurfaceError::Lost | SurfaceError::Outdated => {
-                            state.resize(state.size.width, state.size.height);
+                            state.recover_surface();
                         }
                         SurfaceError::OutOfMemory => {
                             if allow_exit {
@@ -442,8 +447,12 @@ pub(super) fn handle_panel_window_event(
             _ => {}
         }
     });
-    state.sync_text_input_state();
+    if dispatched.is_none() {
+        return false;
+    }
+    state.sync_text_input_after_dispatch();
     state.update_pointer_cursor();
+    true
 }
 
 fn dismisses_hover_tooltip(event: &WindowEvent) -> bool {
