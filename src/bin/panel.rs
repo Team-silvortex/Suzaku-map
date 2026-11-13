@@ -423,6 +423,7 @@ impl PanelApp {
         if !visible {
             panel.cancel_translation();
             panel.finish_text_editing();
+            panel.cancel_primary_interaction();
         }
         panel.window.set_visible(visible);
         self.panel_visible = visible;
@@ -772,6 +773,8 @@ struct PanelInteractionState {
     press_start_instant: Option<Instant>,
     touch_tap_pending: bool,
     touch_start_position: Option<(f32, f32)>,
+    // A second contact must never move or finish the first contact's gesture.
+    touch_owner: Option<(winit::event::DeviceId, u64)>,
     handwriting_dragging: bool,
     compact_hovered: bool,
     panel_dragging: bool,

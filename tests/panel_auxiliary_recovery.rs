@@ -183,8 +183,16 @@ impl Frame { fn visible(&self) -> bool { true } }
 struct Native {
     keyboard_blocked: bool, typing_blocked: bool, presented: Option<()>, frame: Option<Frame>,
 }
-struct TextInput { allowed: bool, preedit: String, revocations: usize }
-impl TextInput { fn clear_shortcut_hold(&mut self) {} }
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum PhysicalKey { F1, Comma }
+struct KeyEvent { physical_key: PhysicalKey }
+struct TextInput { allowed: bool, preedit: String, revocations: usize, command_holds: Vec<PhysicalKey> }
+impl TextInput {
+    fn hold_panel_command_key(&mut self, key: PhysicalKey) {
+        if !self.command_holds.contains(&key) { self.command_holds.push(key); }
+    }
+    fn clear_shortcut_hold(&mut self) { self.command_holds.clear(); }
+}
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum PanelWindowKind { Main, Settings }
 struct PanelState {
@@ -215,7 +223,7 @@ impl PanelState {
                 presented: Some(()), frame: None }, report_view: None,
             report_return_to_settings: false, last_commit_feedback: None,
             commit_feedback_ticks: 0, is_focused: true,
-            text_input: TextInput { allowed: true, preedit: String::new(), revocations: 0 },
+            text_input: TextInput { allowed: true, preedit: String::new(), revocations: 0, command_holds: Vec::new() },
             last_compact_toggle: None,
             last_scene: Some(()), close_requested: false, quit_requested: false,
             settings_save_requested: false,
@@ -256,6 +264,7 @@ impl PanelState {
     }
     fn request_settings_by_shortcut(&mut self, show_reference: bool) {
         let state = self;
+        let event = KeyEvent { physical_key: if show_reference { PhysicalKey::F1 } else { PhysicalKey::Comma } };
         // PRODUCTION_SHORTCUT_REQUEST
     }
 }
@@ -551,5 +560,24 @@ fn rejected_reentrant_dispatch_cannot_consume_an_outer_settings_request() {
     assert_eq!(app.panel.as_ref().unwrap().text_input.preedit, "outer unfinished 日本");
     assert!(app.settings.is_none());
     assert_eq!(events.fixture.borrow().creates, 0);
+}
+
+#[test]
+fn shortcut_request_context_records_keys_without_changing_preedit() {
+    let (mut app, _) = fixture(Failure::None);
+    let panel = app.panel.as_mut().unwrap();
+    panel.text_input.preedit = "unfinished 日本".into();
+    panel.request_settings_by_gear();
+    assert!(panel.text_input.command_holds.is_empty(), "pointer gear is not a key command");
+    panel.request_settings_by_shortcut(false);
+    panel.request_settings_by_shortcut(false);
+    assert_eq!(panel.text_input.command_holds, [PhysicalKey::Comma]);
+    panel.request_settings_by_shortcut(true);
+    assert_eq!(panel.text_input.command_holds, [PhysicalKey::Comma, PhysicalKey::F1]);
+    assert_eq!(panel.text_input.preedit, "unfinished 日本");
+    assert_eq!(panel.text_input.revocations, 0);
+    panel.request_settings_by_gear();
+    assert!(panel.text_input.command_holds.is_empty(), "closing clears owned commands");
+    assert_eq!(panel.text_input.preedit, "unfinished 日本");
 }
 "#;

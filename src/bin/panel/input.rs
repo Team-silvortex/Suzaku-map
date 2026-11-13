@@ -23,6 +23,21 @@ fn gesture_direction(delta: f64) -> f32 {
     }
 }
 
+pub(super) fn is_pointer_event(event: &WindowEvent) -> bool {
+    matches!(
+        event,
+        WindowEvent::CursorMoved { .. }
+            | WindowEvent::X11MouseButtonPosition { .. }
+            | WindowEvent::CursorEntered { .. }
+            | WindowEvent::CursorLeft { .. }
+            | WindowEvent::MouseInput { .. }
+            | WindowEvent::MouseWheel { .. }
+            | WindowEvent::Touch(_)
+            | WindowEvent::PinchGesture { .. }
+            | WindowEvent::DoubleTapGesture { .. }
+    )
+}
+
 pub(super) fn handle_panel_window_event(
     state: &mut PanelState,
     event_loop: &ActiveEventLoop,
@@ -38,6 +53,38 @@ pub(super) fn handle_panel_window_event(
         {
             return;
         }
+        // Rendering can continue while covered, but it cannot authorize new
+        // pointer actions. Reject touch before it acquires an owner as well.
+        if state.native.occluded && is_pointer_event(&event) {
+            return;
+        }
+
+        if let WindowEvent::Touch(touch) = &event {
+            let identity = (touch.device_id, touch.id);
+            match touch.phase {
+                TouchPhase::Started if state.interaction.touch_owner.is_none() => {
+                    state.interaction.touch_owner = Some(identity);
+                }
+                TouchPhase::Started => return,
+                _ if state.interaction.touch_owner != Some(identity) => return,
+                TouchPhase::Ended | TouchPhase::Cancelled => {
+                    state.interaction.touch_owner = None;
+                }
+                TouchPhase::Moved => {}
+            }
+        } else if state.interaction.touch_owner.is_some()
+            && matches!(
+                event,
+                WindowEvent::CursorMoved { .. }
+                    | WindowEvent::X11MouseButtonPosition { .. }
+                    | WindowEvent::CursorLeft { .. }
+                    | WindowEvent::MouseInput { .. }
+                    | WindowEvent::MouseWheel { .. }
+            )
+        {
+            // Some backends also deliver mouse events during a touch gesture.
+            return;
+        }
 
         if dismisses_hover_tooltip(&event) && state.interaction.tooltip.dismiss() {
             state.window.request_redraw();
@@ -47,6 +94,7 @@ pub(super) fn handle_panel_window_event(
             WindowEvent::CloseRequested if allow_exit => {
                 state.chrome.cancel_shortcut_recording();
                 state.text_input.clear_shortcut_hold();
+                state.cancel_primary_interaction();
                 state.close_requested = true;
             }
             WindowEvent::Resized(size) => {
@@ -59,8 +107,18 @@ pub(super) fn handle_panel_window_event(
                 state.window.request_redraw();
             }
             WindowEvent::Occluded(occluded) => {
+                let changed = state.native.occluded != occluded;
                 state.native.occluded = occluded;
                 state.native.presented = None;
+                if changed {
+                    if occluded {
+                        state.cancel_primary_interaction();
+                        state.clear_pointer_hover();
+                    }
+                    // X11 partial and unobscured notifications both mean false.
+                    // A duplicate false must not cancel a still-visible gesture.
+                    state.invalidate_pointer_scene();
+                }
                 if !occluded {
                     state.window.request_redraw();
                 }
@@ -73,7 +131,7 @@ pub(super) fn handle_panel_window_event(
                     {
                         state.refresh_voice_permission_state();
                     }
-                    if state.kind == PanelWindowKind::Main {
+                    if state.kind == PanelWindowKind::Main && !state.chrome.compact_mode {
                         state.chrome.focus_input();
                     }
                 }
@@ -196,6 +254,7 @@ pub(super) fn handle_panel_window_event(
                     state.modifiers,
                     event.repeat,
                 ) {
+                    state.text_input.hold_panel_command_key(event.physical_key);
                     state.chrome.settings_open = true;
                     if state.kind == PanelWindowKind::Main {
                         state.settings_window_request = Some(true);
@@ -250,6 +309,14 @@ pub(super) fn handle_panel_window_event(
                     state.quit_requested = true;
                     return;
                 }
+                // A focus-taking backend can keep focus after folding. The orb
+                // has no editor; global shortcuts and open settings still work.
+                if state.kind == PanelWindowKind::Main
+                    && state.chrome.compact_mode
+                    && !state.chrome.settings_open
+                {
+                    return;
+                }
                 if state.kind == PanelWindowKind::Main
                     && !state.chrome.settings_open
                     && state.chrome.input_focused
@@ -263,6 +330,12 @@ pub(super) fn handle_panel_window_event(
                     return;
                 }
                 if state.kind == PanelWindowKind::Settings || state.chrome.settings_open {
+                    if super::settings_keyboard::search_shortcut(
+                        &event.logical_key,
+                        state.modifiers,
+                    ) {
+                        state.text_input.hold_panel_command_key(event.physical_key);
+                    }
                     state.handle_settings_key(
                         &event.logical_key,
                         event.text.as_deref(),
@@ -319,6 +392,7 @@ pub(super) fn handle_panel_window_event(
                             state.move_candidate_selection(-1);
                         }
                         PhysicalKey::Code(KeyCode::Digit1) if !state.try_numbered_candidate(0) => {
+                            state.text_input.hold_panel_command_key(event.physical_key);
                             state.stop_voice_capture_if_leaving(InputMode::VirtualKeyboard);
                             state.chrome.active_input_mode = InputMode::VirtualKeyboard;
                             state.chrome.input_modes_expanded = true;
@@ -360,6 +434,7 @@ pub(super) fn handle_panel_window_event(
                         PhysicalKey::Code(KeyCode::KeyI)
                             if state.chrome.active_input_mode == InputMode::Dictation =>
                         {
+                            state.text_input.hold_panel_command_key(event.physical_key);
                             state.insert_voice_transcript();
                         }
                         PhysicalKey::Code(KeyCode::KeyR) if !state.chrome.input_focused => {
@@ -508,6 +583,68 @@ mod tests {
     };
     use winit::dpi::PhysicalPosition;
     use winit::event::{DeviceId, MouseScrollDelta, WindowEvent};
+
+    #[test]
+    fn occlusion_pointer_gate_keeps_lifecycle_and_text_events_separate() {
+        use winit::event::{ElementState, Ime, MouseButton, Touch, TouchPhase};
+        let device_id = DeviceId::dummy();
+        let position = PhysicalPosition::new(20.0, 30.0);
+        for event in [
+            WindowEvent::CursorMoved {
+                device_id,
+                position,
+            },
+            WindowEvent::X11MouseButtonPosition {
+                device_id,
+                position,
+            },
+            WindowEvent::CursorEntered { device_id },
+            WindowEvent::CursorLeft { device_id },
+            WindowEvent::MouseInput {
+                device_id,
+                state: ElementState::Pressed,
+                button: MouseButton::Left,
+            },
+            WindowEvent::MouseInput {
+                device_id,
+                state: ElementState::Released,
+                button: MouseButton::Left,
+            },
+            WindowEvent::MouseWheel {
+                device_id,
+                delta: MouseScrollDelta::LineDelta(0.0, 1.0),
+                phase: TouchPhase::Moved,
+            },
+            WindowEvent::Touch(Touch {
+                device_id,
+                phase: TouchPhase::Started,
+                location: position,
+                force: None,
+                id: 11,
+            }),
+            WindowEvent::PinchGesture {
+                device_id,
+                delta: 0.25,
+                phase: TouchPhase::Moved,
+            },
+            WindowEvent::DoubleTapGesture { device_id },
+        ] {
+            assert!(super::is_pointer_event(&event), "{event:?}");
+        }
+        for event in [
+            WindowEvent::Occluded(true),
+            WindowEvent::Occluded(false),
+            WindowEvent::Focused(false),
+            WindowEvent::CloseRequested,
+            WindowEvent::RedrawRequested,
+            WindowEvent::Resized(winit::dpi::PhysicalSize::new(900, 400)),
+            WindowEvent::ModifiersChanged(Default::default()),
+            WindowEvent::Ime(Ime::Commit("synthetic text".into())),
+            WindowEvent::Ime(Ime::Disabled),
+        ] {
+            assert!(!super::is_pointer_event(&event), "{event:?}");
+        }
+    }
 
     #[test]
     fn horizontal_zero_and_nonfinite_scroll_have_no_vertical_action() {

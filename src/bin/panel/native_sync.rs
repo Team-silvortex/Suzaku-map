@@ -1101,8 +1101,9 @@ impl PanelState {
             return;
         }
         if matches!(result, Ok(true)) {
-            if let Some(insertion) = pending.insertion {
-                self.finish_native_insertion(insertion);
+            if let Some(insertion) = pending.insertion
+                && self.finish_native_insertion(insertion)
+            {
                 self.last_commit_feedback = Some("Input added to the native composition.".into());
                 self.commit_feedback_ticks = 40;
                 self.window.request_redraw();
@@ -1157,12 +1158,14 @@ impl PanelState {
         })
     }
 
-    fn finish_native_insertion(&mut self, insertion: NativeInsertion) {
+    /// Whether this ACK actually retired its still-current tool source. Host
+    /// success alone must not relabel a newer, rejected source as inserted.
+    fn finish_native_insertion(&mut self, insertion: NativeInsertion) -> bool {
         use suzaku_map::ime::gpu::InputMode;
         let completed_mode = match insertion {
             NativeInsertion::Translation(insertion) => {
                 if !self.finish_translation_insertion(&insertion) {
-                    return;
+                    return false;
                 }
                 InputMode::Translation
             }
@@ -1186,7 +1189,7 @@ impl PanelState {
                 self.clear_handwriting();
                 InputMode::Handwriting
             }
-            _ => return,
+            _ => return false,
         };
         // Do not pull the user out of another mode opened while the request ran.
         if self.chrome.active_input_mode == completed_mode {
@@ -1194,6 +1197,7 @@ impl PanelState {
             self.chrome.input_modes_expanded = false;
         }
         self.last_scene = None;
+        true
     }
 }
 

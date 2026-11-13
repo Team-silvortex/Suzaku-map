@@ -475,6 +475,7 @@ impl PanelState {
             return;
         }
 
+        self.cancel_primary_interaction();
         if compact {
             self.finish_text_editing();
             self.expanded_window_size = Some(

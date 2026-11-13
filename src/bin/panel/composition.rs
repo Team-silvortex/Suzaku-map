@@ -1,12 +1,11 @@
 use super::{CommitAttempt, PanelState, PanelWindowKind};
 use crate::render::create_font_atlas;
 use std::time::{Duration, Instant};
-use suzaku_map::ime::InputSource;
-use suzaku_map::ime::SignalState;
 use suzaku_map::ime::gpu::InteractionKind;
+use suzaku_map::ime::{Candidate, InputSource, SignalState, Snapshot};
 use suzaku_map::languages::llm::LlmProviderError;
 use suzaku_map::model::{HttpModelProvider, ModelProviderConfig};
-use suzaku_map::panel_support::composition_candidate_previews;
+use suzaku_map::panel_support::{CompositionCandidatePreviews, composition_candidate_previews};
 use suzaku_map::platform::ime_host_adapter::ImeHostSessionBridge;
 use suzaku_map::platform::ime_host_adapter::shared_session_bridge;
 use suzaku_map::platform::ime_host_dispatch::current_ime_host_dispatch;
@@ -23,6 +22,31 @@ pub(super) struct LocalSentenceFrame {
     source_seed: String,
     language: String,
     candidates: Vec<(usize, String, String)>,
+}
+
+fn local_candidate_previews(
+    snapshot: &Snapshot,
+    candidates: &[Candidate],
+) -> CompositionCandidatePreviews {
+    let mut previews = composition_candidate_previews(
+        &snapshot.seed_text,
+        &snapshot.active_language,
+        candidates,
+        6,
+        4,
+    );
+    if !previews
+        .sentences
+        .iter()
+        .any(|(index, _)| *index == snapshot.selected_index)
+        && let Some(last) = previews.sentences.last_mut()
+        && let Some(candidate) = candidates.get(snapshot.selected_index)
+    {
+        // Keep all engine choices reachable without increasing the card budget.
+        // Numbers still address display slots; cards retain the exact source.
+        *last = (snapshot.selected_index, candidate.label.clone());
+    }
+    previews
 }
 
 fn is_action_repeat(
@@ -106,6 +130,11 @@ impl PanelState {
     }
 
     pub(super) fn reconfigure_model_provider(&mut self) {
+        // Settings submits preferences through the main window; it owns no
+        // confirmed provider. Do not replace its service errors or draft state.
+        if self.kind != PanelWindowKind::Main {
+            return;
+        }
         if self.native.showing {
             self.engine.configure_prediction(None);
             return;
@@ -204,6 +233,27 @@ impl PanelState {
         self.completion_history.clear();
     }
 
+    pub(super) fn refresh_composition_selection(&mut self) {
+        let snapshot = self.engine.snapshot();
+        let desired = local_candidate_previews(&snapshot, self.engine.candidates());
+        if self
+            .chrome
+            .sentence_candidate_source_indices
+            .iter()
+            .copied()
+            .ne(desired.sentences.iter().map(|(index, _)| *index))
+            || self
+                .chrome
+                .sentence_candidates
+                .iter()
+                .ne(desired.sentences.iter().map(|(_, label)| label))
+        {
+            // Only a changed projection retires its presentation and held cards.
+            // Moving among cards already drawn does not invalidate their payloads.
+            self.refresh_composition_candidates();
+        }
+    }
+
     pub(super) fn refresh_composition_candidates(&mut self) {
         if self.native.showing {
             self.refresh_native_view();
@@ -211,13 +261,7 @@ impl PanelState {
         }
         let snapshot = self.engine.snapshot();
         self.chrome.composed_tokens = self.completion_history.labels();
-        let previews = composition_candidate_previews(
-            &snapshot.seed_text,
-            &snapshot.active_language,
-            self.engine.candidates(),
-            6,
-            4,
-        );
+        let previews = local_candidate_previews(&snapshot, self.engine.candidates());
         let sentence_frame = LocalSentenceFrame {
             display_seed: self.chrome.seed_text.clone(),
             source_seed: snapshot.seed_text,

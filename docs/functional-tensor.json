@@ -2,10 +2,10 @@
   "schema_version": 1,
   "snapshot": {
     "date": "2026-11-13",
-    "head": "d97fd1cbc481f4649a4a3db77a54e6e0c8d29b8c",
+    "head": "8cf5b4248f48f14e18a193af9f32d4fd9aebbb52",
     "dirty": true,
-    "source_sha256": "e172d31e0a21d7b1b41b61a4c7574084f67adc23249664220efd5357e70bab28",
-    "note": "0.10.4/build54仅源码版本准备，基线d97fd1cbc481f4649a4a3db77a54e6e0c8d29b8c，用户明确仅提交推送，不创建tag/Release/安装包或恢复自动化。收录其后候选/预览精确身份、Enter误兜底防护、原生保稿与跨目标ACK隔离、设置暂停纯文字、候选退格、快捷键持键、语音停止与手写旧手势及小报告反馈修正；各批真实红绿和限制保留在docs/history/2026-11/architecture-boundaries.md。失焦缓存只存最近一份退休稿于内存，由明确输入手势恢复，不自动跨框发送，不是持久多稿历史。197旧证据与79评分/限制保持，完整升版验收另见docs/history/2026-11/release-0.10.4.md，不以旧345或旧版本结果代替。预测v1、默认模型/预算、词库/25包/SDK、宿主、依赖不变；无新物理输入、真实WM调度、ASR、实模、性能、跨平台、个人安装或远端CI/发行验收承诺。下载仍为已验收0.10.2，不改个人服务/配置。"
+    "source_sha256": "670662ab5132c60183de024a0a1ee95f50d0f29309d1f149a9c58c529da955ba",
+    "note": "0.10.5/build55提交前源码准备快照，基线8cf5b4248f48f14e18a193af9f32d4fd9aebbb52。汇总工具ACK反馈保真、命令持键、手写触点/采样边界、报告交互身份、本地选中候选投影与实际呈现Enter门禁、Settings provider归属/失焦滚动收尾和完全遮挡指针授权修正。206旧证据与79评分限制、逐轮真实失败保留；本版完整本地验收独立于此前局部结果，实际结果与边界见docs/history/2026-11/release-0.10.5.md。词库/25包/SDK/依赖/模型协议预算不变，不新增跨窗口持键转移，不称物理输入、真实WM、个人IBus、真模型、性能或跨平台运行验收。按源码更新提交推送，不创建tag/Release/安装包、不改个人安装服务配置、不恢复自动化；下载仍为已验收0.10.2。"
   },
   "architectures": [
     {
@@ -4595,6 +4595,136 @@
       ],
       "scope": "2026-11-13版本0.10.4/build54完整本地源码与私有UI验收；仅提交推送，不是准确提交远端CI/发行、个人桌面或实模验收。",
       "note": "基线d97fd1cbc481f4649a4a3db77a54e6e0c8d29b8c，用户明确仅源码提交推送，不tag/Release/安装包或恢复自动化，下载保留0.10.2。收录候选完整身份/手势preview、Enter误兜底防护、跨target pending/ACK隔离、设置暂停typing-only、焦点/退休稿手动恢复、候选退格/重叠录制持键、语音停止/手写旧手势、小报告字形反馈；各批真红绿及限制不改不相加。单槽内存退休稿不是持久/多稿或最新权威状态，不带send状态、不自动重放，仅显式输入手势恢复，新active/本地编辑清旧槽。升版前1097tracked文件，仅五metadata八值精确投影改变，其余1092旧文件保持；两既有pyc不提交不删除。升版后同一冻结693source独立流水线原进程实际exit0，完整Cargo含Doc-tests目标332唯一组3172过/0失败/39原ignore/零筛除；另私有UI24唯一单项与settings4唯一单项全过，六phase/code均0。严格all-target/all-feature locked/offline Clippy -D warnings实际0/1m17s，格式过；最终静态与文档复核结果见历史。不组合旧345、内部向量、预检查或0.10.3旧full101/143，不据新成功反推旧原因。源码前后逐项SHA一致，manifest SHA256=05e3294eedadb81171ef473c14f8e7319e5004baa53a3f11685d1f9225d9046a，source digest=e172d31e0a21d7b1b41b61a4c7574084f67adc23249664220efd5357e70bab28；日志/tmp/suzaku-release-0.10.4.kWieuR/，关键log hash见历史。保197旧证据/79评分限制；无词库/25包/SDK/模型协议v1/预算/宿主/依赖或个人安装配置变化，无物理键盘/真实WM、ASR、真模型、性能/跨平台或远端CI承诺。"
+    },
+    {
+      "id": "E-panel-command-hold-ack-feedback",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel/input.rs",
+        "src/bin/panel/keyboard.rs",
+        "src/bin/panel/native_sync.rs",
+        "src/bin/panel/keyboard_native_test.rs",
+        "src/bin/panel/tool_chain_audit_test.rs"
+      ],
+      "scope": "2026-11-13工具ACK反馈与主窗命令/compact边界；私有X11按键、合成语音和callee序列，不是物理键盘、个人WM/IBus或ASR验收。",
+      "note": "A成功ACK源不匹配B仍覆盖B忙碌保留提示，新增正常源/不同文本新源/同文新generation三向量冻结RED101，finish_native_insertion仅源真正退休返回true后显示成功，replacement屏障不变，GREEN0/0.67秒。真实X11第二press硬验winit.repeat=true，I插入转编辑后旧码漏i成helloi，RED101/4.95秒；复用有限hold集合，仅I及Digit1 fallback执行前注册，对应真实release解除，原录制/IME清理/失焦清理保留。释放后新press及repeat正例helloii/abc11，数字选候选不改。仅修hold同exact到compact Backspace/Space改稿hell空格，RED101/4.48秒；compact普通focusing路径保完整engineSnapshot及非空CompletionHistory，拒绝隐藏编辑且Focused不focusInput。第一版拦截误挡F1后Esc，真实RED101/4.45秒，加入!settings_open保持分流后同frozen GREEN0/4.13秒。新增359键盘行与93工具行，旧代码/断言/step11/key>=28/20秒全保留；Focused额外事件为callee模拟，voice为合成桥。统一终局相关链数量/hash及限制见历史，日志/tmp/suzaku-bugfix-tool-ack.qWMgWn/，693source冻结SHA256=83ce8c782e405b960a15913e5bfde8fb9c5016d8162d57e71cbd3485a8a2134d。198旧证据/79评分限制保留，版本0.10.4/build54、词库/包/SDK/模型/宿主/依赖不变；未提交推送、重装、改个人配置或恢复自动化，不称全仓/远端验收。"
+    },
+    {
+      "id": "E-handwriting-touch-sampling-boundaries",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel.rs",
+        "src/bin/panel/controller.rs",
+        "src/bin/panel/input.rs",
+        "src/bin/panel/handwriting.rs",
+        "src/bin/panel/windowing.rs",
+        "src/bin/panel/tool_chain_audit_test.rs"
+      ],
+      "scope": "2026-11-13私有呈现画布的受控winit Touch/Focused及纯CPU采样；不是物理触屏、真实WM/个人IBus或识别质量验收。",
+      "note": "首次canvas fixture缺可见画布101保留且不当产品RED；仅新增准备helper调用生产fit并1秒内等真实viewport稳定，目标断言不改。df0冻结真实foreign Started拆笔RED101/7.49秒，修(device,id)首指持有/foreign拒绝和terminal释放后，同exact独立Focus(false)保新笔迹但旧候选RED101/7.69秒；失焦复用finish识别、不自动插入，同freeze GREEN0/7.65秒。完整旧代码只透传ActiveEventLoop，其他旧身体/断言/期限保持。增量冻结4b04c9ccda3d2b2a04f6a73c7f0856469fc2a79cc68790f4e6ac32d862f96700保留df0全部断言，owner Cancelled/CloseRequested/fold展开及旧尾事件/新触点、touch持有期间鼠标事件隔离GREEN0/7.88秒；CloseRequested只测PanelState取消和flag，不冒称个人隐藏重开。focus/cancel/通用hide/compact与两个close置flag入口均清持有，几何刷新只取消旧操作不移交仍按住的触点。padding每轴限half并upper.max(lower)防f32小数反转，alpha双[0,1]归一化后排序；2普通父测试fresh current_exe exact/env_clear/完成marker隔离OnceLock，6几何/4平滑内部case原码RED101/0.05秒，修后2/2 GREEN0/0.04秒，默认两类设备三档数值精确保真。统一相关链与hash见历史，日志/tmp/suzaku-bugfix-handwriting.2Ktxb6/；693source冻结SHA256=a6bf986fa2c778cbe595051b37114033361ca7d2e96e89ccd03df8d78a3cd92a。199旧证据/79评分限制保持，不计内部case为顶层测试，不称全仓/远端/任意非法几何验收；模型/词库/包/SDK/宿主/依赖/版本不变，未提交推送、安装、改个人服务配置或恢复自动化。"
+    },
+    {
+      "id": "E-report-held-device-boundaries",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel/keyboard.rs",
+        "src/bin/panel/report_window.rs",
+        "src/bin/panel/report_view.rs",
+        "src/bin/panel/report_native_test.rs"
+      ],
+      "scope": "2026-11-13私有Xvfb自有设置窗真实X11按键路由、同窗报告返回及受控winit触点身份；不是物理键盘/触屏或真实WM调度验收。",
+      "note": "原mandatory报告旧同步主体359行/旧断言保真，新增异步29实收key transitions与9个winit repeat硬断言，20秒新阶段截止，外90秒/exact不变。冻结3a772bc1bf9b4e6e23be15a21e3617534a6e5aab7365fa810d7bcc9ac7c7145f，旧码报告Backspace press→呈现鼠标Close返回同窗→未release第二press硬验repeat=true，query变retained quer而非retained query，真实RED101/5.86秒。引入中性hold_owned_key/consume_owned_hold并保留旧wrapper，report press只登记不阻导航repeat，release先除归属再按原Esc匹配关闭；begin/替换/end保holds，report Focused(false)直接清理不触宿主IME焦点。四键向量含Backspace、report新A、真实录制拒绝A进入+替换无间隙重认领、report内release，恢复后新press+repeat均正常；PageDown repeat与Esc非repeat press/匹配release保留。仅修holds同frozen独立在异device同id Next page0→1 RED101/5.76秒；Touch私有身份扩为(DeviceId,u64)，window原样传事件双字段，5旧unit构造只补dummy、原press/release及第二source取消/geometry/present策略逐字保持，Mouse不变。同frozen完整GREEN0/5.60秒，Next/Close异device拒绝、旧A尾事件无效、新完整同源正常。两个opaque设备值来自真实自有X11 Key事件与dummy且先assert_ne，Touch为受控callee，不冒称双触摸硬件或后端必有物理唯一ID。共享容器仍排除Unknown和纯modifier，不跨已销毁窗口转移按键。最终相关统一验收和hash见历史，日志/tmp/suzaku-bugfix-report-holds.2JmFQW/；693source冻结SHA256=853c56be843785e7b2cac6f7f9821689109332238396b06f86d409d8fd60e1ee。200旧证据/79评分限制保留；模型/词库/包/SDK/宿主/依赖/版本无变化，未提交推送、安装、改个人配置或恢复自动化，不称全仓或本轮远端验收。"
+    },
+    {
+      "id": "E-settings-model-ownership",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel/composition.rs",
+        "src/bin/panel/settings_chain_audit_test.rs"
+      ],
+      "scope": "2026-11-13私有Xvfb设置窗口呈现/点击callee、合成服务错误及空草稿模型配置；不是真实模型请求、个人设置或物理输入验收。",
+      "note": "Settings构造无confirmed provider却响应On/Tone重配，覆写仍可见的Input method error为不可见普通配置错误。原first_status mandatory exact只追加helper，旧主体/断言/门禁不变；测试冻结38ab7ca9c28a193b99a03413a6a66e6b10d8cff84969937072305cc84a49196b，旧码On覆写字段RED101/0.96秒，整设置脚本实际exit1。reconfigure_model_provider最前仅允许Main，Settings既不造错误也不重置engine/seed；同冻结设置4项全过/脚本exit0，目标exact1.09秒。有/无服务错误两组On/Focused/Expressive/Off共8内部动作检查原反馈/ticks/overlay/engine候选与seed保留、辅助预测Disabled；两窗值与edit generation同步，Main有效确认配置空稿Idle/关闭Disabled、配置缺失仍报真错误、恢复配置清错。空稿不请求模型，不扩大为endpoint/temperature真实HTTP验收。统一相关终局与hash见历史，日志/tmp/suzaku-bugfix-settings-model.MHQbr5/。仅2个本轮旧源码/测试文件变化，201旧证据/79评分限制保留；无提交推送、安装、个人服务配置或自动化变化。"
+    },
+    {
+      "id": "E-local-selection-visibility",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel/composition.rs",
+        "src/bin/panel/controller.rs",
+        "src/bin/panel/candidate_keyboard_native_test.rs"
+      ],
+      "scope": "2026-11-13私有Xvfb呈现、生产选择/Enter callee与六项合成插件、本地拒绝ACK；不是物理键盘、个人IBus或实模验收。",
+      "note": "原Enter mandatory exact仅追加两个helper和1调用，215新增行/原主体断言期限逐字保持；冻结7439384fd145c63710523a84ea47455e7cfa082d4b794bb750598f92992fcb7d。原码选第5项未present即Enter多发1请求，实际RED101/4.52秒；只修投影后同冻测试独立到Translation隐藏全部卡却默认发送，RED101/4.67秒。独立面板保前3锚点，末槽展示选中真实source/label/payload；先建投影再绑定LocalSentenceFrame，变化退役旧手势/scene，回前区恢复默认4项；边界/零移动不脏化、不额外激活bridge。Enter本地显式与原primary均须resolve及实际Candidate target，总呈现/几何门禁保持，不可见直接拒绝而非换词；native早返回分支不改。同frozen完整GREEN0/5.00秒，核实际CandidatePrimary绘制标题+非零target、5/6可达、显示前零发送、显示后精确payload与拒绝保稿、返回默认映射、槽4采用第6为可撤销编辑、Translation显式/default零发送且seed/history/snapshot保持、重显后可发送、空稿不注卡。现有英文hello/help与native用例保留，未另测真实模型。refresh_composition_selection只供当前同步选择移动，不能替代异步/语言/草稿更新的完整刷新。统一相关终局与hash见历史，日志/tmp/suzaku-bugfix-visible-selection.ryBrt8/；202旧证据/79评分限制保留，不改共享候选策略/词库/包/SDK/模型协议预算/宿主/依赖/版本，无提交推送、安装、个人服务配置或自动化变化。"
+    },
+    {
+      "id": "E-occluded-pointer-boundaries",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel/input.rs",
+        "src/bin/panel/report_window.rs",
+        "src/bin/panel/candidate_keyboard_native_test.rs",
+        "src/bin/panel/report_native_test.rs"
+      ],
+      "scope": "2026-11-13私有Xvfb真实呈现与生产Occluded/指针callee、临时ACK及只读报告；不是实际WM盖窗或物理输入验收。",
+      "note": "vendor X11 VisibilityNotify实际发Occluded，Main旧处理只撤lease不退役指针。冻结Main测试573b9c5e200fb6962cfc616e98d838ec67616d83c48314506125011435ea67aa，旧mouse press→true→release已发hello，RED101/5.44秒；仅取消/失效后同冻到covered redraw新press仍授权，RED101/5.40秒。Main只在bool变化invalidate，转true先cancel_primary+clear_hover；重复false保可见按压。共用pointer分类gate置touch owner分配前，拒绝遮挡期新输入，生命周期/重绘/键盘/IME不拦。Main mouse/touch四种旧尾释放时序、covered render新手势/owner拒绝、复显未present拒绝、新呈现完整手势精确hello+ACK0保稿及重复false正例，同exactGREEN0/5.42秒。冻结报告1ec9578d216bbeb98464e1879a6d5e8bcb362b8825968b6f1e350d823d9c419a，旧报告whiletrue重绘后新Next page0→1 RED101/5.88秒；报告入口复用gate，不改原invalidate/键盘页策略，同exact完整GREEN0/6.35秒，含旧真实X11持键/双device触点回归。报告新增Mouse/Touch旧press跨遮挡不复活、whiletrue每次render后的Next/Close与wheel拒绝、false未present拒绝、重显Mouse/Touch Next与Mouse Close正例，immutable源/EditingState/main/配置字节不变。旧全部测试主体/断言/期限逆投影保留，新增CPU分类父测试不冒充硬件，内部向量不单计顶层。统一相关终局与hash见历史，日志/tmp/suzaku-bugfix-occluded-input.gaLk6x/；203旧证据/79评分限制保持。分类目前仅覆盖已有有效pointer handlers，未来新增手势需同步；不扩大到partial遮挡rect或未发Occluded后端保证。不改词库/包/SDK/模型协议预算/宿主/依赖/版本，无提交推送、安装、个人服务配置或自动化变化。"
+    },
+    {
+      "id": "E-settings-scroll-focus",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel/controller.rs",
+        "src/bin/panel/settings_chain_audit_test.rs"
+      ],
+      "scope": "2026-11-13私有Xvfb辅助Settings真实小视口/滚动条呈现，生产PanelApp事件路由与受控鼠标、触摸和焦点转换；不是物理输入或真实WM切窗。",
+      "note": "原mandatory first-status exact只追加helper与调用，旧主体/断言/期限逐字保留。冻结测试5ae350a177fabc07be2bc98497a0f12ca1e31cbea2c5ac69d3b39024267fa32d：520×420实际视口先正常drag，失焦后具体release被原门禁过滤，回焦只CursorMoved，旧码scroll offset41.106834→50.2417；首exact RED101/3.72秒，四项脚本实际exit1。仅在set_window_focus的真实false转换调用end_settings_scroll_drag，结束flag/anchor不改实际offset；相同focused早返回保持。相同冻结exact GREEN0/3.82秒，四项脚本实际exit0。覆盖mouse/touch起始、失焦释放过滤、旧touch tail与后续无press鼠标移动均不滚、fresh完整drag正例、重复Focused(true)不终止合法拖动；两窗草稿/翻译/完整引擎/PersistedDisplaySettings和私有配置原字节保持，最后还原窗口/导航状态。不假造Main内嵌Settings滚动或更改no-focus后端语义。统一相关终局见历史，日志/tmp/suzaku-bugfix-scroll-focus.T21SKt/；保留204旧证据与79评分限制。不改词库/包/SDK/模型协议预算/宿主/依赖/版本，无提交推送、安装、个人服务配置或自动化变化。"
+    },
+    {
+      "id": "E-settings-command-holds",
+      "kind": "historical_run",
+      "paths": [
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel/input.rs",
+        "src/bin/panel/settings_keyboard.rs",
+        "src/bin/panel/keyboard_native_test.rs",
+        "tests/panel_auxiliary_recovery.rs"
+      ],
+      "scope": "2026-11-13同一私有Settings窗口，注入X11按键经实际winit/生产输入分派；不是物理键盘或Main→Settings跨窗持键验收。",
+      "note": "原mandatory recording exact七处纯新增350行，旧主体/六pressed计数/20秒总期限逐字保持；冻结4753940f577be6fc62f3cfa0b11ddbb141757b6cc668011b0d815c261371bdd0。每命令8项真实winit转换，核physical/repeat/command CONTROL及尾repeat空modifier。旧Ctrl+,在未释Comma且先释Ctrl后Text→Text,，RED101/.77秒；只补通用设置命令hold后，同冻继续到CtrlF Text→Textf，RED101/.82秒。设置命令接受后登记event.physical_key，搜索predicate由两入口共享且保留原logical f/F与精确Ctrl/macSuper条件；录制/preedit gates、未知physical不保留、真实release退休及焦点规则均不改。完整同冻GREEN0/.90秒：两命令初始搜索未focus、命令动作确实发生、未释放repeat不漏字，真实release后fresh/plain repeat分别得到Text,,与Textff；source/translation/full engine/preferences/binding generation及私有配置存在/缺失和原字节保持。初轮扩展CPU夹具抽取生产分支缺event/hold依赖编译失败，保留原失败；补显式identity/hold stub与内层分支断言，不strip生产line、不动旧assert。该直接分支测试绕过composing gate，仅证明已接受请求不抹preedit，不是合成输入验收。完整最终相关流水线与hash见历史，日志/tmp/suzaku-bugfix-settings-holds.MmHkRn/。205旧证据/79评分限制和前轮修正保留；词库/包/SDK/模型协议预算/宿主/依赖/版本不变，无提交推送、安装、个人服务配置或自动化变化。"
+    },
+    {
+      "id": "E-source-0.10.5",
+      "kind": "historical_run",
+      "paths": [
+        "docs/releases/0.10.5.md",
+        "docs/history/2026-11/release-0.10.5.md",
+        "docs/history/2026-11/architecture-boundaries.md",
+        "src/bin/panel.rs",
+        "src/bin/panel/composition.rs",
+        "src/bin/panel/controller.rs",
+        "src/bin/panel/handwriting.rs",
+        "src/bin/panel/input.rs",
+        "src/bin/panel/keyboard.rs",
+        "src/bin/panel/native_sync.rs",
+        "src/bin/panel/report_view.rs",
+        "src/bin/panel/report_window.rs",
+        "src/bin/panel/settings_keyboard.rs",
+        "src/bin/panel/windowing.rs",
+        "src/bin/panel/candidate_keyboard_native_test.rs",
+        "src/bin/panel/keyboard_native_test.rs",
+        "src/bin/panel/report_native_test.rs",
+        "src/bin/panel/settings_chain_audit_test.rs",
+        "src/bin/panel/tool_chain_audit_test.rs",
+        "tests/panel_auxiliary_recovery.rs"
+      ],
+      "scope": "2026-11-13版本0.10.5/build55完整本地源码与私有UI验收；源码提交推送，不是准确新提交远端CI/发行、个人桌面或真实模型验收。",
+      "note": "基线8cf5b4248f48f14e18a193af9f32d4fd9aebbb52，按本轮请求准备源码提交推送，不tag/Release/安装包或恢复自动化，下载仍0.10.2。汇总旧成功ACK不误报新源、I/1与报告/同Settings命令键归属、compact保稿、手写device+id独占/失焦识别/采样clamp边界、报告触点身份、本地5/6候选可见投影与实际target Enter门禁、Main provider归属、Settings失焦滚动收尾及完全遮挡pointer授权。录制/preedit、真实release、普通repeat、键盘/IME原策略保留，不新增跨窗口持键转移，不称全隐藏输入禁用。逐批真RED/夹具失败及限制原样保存不相加。升版前1099tracked文件，仅5metadata8值精确逆投影变化；补文档后恰8旧文件变化，其余1091保持，原业务断言/期限保留且必要夹具/类型依赖同步。升版后同一冻结693source独立全量流水线原进程实际exit0：完整Cargo含Doc-tests目标332唯一组3175过/0失败/39原ignore/零筛除；另私有UI24唯一单项、settings4唯一单项全过，六phase/code均0。仅2手写+1pointer分类普通父测试新增，内部子进程/夹具/事件向量不另计。严格all-target/all-feature locked/offline Clippy -D warnings实际0/1m18s，格式过；最终静态文档与提交范围回执由本轮日志审计。manifest SHA256=c33515b3832dda133ee0107e9ec946656026011da3717a78c2ce3d2abfd824ae，source digest=670662ab5132c60183de024a0a1ee95f50d0f29309d1f149a9c58c529da955ba，日志/tmp/suzaku-release-0.10.5.YObtCE/，关键log hash见历史。保206旧证据与79评分限制；词库/25包/SDK/模型协议v1/预算/宿主/依赖无变化，无个人安装配置/真实物理输入/WM、实模、性能或跨平台运行承诺。"
     }
   ],
   "cells": [
@@ -5473,6 +5603,7 @@
         2
       ],
       "evidence": [
+        "E-panel-command-hold-ack-feedback",
         "E-source-0.10.4",
         "E-panel-detached-recovery-backspace",
         "E-panel-recovery-suspension-boundaries",
@@ -5494,6 +5625,10 @@
         2
       ],
       "evidence": [
+        "E-source-0.10.5",
+        "E-occluded-pointer-boundaries",
+        "E-local-selection-visibility",
+        "E-panel-command-hold-ack-feedback",
         "E-source-0.10.4",
         "E-panel-detached-recovery-backspace",
         "E-panel-recovery-suspension-boundaries",
@@ -5524,6 +5659,8 @@
         2
       ],
       "evidence": [
+        "E-source-0.10.5",
+        "E-handwriting-touch-sampling-boundaries",
         "E-panel-preview-target-boundaries",
         "E-tools",
         "E-linux-delivery"
@@ -5541,6 +5678,7 @@
         2
       ],
       "evidence": [
+        "E-panel-command-hold-ack-feedback",
         "E-panel-candidate-capture-boundaries",
         "E-tools",
         "E-linux-delivery"
@@ -5660,6 +5798,11 @@
         2
       ],
       "evidence": [
+        "E-source-0.10.5",
+        "E-settings-command-holds",
+        "E-settings-scroll-focus",
+        "E-occluded-pointer-boundaries",
+        "E-report-held-device-boundaries",
         "E-panel-exact-identity-feedback",
         "E-source-0.10.3",
         "E-panel-input-handoff",
@@ -5708,6 +5851,8 @@
         2
       ],
       "evidence": [
+        "E-source-0.10.5",
+        "E-settings-model-ownership",
         "E-panel-recovery-live-settings",
         "E-panel-settings-sync",
         "E-settings",

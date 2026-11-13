@@ -161,8 +161,423 @@ fn audit_first_status_must_preserve_a_startup_ui_edit() {
                 "PASS: click after initial status survives refresh and acknowledgement: {selected:?}"
             );
         }
+        check_settings_scroll_focus_boundaries(app, events);
+        check_settings_model_ownership(app, events);
         findings
     });
+}
+
+fn check_settings_scroll_focus_boundaries(app: &mut PanelApp, events: &ActiveEventLoop) {
+    use crate::app_state::PersistedDisplaySettings;
+    use suzaku_map::ime::gpu::SettingsCategory;
+    use winit::{
+        dpi::{PhysicalPosition, PhysicalSize},
+        event::{DeviceId, ElementState, MouseButton, Touch, TouchPhase},
+    };
+
+    let settings = app.settings.as_ref().unwrap();
+    let window = settings.window.id();
+    let original_size = settings.size;
+    let original_focus = settings.is_focused;
+    let original_cursor = settings.cursor_position;
+    let original_settings = settings.chrome.clone();
+    let original_panel = app.panel.as_ref().unwrap().chrome.clone();
+    assert!(!settings.runs_without_window_focus);
+    assert!(!settings.native.occluded);
+    assert!(!settings.interaction.settings_scroll_dragging);
+    assert!(!settings.chrome.llm_enabled);
+    assert!(!original_panel.llm_enabled);
+    let settings_source = (
+        settings.chrome.seed_text.clone(),
+        settings.chrome.translation.clone(),
+        settings.engine.snapshot(),
+        PersistedDisplaySettings::from(&settings.chrome),
+    );
+    let panel = app.panel.as_ref().unwrap();
+    let panel_source = (
+        panel.window.id(),
+        panel.chrome.seed_text.clone(),
+        panel.chrome.translation.clone(),
+        panel.engine.snapshot(),
+        PersistedDisplaySettings::from(&panel.chrome),
+    );
+    let saved_before = [
+        display_settings_path(),
+        PathBuf::from(std::env::var_os("SUZAKU_IME_CONFIG").unwrap()),
+    ]
+    .map(|path| {
+        let bytes = fs::read(&path).expect("existing private fixture configuration");
+        (path, bytes)
+    });
+    let check_source = |app: &PanelApp| {
+        let settings = app.settings.as_ref().unwrap();
+        assert_eq!(settings.window.id(), window);
+        assert!(settings.report_view.is_none());
+        assert_eq!(settings.chrome.seed_text, settings_source.0);
+        assert_eq!(settings.chrome.translation, settings_source.1);
+        assert_eq!(settings.engine.snapshot(), settings_source.2);
+        assert_eq!(
+            PersistedDisplaySettings::from(&settings.chrome),
+            settings_source.3
+        );
+        let panel = app.panel.as_ref().unwrap();
+        assert_eq!(panel.window.id(), panel_source.0);
+        assert_eq!(panel.chrome.seed_text, panel_source.1);
+        assert_eq!(panel.chrome.translation, panel_source.2);
+        assert_eq!(panel.engine.snapshot(), panel_source.3);
+        assert_eq!(
+            PersistedDisplaySettings::from(&panel.chrome),
+            panel_source.4
+        );
+    };
+    let pointer = |app: &mut PanelApp, touch: bool, phase, at: (f32, f32)| {
+        let position = PhysicalPosition::new(f64::from(at.0), f64::from(at.1));
+        if touch {
+            app.window_event(
+                events,
+                window,
+                WindowEvent::Touch(Touch {
+                    device_id: DeviceId::dummy(),
+                    phase,
+                    location: position,
+                    force: None,
+                    id: 472,
+                }),
+            );
+        } else {
+            if matches!(phase, TouchPhase::Started | TouchPhase::Moved) {
+                app.window_event(
+                    events,
+                    window,
+                    WindowEvent::CursorMoved {
+                        device_id: DeviceId::dummy(),
+                        position,
+                    },
+                );
+            }
+            if matches!(phase, TouchPhase::Started | TouchPhase::Ended) {
+                app.window_event(
+                    events,
+                    window,
+                    WindowEvent::MouseInput {
+                        device_id: DeviceId::dummy(),
+                        state: if phase == TouchPhase::Started {
+                            ElementState::Pressed
+                        } else {
+                            ElementState::Released
+                        },
+                        button: MouseButton::Left,
+                    },
+                );
+            }
+        }
+    };
+
+    for touch in [false, true] {
+        let settings = app.settings.as_mut().unwrap();
+        settings.chrome.settings_category = SettingsCategory::Appearance;
+        settings.chrome.settings_search_query.clear();
+        settings.chrome.settings_search_focused = false;
+        settings.chrome.settings_keyboard_focus = None;
+        settings.chrome.settings_collapsed_sections.fill(false);
+        let requested = PhysicalSize::new(520, 420);
+        let _ = settings.window.request_inner_size(requested);
+        let actual = settings.window.inner_size();
+        assert_eq!(
+            actual, requested,
+            "the scrollbar fixture needs a real small viewport"
+        );
+        settings.resize(actual.width, actual.height);
+        // Establish a real transition: an already-false focus flag would skip
+        // the production loss handler rather than reproduce this Settings bug.
+        app.window_event(events, window, WindowEvent::Focused(true));
+        let settings = app.settings.as_mut().unwrap();
+        assert!(settings.is_focused);
+        assert!(!settings.runs_without_window_focus);
+        settings
+            .render()
+            .expect("present the actual Settings surface");
+        assert!(settings.interaction.settings_scroll_max_offset > 0.0);
+        assert!(settings.interaction.settings_scroll_drag_range > 0.0);
+        settings.set_settings_scroll_offset(settings.interaction.settings_scroll_max_offset * 0.35);
+        settings
+            .render()
+            .expect("present an interior scrollbar position");
+        let scene = settings.last_scene.as_ref().unwrap();
+        let handle = scene
+            .interactive_targets
+            .iter()
+            .find(|target| target.kind == InteractionKind::SettingsScrollHandle)
+            .expect("the presented scrollbar handle must be reachable")
+            .rect;
+        let at = (handle[0] + handle[2] * 0.5, handle[1] + handle[3] * 0.5);
+        assert_eq!(
+            scene.hit_interaction(at.0, at.1),
+            Some(InteractionKind::SettingsScrollHandle)
+        );
+        let initial_offset = settings.chrome.settings_scroll_offset;
+        let delta = (settings.interaction.settings_scroll_drag_range * 0.1).min(8.0);
+        assert!(initial_offset > 0.0);
+        assert!(initial_offset < settings.interaction.settings_scroll_max_offset);
+        assert!(delta > 0.0);
+        pointer(app, touch, TouchPhase::Started, at);
+        let settings = app.settings.as_ref().unwrap();
+        assert!(settings.interaction.settings_scroll_dragging);
+        assert_eq!(
+            settings.interaction.settings_scroll_drag_start_y,
+            Some(at.1)
+        );
+        assert_eq!(
+            settings.interaction.settings_scroll_drag_start_offset,
+            initial_offset
+        );
+        app.window_event(events, window, WindowEvent::Focused(true));
+        assert!(
+            app.settings
+                .as_ref()
+                .unwrap()
+                .interaction
+                .settings_scroll_dragging,
+            "duplicate focused=true must not retire a valid drag"
+        );
+        pointer(app, touch, TouchPhase::Moved, (at.0, at.1 + delta));
+        let retained_offset = app.settings.as_ref().unwrap().chrome.settings_scroll_offset;
+        assert!(
+            retained_offset > initial_offset,
+            "the original drag must actually scroll: touch={touch}"
+        );
+        check_source(app);
+
+        app.window_event(events, window, WindowEvent::Focused(false));
+        assert!(!app.settings.as_ref().unwrap().is_focused);
+        // A concrete release may arrive at an unfocused Settings window and be
+        // filtered. The reproducer does not assume the backend drops it outright.
+        pointer(app, touch, TouchPhase::Ended, (at.0, at.1 + delta));
+        assert_eq!(
+            app.settings.as_ref().unwrap().chrome.settings_scroll_offset,
+            retained_offset
+        );
+        app.window_event(events, window, WindowEvent::Focused(true));
+        assert!(app.settings.as_ref().unwrap().is_focused);
+        if touch {
+            pointer(app, true, TouchPhase::Moved, (at.0, at.1 + delta * 2.0));
+            assert_eq!(
+                app.settings.as_ref().unwrap().chrome.settings_scroll_offset,
+                retained_offset
+            );
+        }
+        // Blur already clears touch ownership. A later ordinary mouse move is
+        // the externally observable ghost scroll for both gesture origins.
+        pointer(app, false, TouchPhase::Moved, (at.0, at.1 + delta * 2.0));
+        let settings = app.settings.as_ref().unwrap();
+        assert_eq!(
+            settings.chrome.settings_scroll_offset, retained_offset,
+            "focus return without a fresh press must not continue an old scroll drag: touch={touch}"
+        );
+        assert!(!settings.interaction.settings_scroll_dragging);
+        assert_eq!(settings.interaction.settings_scroll_drag_start_y, None);
+        assert_eq!(settings.interaction.settings_scroll_drag_start_offset, 0.0);
+        assert!(settings.interaction.touch_owner.is_none());
+        check_source(app);
+
+        let settings = app.settings.as_mut().unwrap();
+        settings
+            .render()
+            .expect("present a fresh scrollbar gesture");
+        let handle = settings
+            .last_scene
+            .as_ref()
+            .unwrap()
+            .interactive_targets
+            .iter()
+            .find(|target| target.kind == InteractionKind::SettingsScrollHandle)
+            .unwrap()
+            .rect;
+        let at = (handle[0] + handle[2] * 0.5, handle[1] + handle[3] * 0.5);
+        let before_fresh = settings.chrome.settings_scroll_offset;
+        pointer(app, touch, TouchPhase::Started, at);
+        assert!(
+            app.settings
+                .as_ref()
+                .unwrap()
+                .interaction
+                .settings_scroll_dragging
+        );
+        pointer(app, touch, TouchPhase::Moved, (at.0, at.1 + delta));
+        let after_fresh = app.settings.as_ref().unwrap().chrome.settings_scroll_offset;
+        assert!(
+            after_fresh > before_fresh,
+            "a fresh drag must remain usable: touch={touch}"
+        );
+        pointer(app, touch, TouchPhase::Ended, (at.0, at.1 + delta));
+        let settings = app.settings.as_ref().unwrap();
+        assert_eq!(settings.chrome.settings_scroll_offset, after_fresh);
+        assert!(!settings.interaction.settings_scroll_dragging);
+        assert_eq!(settings.interaction.settings_scroll_drag_start_y, None);
+        assert_eq!(settings.interaction.settings_scroll_drag_start_offset, 0.0);
+        assert!(settings.interaction.touch_owner.is_none());
+        check_source(app);
+    }
+
+    app.window_event(events, window, WindowEvent::Focused(original_focus));
+    let settings = app.settings.as_mut().unwrap();
+    settings.chrome = original_settings;
+    settings.cursor_position = original_cursor;
+    let _ = settings.window.request_inner_size(original_size);
+    let actual = settings.window.inner_size();
+    assert_eq!(actual, original_size);
+    settings.resize(actual.width, actual.height);
+    app.panel.as_mut().unwrap().chrome = original_panel;
+    check_source(app);
+    for (path, bytes) in saved_before {
+        assert_eq!(
+            fs::read(path).unwrap(),
+            bytes,
+            "focus/scroll gestures must not persist settings"
+        );
+    }
+    println!(
+        "PASS: controlled real Settings mouse/touch drags stop on focus loss despite filtered releases, stay inert on return without a press, and permit fresh drags without changing source or preferences"
+    );
+}
+
+fn check_settings_model_ownership(app: &mut PanelApp, events: &ActiveEventLoop) {
+    use suzaku_map::ime::PredictionStatus;
+
+    // A valid, disabled local configuration is acknowledged by the main window.
+    // Empty drafts cannot schedule predictions: no model or credential is used.
+    let confirmed = ImeSettings::default();
+    confirmed.save().unwrap();
+    app.ime_settings_sync = Default::default();
+    app.apply_native_settings(confirmed.clone(), false);
+    assert!(app.panel.as_ref().unwrap().chrome.seed_text.is_empty());
+    assert!(
+        app.panel
+            .as_ref()
+            .unwrap()
+            .engine
+            .snapshot()
+            .seed_text
+            .is_empty()
+    );
+    assert!(
+        app.settings
+            .as_ref()
+            .unwrap()
+            .confirmed_model_config
+            .is_none()
+    );
+    for with_error in [true, false] {
+        let settings = app.settings.as_mut().unwrap();
+        settings.is_focused = true;
+        settings.last_commit_feedback = None;
+        settings.commit_feedback_ticks = 0;
+        if with_error {
+            app.show_input_method_error("synthetic host failure; retry explicitly".into());
+        }
+        let settings = app.settings.as_mut().unwrap();
+        crate::native_sync::present_test_frame(settings);
+        assert_eq!(
+            settings
+                .build_commit_feedback(settings.last_scene.as_ref().unwrap())
+                .is_some(),
+            with_error
+        );
+        let feedback = settings.last_commit_feedback.clone();
+        let ticks = settings.commit_feedback_ticks;
+        let engine = settings.engine.snapshot();
+        let candidates = settings.engine.candidates().to_vec();
+        let seed = settings.chrome.seed_text.clone();
+        for (target, search, enabled) in [
+            (InteractionKind::SetLlmEnabled(true), "LLM", true),
+            (
+                InteractionKind::SetLlmTemperature(LlmTemperaturePreset::Focused),
+                "Tone",
+                true,
+            ),
+            (
+                InteractionKind::SetLlmTemperature(LlmTemperaturePreset::Expressive),
+                "Tone",
+                true,
+            ),
+            (InteractionKind::SetLlmEnabled(false), "LLM", false),
+        ] {
+            let before = app
+                .settings
+                .as_ref()
+                .unwrap()
+                .chrome
+                .prediction_edit_generation;
+            click_setting(app, events, target, search);
+            let settings = app.settings.as_ref().unwrap();
+            assert_eq!(
+                settings.last_commit_feedback, feedback,
+                "model controls must preserve settings-owned feedback: {target:?}, with_error={with_error}"
+            );
+            assert_eq!(settings.commit_feedback_ticks, ticks);
+            assert_eq!(settings.engine.snapshot(), engine, "{target:?}");
+            assert_eq!(settings.engine.candidates(), candidates, "{target:?}");
+            assert_eq!(settings.chrome.seed_text, seed, "{target:?}");
+            assert_eq!(
+                settings.engine.prediction_status(),
+                PredictionStatus::Disabled
+            );
+            let scene = settings.last_scene.as_ref().unwrap();
+            assert_eq!(settings.build_commit_feedback(scene).is_some(), with_error);
+            let panel = app.panel.as_ref().unwrap();
+            assert_eq!(panel.chrome.llm_enabled, enabled);
+            assert_eq!(settings.chrome.llm_enabled, enabled);
+            assert_eq!(
+                panel.engine.prediction_status(),
+                if enabled {
+                    PredictionStatus::Idle
+                } else {
+                    PredictionStatus::Disabled
+                }
+            );
+            assert!(
+                panel.last_commit_feedback.is_none(),
+                "valid main configuration: {target:?}"
+            );
+            assert_eq!(
+                panel.confirmed_model_config.as_ref(),
+                Some(&confirmed.provider)
+            );
+            let mut expected_generation = before;
+            let channel = match target {
+                InteractionKind::SetLlmEnabled(_) => 0,
+                InteractionKind::SetLlmTemperature(temperature) => {
+                    assert_eq!(panel.chrome.llm_temperature, temperature);
+                    assert_eq!(settings.chrome.llm_temperature, temperature);
+                    1
+                }
+                _ => unreachable!(),
+            };
+            expected_generation[channel] = expected_generation[channel].wrapping_add(1);
+            assert_eq!(
+                settings.chrome.prediction_edit_generation,
+                expected_generation
+            );
+            assert_eq!(panel.chrome.prediction_edit_generation, expected_generation);
+        }
+    }
+    // The auxiliary guard must not hide a genuine missing configuration in Main.
+    let panel = app.panel.as_mut().unwrap();
+    panel.confirmed_model_config = None;
+    panel.chrome.llm_enabled = true;
+    panel.reconfigure_model_provider();
+    assert_eq!(
+        panel.last_commit_feedback.as_deref(),
+        Some("Check the configured model and endpoint.")
+    );
+    assert_eq!(panel.engine.prediction_status(), PredictionStatus::Disabled);
+    panel.confirmed_model_config = Some(confirmed.provider);
+    panel.reconfigure_model_provider();
+    assert!(panel.last_commit_feedback.is_none());
+    assert_eq!(panel.engine.prediction_status(), PredictionStatus::Idle);
+    println!(
+        "PASS: settings model controls retain service errors and leave prediction ownership in Main; no model request"
+    );
 }
 
 struct RestorePermissions {

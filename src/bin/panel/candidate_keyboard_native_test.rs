@@ -167,6 +167,8 @@ impl ApplicationHandler for KeyboardProbe {
                 sentence_preview_identity_boundaries(&mut state);
                 signal_noop_and_native_case(&mut state);
                 native_recovery_survives_focus_before_editing(&mut state);
+                visible_local_selection_boundaries(&mut state);
+                occluded_pointer_boundaries(&mut state, events);
             }
         }
         self.completed = true;
@@ -598,6 +600,423 @@ fn unresolved_enter_identity(state: &mut PanelState) {
         );
         assert_eq!(state.engine.snapshot(), before);
         assert_eq!(state.chrome, chrome);
+    }
+}
+
+fn assert_visible_local_choice(state: &PanelState, source: usize, caption: &str) {
+    let scene = state
+        .last_scene
+        .as_ref()
+        .expect("actually presented choices");
+    assert!(scene.interactive_targets.iter().any(|target| {
+        target.kind == InteractionKind::Candidate(source)
+            && target.rect[2] > 0.0
+            && target.rect[3] > 0.0
+    }));
+    assert!(
+        scene
+            .text_sections
+            .iter()
+            .filter(|section| section.role == suzaku_map::ime::gpu::TextRole::CandidatePrimary)
+            .flat_map(|section| &section.layouts)
+            .flat_map(|layout| &layout.lines)
+            .any(|line| line.contains(caption)),
+        "the selected caption must be drawn, not merely present in scene metadata"
+    );
+}
+
+fn visible_local_selection_boundaries(state: &mut PanelState) {
+    const ENTRIES: [(&str, &str); 6] = [
+        ("fixture complete payload A", "PickA"),
+        ("fixture complete payload B", "PickB"),
+        ("fixture complete payload C", "PickC"),
+        ("fixture complete payload D", "PickD"),
+        ("fixture complete payload E", "PickE"),
+        ("fixture complete payload F", "PickF"),
+    ];
+    let mut fixture = XRTabletImeEngine::new(EngineConfig::default());
+    fixture.set_preferences_enabled(false);
+    fixture.register_language_plugin(CaptionCandidates(
+        ENTRIES
+            .iter()
+            .enumerate()
+            .map(|(index, (text, label))| Candidate {
+                text: (*text).into(),
+                label: (*label).into(),
+                score: 100.0 - index as f32,
+                kind: suzaku_map::ime::candidate_mix::CandidateKind::Sentence,
+                source: Default::default(),
+            })
+            .collect(),
+    ));
+    fixture.set_language("candidate-caption-qa");
+    let original_engine = std::mem::replace(&mut state.engine, fixture);
+    let original_chrome = state.chrome.clone();
+    let original_history = std::mem::take(&mut state.completion_history);
+    let original_native = std::mem::take(&mut state.native);
+    state.is_focused = false;
+    state.chrome.active_input_mode = InputMode::VirtualKeyboard;
+    let server = AckServer::start();
+    server.ack.store(b'0', Ordering::Release);
+
+    for selected in [4usize, 5] {
+        reset(state);
+        native_sync::present_test_frame(state);
+        assert_eq!(state.engine.candidates().len(), 6);
+        assert!(state.next_token_completions.is_empty());
+        assert_eq!(state.chrome.sentence_candidate_source_indices, [0, 1, 2, 3]);
+        let before = state.engine.snapshot();
+        let scene = state.last_scene.clone();
+        state.move_candidate_selection(0);
+        state.move_candidate_selection(-1);
+        assert_eq!(state.engine.snapshot(), before);
+        assert_eq!(
+            state.last_scene, scene,
+            "boundary navigation must retain presentation"
+        );
+        assert!(state.engine.selected_completion_text(true).is_none());
+
+        state.move_candidate_selection(selected as isize);
+        assert_eq!(state.engine.snapshot().selected_index, selected);
+        let before = state.engine.snapshot();
+        let history = (
+            state.completion_history.revision(),
+            state.completion_history.labels(),
+        );
+        let count = server.requests().len();
+        state.commit_keyboard_candidate();
+        assert_eq!(
+            server.requests().len(),
+            count,
+            "a newly exposed hidden selection must wait for real presentation: {selected}"
+        );
+        assert_eq!(state.engine.snapshot(), before);
+        assert_eq!(
+            (
+                state.completion_history.revision(),
+                state.completion_history.labels()
+            ),
+            history
+        );
+        native_sync::present_test_frame(state);
+        assert_visible_local_choice(state, selected, ENTRIES[selected].1);
+        state.commit_keyboard_candidate();
+        assert_eq!(server.requests()[count..], [ENTRIES[selected].0]);
+        assert_eq!(
+            state.engine.snapshot(),
+            before,
+            "rejected delivery must retain selection"
+        );
+        assert_eq!(state.chrome.seed_text, "hel");
+
+        state.move_candidate_selection(2 - selected as isize);
+        assert_eq!(state.engine.snapshot().selected_index, 2);
+        assert_eq!(state.chrome.sentence_candidate_source_indices, [0, 1, 2, 3]);
+        native_sync::present_test_frame(state);
+        assert_visible_local_choice(state, 2, ENTRIES[2].1);
+        if selected == 5 {
+            state.move_candidate_selection(3);
+            native_sync::present_test_frame(state);
+            assert_visible_local_choice(state, 5, ENTRIES[5].1);
+            assert_eq!(state.chrome.sentence_candidate_source_indices[3], 5);
+            let count = server.requests().len();
+            assert!(state.try_numbered_candidate(3));
+            assert_eq!(state.chrome.seed_text, ENTRIES[5].0);
+            assert_eq!(state.engine.snapshot().seed_text, ENTRIES[5].0);
+            assert!(state.engine.snapshot().committed_text.is_empty());
+            assert_eq!(
+                server.requests().len(),
+                count,
+                "number adoption is an editable draft"
+            );
+            assert!(!state.completion_history.labels().is_empty());
+        }
+    }
+
+    for explicit in [false, true] {
+        reset(state);
+        state.continue_sentence_candidate(0);
+        assert!(!state.completion_history.labels().is_empty());
+        if explicit {
+            state.move_candidate_selection(4);
+        }
+        native_sync::present_test_frame(state);
+        let selected = if explicit { 4 } else { 0 };
+        assert_visible_local_choice(state, selected, ENTRIES[selected].1);
+        assert_eq!(
+            state.engine.selected_completion_text(true).is_some(),
+            explicit
+        );
+        show_translation(state);
+        native_sync::present_test_frame(state);
+        assert!(
+            state
+                .last_scene
+                .as_ref()
+                .unwrap()
+                .interactive_targets
+                .iter()
+                .all(|target| { !matches!(target.kind, InteractionKind::Candidate(_)) })
+        );
+        let before = state.engine.snapshot();
+        let seed = state.chrome.seed_text.clone();
+        let history = (
+            state.completion_history.revision(),
+            state.completion_history.labels(),
+        );
+        let count = server.requests().len();
+        state.commit_keyboard_candidate();
+        assert_eq!(
+            server.requests().len(),
+            count,
+            "Translation hides every send choice: {explicit}"
+        );
+        assert_eq!(state.engine.snapshot(), before);
+        assert_eq!(state.chrome.seed_text, seed);
+        assert_eq!(
+            (
+                state.completion_history.revision(),
+                state.completion_history.labels()
+            ),
+            history
+        );
+        state.chrome.active_input_mode = InputMode::VirtualKeyboard;
+        state.chrome.input_modes_expanded = false;
+        state.chrome.blur_input();
+        native_sync::present_test_frame(state);
+        assert_visible_local_choice(state, selected, ENTRIES[selected].1);
+        state.commit_keyboard_candidate();
+        assert_eq!(server.requests()[count..], [ENTRIES[selected].0]);
+        assert_eq!(state.engine.snapshot(), before);
+        assert_eq!(state.chrome.seed_text, seed);
+    }
+
+    reset(state);
+    state.chrome.set_seed_text(String::new());
+    state.chrome.move_caret_to_end();
+    state.refresh_seed();
+    native_sync::present_test_frame(state);
+    let before = state.engine.snapshot();
+    let scene = state.last_scene.clone();
+    let count = server.requests().len();
+    state.move_candidate_selection(1);
+    assert_eq!(state.engine.snapshot(), before);
+    assert_eq!(state.last_scene, scene);
+    assert!(state.chrome.sentence_candidates.is_empty());
+    state.commit_keyboard_candidate();
+    assert_eq!(
+        server.requests().len(),
+        count,
+        "empty drafts cannot acquire a candidate"
+    );
+    assert_eq!(state.engine.snapshot(), before);
+    state.engine = original_engine;
+    state.chrome = original_chrome;
+    state.completion_history = original_history;
+    state.native = original_native;
+    state.refresh_composition_candidates();
+}
+
+fn occluded_pointer_event(state: &mut PanelState, events: &ActiveEventLoop, event: WindowEvent) {
+    assert!(input::handle_panel_window_event(
+        state, events, event, false
+    ));
+}
+
+fn occluded_pointer_gesture(
+    state: &mut PanelState,
+    events: &ActiveEventLoop,
+    touch: bool,
+    phase: winit::event::TouchPhase,
+    point: (f64, f64),
+) {
+    use winit::event::{DeviceId, ElementState, MouseButton, Touch, TouchPhase};
+    let device_id = DeviceId::dummy();
+    let position = winit::dpi::PhysicalPosition::new(point.0, point.1);
+    if touch {
+        occluded_pointer_event(
+            state,
+            events,
+            WindowEvent::Touch(Touch {
+                device_id,
+                phase,
+                location: position,
+                force: None,
+                id: 811,
+            }),
+        );
+    } else {
+        occluded_pointer_event(
+            state,
+            events,
+            WindowEvent::CursorMoved {
+                device_id,
+                position,
+            },
+        );
+        let element_state = match phase {
+            TouchPhase::Started => ElementState::Pressed,
+            TouchPhase::Ended => ElementState::Released,
+            _ => panic!("the controlled mouse fixture only presses and releases"),
+        };
+        occluded_pointer_event(
+            state,
+            events,
+            WindowEvent::MouseInput {
+                device_id,
+                state: element_state,
+                button: MouseButton::Left,
+            },
+        );
+    }
+}
+
+fn occluded_pointer_boundaries(state: &mut PanelState, events: &ActiveEventLoop) {
+    use winit::event::TouchPhase;
+    // Controlled production event dispatch in the private X11 fixture, not a
+    // claim that a real compositor occlusion or physical touch was observed.
+    state.engine.set_language("en");
+    state.engine.set_preferences_enabled(false);
+    state.runs_without_window_focus = true;
+    state.is_focused = false;
+    state.chrome.active_input_mode = InputMode::VirtualKeyboard;
+    let server = AckServer::start();
+    server.ack.store(b'0', Ordering::Release);
+    let prepare = |state: &mut PanelState| {
+        state.cancel_primary_interaction();
+        state.native = Default::default();
+        reset(state);
+        native_sync::present_test_frame(state);
+        assert_eq!(state.engine.candidates()[1].text, "hello");
+        assert_visible_local_choice(state, 1, "hello");
+        let rect = state
+            .last_scene
+            .as_ref()
+            .unwrap()
+            .interactive_targets
+            .iter()
+            .find(|target| target.kind == InteractionKind::Candidate(1))
+            .unwrap()
+            .rect;
+        (
+            f64::from(rect[0] + rect[2] * 0.5),
+            f64::from(rect[1] + rect[3] * 0.5),
+        )
+    };
+    let retained = |state: &PanelState, before: &Snapshot, history: &(u64, Vec<String>)| {
+        assert_eq!(&state.engine.snapshot(), before);
+        assert_eq!(state.chrome.seed_text, "hel");
+        assert_eq!(
+            (
+                state.completion_history.revision(),
+                state.completion_history.labels()
+            ),
+            *history
+        );
+    };
+    for touch in [false, true] {
+        for case in [
+            "covered release",
+            "covered presented release",
+            "uncovered unpresented release",
+            "uncovered presented release",
+        ] {
+            let point = prepare(state);
+            let before = state.engine.snapshot();
+            let history = (
+                state.completion_history.revision(),
+                state.completion_history.labels(),
+            );
+            let count = server.requests().len();
+            occluded_pointer_gesture(state, events, touch, TouchPhase::Started, point);
+            assert_eq!(
+                state.interaction.pressed_interaction,
+                Some(InteractionKind::Candidate(1))
+            );
+            occluded_pointer_event(state, events, WindowEvent::Occluded(true));
+            if case == "covered presented release" {
+                native_sync::present_test_frame(state);
+            }
+            if case.starts_with("uncovered") {
+                occluded_pointer_event(state, events, WindowEvent::Occluded(false));
+                if case == "uncovered presented release" {
+                    native_sync::present_test_frame(state);
+                }
+            }
+            occluded_pointer_gesture(state, events, touch, TouchPhase::Ended, point);
+            assert_eq!(
+                server.requests().len(),
+                count,
+                "a retired press sent a candidate: touch={touch}, {case}"
+            );
+            retained(state, &before, &history);
+            occluded_pointer_event(state, events, WindowEvent::Occluded(false));
+            native_sync::present_test_frame(state);
+            occluded_pointer_gesture(state, events, touch, TouchPhase::Started, point);
+            occluded_pointer_gesture(state, events, touch, TouchPhase::Ended, point);
+            assert_eq!(server.requests()[count..], ["hello"]);
+            assert_eq!(state.chrome.seed_text, "hel");
+            assert_eq!(
+                state.engine.snapshot().committed_text,
+                before.committed_text
+            );
+            assert_eq!(state.completion_history.labels(), history.1);
+        }
+
+        let point = prepare(state);
+        let before = state.engine.snapshot();
+        let history = (
+            state.completion_history.revision(),
+            state.completion_history.labels(),
+        );
+        let count = server.requests().len();
+        occluded_pointer_event(state, events, WindowEvent::Occluded(true));
+        native_sync::present_test_frame(state);
+        occluded_pointer_gesture(state, events, touch, TouchPhase::Started, point);
+        assert!(
+            state.interaction.pressed_interaction.is_none(),
+            "a covered redraw rearmed a new press: touch={touch}"
+        );
+        assert!(
+            state.interaction.touch_owner.is_none(),
+            "a covered touch acquired an owner"
+        );
+        occluded_pointer_gesture(state, events, touch, TouchPhase::Ended, point);
+        assert_eq!(server.requests().len(), count);
+        retained(state, &before, &history);
+        occluded_pointer_event(state, events, WindowEvent::Occluded(false));
+        occluded_pointer_gesture(state, events, touch, TouchPhase::Started, point);
+        occluded_pointer_gesture(state, events, touch, TouchPhase::Ended, point);
+        assert_eq!(
+            server.requests().len(),
+            count,
+            "uncovering alone is not a new presentation: touch={touch}"
+        );
+        retained(state, &before, &history);
+        native_sync::present_test_frame(state);
+        occluded_pointer_gesture(state, events, touch, TouchPhase::Started, point);
+        occluded_pointer_gesture(state, events, touch, TouchPhase::Ended, point);
+        assert_eq!(server.requests()[count..], ["hello"]);
+        assert_eq!(state.chrome.seed_text, "hel");
+        assert_eq!(
+            state.engine.snapshot().committed_text,
+            before.committed_text
+        );
+
+        // X11 also reports false for partial-visibility notifications. A
+        // duplicate false must not retire a press that stayed fully usable.
+        let point = prepare(state);
+        let before = state.engine.snapshot();
+        let count = server.requests().len();
+        occluded_pointer_gesture(state, events, touch, TouchPhase::Started, point);
+        occluded_pointer_event(state, events, WindowEvent::Occluded(false));
+        occluded_pointer_gesture(state, events, touch, TouchPhase::Ended, point);
+        assert_eq!(server.requests()[count..], ["hello"]);
+        assert_eq!(state.chrome.seed_text, "hel");
+        assert_eq!(
+            state.engine.snapshot().committed_text,
+            before.committed_text
+        );
     }
 }
 

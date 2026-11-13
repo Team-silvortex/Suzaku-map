@@ -14,10 +14,10 @@ pub(super) struct TextInputState {
     preedit: String,
     cursor: usize,
     cursor_area: Option<[f32; 4]>,
-    /// Consume every recorded known key until its own real release, even after
-    /// saving, cancelling or releasing modifiers. KeyCode is a finite set; native
-    /// unidentified codes are never retained. IME cleanup must not clear holds.
-    recording_holds: BTreeSet<KeyCode>,
+    /// Recording, mode commands and reports own consumed keys until their own
+    /// real release. KeyCode is a finite set; native unidentified codes are
+    /// never retained. IME cleanup must not clear holds.
+    owned_key_holds: BTreeSet<KeyCode>,
 }
 
 impl TextInputState {
@@ -31,10 +31,18 @@ impl TextInputState {
     }
 
     pub(super) fn clear_shortcut_hold(&mut self) {
-        self.recording_holds.clear();
+        self.owned_key_holds.clear();
     }
 
     pub(super) fn hold_recorded_key(&mut self, key: PhysicalKey) {
+        self.hold_owned_key(key);
+    }
+
+    pub(super) fn hold_panel_command_key(&mut self, key: PhysicalKey) {
+        self.hold_owned_key(key);
+    }
+
+    pub(super) fn hold_owned_key(&mut self, key: PhysicalKey) {
         if let PhysicalKey::Code(code) = key
             && !matches!(
                 code,
@@ -48,18 +56,22 @@ impl TextInputState {
                     | KeyCode::SuperRight
             )
         {
-            self.recording_holds.insert(code);
+            self.owned_key_holds.insert(code);
         }
     }
 
     pub(super) fn consume_recorded_hold(&mut self, key: PhysicalKey, pressed: bool) -> bool {
+        self.consume_owned_hold(key, pressed)
+    }
+
+    pub(super) fn consume_owned_hold(&mut self, key: PhysicalKey, pressed: bool) -> bool {
         let PhysicalKey::Code(code) = key else {
             return false;
         };
         if pressed {
-            self.recording_holds.contains(&code)
+            self.owned_key_holds.contains(&code)
         } else {
-            self.recording_holds.remove(&code)
+            self.owned_key_holds.remove(&code)
         }
     }
 

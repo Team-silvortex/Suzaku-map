@@ -535,3 +535,346 @@ Rust / UI / 设置日志 SHA256 分别为
 不是全仓 Rust/Doc-tests、真实 WM、物理输入、个人 IBus、模型/麦克风或远端发行验收；
 词库、25 包、SDK、模型预算、宿主、依赖和版本不变。未提交推送、重装、改个人服务/
 配置或恢复自动化。
+
+## 继续抓虫：工具旧回包、命令持键与悬浮球草稿
+
+基线为已推送的 `8cf5b4248f48f14e18a193af9f32d4fd9aebbb52`，本轮不升版。
+用户明确排除误贴的另一项目 operator/OIDC 任务；这里只处理 Suzaku 面板。
+
+- 旧语音 A 的成功 ACK 已不清理新 B 的源，却无条件把 B 的“忙碌、已保留”提示改成
+  插入成功。让工具收尾返回是否真正退休当前源，仅成功退休时更新提示；宿主 ACK/frame
+  屏障仍独立完成，不重发 B。冻结三向量含正常 A、不同文字 B、同文新代次 B，原 exact
+  实际 RED 101（4 个提示/计时发现），修后 GREEN 0 / 0.67 秒。
+- 候选操作区的 I 插入、1 切键盘会进入编辑，未松开的命令重复却先走编辑分支。
+  私有 X11→winit 验证第二 press 的 `repeat=true`，原码得到 `helloi` 而非 `hello`，
+  实际 RED 101 / 4.95 秒。复用有限已占用键集合，只在这两个命令真正执行前登记，
+  在各自真实 release 后解除；不改数字选候选，不全局禁止文字重复。
+- 普通可聚焦后端收成悬浮球后仍可能保有焦点，Backspace/Space 改动隐藏草稿，
+  同一冻结 exact 在仅修持键后独立 RED 101 / 4.48 秒（`hell ` != `hello`）。
+  compact 不自动聚焦编辑区，也不接受普通编辑；设置、缩放、退出快捷键保留。
+  第一版 compact 拦截误挡已打开设置的 Esc，冻结对照真实 RED 101 / 4.45 秒；
+  补上设置分流条件后同一测试 GREEN 0 / 4.13 秒，未改断言或时限。
+
+键盘新增阶段验证 I/1 释放后的新按键及普通重复仍写入 `helloii` / `abc11`，
+悬浮球保留完整引擎快照与非空撤销历史，F1/Esc 可用。真实 X11 事件仅送私有测试窗；
+额外 Focused(true) 为明确 callee 模拟，不是个人 WM 调度。旧 step 11、至少 28 键、
+总计 20 秒与全部旧代码/断言保留。语音源为合成采集桥，不是实时麦克风或 ASR 验收。
+
+日志 `/tmp/suzaku-bugfix-tool-ack.qWMgWn/`；工具/键盘冻结测试 SHA256 分别为
+`a174c9877276be762c1fcc93bfe6df614fc943c6ab45f20a5c377af257825dc9`、
+`7ca54a0bafb85178d773c4bc4fc67b1ae3c5f3f29ce1375d776b8cccb3b6b08b`。
+只改五个 panel 生产/测试旧文件，198 项旧 evidence 和 79 项评分/限制保留，不提高成熟度。
+词库、包、SDK、模型协议/预算、宿主、依赖与 0.10.4/build54 不变；未提交推送、安装、
+改变个人服务/配置或恢复定时任务。相关统一验收结果补在下文，不以定向红绿拼接总数。
+
+最终同一冻结源码独立流水线原进程实际 **exit 0**：完整 panel 与 11 个相关集成目标
+共 **12 个唯一结果组，345 通过、0 失败、29 项原有显式忽略、零筛除**；私有 UI
+**24 个唯一单项**及设置链 **4 个唯一单项**另行全过，六个 phase/终局退出码均为 0。
+格式与严格 all-target/all-feature locked/offline Clippy `-D warnings` 通过（7.30 秒）；
+单构建任务、2 GiB MemoryHigh / 3 GiB MemoryMax / 无 swap，不拼接定向或历史结果。
+693 个源码/测试/脚本/Cargo/Android 文件终局前后逐项保真，冻结清单 SHA256 为
+`83ce8c782e405b960a15913e5bfde8fb9c5016d8162d57e71cbd3485a8a2134d`。
+Rust / UI / 设置日志 SHA256 分别为
+`5e9a310302a10274426bf08324b03ca3990296cc92ae435b255981b22309e27e`、
+`e4157cd423264dc5e3387b649b933f23a85e7dd057cb615b5ccd40dd6dd12b94`、
+`c749a11fd12ba7d6221ddfe34733b68850b46757200459edf849019baece35af`。
+不是全仓 Rust/Doc-tests、物理输入、个人桌面或远端 CI/发行验收；不据此提高成熟度。
+
+## 继续测试：手写触点、失焦识别与采样边界
+
+本轮接续上节未提交快照，仍基于 `8cf5b4248f48f14e18a193af9f32d4fd9aebbb52`。
+
+- Touch 未区分 device/id，第二指 Started 会拆出新笔画，Moved/Ended/Cancelled 也可干扰
+  原手势。私有真实呈现画布上的受控 winit Touch 回归实际 RED 101 / 7.49 秒；现在首指
+  独占手势至匹配的终止事件，外来触点和期间的鼠标坐标/按钮不改变它。失焦、显式取消、
+  隐藏、收缩及两个关闭请求入口清理持有，避免无焦点后端丢失 release 后永久挡住新触点。
+  几何刷新仅取消旧操作而不移交仍按着的触点，防止尾事件误采用新目标。
+- 手写中失焦保留了新笔迹，却直接清 dragging，留下旧候选和旧模型摘要。仅修触点后，
+  同一冻结 exact 独立 RED 101 / 7.69 秒，候选实际不等于当前笔迹的识别结果。
+  失焦复用既有取消触点的完成识别路径，不自动插入；晚释放不重复识别，新触点仍可绘制。
+  同一冻结 exact 修后 GREEN 0 / 7.65 秒，正常完成、外来触点、新手势与无额外发送对照保留。
+- 默认 padding=4 在小于 8 的画布轴上、或有限但过大配置下，会给 f32::clamp 反向边界；
+  即使先限为半轴，小数舍入仍可反转。每轴限定 padding 至半轴，并让上界不低于已算下界，
+  仅塌缩不足轴，普通/零 padding 坐标精确不变。平滑上下限先分别限制到 [0,1] 再排序，
+  修复负范围得到 [0,-0.5] 的 panic 和高范围实际 alpha=1.4142135。
+  两个普通 CPU 测试各以 current_exe exact 子进程隔离 OnceLock，清空环境并核实完成标记；
+  六种几何与四种平滑内部 case 在旧实现 RED 101 / 0.05 秒，冻结测试修后 2/2、exit 0 / 0.04 秒。
+  默认鼠标/触摸三档速度计算逐值不变，不把子进程或内部 case 计为新增顶层结果组。
+
+日志 `/tmp/suzaku-bugfix-handwriting.2Ktxb6/`。首次触点测试因私有窗口尚未展开而找不到
+canvas（exit 101 / 7.54 秒），属于测试夹具失败，不算产品 RED。仅修新增准备 helper，
+由生产 fit 请求并限 1 秒确认真实窗口尺寸稳定，再呈现；旧失败与旧冻结均保留，
+目标断言和原测试期限未变。修夹具后冻结 SHA256 为
+`df0da175c55631ce013ab03baeb88e5c79459d92ddc82c53b5a550a90672ef95`；
+参数测试冻结文件 SHA256 为
+`6262f3f65f25b4ccd0993eb831e3d9abeb53198de8aefa430406055cf25dd3d4`（只比较新增测试块）。
+触点与焦点为显式 callee 事件，不是物理触摸板/屏幕或真实 WM 调度验收；参数测试也不
+等同真实窗口缩放、识别质量或任意非法/非有限几何保证。隐藏清理的生产调用仅静态复核，
+不冒称个人桌面实际隐藏/重开。词库/包/SDK/模型预算/宿主/依赖/版本不变，未提交推送、
+安装、修改个人服务/配置或恢复自动化。统一相关验收另列，不拼接定向或上一轮总数。
+
+保留上述 df0 全部代码/断言后，仅追加 owner Cancelled、CloseRequested、收缩展开及
+触摸期间鼠标事件对照，最终工具测试冻结 SHA256 为
+`4b04c9ccda3d2b2a04f6a73c7f0856469fc2a79cc68790f4e6ac32d862f96700`，
+增量 exact 实际 GREEN 0 / 7.88 秒；旧尾事件不改变笔迹/候选/摘要/代次，新触点可继续。
+CloseRequested 只核对 PanelState 取消和 flag，后续重置 flag 是夹具隔离，不冒称 App 隐藏。
+
+最终同一冻结源码独立流水线原进程实际 **exit 0**：完整 panel 与 13 个相关集成目标
+共 **14 个唯一结果组，360 通过、0 失败、29 项原有显式忽略、零筛除**，包含额外的
+手写布局/绘制场景；私有 UI **24 个唯一单项**及设置链 **4 个唯一单项**另行全过。
+六个 phase/终局退出码均为 0，格式与严格 all-target/all-feature locked/offline Clippy
+`-D warnings` 通过（5.88 秒），单任务、2 GiB MemoryHigh / 3 GiB MemoryMax / 无 swap。
+693 个源码/测试/脚本/Cargo/Android 文件终局前后逐项保真，本轮相对上节起点仅六个旧
+生产/测试文件改变；冻结清单 SHA256 为
+`a6bf986fa2c778cbe595051b37114033361ca7d2e96e89ccd03df8d78a3cd92a`。
+Rust / UI / 设置日志 SHA256 分别为
+`4dcafc7130a4429babec6c818d41e91616f3c6a2bbf5f5fd2743df40f70d7d9c`、
+`3cd20eb47570abb27f6e142ef164aeb5e452f7f37884b814a965542aaaa7c73c`、
+`b1d6a870123480945da8d95c36d556cd4667fd8a16ab5dddf609ca46fda8d952`。
+199 项旧 evidence 与 79 项评分/限制保持，只加本轮证据及 F32 引用；不提升成熟度。
+本轮不是全仓 Rust/Doc-tests 或当前未提交修正的远端验收，不拼接之前版本/定向测试数量。
+
+## 继续测试：报告持键与完整触点身份
+
+接续上节未提交源码，仍为 `8cf5b4248f48f14e18a193af9f32d4fd9aebbb52` 的后续修正。
+
+- 报告吞下按键却不保存归属，关闭后同设置窗保留搜索焦点，未松开的重复键误改查询。
+  自有 Xvfb 窗口真实 X11 press→已呈现按钮鼠标关闭→第二 press，硬验 winit.repeat=true，
+  旧码实际把 `retained query` 退格为 `retained quer`：RED 101 / 5.86 秒。
+  抽中性 hold_owned_key/consume_owned_hold 并保留旧 wrapper 与所有旧 CPU 测试块；
+  报告 press 仅登记、不拦自身导航重复，真 release 清理后仍检查 Escape 匹配松键关闭。
+  进入、替换和退出报告不清 holds，真正失焦才直接清理，不调用宿主/IME 焦点处理。
+- 报告触点只保存 id，漏掉事件的 device。仅修持键后同一冻结 exact 独立到受控 Touch
+  异设备同 id 误完成 Next（page 0→1）：RED 101 / 5.76 秒。
+  PointerSource::Touch 增加 DeviceId，路由原样带入事件的双字段；原 press/release、
+  异源取消旧手势、呈现/generation/矩形检验、分页及 Mouse 行为保持，五处旧 unit
+  仅机械补同一个 dummy 设备。异源 release 已取走 press，旧 A 尾事件也不能复活它。
+
+冻结测试 SHA256 `3a772bc1bf9b4e6e23be15a21e3617534a6e5aab7365fa810d7bcc9ac7c7145f`，
+两修复后同一 exact 完整 GREEN 0 / 5.60 秒。新增四个键向量含 Backspace、报告中新 A、
+真实录制拒绝 A 后进入并替换报告、报告内松 A；恢复后的新按键及普通文字重复均可用。
+PageDown 报告重复分页、Escape 按下/重复不关闭及匹配松键关闭均有正对照。
+硬核对 29 个实收键转移和 9 个真实 winit repeat；旧报告同步主体 359 行逐字逆投影保持，
+新增阶段 20 秒截止、原外层 90 秒/exact 不变，不把内部向量计为新顶层测试。
+受控 Touch 对照覆盖 Next/Close 的异源拒绝、旧尾事件及新同源手势；两个合法 opaque
+设备值取自自有 X11 键盘事件和 dummy 并先 assert_ne，不是双物理触屏验收，也不保证
+后端向应用暴露物理唯一设备 ID。未知物理键和纯 modifier 仍不存，销毁的窗口不跨窗移交键。
+
+日志 `/tmp/suzaku-bugfix-report-holds.2JmFQW/`。本轮仅四个旧生产/测试源文件改变，
+200 项旧 evidence 与 79 项评分/限制保持；只引用 F40，不提高成熟度。
+不改模型、词库/包/SDK、宿主/依赖/版本、个人安装或服务/配置，不提交推送或恢复自动化。
+上述为私有事件路由与 callee 验收，不是物理键盘、真实 WM、实模或本轮远端/发行验收；
+统一相关结果另列，不累加定向红绿、内部向量或旧轮数量。
+
+最终同一冻结源码独立流水线原进程实际 **exit 0**：完整 panel 与 13 个相关集成目标
+共 **14 个唯一结果组，360 通过、0 失败、29 项原有显式忽略、零筛除**；私有 UI
+**24 个唯一单项**及设置链 **4 个唯一单项**另行全过，六个 phase/终局退出码均为 0。
+格式与严格 all-target/all-feature locked/offline Clippy `-D warnings` 通过（6.75 秒），
+单构建任务、2 GiB MemoryHigh / 3 GiB MemoryMax / 无 swap。693 个源码/测试/脚本/
+Cargo/Android 文件终局前后逐项保真，冻结清单 SHA256 为
+`853c56be843785e7b2cac6f7f9821689109332238396b06f86d409d8fd60e1ee`。
+Rust / UI / 设置日志 SHA256 分别为
+`3d8b9cb4b3eb5ba1927ec7ff7cc2c81a1cee93049ef9bc522dd9a8262aa17382`、
+`a7c5a71a47507977d9aa226d20e117b9d859f0f0274daf16c93785c7b1a8b900`、
+`2f02002bfa2daa8f45fd730732c9918d1d7268db22a9b96b6decaf1df68f552b`。
+本轮不重跑全仓 Rust/Doc-tests，不以旧提交 CI 通过代替这些未提交修正的远端验收。
+
+## 继续测试：设置窗口不接管模型配置
+
+辅助 Settings 窗口没有已确认的模型配置，却在点击 On 或 Tone 时重配自己的引擎。
+普通配置错误在设置页本来不可见，真实症状是它覆盖了仍可见的输入法服务错误，导致
+提示提前消失；同时不必要地重置辅助窗的 engine/seed。修正在重配入口只允许 Main
+继续，设置值与编辑代次仍通过原镜像、补丁和确认链传递，不向 Settings 复制配置。
+
+原设置链 mandatory first_status exact 仅追加 helper，旧主体和断言不变。私有窗口
+先呈现服务错误，再点击模型 On，旧代码实际把它覆盖成普通配置错误：目标 exact
+RED 101 / 0.96 秒、整设置脚本实际 exit 1。修复后同一冻结测试 GREEN 0 / 1.09 秒，
+整设置链 4 项实际 exit 0。测试冻结 SHA256：
+`38ab7ca9c28a193b99a03413a6a66e6b10d8cff84969937072305cc84a49196b`。
+
+有/无服务错误两组各点击 On、Focused、Expressive、Off，核对原 feedback/ticks、
+实际 overlay 有无、辅助 engine/候选/seed 保持，以及两窗值和编辑代次同步。Main
+使用已确认配置、空草稿仍为 Idle，关闭仍为 Disabled；Main 缺少配置仍报真实错误，
+恢复配置后清除错误。空草稿不能调度预测，不使用模型或密钥，也不把这项配置测试
+称为真实 HTTP、模型质量或个人桌面输入验收。日志
+`/tmp/suzaku-bugfix-settings-model.MHQbr5/`。本轮只变更两个生产/测试文件，保留前轮
+全部修正、201 项旧证据与 79 项评分/限制；不提交推送、安装或改个人服务/配置。
+
+最终同一冻结源码独立流水线原进程实际 **exit 0**：完整 panel 与 13 个相关集成
+目标共 **14 个唯一结果组，360 通过、0 失败、29 项原有显式忽略、零筛除**；
+私有 UI **24 个唯一单项**及设置链 **4 个唯一单项**另行全过，格式和严格
+all-target/all-feature locked/offline Clippy `-D warnings` 通过（5.87 秒）。六阶段及
+终局退出码均为 0，693 个源码/测试/脚本/Cargo/Android 文件前后冻结校验通过；
+冻结清单 SHA256 为 `b348bc6627e928e1f1b378676045b562f743c9cb8fec04d4db83e00096c53120`。
+Rust / UI / 设置日志 SHA256 分别为
+`9296950d8b8f67ca7ccab70e0014a68749e0ef44f3fb4d4254e469eecd419d41`、
+`6a320a196536c9da8fc06a1d359479368d461819c9c704dd24c30623b7fa2ad4`、
+`0ae8782fa20e6cc84bcc919a2415d757068b9f9edb2a67ff22dbd9e1c8de011c`。
+本轮不是全仓 Rust/Doc-tests 或当前未提交修正的远端验收，内部 8 个动作不另计顶层测试。
+
+## 继续测试：独立候选选择与实际可见目标
+
+引擎有六项候选、独立面板只显示前四项时，方向选择仍可到第 5/6 项；旧 Enter
+绕过句卡可见身份，发送用户未见的候选。保留候选完整可达性，不截断共享引擎：仅在
+独立面板把选中项投影到第四句卡槽，保留前三项锚点及真实 source/label/payload。
+返回前四项即恢复默认映射，英文下一词仍从完整池派生，native 分页路径不改。
+
+投影先于 LocalSentenceFrame 建立；投影变化沿原刷新退役旧手势和呈现，重新绘制
+后才能 Enter。可见区内移动、零位移与边界不额外作废呈现或激活 bridge。选择刷新
+的轻量比较只供同步 move 使用，不能替代异步候选、语言或草稿变更时的完整刷新。
+Enter 的本地显式选择和原默认主卡还须通过 resolve 及实际已绘制 Candidate 目标
+检查，覆盖翻译工具隐藏全部卡片的情况；拒绝时不另发其它候选。
+
+原 mandatory Enter exact 只追加两个 helper 和一个调用，旧主体/断言/期限逆投影
+逐字保持。六项公开合成插件和私有 ACK fixture 无模型请求；测试冻结 SHA256：
+`7439384fd145c63710523a84ea47455e7cfa082d4b794bb750598f92992fcb7d`。
+旧码第 5 项未呈现 Enter 已发一条请求：实际 RED 101 / 4.52 秒；只修投影后，同一
+冻结测试独立复现 Translation 无卡时发送默认内容：RED 101 / 4.67 秒。加可见目标
+门禁后同 exact 完整 GREEN 0 / 5.00 秒。
+
+回归核对实际 CandidatePrimary 标题绘制和非零目标，不用 selected_label 元数据
+冒充显示；第 5/6 项重显后精确发送、拒绝 ACK 后保稿与选择、回前区恢复默认映射、
+数字 4 采用第 6 项为可撤销编辑、翻译隐藏区的显式/default 两类零发送及完整
+seed/history/snapshot 保留、重显后可发送、空稿不注入卡片均通过。旧英文 hello/help
+及 native 用例原样保留；这是生产 callee/GPU 呈现与合成回执测试，不是物理按键、
+个人 IBus、实模质量或新性能验收。日志 `/tmp/suzaku-bugfix-visible-selection.ryBrt8/`。
+本轮只改动三个旧生产/测试文件，保留 202 项旧证据与 79 项评分/限制、前轮全部
+修正和失败；词库/包/SDK/模型协议预算/宿主/依赖/版本不变，未提交推送、重装或操作
+个人服务/配置，不恢复自动化。
+
+最终同一冻结源码独立流水线原进程实际 **exit 0**：完整 panel 与 13 个相关集成
+目标共 **14 个唯一结果组，360 通过、0 失败、29 项原有显式忽略、零筛除**；
+私有 UI **24 个唯一单项**及设置链 **4 个唯一单项**另行全过，格式和严格
+all-target/all-feature locked/offline Clippy `-D warnings` 通过（6.22 秒）。六阶段与
+终局退出码全为 0，693 个源码/测试/脚本/Cargo/Android 文件前后冻结校验通过；
+冻结清单 SHA256 为 `060c9e905df3383f29cbb6f7959b21616db725be91af40ce4e62754e92cc3f13`。
+Rust / UI / 设置日志 SHA256 分别为
+`385355be3369ea3e8613b0f63a4e9dcaa340b5b8845984cf5086e8077b7e2035`、
+`55032a436caae6f418d036f521f0e0cbbc8275a4a2d291b3ad4ebbaa070564db`、
+`612096ac5c1eff23c2f2cf702a1a610ec26f7a4195297d729976fb4b3a9d93ef`。
+本轮不是全仓 Rust/Doc-tests 或准确新提交的远端验收；内部向量不计为新增顶层测试，
+也不累加定向红绿或前轮数量。
+
+## 继续测试：完全遮挡不授权指针操作
+
+Main 的 Occluded 原先只撤销 native lease，没有取消按压和指针呈现。冻结主窗测试
+`573b9c5e200fb6962cfc616e98d838ec67616d83c48314506125011435ea67aa`：
+已呈现候选按下→完全遮挡→松开，旧码仍发送 hello（RED 101 / 5.44 秒）；仅取消旧
+手势后，同一测试继续复现遮挡中重绘重新授权新按压（RED 101 / 5.40 秒）。
+现在 Main 转 true 先取消按压/触摸归属/拖拽并清 hover，bool 改变才失效呈现；重复
+false 不伤正常可见手势，因为 X11 Partial/Unobscured 通知都映射为 false。
+
+Main 与报告共用指针事件门，Main 在 touch owner 分配前拒绝遮挡期输入，重绘不会
+重新授权鼠标、触摸、滚轮或已有缩放手势。报告旧 invalidate 不足以挡新按压：冻结
+`1ec9578d216bbeb98464e1879a6d5e8bcb362b8825968b6f1e350d823d9c419a` 在遮挡重绘
+后仍翻页 0→1（RED 101 / 5.88 秒）。入口复用指针门后，两份原 exact 分别完整
+GREEN 0 / 5.42 秒和 6.35 秒，旧报告真实 X11 持键及双 device 触点测试一并保留。
+
+主窗 Mouse/Touch 覆盖四类旧尾释放时序、遮挡重绘后的新手势与 owner 拒绝、复显
+未呈现拒绝、重新呈现后新点击精确交付及 ACK0 保稿、重复 false 正例。报告覆盖
+旧 Next/Close 按压跨遮挡不复活、遮挡重绘后的新 Next/Close 与 wheel 拒绝，复显
+前后授权及正常 Mouse/Touch 翻页/关闭，冻结源、编辑状态、隐藏 compact 主窗和配置
+字节保持。旧测试主体/断言/期限逆投影逐字保留，新 CPU 分类父测试只证明分流。
+生命周期、重绘、键盘与 IME 原策略不变，不把这轮说成“遮挡时全部输入禁用”。
+
+日志 `/tmp/suzaku-bugfix-occluded-input.gaLk6x/`。vendor X11 确实从 VisibilityNotify
+发出该事件，但上述是受控生命周期/指针 callee 与真实私有 GPU 呈现，并非真实 WM
+盖窗、物理触屏、Wayland 或跨平台验收；也不承诺 partial 遮挡的逐区域可见性。
+未来新增有效指针手势须同步分类。仅四个旧生产/测试源文件改变，保留 203 项旧证据、
+79 项评分/限制与前轮全部修正；不改词库/包/SDK/模型协议预算/宿主/依赖/版本，
+未提交推送、安装或修改个人服务/配置，不恢复自动化。
+
+最终同一冻结源码独立流水线原进程实际 **exit 0**：完整 panel 与 13 个相关集成
+目标共 **14 个唯一结果组，361 通过、0 失败、29 项原有显式忽略、零筛除**；
+其中仅新加一个普通 CPU 分类父测试，内部向量不另计。私有 UI **24 个唯一单项**
+及设置链 **4 个唯一单项**另行全过，格式和严格 all-target/all-feature locked/offline
+Clippy `-D warnings` 通过（7.13 秒）；六阶段及终局退出码均为 0。
+693 个源码/测试/脚本/Cargo/Android 文件前后冻结校验通过，清单 SHA256 为
+`37795ad1ba12a2677fcb81e19d0e8ecbb96f96219505ee1667cf48d28fa73ad8`。
+Rust / UI / 设置日志 SHA256 分别为
+`2b8944af838ad4cd1ac8eccf514cf15655e576fa73177ee931e8cd703af10be5`、
+`f180d52cbfdf9769a9193ce3c850a4e8823797072919ef6f49caac07df265aab`、
+`54aab865b4181561969181918b7d377aa3739a14ffe7843b9e826c2dc0d851ec`。
+不拼接定向红绿或前轮数量，不称全仓 Rust/Doc-tests 或新提交远端验收。
+
+## 继续测试：设置滚动拖动在失焦时收尾
+
+辅助 Settings 的 release 会在失焦时被输入门禁过滤，旧 focus 清理却遗漏滚动条拖动。
+回焦后仅移动鼠标即可继续旧拖动。原 mandatory first-status exact 追加 helper 与调用，
+旧主体/断言/期限逐字保留；冻结测试 SHA256 为
+`5ae350a177fabc07be2bc98497a0f12ca1e31cbea2c5ac69d3b39024267fa32d`。
+先用实际 520×420 视口呈现滚动条并证明正常拖动，失焦时发送具体 release，再回焦
+只移动鼠标：旧码 offset 从 41.106834 变为 50.2417，首 exact 实际 RED 101 / 3.72 秒，
+四项设置脚本实际 exit 1。仅在真实 focus true→false 分支调用现有
+end_settings_scroll_drag，清理 flag/start_y/start_offset，不重置实际滚动位置；
+相同 focus 的早返回和其余输入清理保持。同一冻结测试 GREEN 0 / 3.82 秒，四项脚本
+实际 exit 0，没有改断言、期限或 runner 清单。
+
+回归覆盖 mouse/touch 两种起始拖动、失焦 release 被过滤、回焦无 press 的鼠标移动
+以及旧 touch tail 不滚、重新完整拖动正常、重复 Focused(true) 保留合法拖动。
+两窗草稿/翻译/完整引擎快照/PersistedDisplaySettings 与私有配置原字节保持；末尾
+恢复窗口大小、焦点、光标和导航状态。这是私有 Xvfb 实际辅助 Settings 呈现及生产
+PanelApp 受控事件路由，不是物理键鼠/触屏、真实 WM 切窗或 Main 内嵌设置滚动验收。
+日志 `/tmp/suzaku-bugfix-scroll-focus.T21SKt/`；本轮仅两个旧生产/测试源文件变化，
+204 项旧证据与 79 项评分/限制不变，前轮修正及真实失败均保留。词库/包/SDK/模型
+协议预算/宿主/依赖/版本不变，未提交推送、安装或修改个人服务/配置，不恢复自动化。
+
+最终同一冻结源码独立流水线原进程实际 **exit 0**：完整 panel 与 13 个相关集成
+目标共 **14 个唯一结果组，361 通过、0 失败、29 项原有显式忽略、零筛除**；私有
+UI **24 个唯一单项**及设置链 **4 个唯一单项**另行全过，不把 exact 的正常筛选冒充
+普通回归零筛除，也不累加定向红绿或前轮数量。格式与严格 all-target/all-feature
+locked/offline Clippy `-D warnings` 通过（6.23 秒），六阶段及终局退出码均为 0。
+693 个源码/测试/脚本/Cargo/Android 文件前后冻结校验通过，清单 SHA256 为
+`d6e2b6f5fa39862692a740dcdda8b0d6537c7eeba4546e4df0b08b68c35ef074`。
+Rust / UI / 设置日志 SHA256 分别为
+`0fc6a4e73b5a219bec520bf18bd58e2d52ffe0a5b3b2e33348a8028b997be620`、
+`d67f60f0025baf12642e3d526d8df2a0ed48f93cb42ffc7384d1655fd65d8790`、
+`f140977a04442662060ac2f29d3ec7c0d4294f183674db7e6b2d7c8721159cb3`。
+本轮没有新增顶层 test；helper 内向量不另计，不称全仓 Rust/Doc-tests、个人安装
+或准确新提交的远端验收。
+
+## 继续测试：设置命令的持键归属
+
+同一已聚焦 Settings 中按 Ctrl+, 或 Ctrl+F，先松 Ctrl 而继续按住命令键，旧分派会
+把后续无修饰键 repeat 当成搜索文字。已接受的设置命令现在登记实际 physical key，
+由原真实 release 退休归属；Ctrl+F 的 logical f/F 与精确 Ctrl/macOS Super 判断
+抽成共享纯函数，供分派持键与设置动作共同使用，不猜测布局上的物理 KeyF。
+录制/preedit 前置门禁、未知物理键不保留、焦点清理与普通文字 repeat 均保持；
+本轮不实现 Main→Settings 跨窗口持键转移。
+
+原 mandatory recording exact 七处纯新增 350 行，旧主体/六 pressed 计数和整个
+exact 的原 20 秒期限逐字保留。冻结 SHA256：
+`4753940f577be6fc62f3cfa0b11ddbb141757b6cc668011b0d815c261371bdd0`。
+同一实际私有 Settings 重新聚焦，每命令八项 X11→winit 转换均核 physical/repeat/
+modifier。旧 Ctrl+, 未释放尾 repeat 把 Text 改为 Text,，实际 RED 101 / 0.77 秒；
+仅补第一处分派持键后，同冻结测试继续复现 Ctrl+F 的 Text→Textf，RED 101 /
+0.82 秒。两处修正后完整 GREEN 0 / 0.90 秒，初始搜索未聚焦、实际命令动作、
+释 Ctrl 后无输入、真实释键后 fresh + plain repeat 得到 Text,,/Textff 均通过。
+草稿、翻译、完整引擎、显示偏好、快捷键代次和两私有配置的存在/缺失及原字节保持。
+这是私有 Xvfb 注入 X11 事件经实际 winit/生产 dispatcher，不是物理键盘、个人
+桌面输入、跨窗口转移、Wayland 或模型请求验收。
+
+初轮扩展回归实际 exit 101：辅助窗口 CPU 夹具抽取生产快捷键分支，却缺少新增的
+event/hold 依赖，rustc 报 E0425/E0599。保存原失败后，补显式 F1/Comma 身份、
+事件上下文与去重 hold/clear stub；原生产分支和旧所有恢复断言均保留，只追加一个
+内层测试。它直接调用请求分支，仅证明已接受请求不抹 preedit，不意味着 composing
+门禁允许 F1/Ctrl+,。定向父测试实际 exit 0，内部 11 项均过；不把这些 stub 当成
+真实按键重复验收，也不计为新增顶层测试。日志
+`/tmp/suzaku-bugfix-settings-holds.MmHkRn/`。
+
+仅四个生产/测试源文件变化，保留 205 项旧证据、79 项评分/限制及前轮全部修正与
+真实失败；词库/包/SDK/模型协议预算/宿主/依赖/版本不变，未提交推送、安装或操作
+个人服务/配置，不恢复自动化。
+
+补齐夹具后，重新冻结四处源改动并独立执行整轮，原进程实际 **exit 0**：完整 panel
+与 13 个相关集成目标共 **14 个唯一结果组，361 通过、0 失败、29 项原有显式忽略、
+零筛除**；私有 UI **24 个唯一单项**、设置链 **4 个唯一单项**另行全过。格式及严格
+all-target/all-feature locked/offline Clippy `-D warnings` 通过（0.51 秒，增量检查，
+不是性能验收）；六阶段及终局退出码全为 0。不拼接初轮局部通过、定向重试或前轮
+数量，也不称全仓 Rust/Doc-tests 或本轮准确提交远端验收。
+693 个源码/测试/脚本/Cargo/Android 文件前后冻结校验通过，清单 SHA256 为
+`416f4696d85e24d8bbd082779dc4d9149a03d8c9c2e897617a786ef051e4f3a0`。
+Rust / UI / 设置日志 SHA256 分别为
+`ed8b7236f948e2afcdec5449af441b3c9f46b5d038936d1736c2c6eb41f95473`、
+`530b2f43a131bef98f9ae49ce51037637b8e6bc82f2e96b1333bdddfe91041eb`、
+`4cab35081d7ee15d0b3ea5c5e99ec86a60c2a75f7b268b348dfc133d0f574fc1`。

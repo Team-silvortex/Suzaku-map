@@ -200,7 +200,12 @@ impl PanelState {
             }
             return;
         }
-        self.engine.move_selection(delta);
+        let previous = self.engine.snapshot().selected_index;
+        let selected = self.engine.move_selection(delta).selected_index;
+        if selected == previous {
+            return;
+        }
+        self.refresh_composition_selection();
         if !self.is_host_marked_text_roundtrip_ready() {
             return;
         }
@@ -320,6 +325,8 @@ impl PanelState {
             self.restore_local_recovery(recovery);
         }
         if !focused {
+            self.interaction.touch_owner = None;
+            self.end_settings_scroll_drag();
             self.chrome.cancel_shortcut_recording();
             self.text_input.clear_shortcut_hold();
             self.modifiers = Default::default();
@@ -359,6 +366,9 @@ impl PanelState {
     }
 
     fn chosen_canvas_abandon_state(&mut self) {
+        // Partial ink is retained on blur. Complete its recognition before
+        // dropping gesture state, just as a cancelled touch already does.
+        self.finish_handwriting_stroke();
         self.clear_pressed_interaction();
         self.clear_sentence_candidate_scroll();
         self.interaction.touch_tap_pending = false;
@@ -372,8 +382,9 @@ impl PanelState {
         self.interaction.panel_drag_start_cursor = None;
         self.interaction.panel_drag_start_window_pos = None;
         self.interaction.panel_drag_start_instant = None;
-        self.interaction.handwriting_dragging = false;
-        if self.chrome.active_input_mode == InputMode::Handwriting {
+        if self.chrome.active_input_mode == InputMode::Handwriting
+            && self.chrome.handwriting_strokes.is_empty()
+        {
             self.chrome.handwriting_hint = "Draw a seed word with mouse or touch.".to_string();
         }
         if self.chrome.voice_state == VoiceCaptureState::Listening {
@@ -420,9 +431,25 @@ impl PanelState {
                 self.window.request_redraw();
                 return;
             }
+            let explicit = self.engine.selected_completion_text(true).is_some();
+            let source = if explicit {
+                Some(self.engine.snapshot().selected_index)
+            } else {
+                self.chrome
+                    .sentence_candidate_source_indices
+                    .first()
+                    .copied()
+            };
+            if !source.is_some_and(|index| self.local_keyboard_choice_presented(index)) {
+                // A complete frame can still hide cards (translation or clipping).
+                // Neither an explicit choice nor the original primary may fall
+                // back to another payload merely because its target is absent.
+                self.window.request_redraw();
+                return;
+            }
             // Navigation/absolute selection is an explicit user decision.
             // Never replace it with the primary card, including on send failure.
-            if self.engine.selected_completion_text(true).is_some() {
+            if explicit {
                 let _ = self.commit_selected_candidate_to_host(CommitOptions { force: true });
                 return;
             }
@@ -443,6 +470,16 @@ impl PanelState {
             && !self.native.occluded
             && self.last_scene.is_some()
             && self.pointer_geometry_is_current()
+    }
+
+    fn local_keyboard_choice_presented(&self, index: usize) -> bool {
+        self.resolve_sentence_candidate_index(index) == Some(index)
+            && self.last_scene.as_ref().is_some_and(|scene| {
+                scene
+                    .interactive_targets
+                    .iter()
+                    .any(|target| target.kind == InteractionKind::Candidate(index))
+            })
     }
 
     pub(super) fn commit_sentence_candidate(&mut self, index: usize) -> bool {
@@ -1245,6 +1282,7 @@ impl PanelState {
             InteractionKind::ClosePanel => {
                 self.text_input.clear_shortcut_hold();
                 self.finish_text_editing();
+                self.cancel_primary_interaction();
                 self.close_requested = true;
                 self.window.set_visible(false);
             }
@@ -2148,6 +2186,7 @@ impl PanelState {
     }
 
     pub(super) fn cancel_primary_interaction(&mut self) {
+        self.interaction.touch_owner = None;
         self.finish_handwriting_stroke();
         if self.interaction.settings_scroll_dragging {
             self.end_settings_scroll_drag();

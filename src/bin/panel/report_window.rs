@@ -23,7 +23,6 @@ impl PanelState {
     ) {
         debug_assert_eq!(self.kind, PanelWindowKind::Settings);
         self.chrome.cancel_shortcut_recording();
-        self.text_input.clear_shortcut_hold();
         self.text_input.clear();
         self.interaction = PanelInteractionState::default();
         self.report_view = Some(ReportView::new(snapshot));
@@ -59,12 +58,16 @@ impl PanelState {
             return false;
         };
         if state == ElementState::Released {
+            self.text_input.consume_owned_hold(key, false);
             if self.report_close_key == Some(key) {
                 self.report_close_key = None;
                 return true;
             }
             return false;
         }
+        // Keep ownership across return to settings without disabling the
+        // report's own paging repeats or Escape's matching-release close.
+        self.text_input.hold_owned_key(key);
         let changed = match key {
             PhysicalKey::Code(KeyCode::Escape) => {
                 if !repeat {
@@ -93,6 +96,9 @@ impl PanelState {
         if self.report_view.is_none() {
             return false;
         }
+        if self.native.occluded && super::input::is_pointer_event(&event) {
+            return false;
+        }
         match event {
             WindowEvent::Resized(size) => {
                 self.resize(size.width, size.height);
@@ -112,6 +118,9 @@ impl PanelState {
             WindowEvent::Focused(focused) => {
                 // Do not activate/clear an IME bridge while reading a report.
                 self.is_focused = focused;
+                if !focused {
+                    self.text_input.clear_shortcut_hold();
+                }
                 self.modifiers = Default::default();
                 self.report_close_key = None;
                 self.text_input.clear();
@@ -154,7 +163,7 @@ impl PanelState {
             WindowEvent::Touch(touch) => {
                 let view = self.report_view.as_mut().unwrap();
                 let point = [touch.location.x as f32, touch.location.y as f32];
-                let source = PointerSource::Touch(touch.id);
+                let source = PointerSource::Touch(touch.device_id, touch.id);
                 let close = match touch.phase {
                     TouchPhase::Started => {
                         view.press(point, source);

@@ -1,14 +1,24 @@
 //! Real report surfaces in the private Xvfb fixture, never the user's desktop.
-//! Keyboard identities exercise the report's press/release helper directly;
-//! pointer, IME and window routing traverse PanelApp's production handlers.
+//! Original keyboard identities exercise the report's press/release helper;
+//! the appended hold phases send real X11 keys to this fixture's own window.
+//! Pointer, IME and window routing traverse PanelApp's production handlers.
 use super::*;
 use crate::report_view::ReportSnapshot;
 use suzaku_map::ime::gpu::SettingsCategory;
 use winit::{
-    dpi::PhysicalSize,
+    dpi::{PhysicalPosition, PhysicalSize},
     event::{DeviceId, ElementState, Ime, MouseButton},
     keyboard::{KeyCode, PhysicalKey},
     platform::x11::EventLoopBuilderExtX11,
+    raw_window_handle::{HasWindowHandle, RawWindowHandle},
+};
+use x11rb::{
+    connection::Connection,
+    protocol::xproto::{
+        ConnectionExt, EventMask, InputFocus, KEY_PRESS_EVENT, KEY_RELEASE_EVENT, KeyButMask,
+        KeyPressEvent, MapState,
+    },
+    rust_connection::RustConnection,
 };
 
 #[test]
@@ -39,6 +49,8 @@ fn native_report_details_are_read_only_and_require_presented_gestures() {
     let mut probe = ReportProbe {
         proxy: events.create_proxy(),
         completed: false,
+        held: None,
+        initialized: false,
     };
     events.run_app(&mut probe).unwrap();
     assert!(probe.completed);
@@ -47,6 +59,22 @@ fn native_report_details_are_read_only_and_require_presented_gestures() {
 struct ReportProbe {
     proxy: EventLoopProxy<PanelUserEvent>,
     completed: bool,
+    held: Option<ReportHeldProbe>,
+    initialized: bool,
+}
+
+struct ReportHeldProbe {
+    app: PanelApp,
+    connection: RustConnection,
+    window: WindowId,
+    started: Instant,
+    stage: usize,
+    case: usize,
+    keys: Vec<(PhysicalKey, ElementState, bool)>,
+    before: Option<EditingState>,
+    device: Option<DeviceId>,
+    received_keys: usize,
+    received_repeats: usize,
 }
 
 #[derive(Debug, PartialEq)]
@@ -522,8 +550,746 @@ fn assert_model_setup_entry(app: &mut PanelApp, events: &ActiveEventLoop) {
     settings.sync_text_input_state();
 }
 
+impl ReportHeldProbe {
+    fn new(mut app: PanelApp, events: &ActiveEventLoop) -> Self {
+        let started = Instant::now();
+        let panel = app.panel.as_mut().unwrap();
+        // The old synchronous checks are complete. Build an internally
+        // consistent settings fixture without showing/unfolding the main window.
+        panel.chrome.compact_mode = false;
+        panel.chrome.settings_open = true;
+        let chrome = panel.chrome.clone();
+        let window = Arc::new(
+            events
+                .create_window(settings_window_attributes(&chrome))
+                .unwrap(),
+        );
+        let mut settings = pollster::block_on(PanelState::new_settings(window, chrome)).unwrap();
+        settings.engine.configure_prediction(None);
+        finish_settings_window_creation(&settings.window, &panel.window, events);
+        let window = settings.window.id();
+        app.settings = Some(settings);
+        let (connection, _) = x11rb::connect(None).unwrap();
+        Self {
+            app,
+            connection,
+            window,
+            started,
+            stage: 0,
+            case: 0,
+            keys: Vec::new(),
+            before: None,
+            device: None,
+            received_keys: 0,
+            received_repeats: 0,
+        }
+    }
+
+    fn xid(&self) -> u32 {
+        match self
+            .app
+            .settings
+            .as_ref()
+            .unwrap()
+            .window
+            .window_handle()
+            .unwrap()
+            .as_raw()
+        {
+            RawWindowHandle::Xlib(handle) => handle.window as u32,
+            _ => panic!("private report hold fixture requires its own X11 window"),
+        }
+    }
+
+    fn viewable(&self) -> bool {
+        self.connection
+            .get_window_attributes(self.xid())
+            .unwrap()
+            .reply()
+            .unwrap()
+            .map_state
+            == MapState::VIEWABLE
+    }
+
+    fn focused(&self) -> bool {
+        self.connection
+            .get_input_focus()
+            .unwrap()
+            .reply()
+            .unwrap()
+            .focus
+            == self.xid()
+    }
+
+    fn send_transition(&self, keysym: u32, response_type: u8) {
+        let setup = self.connection.setup();
+        let mapping = self
+            .connection
+            .get_keyboard_mapping(setup.min_keycode, setup.max_keycode - setup.min_keycode + 1)
+            .unwrap()
+            .reply()
+            .unwrap();
+        let width = usize::from(mapping.keysyms_per_keycode);
+        let code = mapping
+            .keysyms
+            .chunks(width)
+            .position(|row| row[0] == keysym)
+            .expect("private Xvfb key map contains the requested key") as u8
+            + setup.min_keycode;
+        let window = self.xid();
+        let mask = if response_type == KEY_PRESS_EVENT {
+            EventMask::KEY_PRESS
+        } else {
+            EventMask::KEY_RELEASE
+        };
+        self.connection
+            .send_event(
+                false,
+                window,
+                mask,
+                KeyPressEvent {
+                    response_type,
+                    detail: code,
+                    sequence: 0,
+                    time: x11rb::CURRENT_TIME,
+                    root: setup.roots[0].root,
+                    event: window,
+                    child: 0,
+                    root_x: 0,
+                    root_y: 0,
+                    event_x: 0,
+                    event_y: 0,
+                    state: KeyButMask::default(),
+                    same_screen: true,
+                },
+            )
+            .unwrap()
+            .check()
+            .unwrap();
+        self.connection.flush().unwrap();
+    }
+
+    fn key(&self) -> PhysicalKey {
+        PhysicalKey::Code(if self.case == 0 {
+            KeyCode::Backspace
+        } else {
+            KeyCode::KeyA
+        })
+    }
+
+    fn keysym(&self) -> u32 {
+        if self.case == 0 {
+            0xff08
+        } else {
+            u32::from('a')
+        }
+    }
+
+    fn open_report(&mut self, events: &ActiveEventLoop) {
+        self.before = Some(EditingState::from(self.app.settings.as_ref().unwrap()));
+        let raw = (0..160)
+            .map(|line| format!("private held-key report line {line:04}\n"))
+            .collect::<String>();
+        self.app
+            .show_report_details(events, ReportSnapshot::InputMethodError(raw));
+        let settings = self.app.settings.as_mut().unwrap();
+        assert_eq!(settings.window.id(), self.window);
+        assert!(settings.report_return_to_settings);
+        present_report(settings);
+        assert!(settings.report_view.as_ref().unwrap().page_count() > 3);
+        assert_eq!(
+            EditingState::from(&*settings),
+            *self.before.as_ref().unwrap()
+        );
+    }
+
+    fn prepare_case(&mut self, events: &ActiveEventLoop) {
+        self.keys.clear();
+        let settings = self.app.settings.as_mut().unwrap();
+        assert!(settings.report_view.is_none());
+        settings.chrome.settings_search_query = "retained query".into();
+        settings.chrome.settings_search_focused = true;
+        settings.chrome.settings_keyboard_focus = Some(InteractionKind::SettingsSearchInput);
+        settings.chrome.settings_scroll_offset = 0.0;
+        settings.sync_text_input_state();
+        if self.case == 2 {
+            // A real rejected recording press owns A before the report exists.
+            settings
+                .chrome
+                .toggle_shortcut_recording(suzaku_map::ime::shortcuts::ShortcutAction::Previous);
+            settings.sync_text_input_state();
+        } else {
+            self.open_report(events);
+        }
+        self.send_transition(self.keysym(), KEY_PRESS_EVENT);
+        self.stage = 2;
+    }
+
+    fn close_presented_report(&mut self, events: &ActiveEventLoop) {
+        let settings = self.app.settings.as_mut().unwrap();
+        present_report(settings);
+        let close = point(
+            settings
+                .report_view
+                .as_ref()
+                .unwrap()
+                .test_button_rect(None)
+                .unwrap(),
+        );
+        mouse(&mut self.app, events, close, ElementState::Pressed);
+        assert!(self.app.settings.as_ref().unwrap().report_view.is_some());
+        mouse(&mut self.app, events, close, ElementState::Released);
+        let settings = self.app.settings.as_ref().unwrap();
+        assert_eq!(settings.window.id(), self.window);
+        assert!(settings.report_view.is_none());
+        assert_eq!(EditingState::from(settings), *self.before.as_ref().unwrap());
+    }
+
+    fn assert_restored_query(&self) {
+        let settings = self.app.settings.as_ref().unwrap();
+        assert_eq!(settings.window.id(), self.window);
+        assert!(settings.report_view.is_none());
+        assert_eq!(EditingState::from(settings), *self.before.as_ref().unwrap());
+        assert!(settings.chrome.settings_search_focused);
+    }
+
+    fn fresh_edit(&mut self) {
+        self.send_transition(self.keysym(), KEY_PRESS_EVENT);
+        self.send_transition(self.keysym(), KEY_PRESS_EVENT);
+        self.send_transition(self.keysym(), KEY_RELEASE_EVENT);
+        self.stage = 6;
+    }
+
+    fn advance(&mut self, events: &ActiveEventLoop) -> bool {
+        assert!(
+            self.started.elapsed() < Duration::from_secs(20),
+            "report hold fixture stuck at case {} stage {} with {:?}",
+            self.case,
+            self.stage,
+            self.keys
+        );
+        events.set_control_flow(ControlFlow::WaitUntil(
+            Instant::now() + Duration::from_millis(15),
+        ));
+        match self.stage {
+            0 if self.viewable() => {
+                self.connection
+                    .set_input_focus(InputFocus::PARENT, self.xid(), x11rb::CURRENT_TIME)
+                    .unwrap()
+                    .check()
+                    .unwrap();
+                self.connection.flush().unwrap();
+                self.stage = 1;
+            }
+            1 if self.focused() && self.app.settings.as_ref().unwrap().is_focused => {
+                self.prepare_case(events)
+            }
+            2 if self.keys.len() == 1 => {
+                assert_eq!(self.keys[0], (self.key(), ElementState::Pressed, false));
+                assert!(self.focused());
+                if self.case == 2 {
+                    let settings = self.app.settings.as_mut().unwrap();
+                    assert!(settings.chrome.shortcut_recording.is_some());
+                    assert!(!settings.chrome.shortcut_recording_error.is_empty());
+                    assert_eq!(settings.chrome.settings_search_query, "retained query");
+                    settings.chrome.settings_search_focused = true;
+                    settings.chrome.settings_keyboard_focus =
+                        Some(InteractionKind::SettingsSearchInput);
+                    self.open_report(events);
+                    // Neither entering nor replacing details may release the
+                    // recording-owned key. No intervening repeat can re-own it.
+                    self.app.show_report_details(
+                        events,
+                        ReportSnapshot::InputMethodError("replacement report".repeat(80)),
+                    );
+                    present_report(self.app.settings.as_mut().unwrap());
+                }
+                if self.case == 3 {
+                    self.send_transition(self.keysym(), KEY_RELEASE_EVENT);
+                    self.stage = 3;
+                } else {
+                    self.close_presented_report(events);
+                    self.send_transition(self.keysym(), KEY_PRESS_EVENT);
+                    self.stage = 4;
+                }
+            }
+            3 if self.keys.len() == 2 => {
+                assert_eq!(self.keys[1], (self.key(), ElementState::Released, false));
+                self.close_presented_report(events);
+                self.fresh_edit();
+            }
+            4 if self.keys.len() == 2 => {
+                assert_eq!(
+                    self.keys[1],
+                    (self.key(), ElementState::Pressed, true),
+                    "post-close second press must be a real unreleased winit repeat"
+                );
+                self.assert_restored_query();
+                self.send_transition(self.keysym(), KEY_RELEASE_EVENT);
+                self.stage = 5;
+            }
+            5 if self.keys.len() == 3 => {
+                assert_eq!(self.keys[2], (self.key(), ElementState::Released, false));
+                self.assert_restored_query();
+                self.fresh_edit();
+            }
+            6 if self.keys.len() == if self.case == 3 { 5 } else { 6 } => {
+                let start = if self.case == 3 { 2 } else { 3 };
+                assert_eq!(self.keys[start], (self.key(), ElementState::Pressed, false));
+                assert_eq!(
+                    self.keys[start + 1],
+                    (self.key(), ElementState::Pressed, true)
+                );
+                assert_eq!(
+                    self.keys[start + 2],
+                    (self.key(), ElementState::Released, false)
+                );
+                let settings = self.app.settings.as_ref().unwrap();
+                let mut expected = self.before.as_ref().unwrap().search.clone();
+                if self.case == 0 {
+                    expected.pop();
+                    expected.pop();
+                } else {
+                    expected.push_str("aa");
+                }
+                assert_eq!(
+                    settings.chrome.settings_search_query, expected,
+                    "fresh ordinary editing and its repeat must remain enabled"
+                );
+                assert_eq!(
+                    settings.chrome.seed_text,
+                    self.before.as_ref().unwrap().seed
+                );
+                self.case += 1;
+                if self.case < 4 {
+                    self.prepare_case(events);
+                } else {
+                    self.keys.clear();
+                    self.open_report(events);
+                    self.send_transition(0xff56, KEY_PRESS_EVENT); // PageDown
+                    self.stage = 7;
+                }
+            }
+            7 if self.keys.len() == 1 => {
+                assert_eq!(
+                    self.keys[0],
+                    (
+                        PhysicalKey::Code(KeyCode::PageDown),
+                        ElementState::Pressed,
+                        false
+                    )
+                );
+                assert_eq!(
+                    self.app
+                        .settings
+                        .as_ref()
+                        .unwrap()
+                        .report_view
+                        .as_ref()
+                        .unwrap()
+                        .page_index(),
+                    1
+                );
+                self.send_transition(0xff56, KEY_PRESS_EVENT);
+                self.stage = 8;
+            }
+            8 if self.keys.len() == 2 => {
+                assert_eq!(
+                    self.keys[1],
+                    (
+                        PhysicalKey::Code(KeyCode::PageDown),
+                        ElementState::Pressed,
+                        true
+                    )
+                );
+                assert_eq!(
+                    self.app
+                        .settings
+                        .as_ref()
+                        .unwrap()
+                        .report_view
+                        .as_ref()
+                        .unwrap()
+                        .page_index(),
+                    2,
+                    "report paging repeat must not be consumed as an editor hold"
+                );
+                self.send_transition(0xff56, KEY_RELEASE_EVENT);
+                self.stage = 9;
+            }
+            9 if self.keys.len() == 3 => {
+                assert_eq!(
+                    self.keys[2],
+                    (
+                        PhysicalKey::Code(KeyCode::PageDown),
+                        ElementState::Released,
+                        false
+                    )
+                );
+                self.send_transition(0xff1b, KEY_PRESS_EVENT);
+                self.stage = 10;
+            }
+            10 if self.keys.len() == 4 => {
+                assert_eq!(
+                    self.keys[3],
+                    (
+                        PhysicalKey::Code(KeyCode::Escape),
+                        ElementState::Pressed,
+                        false
+                    )
+                );
+                assert!(self.app.settings.as_ref().unwrap().report_view.is_some());
+                self.send_transition(0xff1b, KEY_PRESS_EVENT);
+                self.stage = 11;
+            }
+            11 if self.keys.len() == 5 => {
+                assert_eq!(
+                    self.keys[4],
+                    (
+                        PhysicalKey::Code(KeyCode::Escape),
+                        ElementState::Pressed,
+                        true
+                    )
+                );
+                assert!(self.app.settings.as_ref().unwrap().report_view.is_some());
+                self.send_transition(0xff1b, KEY_RELEASE_EVENT);
+                self.stage = 12;
+            }
+            12 if self.keys.len() == 6 => {
+                assert_eq!(
+                    self.keys[5],
+                    (
+                        PhysicalKey::Code(KeyCode::Escape),
+                        ElementState::Released,
+                        false
+                    )
+                );
+                self.assert_restored_query();
+                assert_eq!(
+                    self.received_keys, 29,
+                    "all appended hold and paging vectors must receive their actual X11 key transitions"
+                );
+                assert_eq!(
+                    self.received_repeats, 9,
+                    "held and fresh editor repeats must be identified by winit, not fabricated KeyEvents"
+                );
+                assert_report_touch_device_boundaries(
+                    &mut self.app,
+                    events,
+                    self.device.expect("actual X11 keyboard device identity"),
+                );
+                assert!(
+                    self.started.elapsed() < Duration::from_secs(20),
+                    "report hold/touch phases must finish within their original new-phase deadline"
+                );
+                println!(
+                    "PASS: real X11 report holds stay read-only across presented mouse close until release; fresh editor repeats, recording ownership, in-report release, PageDown repeat and Escape release remain usable; controlled touch identities cannot cross devices"
+                );
+                return true;
+            }
+            _ => {}
+        }
+        false
+    }
+}
+
+fn assert_report_touch_device_boundaries(
+    app: &mut PanelApp,
+    events: &ActiveEventLoop,
+    actual: DeviceId,
+) {
+    use winit::event::{Touch, TouchPhase};
+    let other = DeviceId::dummy();
+    assert_ne!(
+        actual, other,
+        "controlled touch matrix needs two distinct legal opaque device identities, not fabricated IDs"
+    );
+    let window = app.settings.as_ref().unwrap().window.id();
+    app.show_report_details(
+        events,
+        ReportSnapshot::InputMethodError("controlled touch identity report line\n".repeat(160)),
+    );
+    present_report(app.settings.as_mut().unwrap());
+    let route = |app: &mut PanelApp, device_id, phase, id, at: (f32, f32)| {
+        app.window_event(
+            events,
+            window,
+            WindowEvent::Touch(Touch {
+                device_id,
+                phase,
+                location: PhysicalPosition::new(f64::from(at.0), f64::from(at.1)),
+                force: None,
+                id,
+            }),
+        );
+    };
+    let next = point(
+        app.settings
+            .as_ref()
+            .unwrap()
+            .report_view
+            .as_ref()
+            .unwrap()
+            .test_button_rect(Some(true))
+            .unwrap(),
+    );
+    route(app, actual, TouchPhase::Started, 77, next);
+    route(app, other, TouchPhase::Ended, 77, next);
+    assert_eq!(
+        app.settings
+            .as_ref()
+            .unwrap()
+            .report_view
+            .as_ref()
+            .unwrap()
+            .page_index(),
+        0,
+        "a different device must not finish the report Next gesture"
+    );
+    route(app, actual, TouchPhase::Ended, 77, next);
+    assert_eq!(
+        app.settings
+            .as_ref()
+            .unwrap()
+            .report_view
+            .as_ref()
+            .unwrap()
+            .page_index(),
+        0,
+        "a mismatched release must also cancel the old Next press"
+    );
+    route(app, actual, TouchPhase::Started, 78, next);
+    route(app, actual, TouchPhase::Ended, 78, next);
+    assert_eq!(
+        app.settings
+            .as_ref()
+            .unwrap()
+            .report_view
+            .as_ref()
+            .unwrap()
+            .page_index(),
+        1
+    );
+    present_report(app.settings.as_mut().unwrap());
+    let close = point(
+        app.settings
+            .as_ref()
+            .unwrap()
+            .report_view
+            .as_ref()
+            .unwrap()
+            .test_button_rect(None)
+            .unwrap(),
+    );
+    route(app, actual, TouchPhase::Started, 77, close);
+    route(app, other, TouchPhase::Ended, 77, close);
+    assert!(
+        app.settings.as_ref().unwrap().report_view.is_some(),
+        "a different device must not finish report Close"
+    );
+    route(app, actual, TouchPhase::Ended, 77, close);
+    assert!(
+        app.settings.as_ref().unwrap().report_view.is_some(),
+        "a mismatched release must also cancel the old Close press"
+    );
+    route(app, actual, TouchPhase::Started, 78, close);
+    route(app, actual, TouchPhase::Ended, 78, close);
+    assert_eq!(app.settings.as_ref().unwrap().window.id(), window);
+    assert!(app.settings.as_ref().unwrap().report_view.is_none());
+}
+
+fn assert_report_occlusion_boundaries(app: &mut PanelApp, events: &ActiveEventLoop) {
+    use winit::event::{MouseScrollDelta, Touch, TouchPhase};
+
+    assert!(
+        app.settings.is_none(),
+        "this fixture owns only a temporary report"
+    );
+    let native_auto_shown = app.native_auto_shown;
+    let config_before = [
+        suzaku_map::platform::settings_host::display_settings_path(),
+        std::path::PathBuf::from(std::env::var_os("SUZAKU_IME_CONFIG").unwrap()),
+    ]
+    .map(|path| {
+        let bytes = config_bytes(&path);
+        (path, bytes)
+    });
+    app.show_report_details(
+        events,
+        ReportSnapshot::InputMethodError(
+            "occlusion report immutable source line 日 {}\n".repeat(160),
+        ),
+    );
+    let window = app.settings.as_ref().unwrap().window.id();
+    // A controlled lifecycle callee, not a claim of hardware focus acceptance.
+    app.window_event(events, window, WindowEvent::Focused(true));
+    present_report(app.settings.as_mut().unwrap());
+    let settings = app.settings.as_ref().unwrap();
+    assert!(!settings.report_return_to_settings);
+    let before = EditingState::from(settings);
+    let source = settings
+        .report_view
+        .as_ref()
+        .unwrap()
+        .test_snapshot()
+        .clone();
+    assert!(settings.report_view.as_ref().unwrap().page_count() > 2);
+
+    let check = |app: &PanelApp, page: usize, phase: &str| {
+        let settings = app.settings.as_ref().expect(phase);
+        assert_eq!(settings.window.id(), window, "{phase}");
+        let view = settings.report_view.as_ref().expect(phase);
+        assert_eq!(view.page_index(), page, "{phase}");
+        assert_eq!(view.test_snapshot(), &source, "immutable source: {phase}");
+        assert_eq!(
+            EditingState::from(settings),
+            before,
+            "read-only state: {phase}"
+        );
+        assert_main_untouched(app);
+    };
+    let route = |app: &mut PanelApp, touch: bool, at: (f32, f32), state: ElementState| {
+        if touch {
+            app.window_event(
+                events,
+                window,
+                WindowEvent::Touch(Touch {
+                    device_id: DeviceId::dummy(),
+                    phase: if state == ElementState::Pressed {
+                        TouchPhase::Started
+                    } else {
+                        TouchPhase::Ended
+                    },
+                    location: PhysicalPosition::new(f64::from(at.0), f64::from(at.1)),
+                    force: None,
+                    id: 907,
+                }),
+            );
+        } else {
+            mouse(app, events, at, state);
+        }
+    };
+    let target = |app: &PanelApp, next: bool| {
+        point(
+            app.settings
+                .as_ref()
+                .unwrap()
+                .report_view
+                .as_ref()
+                .unwrap()
+                .test_button_rect(next.then_some(true))
+                .unwrap(),
+        )
+    };
+
+    // A valid press cannot survive a completely hidden interval, even when the
+    // same immutable report is successfully presented before its tail release.
+    for touch in [false, true] {
+        for next in [true, false] {
+            present_report(app.settings.as_mut().unwrap());
+            let at = target(app, next);
+            route(app, touch, at, ElementState::Pressed);
+            app.window_event(events, window, WindowEvent::Occluded(true));
+            app.window_event(events, window, WindowEvent::Occluded(false));
+            present_report(app.settings.as_mut().unwrap());
+            route(app, touch, at, ElementState::Released);
+            check(app, 0, "a pre-occlusion report press must not revive");
+        }
+    }
+
+    app.window_event(events, window, WindowEvent::Occluded(true));
+    for touch in [false, true] {
+        for next in [true, false] {
+            // Deliberately rebuild a genuine surface while hidden: invalidating
+            // old presses alone does not reject a new ghost press on this frame.
+            present_report(app.settings.as_mut().unwrap());
+            let at = target(app, next);
+            route(app, touch, at, ElementState::Pressed);
+            route(app, touch, at, ElementState::Released);
+            check(
+                app,
+                0,
+                "new mouse/touch report gestures while occluded are inert",
+            );
+        }
+    }
+    app.window_event(
+        events,
+        window,
+        WindowEvent::MouseWheel {
+            device_id: DeviceId::dummy(),
+            delta: MouseScrollDelta::LineDelta(0.0, -1.0),
+            phase: TouchPhase::Moved,
+        },
+    );
+    check(app, 0, "a report wheel while occluded must not page");
+
+    let next_at = target(app, true);
+    let close_at = target(app, false);
+    app.window_event(events, window, WindowEvent::Occluded(false));
+    assert!(
+        app.settings
+            .as_ref()
+            .unwrap()
+            .report_view
+            .as_ref()
+            .unwrap()
+            .test_button_rect(None)
+            .is_none(),
+        "returning visibility is not a successful report presentation"
+    );
+    for touch in [false, true] {
+        for at in [next_at, close_at] {
+            route(app, touch, at, ElementState::Pressed);
+            route(app, touch, at, ElementState::Released);
+            check(
+                app,
+                0,
+                "fresh report gestures must wait for the returned frame",
+            );
+        }
+    }
+
+    for (touch, expected_page) in [(false, 1), (true, 2)] {
+        present_report(app.settings.as_mut().unwrap());
+        let at = target(app, true);
+        route(app, touch, at, ElementState::Pressed);
+        route(app, touch, at, ElementState::Released);
+        check(
+            app,
+            expected_page,
+            "fresh presented report Next remains usable",
+        );
+    }
+    present_report(app.settings.as_mut().unwrap());
+    let at = target(app, false);
+    route(app, false, at, ElementState::Pressed);
+    check(app, 2, "fresh presented report Close waits for release");
+    route(app, false, at, ElementState::Released);
+    assert!(
+        app.settings.is_none(),
+        "fresh presented Close removes only this report"
+    );
+    assert_eq!(app.native_auto_shown, native_auto_shown);
+    assert_main_untouched(app);
+    for (path, bytes) in config_before {
+        assert_eq!(
+            config_bytes(&path),
+            bytes,
+            "reports must not persist settings: {path:?}"
+        );
+    }
+    println!(
+        "PASS: controlled report occlusion retires old gestures and rejects new mouse/touch/wheel actions despite hidden redraws; returned pointers wait for presentation, fresh Next/Close work, and source/settings/main remain unchanged"
+    );
+}
+
 impl ApplicationHandler<PanelUserEvent> for ReportProbe {
     fn resumed(&mut self, events: &ActiveEventLoop) {
+        if self.initialized {
+            return;
+        }
+        self.initialized = true;
         let window = Arc::new(events.create_window(panel_window_attributes()).unwrap());
         let mut panel = pollster::block_on(PanelState::new(window)).unwrap();
         panel.chrome.llm_enabled = false;
@@ -883,9 +1649,39 @@ impl ApplicationHandler<PanelUserEvent> for ReportProbe {
         println!(
             "PASS: actual report surfaces paginate only presented gestures, require Escape release, consume IME/editing identities read-only, preserve settings and never show/unfold the main panel"
         );
-        self.completed = true;
-        events.exit();
+        assert_report_occlusion_boundaries(&mut app, events);
+        self.held = Some(ReportHeldProbe::new(app, events));
     }
 
-    fn window_event(&mut self, _: &ActiveEventLoop, _: WindowId, _: WindowEvent) {}
+    fn window_event(&mut self, events: &ActiveEventLoop, window: WindowId, event: WindowEvent) {
+        let Some(held) = self.held.as_mut() else {
+            return;
+        };
+        if window != held.window {
+            return;
+        }
+        if let WindowEvent::KeyboardInput {
+            device_id,
+            event,
+            is_synthetic: false,
+            ..
+        } = &event
+        {
+            held.keys
+                .push((event.physical_key, event.state, event.repeat));
+            held.received_keys += 1;
+            held.received_repeats += usize::from(event.repeat);
+            held.device.get_or_insert(*device_id);
+        }
+        held.app.window_event(events, window, event);
+    }
+
+    fn about_to_wait(&mut self, events: &ActiveEventLoop) {
+        if let Some(held) = self.held.as_mut()
+            && held.advance(events)
+        {
+            self.completed = true;
+            events.exit();
+        }
+    }
 }

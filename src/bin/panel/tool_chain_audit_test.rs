@@ -12,7 +12,7 @@ use winit::{
     window::WindowId,
 };
 
-fn run_probe(check: fn(&mut PanelState) -> Vec<String>) {
+fn run_probe(check: fn(&mut PanelState, &ActiveEventLoop) -> Vec<String>) {
     assert_eq!(std::env::var("SUZAKU_PANEL_NATIVE_QA").as_deref(), Ok("1"));
     assert_eq!(
         std::env::var("SUZAKU_LINUX_VOICE_FORCE_READY").as_deref(),
@@ -42,7 +42,7 @@ fn run_probe(check: fn(&mut PanelState) -> Vec<String>) {
     builder.with_x11().with_any_thread(true);
     let events = builder.build().unwrap();
     struct Probe {
-        check: fn(&mut PanelState) -> Vec<String>,
+        check: fn(&mut PanelState, &ActiveEventLoop) -> Vec<String>,
         findings: Option<Vec<String>>,
     }
     impl ApplicationHandler for Probe {
@@ -56,7 +56,7 @@ fn run_probe(check: fn(&mut PanelState) -> Vec<String>) {
             );
             state.chrome.llm_enabled = false;
             state.engine.configure_prediction(None);
-            self.findings = Some((self.check)(&mut state));
+            self.findings = Some((self.check)(&mut state, events));
             state.stop_voice_capture();
             events.exit();
         }
@@ -112,7 +112,7 @@ fn reset(state: &mut PanelState) {
 #[ignore = "requires private Xvfb and SUZAKU_PANEL_NATIVE_QA=1; run by test-linux-ci.sh ui"]
 fn tool_adoption_gestures_must_not_cross_native_targets() {
     use suzaku_map::ime::gpu::InteractionKind;
-    run_probe(|state| {
+    run_probe(|state, events| {
         let mut findings = Vec::new();
         assert_handwriting_undo_retires_old_gestures(state);
         for mode in [InputMode::Dictation, InputMode::Handwriting] {
@@ -296,6 +296,8 @@ fn tool_adoption_gestures_must_not_cross_native_targets() {
                 }
             }
         }
+        assert_handwriting_touch_and_focus_boundaries(state, events);
+        assert_handwriting_owner_lifecycle_boundaries(state, events);
         findings
     });
 }
@@ -618,10 +620,102 @@ fn assert_voice_stop_and_mode_boundaries(state: &mut PanelState, findings: &mut 
     queue_voice_partial(c"");
 }
 
+fn assert_voice_ack_feedback_tracks_the_current_source(
+    state: &mut PanelState,
+    findings: &mut Vec<String>,
+) {
+    for case in ["unchanged source", "new sample", "same text recaptured"] {
+        reset(state);
+        state.receive_native_frame(Some(frame("alpha draft", 1, 10)));
+        let (sender, receiver) = mpsc::sync_channel(1);
+        state.native.sender = Some(sender);
+        start_voice_with_queued_latest(state, true);
+        state.insert_voice_transcript();
+        let request = receiver.try_recv().expect("A's explicit voice insertion");
+        let first_source = state.chrome.voice_transcript.clone();
+        let first_generation = state.voice_progress.generation();
+        assert_eq!(first_source, "hello world again");
+        assert_eq!(state.chrome.voice_state, VoiceCaptureState::Idle);
+        assert_eq!(state.chrome.active_input_mode, InputMode::Dictation);
+        assert_eq!(state.chrome.seed_text, "alpha draft");
+        assert!(receiver.try_recv().is_err());
+
+        if case == "unchanged source" {
+            state.native_action_finished(request.host, request.revision, Ok(true));
+            assert!(state.chrome.voice_transcript.is_empty());
+            assert_eq!(state.chrome.active_input_mode, InputMode::VirtualKeyboard);
+            assert!(!state.chrome.input_modes_expanded);
+            assert_eq!(
+                state.last_commit_feedback.as_deref(),
+                Some("Input added to the native composition.")
+            );
+            assert_eq!(state.commit_feedback_ticks, 40);
+        } else {
+            if case == "new sample" {
+                // Production KeyN callee; no direct source or generation mutation.
+                state.advance_voice_sample();
+                assert_ne!(state.chrome.voice_transcript, first_source);
+            } else {
+                // A new simulated capture can produce identical text. Its new
+                // generation must still distinguish it from the pending source.
+                state.start_voice_capture();
+                assert_eq!(state.chrome.voice_state, VoiceCaptureState::Listening);
+                queue_voice_partial(c"hello world again");
+                state.poll_voice_bridge_at(Instant::now());
+                assert_eq!(state.chrome.voice_transcript, first_source);
+            }
+            assert_ne!(state.voice_progress.generation(), first_generation);
+            state.insert_voice_transcript();
+            assert!(
+                receiver.try_recv().is_err(),
+                "B must wait for A's existing action: {case}"
+            );
+            assert_eq!(
+                state.last_commit_feedback.as_deref(),
+                Some(
+                    "Native input is busy or unavailable; source retained. Retry explicitly when ready."
+                )
+            );
+            let source = state.chrome.voice_transcript.clone();
+            let generation = state.voice_progress.generation();
+            let mode = state.chrome.active_input_mode;
+            let expanded = state.chrome.input_modes_expanded;
+            let feedback = state.last_commit_feedback.clone();
+            let ticks = state.commit_feedback_ticks;
+            assert_eq!(mode, InputMode::Dictation);
+            assert!(expanded);
+            assert_eq!(ticks, 120);
+
+            state.native_action_finished(request.host, request.revision, Ok(true));
+            assert_eq!(state.chrome.voice_transcript, source, "{case}");
+            assert_eq!(state.voice_progress.generation(), generation, "{case}");
+            assert_eq!(state.chrome.active_input_mode, mode, "{case}");
+            assert_eq!(state.chrome.input_modes_expanded, expanded, "{case}");
+            check_voice_boundary(
+                findings,
+                state.last_commit_feedback == feedback,
+                format!("voice {case}: A's old success must not replace B's busy refusal"),
+            );
+            check_voice_boundary(
+                findings,
+                state.commit_feedback_ticks == ticks,
+                format!("voice {case}: A's old success must not shorten B's refusal notice"),
+            );
+            assert_eq!(state.chrome.seed_text, "alpha draft");
+        }
+        assert!(
+            receiver.try_recv().is_err(),
+            "no ACK-triggered replay: {case}"
+        );
+        assert!(state.engine.snapshot().committed_text.is_empty());
+    }
+    queue_voice_partial(c"");
+}
+
 #[test]
 #[ignore = "requires private Xvfb and SUZAKU_PANEL_NATIVE_QA=1; run by test-linux-ci.sh ui"]
 fn audit_voice_auto_insert_must_not_follow_an_unrelated_native_context() {
-    run_probe(|state| {
+    run_probe(|state, _| {
         let mut findings = Vec::new();
         for case in [
             "unchanged target",
@@ -784,6 +878,7 @@ fn audit_voice_auto_insert_must_not_follow_an_unrelated_native_context() {
             }
         }
         assert_voice_stop_and_mode_boundaries(state, &mut findings);
+        assert_voice_ack_feedback_tracks_the_current_source(state, &mut findings);
         findings
     });
 }
@@ -791,7 +886,7 @@ fn audit_voice_auto_insert_must_not_follow_an_unrelated_native_context() {
 #[test]
 #[ignore = "requires private Xvfb and SUZAKU_PANEL_NATIVE_QA=1; run by test-linux-ci.sh ui"]
 fn audit_local_tool_insertion_must_use_the_caret_word_boundary() {
-    run_probe(|state| {
+    run_probe(|state, _| {
         let mut findings = Vec::new();
         for mode in [InputMode::Dictation, InputMode::Handwriting] {
             for (seed, caret, expected) in [
@@ -871,4 +966,402 @@ fn audit_local_tool_insertion_must_use_the_caret_word_boundary() {
         }
         findings
     });
+}
+
+fn dispatch_handwriting_touch(
+    state: &mut PanelState,
+    events: &ActiveEventLoop,
+    id: u64,
+    phase: winit::event::TouchPhase,
+    point: [f32; 2],
+) {
+    use winit::{dpi::PhysicalPosition, event::DeviceId};
+    assert!(crate::input::handle_panel_window_event(
+        state,
+        events,
+        WindowEvent::Touch(winit::event::Touch {
+            device_id: DeviceId::dummy(),
+            phase,
+            location: PhysicalPosition::new(f64::from(point[0]), f64::from(point[1])),
+            force: None,
+            id,
+        }),
+        false,
+    ));
+}
+
+fn prepare_handwriting_touch_canvas(state: &mut PanelState, events: &ActiveEventLoop) -> [f32; 4] {
+    use suzaku_map::ime::gpu::InteractionKind;
+    state.cancel_primary_interaction();
+    reset(state);
+    assert!(crate::input::handle_panel_window_event(
+        state,
+        events,
+        WindowEvent::Focused(true),
+        false,
+    ));
+    state.chrome.active_input_mode = InputMode::Handwriting;
+    state.chrome.input_modes_expanded = true;
+    state.chrome.blur_input();
+    state.chrome.set_seed_text("draft".into());
+    state.chrome.move_caret_to_end();
+    state.clear_handwriting();
+    state.refresh_seed();
+    // The initial private window may still have the shorter keyboard drawer's
+    // height. Request the real expanded content fit before presenting canvas
+    // coordinates; a measured or fabricated scene is not a pointer fixture.
+    state.fit_window_to_content();
+    let deadline = Instant::now() + Duration::from_secs(1);
+    let mut previous = None;
+    loop {
+        let actual = state.window.inner_size();
+        let fitted = state.fitted_size_for_width(actual.width);
+        if actual == fitted && previous == Some(actual) {
+            break;
+        }
+        assert!(
+            Instant::now() < deadline,
+            "private handwriting viewport did not settle"
+        );
+        previous = Some(actual);
+        std::thread::sleep(Duration::from_millis(2));
+        state.fit_window_to_content();
+    }
+    super::tests::present_test_frame(state);
+    let scene = state.last_scene.as_ref().unwrap();
+    let rect = scene
+        .interactive_targets
+        .iter()
+        .find(|target| target.kind == InteractionKind::HandwritingCanvas)
+        .expect("presented handwriting canvas")
+        .rect;
+    assert!(rect[2] > 80.0 && rect[3] > 30.0, "usable canvas: {rect:?}");
+    rect
+}
+
+fn assert_handwriting_recognition_matches_source(state: &PanelState) {
+    use suzaku_map::panel_support::{
+        recognize_handwriting_candidates, summarize_handwriting_strokes,
+    };
+    assert!(!state.chrome.handwriting_strokes.is_empty());
+    assert_eq!(
+        state.chrome.handwriting_candidates,
+        recognize_handwriting_candidates(&state.chrome.handwriting_strokes),
+        "visible recognition must describe the retained stroke source",
+    );
+    let summary = summarize_handwriting_strokes(&state.chrome.handwriting_strokes);
+    assert_eq!(
+        state.last_handwriting_summary.as_deref(),
+        Some(summary.as_str()),
+        "model hint must describe the same retained stroke source",
+    );
+}
+
+fn assert_handwriting_touch_and_focus_boundaries(state: &mut PanelState, events: &ActiveEventLoop) {
+    use winit::event::TouchPhase;
+
+    // These are controlled winit Touch events on a privately presented canvas,
+    // not physical-device or real window-manager scheduling acceptance.
+    for foreign_phase in [
+        None,
+        Some(TouchPhase::Moved),
+        Some(TouchPhase::Ended),
+        Some(TouchPhase::Cancelled),
+    ] {
+        let rect = prepare_handwriting_touch_canvas(state, events);
+        let point = |x: f32, y: f32| [rect[0] + rect[2] * x, rect[1] + rect[3] * y];
+        let (sender, receiver) = mpsc::sync_channel(1);
+        state.native.sender = Some(sender);
+        dispatch_handwriting_touch(state, events, 41, TouchPhase::Started, point(0.2, 0.3));
+        dispatch_handwriting_touch(state, events, 41, TouchPhase::Moved, point(0.5, 0.3));
+        assert!(state.interaction.handwriting_dragging);
+        assert_eq!(state.chrome.handwriting_strokes.len(), 1);
+        assert!(state.chrome.handwriting_strokes[0].len() > 1);
+        let source = state.chrome.handwriting_strokes.clone();
+        let generation = state.handwriting_generation;
+
+        if let Some(phase) = foreign_phase {
+            dispatch_handwriting_touch(state, events, 42, TouchPhase::Started, point(0.8, 0.7));
+            assert_eq!(
+                state.chrome.handwriting_strokes, source,
+                "a foreign Started must not split the owner's active stroke: {phase:?}",
+            );
+            assert!(state.interaction.handwriting_dragging);
+            dispatch_handwriting_touch(state, events, 42, phase, point(0.2, 0.7));
+            assert_eq!(
+                state.chrome.handwriting_strokes, source,
+                "a foreign touch must not add its coordinates: {phase:?}",
+            );
+            assert!(
+                state.interaction.handwriting_dragging,
+                "a foreign terminal event must not finish the owner's stroke: {phase:?}",
+            );
+            assert_eq!(state.handwriting_generation, generation);
+            if phase == TouchPhase::Moved {
+                dispatch_handwriting_touch(state, events, 42, TouchPhase::Ended, point(0.2, 0.7));
+                assert_eq!(state.chrome.handwriting_strokes, source);
+                assert!(state.interaction.handwriting_dragging);
+                assert_eq!(state.handwriting_generation, generation);
+            }
+        }
+
+        dispatch_handwriting_touch(state, events, 41, TouchPhase::Moved, point(0.8, 0.3));
+        assert_ne!(
+            state.chrome.handwriting_strokes, source,
+            "owner must continue drawing"
+        );
+        dispatch_handwriting_touch(state, events, 41, TouchPhase::Ended, point(0.8, 0.3));
+        assert!(!state.interaction.handwriting_dragging);
+        assert_eq!(state.chrome.handwriting_strokes.len(), 1);
+        assert_handwriting_recognition_matches_source(state);
+
+        // After the owner releases, the other identity may start a fresh stroke.
+        super::tests::present_test_frame(state);
+        dispatch_handwriting_touch(state, events, 42, TouchPhase::Started, point(0.2, 0.7));
+        assert!(state.interaction.handwriting_dragging);
+        assert_eq!(state.chrome.handwriting_strokes.len(), 2);
+        dispatch_handwriting_touch(state, events, 42, TouchPhase::Moved, point(0.8, 0.7));
+        dispatch_handwriting_touch(state, events, 42, TouchPhase::Ended, point(0.8, 0.7));
+        assert!(!state.interaction.handwriting_dragging);
+        assert_handwriting_recognition_matches_source(state);
+        assert_eq!(state.chrome.seed_text, "draft");
+        assert!(state.engine.snapshot().committed_text.is_empty());
+        assert!(
+            receiver.try_recv().is_err(),
+            "drawing must not insert: {foreign_phase:?}"
+        );
+    }
+
+    for focus_loss in [false, true] {
+        let rect = prepare_handwriting_touch_canvas(state, events);
+        let point = |x: f32, y: f32| [rect[0] + rect[2] * x, rect[1] + rect[3] * y];
+        let (sender, receiver) = mpsc::sync_channel(1);
+        state.native.sender = Some(sender);
+        dispatch_handwriting_touch(state, events, 51, TouchPhase::Started, point(0.2, 0.3));
+        dispatch_handwriting_touch(state, events, 51, TouchPhase::Moved, point(0.8, 0.3));
+        dispatch_handwriting_touch(state, events, 51, TouchPhase::Ended, point(0.8, 0.3));
+        assert_handwriting_recognition_matches_source(state);
+        super::tests::present_test_frame(state);
+        dispatch_handwriting_touch(state, events, 52, TouchPhase::Started, point(0.2, 0.7));
+        dispatch_handwriting_touch(state, events, 52, TouchPhase::Moved, point(0.8, 0.7));
+        assert!(state.interaction.handwriting_dragging);
+        assert_eq!(state.chrome.handwriting_strokes.len(), 2);
+        if focus_loss {
+            assert!(crate::input::handle_panel_window_event(
+                state,
+                events,
+                WindowEvent::Focused(false),
+                false,
+            ));
+        } else {
+            dispatch_handwriting_touch(state, events, 52, TouchPhase::Ended, point(0.8, 0.7));
+        }
+        assert!(!state.interaction.handwriting_dragging);
+        // Recognition must match whichever source the interruption retains;
+        // this does not prescribe retaining versus rolling back partial ink.
+        assert_handwriting_recognition_matches_source(state);
+        let source = state.chrome.handwriting_strokes.clone();
+        let candidates = state.chrome.handwriting_candidates.clone();
+        let summary = state.last_handwriting_summary.clone();
+        let generation = state.handwriting_generation;
+        dispatch_handwriting_touch(state, events, 52, TouchPhase::Ended, point(0.8, 0.7));
+        assert!(crate::input::handle_panel_window_event(
+            state,
+            events,
+            WindowEvent::Focused(true),
+            false,
+        ));
+        assert_eq!(state.chrome.handwriting_strokes, source);
+        assert_eq!(state.chrome.handwriting_candidates, candidates);
+        assert_eq!(state.last_handwriting_summary, summary);
+        assert_eq!(
+            state.handwriting_generation, generation,
+            "late release must not recognize twice"
+        );
+        assert_eq!(state.chrome.seed_text, "draft");
+        assert!(state.engine.snapshot().committed_text.is_empty());
+        assert!(
+            receiver.try_recv().is_err(),
+            "focus changes must not insert: {focus_loss}"
+        );
+        if focus_loss {
+            super::tests::present_test_frame(state);
+            dispatch_handwriting_touch(state, events, 53, TouchPhase::Started, point(0.2, 0.5));
+            assert!(state.interaction.handwriting_dragging);
+            assert_eq!(state.chrome.handwriting_strokes.len(), source.len() + 1);
+            dispatch_handwriting_touch(state, events, 53, TouchPhase::Moved, point(0.8, 0.5));
+            dispatch_handwriting_touch(state, events, 53, TouchPhase::Ended, point(0.8, 0.5));
+            assert!(!state.interaction.handwriting_dragging);
+            assert_handwriting_recognition_matches_source(state);
+            assert!(
+                receiver.try_recv().is_err(),
+                "a fresh post-focus stroke is not insertion"
+            );
+        }
+    }
+}
+
+fn present_restored_handwriting_canvas(state: &mut PanelState) -> [f32; 4] {
+    use suzaku_map::ime::gpu::InteractionKind;
+    state.fit_window_to_content();
+    let deadline = Instant::now() + Duration::from_secs(1);
+    let mut previous = None;
+    loop {
+        let actual = state.window.inner_size();
+        if actual == state.fitted_size_for_width(actual.width) && previous == Some(actual) {
+            break;
+        }
+        assert!(
+            Instant::now() < deadline,
+            "restored handwriting viewport did not settle"
+        );
+        previous = Some(actual);
+        std::thread::sleep(Duration::from_millis(2));
+        state.fit_window_to_content();
+    }
+    super::tests::present_test_frame(state);
+    state
+        .last_scene
+        .as_ref()
+        .unwrap()
+        .interactive_targets
+        .iter()
+        .find(|target| target.kind == InteractionKind::HandwritingCanvas)
+        .expect("restored presented handwriting canvas")
+        .rect
+}
+
+fn assert_handwriting_owner_lifecycle_boundaries(state: &mut PanelState, events: &ActiveEventLoop) {
+    use winit::{
+        dpi::PhysicalPosition,
+        event::{DeviceId, ElementState, MouseButton, TouchPhase},
+    };
+
+    for boundary in ["owner cancelled", "close requested", "fold and expand"] {
+        let rect = prepare_handwriting_touch_canvas(state, events);
+        state.close_requested = false;
+        let point = |x: f32, y: f32| [rect[0] + rect[2] * x, rect[1] + rect[3] * y];
+        let (sender, receiver) = mpsc::sync_channel(1);
+        state.native.sender = Some(sender);
+        dispatch_handwriting_touch(state, events, 61, TouchPhase::Started, point(0.2, 0.3));
+        dispatch_handwriting_touch(state, events, 61, TouchPhase::Moved, point(0.8, 0.3));
+        assert!(state.interaction.handwriting_dragging);
+        match boundary {
+            "owner cancelled" => {
+                dispatch_handwriting_touch(
+                    state,
+                    events,
+                    61,
+                    TouchPhase::Cancelled,
+                    point(0.8, 0.3),
+                );
+            }
+            "close requested" => {
+                assert!(crate::input::handle_panel_window_event(
+                    state,
+                    events,
+                    WindowEvent::CloseRequested,
+                    true,
+                ));
+                assert!(state.close_requested);
+            }
+            "fold and expand" => {
+                state.last_compact_toggle = None;
+                state.apply_compact_mode(true);
+                assert!(state.chrome.compact_mode);
+                state.last_compact_toggle = None;
+                state.apply_compact_mode(false);
+                assert!(!state.chrome.compact_mode);
+            }
+            _ => unreachable!(),
+        }
+        assert!(!state.interaction.handwriting_dragging, "{boundary}");
+        assert_handwriting_recognition_matches_source(state);
+        let source = state.chrome.handwriting_strokes.clone();
+        let candidates = state.chrome.handwriting_candidates.clone();
+        let summary = state.last_handwriting_summary.clone();
+        let generation = state.handwriting_generation;
+        dispatch_handwriting_touch(state, events, 61, TouchPhase::Moved, point(0.3, 0.7));
+        dispatch_handwriting_touch(state, events, 61, TouchPhase::Ended, point(0.3, 0.7));
+        assert_eq!(state.chrome.handwriting_strokes, source, "{boundary}");
+        assert_eq!(
+            state.chrome.handwriting_candidates, candidates,
+            "{boundary}"
+        );
+        assert_eq!(state.last_handwriting_summary, summary, "{boundary}");
+        assert_eq!(state.handwriting_generation, generation, "{boundary}");
+        assert!(!state.interaction.handwriting_dragging);
+        assert!(receiver.try_recv().is_err());
+
+        // CloseRequested is a PanelState cancellation/flag check only. The
+        // fixture clears that flag; it does not simulate PanelApp hide/reopen.
+        state.close_requested = false;
+        let rect = present_restored_handwriting_canvas(state);
+        let point = |x: f32, y: f32| [rect[0] + rect[2] * x, rect[1] + rect[3] * y];
+        dispatch_handwriting_touch(state, events, 62, TouchPhase::Started, point(0.2, 0.7));
+        assert!(
+            state.interaction.handwriting_dragging,
+            "new owner after {boundary}"
+        );
+        assert_eq!(state.chrome.handwriting_strokes.len(), source.len() + 1);
+        dispatch_handwriting_touch(state, events, 62, TouchPhase::Moved, point(0.8, 0.7));
+        dispatch_handwriting_touch(state, events, 62, TouchPhase::Ended, point(0.8, 0.7));
+        assert!(!state.interaction.handwriting_dragging);
+        assert_handwriting_recognition_matches_source(state);
+        assert_eq!(state.chrome.seed_text, "draft");
+        assert!(state.engine.snapshot().committed_text.is_empty());
+        assert!(
+            receiver.try_recv().is_err(),
+            "lifecycle changes must not insert: {boundary}"
+        );
+    }
+
+    let rect = prepare_handwriting_touch_canvas(state, events);
+    let point = |x: f32, y: f32| [rect[0] + rect[2] * x, rect[1] + rect[3] * y];
+    let (sender, receiver) = mpsc::sync_channel(1);
+    state.native.sender = Some(sender);
+    dispatch_handwriting_touch(state, events, 71, TouchPhase::Started, point(0.2, 0.3));
+    dispatch_handwriting_touch(state, events, 71, TouchPhase::Moved, point(0.5, 0.3));
+    let source = state.chrome.handwriting_strokes.clone();
+    let cursor = state.cursor_position;
+    let generation = state.handwriting_generation;
+    let foreign = point(0.8, 0.7);
+    for event in [
+        WindowEvent::CursorMoved {
+            device_id: DeviceId::dummy(),
+            position: PhysicalPosition::new(f64::from(foreign[0]), f64::from(foreign[1])),
+        },
+        WindowEvent::MouseInput {
+            device_id: DeviceId::dummy(),
+            state: ElementState::Pressed,
+            button: MouseButton::Left,
+        },
+        WindowEvent::MouseInput {
+            device_id: DeviceId::dummy(),
+            state: ElementState::Released,
+            button: MouseButton::Left,
+        },
+    ] {
+        assert!(crate::input::handle_panel_window_event(
+            state, events, event, false
+        ));
+        assert_eq!(state.chrome.handwriting_strokes, source);
+        assert_eq!(state.handwriting_generation, generation);
+        assert_eq!(state.cursor_position, cursor);
+        assert!(
+            state.interaction.handwriting_dragging,
+            "mouse must not own the touch stroke"
+        );
+    }
+    dispatch_handwriting_touch(state, events, 71, TouchPhase::Moved, point(0.8, 0.3));
+    assert_ne!(state.chrome.handwriting_strokes, source);
+    dispatch_handwriting_touch(state, events, 71, TouchPhase::Ended, point(0.8, 0.3));
+    assert!(!state.interaction.handwriting_dragging);
+    assert_handwriting_recognition_matches_source(state);
+    assert_eq!(state.chrome.seed_text, "draft");
+    assert!(state.engine.snapshot().committed_text.is_empty());
+    assert!(
+        receiver.try_recv().is_err(),
+        "mouse interleaving must not insert"
+    );
 }

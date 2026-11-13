@@ -44,6 +44,8 @@ fn native_keyboard_editing_and_focus_return() {
         preedit_shortcut_events: None,
         candidate_edit: None,
         candidate_edit_completed: false,
+        mode_boundary: None,
+        mode_boundary_completed: false,
     };
     event_loop.run_app(&mut probe).unwrap();
     assert_eq!(probe.step, 11);
@@ -64,6 +66,8 @@ struct KeyboardProbe {
     preedit_shortcut_events: Option<usize>,
     candidate_edit: Option<CandidateEditProbe>,
     candidate_edit_completed: bool,
+    mode_boundary: Option<ModeBoundaryProbe>,
+    mode_boundary_completed: bool,
 }
 
 struct CandidateEditProbe {
@@ -71,6 +75,83 @@ struct CandidateEditProbe {
     engine: XRTabletImeEngine,
     history: suzaku_map::panel_support::CompletionHistory,
     expected_events: usize,
+}
+
+struct ModeBoundaryProbe {
+    chrome: PanelChromeState,
+    engine: XRTabletImeEngine,
+    history: suzaku_map::panel_support::CompletionHistory,
+    runs_without_window_focus: bool,
+    start_key_events: usize,
+    command: usize,
+    events: Vec<(
+        winit::keyboard::PhysicalKey,
+        winit::event::ElementState,
+        bool,
+    )>,
+    compact_snapshot: Option<suzaku_map::ime::Snapshot>,
+    compact_history: Option<(u64, Vec<String>)>,
+}
+
+impl ModeBoundaryProbe {
+    fn keysym(&self) -> u32 {
+        if self.command == 0 {
+            u32::from('i')
+        } else {
+            u32::from('1')
+        }
+    }
+
+    fn key(&self) -> winit::keyboard::PhysicalKey {
+        use winit::keyboard::{KeyCode, PhysicalKey};
+        PhysicalKey::Code(if self.command == 0 {
+            KeyCode::KeyI
+        } else {
+            KeyCode::Digit1
+        })
+    }
+
+    fn assert_compact_draft(&self, state: &PanelState) {
+        assert!(state.chrome.compact_mode);
+        assert_eq!(state.chrome.seed_text, "hello");
+        assert_eq!(state.chrome.caret_index, 5);
+        assert_eq!(
+            &state.engine.snapshot(),
+            self.compact_snapshot.as_ref().unwrap()
+        );
+        assert_eq!(
+            (
+                state.completion_history.revision(),
+                state.completion_history.labels()
+            ),
+            *self.compact_history.as_ref().unwrap(),
+            "compact keyboard events must preserve adopted completion undo",
+        );
+    }
+}
+
+fn prepare_mode_command(state: &mut PanelState, command: usize) {
+    state.chrome.set_seed_text(if command == 0 {
+        String::new()
+    } else {
+        "abc".into()
+    });
+    state.chrome.move_caret_to_end();
+    state.chrome.active_input_mode = if command == 0 {
+        InputMode::Dictation
+    } else {
+        InputMode::Handwriting
+    };
+    state.chrome.input_modes_expanded = true;
+    state.chrome.voice_state = VoiceCaptureState::Idle;
+    state.chrome.voice_transcript = if command == 0 {
+        "hello".into()
+    } else {
+        String::new()
+    };
+    state.chrome.blur_input();
+    state.refresh_seed();
+    state.sync_text_input_state();
 }
 
 fn click_input(state: &mut PanelState) {
@@ -385,6 +466,54 @@ impl KeyboardProbe {
         }
         self.connection.flush().unwrap();
     }
+
+    fn send_transition(&self, keysym: u32, response_type: u8) {
+        let setup = self.connection.setup();
+        let mapping = self
+            .connection
+            .get_keyboard_mapping(setup.min_keycode, setup.max_keycode - setup.min_keycode + 1)
+            .unwrap()
+            .reply()
+            .unwrap();
+        let width = usize::from(mapping.keysyms_per_keycode);
+        let code = mapping
+            .keysyms
+            .chunks(width)
+            .position(|row| row[0] == keysym)
+            .expect("private Xvfb key map contains the requested key") as u8
+            + setup.min_keycode;
+        let panel = xid(&self.state.as_ref().unwrap().window);
+        let mask = if response_type == KEY_PRESS_EVENT {
+            EventMask::KEY_PRESS
+        } else {
+            EventMask::KEY_RELEASE
+        };
+        self.connection
+            .send_event(
+                false,
+                panel,
+                mask,
+                KeyPressEvent {
+                    response_type,
+                    detail: code,
+                    sequence: 0,
+                    time: x11rb::CURRENT_TIME,
+                    root: setup.roots[0].root,
+                    event: panel,
+                    child: 0,
+                    root_x: 0,
+                    root_y: 0,
+                    event_x: 0,
+                    event_y: 0,
+                    state: KeyButMask::default(),
+                    same_screen: true,
+                },
+            )
+            .unwrap()
+            .check()
+            .unwrap();
+        self.connection.flush().unwrap();
+    }
 }
 
 impl ApplicationHandler for KeyboardProbe {
@@ -437,6 +566,17 @@ impl ApplicationHandler for KeyboardProbe {
         if matches!(&event, WindowEvent::KeyboardInput { event, .. } if event.state == winit::event::ElementState::Pressed)
         {
             self.key_events += 1;
+        }
+        if let Some(boundary) = self.mode_boundary.as_mut()
+            && let WindowEvent::KeyboardInput {
+                event,
+                is_synthetic: false,
+                ..
+            } = &event
+        {
+            boundary
+                .events
+                .push((event.physical_key, event.state, event.repeat));
         }
         handle_panel_window_event(state, event_loop, event, false);
         if let Some(before) = before {
@@ -709,6 +849,225 @@ impl ApplicationHandler for KeyboardProbe {
                     "PASS: real candidate-mode Space/Backspace preserve window focus, delete the explicit space and text, and leave an empty draft unchanged"
                 );
             }
+            10 if !self.state.as_ref().unwrap().chrome.settings_open
+                && !self.mode_boundary_completed =>
+            {
+                assert_eq!(self.focused(), panel);
+                let state = self.state.as_mut().unwrap();
+                assert!(state.is_focused);
+                assert!(!state.native.showing);
+                let mut fixture = XRTabletImeEngine::new(EngineConfig::default());
+                fixture.set_preferences_enabled(false);
+                self.mode_boundary = Some(ModeBoundaryProbe {
+                    chrome: state.chrome.clone(),
+                    engine: std::mem::replace(&mut state.engine, fixture),
+                    history: std::mem::take(&mut state.completion_history),
+                    runs_without_window_focus: state.runs_without_window_focus,
+                    start_key_events: self.key_events,
+                    command: 0,
+                    events: Vec::new(),
+                    compact_snapshot: None,
+                    compact_history: None,
+                });
+                prepare_mode_command(state, 0);
+                self.send_transition(u32::from('i'), KEY_PRESS_EVENT);
+                self.step = 17;
+            }
+            17 if self.mode_boundary.as_ref().unwrap().events.len() == 1 => {
+                use winit::event::ElementState;
+                let boundary = self.mode_boundary.as_ref().unwrap();
+                assert_eq!(
+                    boundary.events[0],
+                    (boundary.key(), ElementState::Pressed, false)
+                );
+                let state = self.state.as_ref().unwrap();
+                assert_eq!(self.focused(), panel);
+                assert!(state.chrome.input_focused);
+                assert_eq!(state.chrome.active_input_mode, InputMode::VirtualKeyboard);
+                let expected = if boundary.command == 0 {
+                    "hello"
+                } else {
+                    "abc"
+                };
+                assert_eq!(state.chrome.seed_text, expected);
+                assert_eq!(state.engine.snapshot().seed_text, expected);
+                self.send_transition(boundary.keysym(), KEY_PRESS_EVENT);
+                self.step = 18;
+            }
+            18 if self.mode_boundary.as_ref().unwrap().events.len() == 2 => {
+                use winit::event::ElementState;
+                let boundary = self.mode_boundary.as_ref().unwrap();
+                assert_eq!(
+                    boundary.events[1],
+                    (boundary.key(), ElementState::Pressed, true),
+                    "the second real X11 press must be observed by winit as an unreleased repeat",
+                );
+                let expected = if boundary.command == 0 {
+                    "hello"
+                } else {
+                    "abc"
+                };
+                let state = self.state.as_ref().unwrap();
+                assert_eq!(
+                    state.chrome.seed_text, expected,
+                    "a held tool command must not become text after changing mode"
+                );
+                assert_eq!(state.engine.snapshot().seed_text, expected);
+                self.send_transition(boundary.keysym(), KEY_RELEASE_EVENT);
+                self.step = 19;
+            }
+            19 if self.mode_boundary.as_ref().unwrap().events.len() == 3 => {
+                use winit::event::ElementState;
+                let boundary = self.mode_boundary.as_ref().unwrap();
+                assert_eq!(
+                    boundary.events[2],
+                    (boundary.key(), ElementState::Released, false)
+                );
+                // A distinct press after release is ordinary editing, and its
+                // own repeat remains ordinary editing too. Do not disable i/1.
+                self.send_transition(boundary.keysym(), KEY_PRESS_EVENT);
+                self.send_transition(boundary.keysym(), KEY_PRESS_EVENT);
+                self.send_transition(boundary.keysym(), KEY_RELEASE_EVENT);
+                self.step = 20;
+            }
+            20 if self.mode_boundary.as_ref().unwrap().events.len() == 6 => {
+                use winit::event::ElementState;
+                let boundary = self.mode_boundary.as_ref().unwrap();
+                assert_eq!(
+                    boundary.events[3],
+                    (boundary.key(), ElementState::Pressed, false)
+                );
+                assert_eq!(
+                    boundary.events[4],
+                    (boundary.key(), ElementState::Pressed, true)
+                );
+                assert_eq!(
+                    boundary.events[5],
+                    (boundary.key(), ElementState::Released, false)
+                );
+                let expected = if boundary.command == 0 {
+                    "helloii"
+                } else {
+                    "abc11"
+                };
+                let state = self.state.as_ref().unwrap();
+                assert_eq!(state.chrome.seed_text, expected);
+                assert_eq!(state.engine.snapshot().seed_text, expected);
+                if boundary.command == 0 {
+                    let boundary = self.mode_boundary.as_mut().unwrap();
+                    boundary.command = 1;
+                    boundary.events.clear();
+                    prepare_mode_command(self.state.as_mut().unwrap(), 1);
+                    self.send_transition(u32::from('1'), KEY_PRESS_EVENT);
+                    self.step = 17;
+                } else {
+                    self.mode_boundary.as_mut().unwrap().events.clear();
+                    let state = self.state.as_mut().unwrap();
+                    // Exercise the supported ordinary focusing-window path,
+                    // not the no-focus companion's borrowed focus lease.
+                    state.finish_text_editing();
+                    state.runs_without_window_focus = false;
+                    self.focus(panel);
+                    self.step = 21;
+                }
+            }
+            21 if self.state.as_ref().unwrap().is_focused && self.focused() == panel => {
+                let state = self.state.as_mut().unwrap();
+                state.chrome.set_seed_text("hel".into());
+                state.chrome.move_caret_to_end();
+                state.chrome.focus_input();
+                state.refresh_seed();
+                let completion = state
+                    .next_token_completions
+                    .iter()
+                    .position(|edit| edit.seed_after == "hello")
+                    .expect("local hello completion");
+                state.select_next_token(completion);
+                assert_eq!(state.chrome.seed_text, "hello");
+                assert!(!state.completion_history.labels().is_empty());
+                let boundary = self.mode_boundary.as_mut().unwrap();
+                boundary.compact_snapshot = Some(state.engine.snapshot());
+                boundary.compact_history = Some((
+                    state.completion_history.revision(),
+                    state.completion_history.labels(),
+                ));
+                state.last_compact_toggle = None;
+                state.apply_compact_mode(true);
+                state.sync_text_input_state();
+                boundary.assert_compact_draft(state);
+                assert!(!state.chrome.input_focused);
+                assert_eq!(
+                    self.focused(),
+                    panel,
+                    "compact fixture must retain actual focus on its own window"
+                );
+                self.send_keys(&[0xff08, u32::from(' ')]);
+                self.step = 22;
+            }
+            22 if self.mode_boundary.as_ref().unwrap().events.len() == 4 => {
+                assert_eq!(self.focused(), panel);
+                let state = self.state.as_mut().unwrap();
+                self.mode_boundary
+                    .as_ref()
+                    .unwrap()
+                    .assert_compact_draft(state);
+                // A later production Focused(true) notification must not turn
+                // the compact orb into an invisible text editor.
+                handle_panel_window_event(state, event_loop, WindowEvent::Focused(true), false);
+                assert!(!state.chrome.input_focused);
+                self.send_keys(&[u32::from('x')]);
+                self.step = 23;
+            }
+            23 if self.mode_boundary.as_ref().unwrap().events.len() == 6 => {
+                assert_eq!(self.focused(), panel);
+                self.mode_boundary
+                    .as_ref()
+                    .unwrap()
+                    .assert_compact_draft(self.state.as_ref().unwrap());
+                self.send_keys(&[0xffbe]); // F1 remains available from the orb.
+                self.step = 24;
+            }
+            24 if self.mode_boundary.as_ref().unwrap().events.len() == 8 => {
+                let state = self.state.as_ref().unwrap();
+                assert!(state.chrome.settings_open);
+                assert_eq!(
+                    state.chrome.settings_category,
+                    suzaku_map::ime::gpu::SettingsCategory::Shortcuts
+                );
+                self.mode_boundary
+                    .as_ref()
+                    .unwrap()
+                    .assert_compact_draft(state);
+                self.send_keys(&[0xff1b]);
+                self.step = 25;
+            }
+            25 if self.mode_boundary.as_ref().unwrap().events.len() == 10 => {
+                let state = self.state.as_mut().unwrap();
+                assert!(!state.chrome.settings_open);
+                self.mode_boundary
+                    .as_ref()
+                    .unwrap()
+                    .assert_compact_draft(state);
+                let original = self.mode_boundary.take().unwrap();
+                assert_eq!(
+                    self.key_events,
+                    original.start_key_events + 13,
+                    "all mode/compact checks must traverse real X11/winit pressed events"
+                );
+                state.last_compact_toggle = None;
+                state.apply_compact_mode(false);
+                state.chrome = original.chrome;
+                state.engine = original.engine;
+                state.completion_history = original.history;
+                state.runs_without_window_focus = original.runs_without_window_focus;
+                state.refresh_composition_candidates();
+                state.sync_text_input_state();
+                self.mode_boundary_completed = true;
+                self.step = 10;
+                println!(
+                    "PASS: real X11 I/1 command holds stay owned through mode changes until release, fresh editing repeats work, and a focused compact orb preserves hidden draft/engine/undo while F1 remains available"
+                );
+            }
             10 if !self.state.as_ref().unwrap().chrome.settings_open => {
                 assert_eq!(
                     self.state.as_ref().unwrap().chrome.seed_text,
@@ -749,12 +1108,20 @@ fn native_custom_shortcut_recording_owns_window_events() {
         started: Instant::now(),
         key_events: 0,
         completed: false,
+        settings_holds: None,
     };
     event_loop.run_app(&mut probe).unwrap();
     assert!(probe.completed);
     assert_eq!(
         probe.key_events, 6,
         "all six real winit key events must reach the dispatcher"
+    );
+    assert!(
+        probe
+            .settings_holds
+            .as_ref()
+            .is_some_and(|holds| holds.completed),
+        "the same-window settings command hold phases must complete"
     );
 }
 
@@ -766,9 +1133,337 @@ struct ShortcutRecordingProbe {
     started: Instant,
     key_events: usize,
     completed: bool,
+    settings_holds: Option<SettingsCommandHoldProbe>,
+}
+
+struct SettingsCommandHoldProbe {
+    window: WindowId,
+    chrome: PanelChromeState,
+    engine: suzaku_map::ime::Snapshot,
+    configs: Vec<(std::path::PathBuf, Option<Vec<u8>>)>,
+    case: usize,
+    stage: usize,
+    events: Vec<(
+        winit::keyboard::PhysicalKey,
+        winit::event::ElementState,
+        bool,
+        winit::keyboard::ModifiersState,
+    )>,
+    completed: bool,
+}
+
+fn settings_command_config_bytes(path: &std::path::Path) -> Option<Vec<u8>> {
+    match std::fs::read(path) {
+        Ok(bytes) => Some(bytes),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
+        Err(error) => panic!("cannot inspect private command-hold configuration: {error}"),
+    }
+}
+
+impl SettingsCommandHoldProbe {
+    fn new(state: &PanelState) -> Self {
+        let configs = [
+            suzaku_map::platform::settings_host::display_settings_path(),
+            std::path::PathBuf::from(std::env::var_os("SUZAKU_IME_CONFIG").unwrap()),
+        ]
+        .into_iter()
+        .map(|path| {
+            let bytes = settings_command_config_bytes(&path);
+            (path, bytes)
+        })
+        .collect();
+        Self {
+            window: state.window.id(),
+            chrome: state.chrome.clone(),
+            engine: state.engine.snapshot(),
+            configs,
+            case: 0,
+            stage: 0,
+            events: Vec::new(),
+            completed: false,
+        }
+    }
+
+    fn keysym(&self) -> u32 {
+        u32::from(if self.case == 0 { ',' } else { 'f' })
+    }
+
+    fn key(&self) -> winit::keyboard::PhysicalKey {
+        use winit::keyboard::{KeyCode, PhysicalKey};
+        PhysicalKey::Code(if self.case == 0 {
+            KeyCode::Comma
+        } else {
+            KeyCode::KeyF
+        })
+    }
+
+    fn assert_source(&self, state: &PanelState, query: &str) {
+        use crate::app_state::PersistedDisplaySettings;
+        assert_eq!(state.window.id(), self.window);
+        assert!(state.is_focused);
+        assert!(!state.runs_without_window_focus);
+        assert!(state.chrome.settings_open);
+        assert!(state.report_view.is_none());
+        assert!(state.chrome.shortcut_recording.is_none());
+        assert_eq!(
+            state.chrome.settings_search_query, query,
+            "command case {}",
+            self.case
+        );
+        assert_eq!(state.chrome.seed_text, self.chrome.seed_text);
+        assert_eq!(state.chrome.translation, self.chrome.translation);
+        assert_eq!(state.engine.snapshot(), self.engine);
+        assert_eq!(state.chrome.shortcut_profile, self.chrome.shortcut_profile);
+        assert_eq!(
+            state.chrome.shortcut_bindings,
+            self.chrome.shortcut_bindings
+        );
+        assert_eq!(
+            state.chrome.shortcut_edit_generation,
+            self.chrome.shortcut_edit_generation
+        );
+        assert_eq!(
+            PersistedDisplaySettings::from(&state.chrome),
+            PersistedDisplaySettings::from(&self.chrome)
+        );
+        for (path, bytes) in &self.configs {
+            assert_eq!(
+                settings_command_config_bytes(path),
+                *bytes,
+                "settings commands must not persist configuration: {path:?}"
+            );
+        }
+    }
+
+    fn assert_key(
+        &self,
+        index: usize,
+        key: winit::keyboard::PhysicalKey,
+        state: winit::event::ElementState,
+        repeat: bool,
+        modifiers: Option<winit::keyboard::ModifiersState>,
+    ) {
+        let event = &self.events[index];
+        assert_eq!(
+            (event.0, event.1, event.2),
+            (key, state, repeat),
+            "case {} event {index}",
+            self.case
+        );
+        if let Some(modifiers) = modifiers {
+            assert_eq!(
+                event.3, modifiers,
+                "case {} event {index} modifiers",
+                self.case
+            );
+        }
+    }
 }
 
 impl ShortcutRecordingProbe {
+    fn begin_settings_command_holds(&mut self) {
+        assert_eq!(
+            self.key_events, 6,
+            "finish the original recording matrix first"
+        );
+        self.settings_holds = Some(SettingsCommandHoldProbe::new(self.state.as_ref().unwrap()));
+        self.connection
+            .set_input_focus(
+                InputFocus::PARENT,
+                xid(&self.state.as_ref().unwrap().window),
+                x11rb::CURRENT_TIME,
+            )
+            .unwrap()
+            .check()
+            .unwrap();
+        self.connection.flush().unwrap();
+    }
+
+    fn settings_command_window_event(
+        &mut self,
+        event_loop: &ActiveEventLoop,
+        window: WindowId,
+        event: WindowEvent,
+    ) {
+        let state = self.state.as_mut().unwrap();
+        if window != state.window.id() {
+            return;
+        }
+        if let WindowEvent::KeyboardInput {
+            event,
+            is_synthetic,
+            ..
+        } = &event
+        {
+            assert!(
+                !is_synthetic,
+                "the new phases require actual X11/winit keys"
+            );
+            self.settings_holds.as_mut().unwrap().events.push((
+                event.physical_key,
+                event.state,
+                event.repeat,
+                state.modifiers,
+            ));
+        }
+        handle_panel_window_event(state, event_loop, event, false);
+    }
+
+    fn advance_settings_command_holds(&mut self) -> bool {
+        use winit::{
+            event::ElementState,
+            keyboard::{KeyCode, ModifiersState, PhysicalKey},
+        };
+        let focused = self
+            .connection
+            .get_input_focus()
+            .unwrap()
+            .reply()
+            .unwrap()
+            .focus;
+        let own = xid(&self.state.as_ref().unwrap().window);
+        let phase = self.settings_holds.as_ref().unwrap();
+        assert!(
+            phase.events.len() <= 8,
+            "unexpected extra command events: {:?}",
+            phase.events
+        );
+        match phase.stage {
+            0 if focused == own && self.state.as_ref().unwrap().is_focused => {
+                let state = self.state.as_mut().unwrap();
+                assert!(!state.runs_without_window_focus);
+                assert!(state.modifiers.is_empty());
+                state.chrome.settings_search_query = "Text".into();
+                state.chrome.settings_search_focused = false;
+                state.chrome.settings_keyboard_focus = Some(InteractionKind::SettingsSearchClear);
+                state.chrome.settings_scroll_offset = 0.0;
+                state.sync_text_input_state();
+                native_sync::present_test_frame(state);
+                assert!(
+                    state
+                        .last_scene
+                        .as_ref()
+                        .unwrap()
+                        .settings_focus_targets
+                        .iter()
+                        .any(|target| target.kind == InteractionKind::SettingsSearchClear)
+                );
+                self.settings_holds
+                    .as_ref()
+                    .unwrap()
+                    .assert_source(state, "Text");
+                self.send_transition(0xffe3, KeyButMask::default(), KEY_PRESS_EVENT);
+                self.settings_holds.as_mut().unwrap().stage = 1;
+            }
+            1 if phase.events.len() == 1 => {
+                phase.assert_key(
+                    0,
+                    PhysicalKey::Code(KeyCode::ControlLeft),
+                    ElementState::Pressed,
+                    false,
+                    None,
+                );
+                self.send_transition(phase.keysym(), KeyButMask::CONTROL, KEY_PRESS_EVENT);
+                self.settings_holds.as_mut().unwrap().stage = 2;
+            }
+            2 if phase.events.len() == 2 => {
+                phase.assert_key(
+                    1,
+                    phase.key(),
+                    ElementState::Pressed,
+                    false,
+                    Some(ModifiersState::CONTROL),
+                );
+                let state = self.state.as_ref().unwrap();
+                phase.assert_source(state, "Text");
+                if phase.case == 0 {
+                    assert!(!state.chrome.settings_search_focused);
+                    assert_eq!(
+                        state.chrome.settings_keyboard_focus, None,
+                        "Ctrl+, must traverse the actual settings command"
+                    );
+                } else {
+                    assert!(
+                        state.chrome.settings_search_focused,
+                        "Ctrl+F must focus search from an initially unfocused field"
+                    );
+                    assert_eq!(
+                        state.chrome.settings_keyboard_focus,
+                        Some(InteractionKind::SettingsSearchInput)
+                    );
+                }
+                self.send_transition(0xffe3, KeyButMask::CONTROL, KEY_RELEASE_EVENT);
+                self.send_transition(phase.keysym(), KeyButMask::default(), KEY_PRESS_EVENT);
+                self.settings_holds.as_mut().unwrap().stage = 3;
+            }
+            3 if phase.events.len() == 4 => {
+                phase.assert_key(
+                    2,
+                    PhysicalKey::Code(KeyCode::ControlLeft),
+                    ElementState::Released,
+                    false,
+                    None,
+                );
+                phase.assert_key(
+                    3,
+                    phase.key(),
+                    ElementState::Pressed,
+                    true,
+                    Some(ModifiersState::empty()),
+                );
+                phase.assert_source(self.state.as_ref().unwrap(), "Text");
+                self.send_transition(phase.keysym(), KeyButMask::default(), KEY_RELEASE_EVENT);
+                self.settings_holds.as_mut().unwrap().stage = 4;
+            }
+            4 if phase.events.len() == 5 => {
+                phase.assert_key(
+                    4,
+                    phase.key(),
+                    ElementState::Released,
+                    false,
+                    Some(ModifiersState::empty()),
+                );
+                phase.assert_source(self.state.as_ref().unwrap(), "Text");
+                self.send_transition(phase.keysym(), KeyButMask::default(), KEY_PRESS_EVENT);
+                self.send_transition(phase.keysym(), KeyButMask::default(), KEY_PRESS_EVENT);
+                self.send_transition(phase.keysym(), KeyButMask::default(), KEY_RELEASE_EVENT);
+                self.settings_holds.as_mut().unwrap().stage = 5;
+            }
+            5 if phase.events.len() == 8 => {
+                for (index, state, repeat) in [
+                    (5, ElementState::Pressed, false),
+                    (6, ElementState::Pressed, true),
+                    (7, ElementState::Released, false),
+                ] {
+                    phase.assert_key(
+                        index,
+                        phase.key(),
+                        state,
+                        repeat,
+                        Some(ModifiersState::empty()),
+                    );
+                }
+                let expected = if phase.case == 0 { "Text,," } else { "Textff" };
+                phase.assert_source(self.state.as_ref().unwrap(), expected);
+                assert!(self.state.as_ref().unwrap().chrome.settings_search_focused);
+                if phase.case == 0 {
+                    let phase = self.settings_holds.as_mut().unwrap();
+                    phase.case = 1;
+                    phase.stage = 0;
+                    phase.events.clear();
+                } else {
+                    self.settings_holds.as_mut().unwrap().completed = true;
+                    println!(
+                        "PASS: real X11 same-window Ctrl+, and Ctrl+F keep unreleased command keys out of search after Ctrl release; fresh plain presses and repeats still type, with source/preferences/configuration unchanged"
+                    );
+                    return true;
+                }
+            }
+            _ => {}
+        }
+        false
+    }
+
     fn viewable(&self, window: &Window) -> bool {
         self.connection
             .get_window_attributes(xid(window))
@@ -899,6 +1594,10 @@ impl ApplicationHandler for ShortcutRecordingProbe {
     }
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, window: WindowId, event: WindowEvent) {
+        if self.settings_holds.is_some() {
+            self.settings_command_window_event(event_loop, window, event);
+            return;
+        }
         let Some(state) = self.state.as_mut() else {
             return;
         };
@@ -923,6 +1622,12 @@ impl ApplicationHandler for ShortcutRecordingProbe {
         event_loop.set_control_flow(ControlFlow::WaitUntil(
             Instant::now() + Duration::from_millis(15),
         ));
+        if self.settings_holds.is_some() {
+            if self.advance_settings_command_holds() {
+                event_loop.exit();
+            }
+            return;
+        }
         match self.step {
             0 if self.viewable(&self.state.as_ref().unwrap().window) => {
                 self.connection
@@ -1027,6 +1732,10 @@ impl ApplicationHandler for ShortcutRecordingProbe {
                 println!(
                     "PASS: real X11/winit recording captures commands, holds a recorded key through modifier release/repeat, consumes Esc, and cancels on preedit/focus loss without text leakage"
                 );
+                if self.settings_holds.is_none() {
+                    self.begin_settings_command_holds();
+                    return;
+                }
                 event_loop.exit();
             }
             _ => {}

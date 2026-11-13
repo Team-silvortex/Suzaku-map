@@ -7,6 +7,7 @@ use suzaku_map::{
     ui::{UiLanguage, model_setup::ModelSetupGuide},
 };
 use unicode_width::UnicodeWidthChar;
+use winit::event::DeviceId;
 
 const DISPLAY_LIMIT: usize = 2 * 1024 * 1024;
 const MAX_COLUMNS: usize = 120;
@@ -116,7 +117,7 @@ fn cells(ch: char) -> usize {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum PointerSource {
     Mouse,
-    Touch(u64),
+    Touch(DeviceId, u64),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -1310,8 +1311,8 @@ mod tests {
             "failed presentation cannot authorize release"
         );
         report.presented();
-        assert!(report.press(close, PointerSource::Touch(7)));
-        assert!(!report.release(close, PointerSource::Touch(8)));
+        assert!(report.press(close, PointerSource::Touch(DeviceId::dummy(), 7)));
+        assert!(!report.release(close, PointerSource::Touch(DeviceId::dummy(), 8)));
         assert!(report.press(close, PointerSource::Mouse));
         report.invalidate();
         report.scene(&chrome, 520.0, 540.0);
@@ -1345,12 +1346,12 @@ mod tests {
         report.scene(&chrome, 420.0, 380.0);
         report.presented();
         let close = center(report.test_button_rect(None).unwrap());
-        assert!(report.press(close, PointerSource::Touch(1)));
+        assert!(report.press(close, PointerSource::Touch(DeviceId::dummy(), 1)));
         assert!(
-            !report.press(close, PointerSource::Touch(2)),
+            !report.press(close, PointerSource::Touch(DeviceId::dummy(), 2)),
             "a second source cancels rather than steals a gesture"
         );
-        assert!(!report.release(close, PointerSource::Touch(1)));
+        assert!(!report.release(close, PointerSource::Touch(DeviceId::dummy(), 1)));
     }
 
     #[test]

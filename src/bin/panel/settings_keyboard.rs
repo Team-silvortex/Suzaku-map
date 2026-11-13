@@ -3,6 +3,12 @@ use super::PanelState;
 use suzaku_map::ime::gpu::{InteractionKind, InteractiveTarget};
 use winit::keyboard::{Key, ModifiersState, NamedKey};
 
+pub(super) fn search_shortcut(key: &Key, modifiers: ModifiersState) -> bool {
+    matches!(key, Key::Character(text) if text.eq_ignore_ascii_case("f"))
+        && (modifiers == ModifiersState::CONTROL
+            || (cfg!(target_os = "macos") && modifiers == ModifiersState::SUPER))
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Navigation {
     Next,
@@ -138,10 +144,7 @@ impl PanelState {
         if self.text_input.composing() {
             return;
         }
-        if matches!(key, Key::Character(text) if text.eq_ignore_ascii_case("f"))
-            && (self.modifiers == ModifiersState::CONTROL
-                || (cfg!(target_os = "macos") && self.modifiers == ModifiersState::SUPER))
-        {
+        if search_shortcut(key, self.modifiers) {
             self.focus_settings_control(Some(InteractionKind::SettingsSearchInput));
             return;
         }

@@ -83,11 +83,13 @@ impl HandwritingSamplingParams {
         let smooth_alpha_min = read_handwriting_env_f32(
             "SUZAKU_HANDWRITING_SMOOTH_ALPHA_MIN",
             HANDWRITING_SMOOTH_ALPHA_MIN_DEFAULT,
-        );
+        )
+        .clamp(0.0, 1.0);
         let smooth_alpha_max = read_handwriting_env_f32(
             "SUZAKU_HANDWRITING_SMOOTH_ALPHA_MAX",
             HANDWRITING_SMOOTH_ALPHA_MAX_DEFAULT,
         )
+        .clamp(0.0, 1.0)
         .max(smooth_alpha_min);
         Self {
             edge_padding: read_handwriting_env_f32(
@@ -121,7 +123,7 @@ impl HandwritingSamplingParams {
             interpolation_step_max,
             min_distance_min: min_distance_min.max(0.01),
             min_distance_max,
-            smooth_alpha_min: smooth_alpha_min.clamp(0.0, 1.0),
+            smooth_alpha_min,
             smooth_alpha_max,
             sample_interval_touch_ms: read_handwriting_env_u64(
                 "SUZAKU_HANDWRITING_TOUCH_SAMPLE_MS",
@@ -179,16 +181,15 @@ fn read_handwriting_env_u64(key: &str, default_value: u64) -> u64 {
 
 fn clamp_handwriting_point(point: [f32; 2], rect: [f32; 4]) -> [f32; 2] {
     let params = handwriting_sampling_params();
-    [
-        point[0].clamp(
-            rect[0] + params.edge_padding,
-            rect[0] + rect[2] - params.edge_padding,
-        ),
-        point[1].clamp(
-            rect[1] + params.edge_padding,
-            rect[1] + rect[3] - params.edge_padding,
-        ),
-    ]
+    std::array::from_fn(|axis| {
+        // A pending resize can leave less than two paddings of canvas. Collapse
+        // only that axis to its centre rather than expanding outside the ink.
+        let padding = params.edge_padding.min(rect[axis + 2].max(0.0) * 0.5);
+        let lower = rect[axis] + padding;
+        // Even at half size, f32 subtraction can round below the same centre.
+        let upper = (rect[axis] + rect[axis + 2] - padding).max(lower);
+        point[axis].clamp(lower, upper)
+    })
 }
 
 fn handwriting_speed_profile(
@@ -476,5 +477,161 @@ impl PanelState {
         self.sync_manual_seed_base();
         self.refresh_seed();
         self.clear_handwriting();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::process::Command;
+
+    fn fresh_cases(test: &str, cases: &[(&str, &[(&str, &str)])]) {
+        let mut failures = Vec::new();
+        for (case, overrides) in cases {
+            // The sampling parameters are cached once. A fresh process gives
+            // each case a private environment without mutating parallel tests.
+            let output = Command::new(std::env::current_exe().unwrap())
+                .args([test, "--exact", "--nocapture", "--test-threads=1"])
+                .env_clear()
+                .env("LC_ALL", "C.UTF-8")
+                .env("SUZAKU_HANDWRITING_TEST_CASE", case)
+                .envs(overrides.iter().copied())
+                .output()
+                .expect("fresh handwriting sampling process");
+            let marker = format!("HANDWRITING_CASE_COMPLETE:{case}");
+            if !output.status.success()
+                || !String::from_utf8_lossy(&output.stdout)
+                    .lines()
+                    .any(|line| line.ends_with(&marker))
+            {
+                failures.push(format!(
+                    "{case}: {}\n{}\n{}",
+                    output.status,
+                    String::from_utf8_lossy(&output.stdout),
+                    String::from_utf8_lossy(&output.stderr),
+                ));
+            }
+        }
+        assert!(failures.is_empty(), "{}", failures.join("\n"));
+    }
+
+    #[test]
+    fn small_canvas_and_configured_padding_keep_points_inside() {
+        let Ok(case) = std::env::var("SUZAKU_HANDWRITING_TEST_CASE") else {
+            fresh_cases(
+                "handwriting::tests::small_canvas_and_configured_padding_keep_points_inside",
+                &[
+                    ("default", &[]),
+                    ("tiny", &[]),
+                    ("fractional", &[]),
+                    (
+                        "large_padding",
+                        &[("SUZAKU_HANDWRITING_EDGE_PADDING", "1000000")],
+                    ),
+                    (
+                        "max_padding",
+                        &[("SUZAKU_HANDWRITING_EDGE_PADDING", "3.4028235e38")],
+                    ),
+                    ("zero_padding", &[("SUZAKU_HANDWRITING_EDGE_PADDING", "0")]),
+                ],
+            );
+            return;
+        };
+        let rect = match case.as_str() {
+            "tiny" => [10.0, 20.0, 6.0, 2.0],
+            "fractional" => [1.1, 10.1, 1.0, 2.1],
+            _ => [10.0, 20.0, 100.0, 80.0],
+        };
+        for point in [[-1000.0, -1000.0], [1000.0, 1000.0], [11.0, 21.0]] {
+            let clamped = clamp_handwriting_point(point, rect);
+            for axis in 0..2 {
+                assert!(clamped[axis].is_finite());
+                assert!(clamped[axis] >= rect[axis]);
+                assert!(clamped[axis] <= rect[axis] + rect[axis + 2]);
+            }
+            match case.as_str() {
+                "tiny" => assert_eq!(clamped, [13.0, 21.0]),
+                "fractional" | "large_padding" | "max_padding" => {
+                    assert_eq!(clamped, [rect[0] + rect[2] * 0.5, rect[1] + rect[3] * 0.5],)
+                }
+                "zero_padding" => assert_eq!(
+                    clamped,
+                    [point[0].clamp(10.0, 110.0), point[1].clamp(20.0, 100.0)],
+                ),
+                "default" => assert_eq!(
+                    clamped,
+                    [point[0].clamp(14.0, 106.0), point[1].clamp(24.0, 96.0)],
+                ),
+                _ => panic!("unknown geometry case"),
+            }
+        }
+        println!("HANDWRITING_CASE_COMPLETE:{case}");
+    }
+
+    #[test]
+    fn smoothing_limits_stay_ordered_and_are_interpolation_weights() {
+        let Ok(case) = std::env::var("SUZAKU_HANDWRITING_TEST_CASE") else {
+            fresh_cases(
+                "handwriting::tests::smoothing_limits_stay_ordered_and_are_interpolation_weights",
+                &[
+                    ("default", &[]),
+                    (
+                        "negative",
+                        &[
+                            ("SUZAKU_HANDWRITING_SMOOTH_ALPHA_MIN", "-1"),
+                            ("SUZAKU_HANDWRITING_SMOOTH_ALPHA_MAX", "-0.5"),
+                        ],
+                    ),
+                    (
+                        "high",
+                        &[
+                            ("SUZAKU_HANDWRITING_SMOOTH_ALPHA_MIN", "2"),
+                            ("SUZAKU_HANDWRITING_SMOOTH_ALPHA_MAX", "3"),
+                            ("SUZAKU_HANDWRITING_SMOOTH_ALPHA", "1"),
+                            ("SUZAKU_HANDWRITING_TOUCH_SMOOTH_FACTOR", "3"),
+                        ],
+                    ),
+                    (
+                        "reversed",
+                        &[
+                            ("SUZAKU_HANDWRITING_SMOOTH_ALPHA_MIN", "0.8"),
+                            ("SUZAKU_HANDWRITING_SMOOTH_ALPHA_MAX", "0.2"),
+                        ],
+                    ),
+                ],
+            );
+            return;
+        };
+        for touch in [false, true] {
+            for (distance, previous) in [(0.0, 0.0), (16.0, 4.0), (1024.0, 1000.0)] {
+                let (minimum, step, alpha) = handwriting_speed_profile(distance, previous, touch);
+                assert!(minimum.is_finite() && minimum > 0.0);
+                assert!(step.is_finite() && step > 0.0);
+                assert!((0.0..=1.0).contains(&alpha), "{case}: alpha={alpha}");
+                match case.as_str() {
+                    "negative" => assert_eq!(alpha, 0.0),
+                    "high" => assert_eq!(alpha, 1.0),
+                    "reversed" => assert_eq!(alpha, 0.8),
+                    "default" => {
+                        let ratio = ((distance + previous * 0.65) * 0.5 / 16.0).clamp(0.55, 2.0);
+                        assert_eq!(
+                            minimum,
+                            (1.2 * if touch { 1.18 } else { 1.0 } / ratio).clamp(0.78, 2.0)
+                        );
+                        assert_eq!(
+                            step,
+                            (3.2 / ratio * if touch { 0.9 } else { 1.0 }).clamp(2.0, 6.8)
+                        );
+                        assert_eq!(
+                            alpha,
+                            (0.22 * ratio.sqrt() * if touch { 1.05 } else { 1.0 })
+                                .clamp(0.14, 0.34)
+                        );
+                    }
+                    _ => panic!("unknown smoothing case"),
+                }
+            }
+        }
+        println!("HANDWRITING_CASE_COMPLETE:{case}");
     }
 }
