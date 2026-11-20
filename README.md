@@ -7,7 +7,7 @@ optional language models, and a compact companion panel.
 
 ## Download
 
-[0.10.2 Linux Alpha](https://github.com/Team-silvortex/Suzaku-map/releases/tag/v0.10.2)
+[0.10.6 Linux Alpha](https://github.com/Team-silvortex/Suzaku-map/releases/tag/v0.10.6)
 provides `.deb`, binary `.tar.gz`, and matching SHA-256 files.
 The supported package baseline is **Ubuntu 24.04 amd64, glibc 2.39, IBus,
 X11 or GNOME/XWayland**. This is a prerelease, not latest stable;
@@ -16,9 +16,12 @@ other platforms and full native Wayland remain experimental.
 After downloading the matching files, check the checksum before installation:
 
 ```sh
-sha256sum -c suzaku_0.10.2_amd64.deb.sha256
-sudo apt install ./suzaku_0.10.2_amd64.deb
+sha256sum -c suzaku_0.10.6_amd64.deb.sha256
+sudo apt install ./suzaku_0.10.6_amd64.deb
 ```
+
+The previous [0.10.2 representative release](https://github.com/Team-silvortex/Suzaku-map/releases/tag/v0.10.2)
+remains available for rollback and historical reference; use its matching versioned packages and checksums.
 
 Installation does not activate the input method or start a personal service.
 Finish active composition and fully quit Suzaku before upgrading.

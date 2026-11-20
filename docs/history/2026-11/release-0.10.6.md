@@ -1,5 +1,9 @@
 # 0.10.6 验收与发布准备
 
+以下原文保留 2026-11-13 准备时的状态；准确源码于 2026-11-20 完成远端和包验收，
+并正式发布。后续事实见末尾[发布终局](#2026-11-20-发布终局)，四资产的准确 ID、
+长度和摘要集中在[本版发布回执](../../releases/0.10.6.md#publication-receipt-2026-11-20)。
+
 2026-11-13，按用户要求准备 **0.10.6 / build 56**，提交推送后，在准确提交的远端
 CI 与 accepted 安装包验收全部通过时发布 Linux 安装包。预定形态是 **Linux Alpha
 prerelease，非 latest stable**；目前尚未发布，不声明标签、Release 或资产已经存在。
@@ -115,3 +119,81 @@ choice 遮挡有效备选、无用行提前占满槽位，以及从未接受行�
 
 本轮受控 X11、IME/ACK 序列和有限 loopback 模型夹具，不是物理键盘、真实输入法
 后台、个人 IBus、真实 WM、真实模型质量、性能或跨平台运行验收。
+
+## 2026-11-20 发布终局
+
+本次继续完成同一次 0.10.6 发布，唯一验收源码为
+`3dc9dac752ddd3952b09d37c0c63a2e2ce703559`，epoch `1794577195`。
+没有用新的 main、旧版本或本机旧包替换验收来源。
+[CI 43435662135](https://github.com/Team-silvortex/Suzaku-map/actions/runs/43435662135)
+的八个必需门禁全部 success；重新读取的运行、各 job、仓库与提交身份保持一致。
+Linux 核心/原生输入、应用流程、干净安装包、secrets、format、Windows/macOS 两项
+desktop-check 及 Linux artifact 聚合均成功，未把 skipped、neutral 或本地结果当作通过。
+
+只下载该运行的 accepted artifact **14044898209**，名称为
+`suzaku-linux-X64-3dc9dac752ddd3952b09d37c0c63a2e2ce703559`。实际 ZIP 为
+**28336350 字节**，独立 SHA-256
+`bb49256d6c357621544009ff638cb5e5cf05eb4c68c69a193c55324c8032ca3d`
+与 API 一致；CRC 与恰好四文件的清单检查通过，未使用 staging。随后流式只读核验
+tar/deb 安全成员、全部外部/内部校验和、原始 manifest 一致、四程序和 share 资源配对，
+以及准确提交的文档、25 个离线包和 SDK。manifest 确认版本 0.10.6、干净源码、准确
+revision/epoch、`x86_64-unknown-linux-gnu`、`glibc 2.39`，不捆绑模型或用户数据。
+这一步不安装或执行包内程序；干净容器安装、升级与卸载由远端独立包门禁成功覆盖。
+
+### 草稿地址校验工具的首轮错判
+
+首轮草稿回读工具实际退出 **2**，原脚本和失败回执分别保留为
+`verify-release-before-draft-url.py`、`draft-readback-first-failure.json`。
+草稿页面地址的合法尾段为 `untagged-dcc9fcd508b5fe3f80d3`，四资产浏览器下载地址
+使用同一仓库和同一尾段。旧工具虽然接受该草稿页面，却错误地要求资产立即使用
+正式 `v0.10.6` 地址。API asset 地址、准确 ID、target、说明、摘要和长度原本均与锁定
+记录相符；这是临时发布校验工具的阶段假设错误，不是产品、包内容或 CI 失败，首轮
+也不能记为资产已验收。
+
+新增四项合成测试先在旧工具真实执行：同一合法草稿尾段的正例报错，异尾段、跨仓库
+及正式发布仍用 untagged 的三项负例保持拒绝。修正仅使 draft 接受固定 `v0.10.6`
+或当前已严格核验的同一草稿尾段，正式 published 阶段继续只接受 `v0.10.6`；没有
+放宽 API 身份、来源、正文、ID、摘要、实际字节、权限或读前后保真门禁。
+原 27 项测试及断言逐字保留，新增四项后完整 **31 项通过**。随后对同一草稿 metadata
+从头完成全部校验，再读取发布前最新草稿并完整通过；未拼接首轮局部结果，也未
+修改产品/CI 断言、重传或替换任何资产。
+
+### 正式发布与读回
+
+注释标签 `v0.10.6` 的对象为 `5ec3439227add0047531f5e73e76411734b694a8`，剥离为
+上述准确源码；发布前独立重新核对八门 CI、artifact 与注释 tag，未移动或覆盖标签。
+四资产先上传 draft，再按锁定 ID 重新下载，各自流式重算 SHA-256 和长度，并与已验收
+本地文件逐块比较。完整 draft 回读通过后，发布请求明确使用 `draft=false`、
+`prerelease=true`、`make_latest=false`。
+
+[Release 452577142](https://github.com/Team-silvortex/Suzaku-map/releases/tag/v0.10.6)
+于 **2026-11-20T11:01:57Z（Asia/Shanghai 19:01:57）**正式发布。最终完整 verifier
+实际退出 **0**，`publication-acceptance.json` 与 `published-readback.json` 确认
+`draft=false`、`prerelease=true`、准确目标和说明，四个正式版本下载地址、资产 ID、
+size、GitHub digest 与独立字节/SHA-256 均一致。四份资产明细见
+[发布回执](../../releases/0.10.6.md#publication-receipt-2026-11-20)，0.10.2 保留为回滚入口；
+没有借本次发布退役任何旧 Release。
+
+发布前后独立请求 latest stable 接口均实际返回 HTTP 404；这次 Alpha 未成为 latest stable。
+原始请求结果与真实退出码分别保存在 `latest-before.*` 和 `latest-after.*`，不把通用
+资产 verifier 的成功当作 latest 选择验证。
+
+本次新回执位于 `/tmp/suzaku-publish-0.10.6.KrHwmm/`，包括 `ci-accepted.json`、
+`zip-reception.json`、`package-acceptance.json`、`fresh-acceptance.json`、
+`draft-ready-acceptance.json`、`publication-acceptance.json`；这些临时路径也可能被清理。
+原 `/tmp/suzaku-release-0.10.6.3goQzh/` 已不存在，不能重新读取其旧 phase 日志、
+`audit.json` 或退出回执，也没有按旧哈希重新制造这些文件。前文 3193/332、UI24、
+设置4 和首轮 143 是已提交的当时记录，不是本次重新执行本地全量的结果；此次新
+证据为准确源码的远端 CI、accepted 包验收及上传/发布完整回读。首轮信号发送者
+仍未知，旧 NVIDIA Xid32 / 设备丢失并未因此修复，原实模、硬件、物理输入、个人
+IBus、实际 WM、原生 Wayland 和跨平台运行等范围限制全部保留。
+
+发布后的下载入口与回执另作仅文档跟进，不重新构建或替换已验收包，不更改标签或
+Release target；该文档提交不是新的二进制验收来源。不替换日常安装、不操作个人
+输入法服务和配置、不恢复已取消的定时任务。
+
+本次仅文档跟进另行实际通过 25 项文档、32 项张量和 15 项打包文档测试，各进程
+退出 0；161 份静态文档的临时 tar 布局投影逐字校验通过，342 条投影审计链接有效。
+精确九文件范围及新增四个交付引用独立机器校验通过；旧 215 项证据、79 格评分和
+限制、原准备正文与 578 来源摘要保持。这些是文档检查，不是重新执行 Rust、UI、
+安装或真实模型验收。

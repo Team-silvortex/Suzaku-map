@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "date": "2026-11-13",
-    "head": "b8f273574fdcf625fe03727109e623e7071b69a2",
+    "date": "2026-11-20",
+    "head": "3dc9dac752ddd3952b09d37c0c63a2e2ce703559",
     "dirty": true,
     "source_sha256": "296188b79f3aecf0dec14b2bbe3d1ab4d54289c9cdbe80dab355b0751bf7e96c",
-    "note": "0.10.6/build56版本准备，基线b8f273574fdcf625fe03727109e623e7071b69a2。汇总设置持键交接/关闭IME权限/被动预览滚动、GPU有界初始化诊断、模型空choice/有用性过滤顺序与text-kind同源修正。独立限资源任务完整332组3193过/0失败/39旧ignore/零筛除、UI24和设置4实际全过，727来源前后不变；首轮143中断部分结果不拼接，发送方仍未知。214旧证据与79评分限制保持；准确新提交远端CI与accepted包仍待验收。用户选择全部验收后发布LinuxAlpha/prerelease非latest，当前尚未发布且下载仍0.10.2，不恢复定时任务。词库/25包/SDK/依赖/协议v1/模型预算不变，NVIDIA设备丢失未修复，软件结果不代替硬件/实模/个人IBus/实际WM/跨平台运行；不修改个人安装服务配置。详情见docs/history/2026-11/release-0.10.6.md。"
+    "note": "2026-11-20追加0.10.6/build56正式交付证据：准确源码3dc9dac的CI八门、accepted artifact只读包验收、注释tag与四上传资产实际回读均通过，已发布LinuxAlpha prerelease非latest。仅文档跟进，215旧证据与79格评分/限制逐字保留；目录578来源摘要不变，不重跑或重建已丢失的旧本地日志，不扩称个人安装、硬件或实模验收，不恢复自动化。旧snapshot note仅作2026-11-13历史原文：0.10.6/build56版本准备，基线b8f273574fdcf625fe03727109e623e7071b69a2。汇总设置持键交接/关闭IME权限/被动预览滚动、GPU有界初始化诊断、模型空choice/有用性过滤顺序与text-kind同源修正。独立限资源任务完整332组3193过/0失败/39旧ignore/零筛除、UI24和设置4实际全过，727来源前后不变；首轮143中断部分结果不拼接，发送方仍未知。214旧证据与79评分限制保持；准确新提交远端CI与accepted包仍待验收。用户选择全部验收后发布LinuxAlpha/prerelease非latest，当前尚未发布且下载仍0.10.2，不恢复定时任务。词库/25包/SDK/依赖/协议v1/模型预算不变，NVIDIA设备丢失未修复，软件结果不代替硬件/实模/个人IBus/实际WM/跨平台运行；不修改个人安装服务配置。详情见docs/history/2026-11/release-0.10.6.md。"
   },
   "architectures": [
     {
@@ -4836,6 +4836,16 @@
       ],
       "scope": "2026-11-13版本0.10.6/build56独立完整本地源码和软件图形私有UI验收；不是准确推送提交远端CI/安装包或真实模型、个人桌面及硬件验收。",
       "note": "基线b8f273574fdcf625fe03727109e623e7071b69a2，汇总设置跨窗持键/释放交接、关闭IME权限、激活尾键、被动组合预览滚动与有界GPU诊断；模型空choice、有用性过滤前移和正文/kind首个实际接受行同源，旧限额/协议/预算不变。首轮终端任务143退出，仅178组2123过/0失败/30ignore、缺完整phase与marker，不计最终结果；无OOM记录且信号发送者仍未知，不从15m13推断超时。新独立一次性用户任务同源同约束从头实际exit0：332唯一组3193过/0失败/39旧ignore/零筛除含Doc-tests，另UI24/设置4唯一单项全过。实际llvmpipe CPU Vulkan阶段日志另审计，软件通过不抹旧NVIDIA Xid32失败。727广义来源前后不变，清单cb96ade860740bacd6e98849476e69270c593e1a6fb338d0e9fc375cedd5c5ec；578目录来源摘要296188b79f3aecf0dec14b2bbe3d1ab4d54289c9cdbe80dab355b0751bf7e96c。五metadata八值精确逆投影，升版前1101tracked其余1096逐字保持；补张量/目录后8旧文件变化其余1093保持。静态预检28命令/374项，最终静态与精确28文件范围另核；日志/tmp/suzaku-release-0.10.6.3goQzh/。保214旧证据/79评分限制，不改词库/25包/SDK/依赖；用户授权CI与accepted包全验后LinuxAlpha prerelease非latest，当前尚未发布下载仍0.10.2，不恢复定时任务。Clear取消/迟到Commit与独立报告返回持键边界未解决，不扩称物理输入/WM/实模/性能/跨平台运行；不修改个人安装服务配置。"
+    },
+    {
+      "id": "E-release-0.10.6-published",
+      "kind": "historical_run",
+      "paths": [
+        "docs/releases/0.10.6.md",
+        "docs/history/2026-11/release-0.10.6.md"
+      ],
+      "scope": "2026-11-20准确源码的远端八门CI、accepted安装包只读验收及四资产发布回读；非重新执行本地全套、个人安装、物理输入、真实模型、硬件或跨平台运行验收。",
+      "note": "0.10.6/build56，source3dc9dac752ddd3952b09d37c0c63a2e2ce703559、epoch1794577195；CI43435662135八必需job全部success。仅accepted artifact14044898209，实际ZIP SHA256bb49256d6c357621544009ff638cb5e5cf05eb4c68c69a193c55324c8032ca3d与API一致；四文件、安全成员/完整校验和、相同tar-deb manifest、四程序和共享资源、准确Git blobs的151文档/25包/SDK均通过，不执行包内程序，远端干净容器安装升级卸载另过。v0.10.6注释对象5ec3439227add0047531f5e73e76411734b694a8剥离为准确source。Release452577142于2026-11-20T11:01:57Z发布，draft=false/prerelease=true，明确make_latest=false且发布前后latest stable接口404；四上传资产按锁定ID重下载，独立流式SHA/size及逐块字节全等，正式metadata/URL/digest再验实际exit0。准确资产ID/长度/摘要集中于docs/releases/0.10.6.md发布回执，原始新证据/tmp/suzaku-publish-0.10.6.KrHwmm/。保留首轮draft URL工具exit2：旧工具错误要求草稿资产用正式tag地址，仅修draft与已严格核验页面同slug，published仍固定tag；旧27断言不变，加4合成先红后完整31过，同metadata完整重验并重读draft/published全过，无重传/覆盖资产，不改产品或CI门禁。旧/tmp/suzaku-release-0.10.6.3goQzh已不存在，不重建旧日志；原3193/332及UI24/设置4仅历史准备记录，143发送者仍未知，NVIDIA故障未修复。旧215evidence及79评分限制、578源码摘要、词库/25包/SDK/预算保持；文档跟进不是新包来源，不移动tag、不替换个人安装或服务配置、不恢复自动化；0.10.2回滚入口保留。"
     }
   ],
   "cells": [
@@ -6107,7 +6117,8 @@
       "evidence": [
         "E-package",
         "E-linux-delivery",
-        "E-release-0.10.2-published"
+        "E-release-0.10.2-published",
+        "E-release-0.10.6-published"
       ],
       "limit": "Ubuntu24.04 amd64；附SDK/11可选包；不带个人配置/模型，不是静态万能包。"
     },
@@ -6124,7 +6135,8 @@
       "evidence": [
         "E-package",
         "E-linux-delivery",
-        "E-release-0.10.2-published"
+        "E-release-0.10.2-published",
+        "E-release-0.10.6-published"
       ],
       "limit": "成对产物/逐文件/依赖/文档检查；SHA256仅完整性，不是来源签名。"
     },
@@ -6143,7 +6155,8 @@
         "E-install-old",
         "E-installed-input-tasks",
         "E-linux-delivery",
-        "E-release-0.10.2-published"
+        "E-release-0.10.2-published",
+        "E-release-0.10.6-published"
       ],
       "limit": "安装不自动注册激活；保留个人数据/自启偏好；干净0.8.6包已本机用户级重装，当前dirty测试补丁不是已发布交付。"
     },
@@ -6158,6 +6171,7 @@
         2
       ],
       "evidence": [
+        "E-release-0.10.6-published",
         "E-release-0.10.2-published",
         "E-release-0.10.2-prepared",
         "E-candidate-keyboard-presentation",
